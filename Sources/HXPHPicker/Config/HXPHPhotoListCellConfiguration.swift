@@ -28,7 +28,7 @@ public class HXPHPhotoListCellConfiguration: NSObject {
     /// 暗黑风格下背景颜色
     public var backgroundDarkColor: UIColor?
     
-    /// cell在不可选择状态是否显示遮罩
+    /// cell在不可选择状态下是否显示禁用遮罩
     public var showDisableMask: Bool = true
     
     /// 选择框顶部的间距

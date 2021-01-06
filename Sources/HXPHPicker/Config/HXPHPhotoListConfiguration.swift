@@ -51,6 +51,18 @@ public class HXPHPhotoListConfiguration: NSObject {
     /// 允许滑动选择
     public var allowSwipeToSelect: Bool = true
     
+    /// 滑动选择时允许自动向上/下滚动
+    public var swipeSelectAllowAutoScroll: Bool = true
+    
+    /// 自动向上/下滚动时的速率
+    public var swipeSelectScrollSpeed: CGFloat = 1.2
+    
+    /// 触发自动滚动的顶部区域的高度
+    public var autoSwipeTopAreaHeight: CGFloat = 100
+    
+    /// 触发自动滚动的底部区域的高度
+    public var autoSwipeBottomAreaHeight: CGFloat = 100
+    
     /// cell相关配置
     public lazy var cell: HXPHPhotoListCellConfiguration = {
         return HXPHPhotoListCellConfiguration.init()

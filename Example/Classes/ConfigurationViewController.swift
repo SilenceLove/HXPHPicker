@@ -35,6 +35,8 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var videoMaxDurationField: UITextField!
     @IBOutlet weak var photoMaxFileSizeField: UITextField!
     @IBOutlet weak var videoMaxFileSizeField: UITextField!
+    @IBOutlet weak var saveAlbumSwitch: UISwitch!
+    @IBOutlet weak var customAlbumNameField: UITextField!
     
     var config: HXPHConfiguration
     
@@ -63,6 +65,8 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         videoMaxDurationField.text = String(config.maximumSelectedVideoDuration)
         photoMaxFileSizeField.text = String(config.maximumSelectedPhotoFileSize)
         videoMaxFileSizeField.text = String(config.maximumSelectedVideoFileSize)
+        saveAlbumSwitch.isOn = config.photoList.saveSystemAlbum
+        customAlbumNameField.text = config.photoList.customAlbumName
         
         navigationItem.leftBarButtonItem = UIBarButtonItem.init(title: "取消", style: .done, target: self, action: #selector(didCancelButtonClick))
         navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "保存", style: .done, target: self, action: #selector(didSaveButtonClick))
@@ -98,6 +102,8 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         config.maximumSelectedVideoDuration = Int(videoMaxDurationField.text ?? "0") ?? 0
         config.maximumSelectedPhotoFileSize = Int(photoMaxFileSizeField.text ?? "0") ?? 0
         config.maximumSelectedVideoFileSize = Int(videoMaxFileSizeField.text ?? "0") ?? 0
+        config.photoList.saveSystemAlbum = saveAlbumSwitch.isOn
+        config.photoList.customAlbumName = customAlbumNameField.text
         
         delegate?.ConfigurationViewControllerDidSave(config)
         dismiss(animated: true, completion: nil)

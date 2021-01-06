@@ -82,7 +82,7 @@ public class HXPHPickerSelectBoxView: UIControl {
         var textHeight: CGFloat
         var textWidth: CGFloat
         if textSize.equalTo(CGSize.zero) {
-            textHeight = text.height(ofFont: font, maxWidth: width)
+            textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))
             textWidth = text.width(ofFont: font, maxHeight: textHeight)
         }else {
             textHeight = textSize.height

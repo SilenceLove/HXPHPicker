@@ -10,6 +10,7 @@ import UIKit
 
 // MARK: 照片列表相机Cell配置类
 public class HXPHPhotoListCameraCellConfiguration: NSObject {
+    
     /// 允许相机预览
     public var allowPreview: Bool = true
     

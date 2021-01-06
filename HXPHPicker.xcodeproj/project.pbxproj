@@ -159,9 +159,9 @@
 			isa = PBXGroup;
 			children = (
 				7B49EDB2259D67F800A3D91A /* BaseViewController.swift */,
-				7B49EDB3259D67F800A3D91A /* ConfigurationViewController.xib */,
-				7B49EDB4259D67F800A3D91A /* ConfigurationViewController.swift */,
 				7B49EDB5259D67F800A3D91A /* BaseViewController.xib */,
+				7B49EDB4259D67F800A3D91A /* ConfigurationViewController.swift */,
+				7B49EDB3259D67F800A3D91A /* ConfigurationViewController.xib */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -260,14 +260,14 @@
 				7B73D699259C88A90045DA42 /* HXPHAlbumTitleViewConfiguration.swift */,
 				7B73D69E259C88A90045DA42 /* HXPHAlbumListConfiguration.swift */,
 				7B73D698259C88A90045DA42 /* HXPHCameraConfiguration.swift */,
-				7B73D69D259C88A90045DA42 /* HXPHEmptyViewConfiguration.swift */,
-				7B73D69C259C88A90045DA42 /* HXPHNotAuthorizedConfiguration.swift */,
+				7B73D69B259C88A90045DA42 /* HXPHPhotoListConfiguration.swift */,
 				7B73D694259C88A90045DA42 /* HXPHPhotoListCameraCellConfiguration.swift */,
 				7B73D695259C88A90045DA42 /* HXPHPhotoListCellConfiguration.swift */,
-				7B73D69B259C88A90045DA42 /* HXPHPhotoListConfiguration.swift */,
 				7B73D697259C88A90045DA42 /* HXPHPickerBottomViewConfiguration.swift */,
 				7B73D69A259C88A90045DA42 /* HXPHPreviewViewConfiguration.swift */,
 				7B73D69F259C88A90045DA42 /* HXPHSelectBoxConfiguration.swift */,
+				7B73D69D259C88A90045DA42 /* HXPHEmptyViewConfiguration.swift */,
+				7B73D69C259C88A90045DA42 /* HXPHNotAuthorizedConfiguration.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";

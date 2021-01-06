@@ -332,6 +332,7 @@ public class HXPHTools: NSObject {
         config.photoList.bottomView.originalSelectBox.borderColor = .white
         config.photoList.bottomView.originalSelectBox.tickColor = .white
         config.photoList.bottomView.originalSelectBox.selectedBackgroundColor = "#07C160".color
+        config.photoList.bottomView.originalLoadingStyle = .white
         
         config.photoList.bottomView.finishButtonTitleColor = .white
         config.photoList.bottomView.finishButtonBackgroundColor = "#07C160".color

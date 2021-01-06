@@ -4,16 +4,16 @@
 
 - [x] UI 外观支持浅色/深色/自动/自定义
 - [x] 支持多选/混合内容选择
-- [x] 支持的媒体类型:
+- [x] 支持的媒体类型：
     - [x] Photo
     - [x] GIF
     - [x] Live Photo
     - [x] Video
 - [x] 支持本地资源
 - [x] 在线下载iCloud上的资源
-- [x] 两种相册展现方式（列表、弹窗）
+- [x] 两种相册展现方式（单独列表、弹窗）
 - [x] 支持手势返回
-- [x] 滑动选择
+- [x] 支持滑动选择
 
 ## <a id="要求"></a> 要求
 
@@ -27,13 +27,13 @@
 
 按需在你的 Info.plist 中添加以下键值:
 
-| Key | 模块 | 备注 |
-| ----- | ----  | ---- |
-| NSPhotoLibraryUsageDescription | Picker | 允许访问相册 |
-| NSPhotoLibraryAddUsageDescription | Picker | 允许保存图片至相册 |
-| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | Picker | 设置为 `YES` iOS 14+ 以禁用自动弹出添加更多照片的弹框(Picker 已适配 Limited 功能，可由用户主动触发，提升用户体验)|
-| NSCameraUsageDescription | Capture | 允许使用相机 |
-| NSMicrophoneUsageDescription | Capture | 允许使用麦克风 |
+| Key | 备注 |
+| ----- | ---- |
+| NSPhotoLibraryUsageDescription | 允许访问相册 |
+| NSPhotoLibraryAddUsageDescription | 允许保存图片至相册 |
+| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | 设置为 `YES` iOS 14+ 以禁用自动弹出添加更多照片的弹框(已适配 Limited 功能，可由用户主动触发，提升用户体验)|
+| NSCameraUsageDescription | 允许使用相机 |
+| NSMicrophoneUsageDescription | 允许使用麦克风 |
 
 ### 快速上手
 ```swift

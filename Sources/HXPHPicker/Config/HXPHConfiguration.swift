@@ -71,10 +71,12 @@ public class HXPHConfiguration: NSObject {
     /// 限制并且显示遮罩会导致界面滑动卡顿 
     public var maximumSelectedPhotoFileSize: Int = 0
     
-    /// 允许编辑照片
+    /// 允许编辑照片，只控制按钮是否被禁用
+    /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
     public var allowEditPhoto: Bool = true
     
-    /// 允许编辑视频
+    /// 允许编辑视频，只控制按钮是否被禁用
+    /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
     public var allowEditVideo: Bool = true
     
     /// 状态栏样式

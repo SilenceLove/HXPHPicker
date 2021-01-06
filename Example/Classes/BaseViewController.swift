@@ -393,9 +393,6 @@ extension BaseViewController: HXPHPickerControllerDelegate {
         }
         updateCollectionViewHeight()
     }
-    func pickerController(_ pickerController: HXPHPickerController, viewControllersWillAppear viewController: UIViewController) {
-        print(viewController)
-    }
     func pickerController(_ pickerController: HXPHPickerController, presentPreviewViewForIndexAt index: Int) -> UIView? {
         let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0))
         return cell

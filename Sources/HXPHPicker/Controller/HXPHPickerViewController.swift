@@ -127,6 +127,9 @@ public class HXPHPickerViewController: UIViewController {
         return bottomView
     }()
     var allowLoadPhotoLibrary: Bool = true
+    var swipeSelectAutoScrollTimer: DispatchSourceTimer?
+    var swipeSelectPanGR: UIPanGestureRecognizer?
+    var swipeSelectLastLocalPoint: CGPoint?
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -139,7 +142,8 @@ public class HXPHPickerViewController: UIViewController {
         configColor()
         fetchData()
         if config.allowSwipeToSelect {
-            view.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(panGestureRecognizer(panGR:))))
+            swipeSelectPanGR = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureRecognizer(panGR:)))
+            view.addGestureRecognizer(swipeSelectPanGR!)
         }
         guard #available(iOS 13.0, *) else {
             NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationChanged(notify:)), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)

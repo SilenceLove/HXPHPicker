@@ -300,7 +300,7 @@ open class HXPHPickerSelectableViewCell : HXPHPickerViewCell {
                 if config.selectBox.type == .number {
                     let text = selectedTitle
                     let font = UIFont.mediumPingFang(ofSize: config.selectBox.titleFontSize)
-                    let textHeight = text.height(ofFont: font, maxWidth: boxWidth)
+                    let textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))
                     var textWidth = text.width(ofFont: font, maxHeight: textHeight)
                     selectControl.textSize = CGSize(width: textWidth, height: textHeight)
                     textWidth += boxHeight * 0.5

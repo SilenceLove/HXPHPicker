@@ -830,6 +830,12 @@ extension HXPHPickerController {
         }
         return canSelect
     }
+    func selectArrayIsFull() -> Bool {
+        if selectedAssetArray.count >= config.maximumSelectedCount && config.maximumSelectedCount > 0 {
+            return true
+        }
+        return false
+    }
 }
 
 // MARK: Private function
