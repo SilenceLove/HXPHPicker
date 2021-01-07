@@ -1,4 +1,10 @@
-`HXPHPicker` 
+# HXPHPicker
+<p align="center">
+<a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%209.0%2B?color=cyan&icon=apple&label"></a>
+<a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
+<a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
+<a href="http://mit-license.org"><img src="http://img.shields.io/badge/license-MIT-333333.svg?logo=letterboxd&logoColor=ffffff"></a>
+</p>
 
 ## <a id="功能"></a> 功能
 
@@ -20,6 +26,26 @@
 - iOS 9.0+
 - Xcode 12.0+
 - Swift 5.3+
+
+## 安装
+
+### [Swift Package Manager](https://swift.org/package-manager/)
+
+⚠️ 需要 Xcode 12.0 及以上版本来支持资源文件/本地化文件的添加。
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.0"))
+]
+```
+
+### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
+
+将下面内容添加到 `Podfile`，并执行依赖更新。
+
+```ruby
+pod 'HXPHPicker'
+```
 
 ## 使用方法
 
@@ -93,3 +119,6 @@ extension ViewController: HXPHPickerControllerDelegate {
     }
 }
 ```
+## 版权协议
+
+HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文件](./LICENSE)。
