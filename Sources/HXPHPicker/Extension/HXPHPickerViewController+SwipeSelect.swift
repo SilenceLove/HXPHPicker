@@ -30,66 +30,57 @@ extension HXPHPickerViewController {
         case .changed:
             let lastIndexPath = collectionView.indexPathForItem(at: localPoint)
             if let lastIndex = lastIndexPath?.item, let lastIndexPath = lastIndexPath {
-                if let beganIndex = swipeSelectBeganIndexPath?.item, let swipeSelectState = swipeSelectState {
-                    if let swipeSelectLastIndex = swipeSelectLastIndexPath?.item {
-                        var firstItem: Int?
-                        var lastItem: Int?
-                        var filterBeganIndex = false
-                        if lastIndex < beganIndex {
-                            if swipeSelectLastIndex > beganIndex {
-                                firstItem = beganIndex
-                                lastItem = swipeSelectLastIndex
-                                filterBeganIndex = true
-                            }else {
-                                if swipeSelectLastIndex < lastIndex {
-                                    firstItem = swipeSelectLastIndex
-                                    lastItem = lastIndex
+                if let beganIndex = swipeSelectBeganIndexPath?.item, let swipeSelectState = swipeSelectState, let indexArray = swipeSelectedIndexArray {
+                    if swipeSelectState == .select {
+                        if let lastPhotoAsset = pickerController?.selectedAssetArray.last, let cellIndexPath = getIndexPath(for: lastPhotoAsset) {
+                            if lastIndex < beganIndex && cellIndexPath.item < lastIndex {
+                                for index in cellIndexPath.item...lastIndex {
+                                    if indexArray.contains(index) {
+                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                        swipeSelectedIndexArray?.remove(at: firstIndex)
+                                    }
                                 }
-                            }
-                        }else {
-                            if swipeSelectLastIndex < beganIndex {
-                                firstItem = swipeSelectLastIndex
-                                lastItem = beganIndex
-                                filterBeganIndex = true
+                            }else if lastIndex > beganIndex && cellIndexPath.item > lastIndex {
+                                for index in lastIndex...cellIndexPath.item {
+                                    if indexArray.contains(index) {
+                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                        swipeSelectedIndexArray?.remove(at: firstIndex)
+                                    }
+                                }
                             }else {
-                                if swipeSelectLastIndex > lastIndex {
-                                    firstItem = lastIndex
-                                    lastItem = swipeSelectLastIndex
-                                    filterBeganIndex = true
+                                for index in indexArray {
+                                    if lastIndex <= beganIndex && index > beganIndex {
+                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                        swipeSelectedIndexArray?.remove(at: firstIndex)
+                                    }else if lastIndex >= beganIndex && index < beganIndex {
+                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                        swipeSelectedIndexArray?.remove(at: firstIndex)
+                                    }
                                 }
                             }
                         }
-                        if let firstItem = firstItem, let lastItem = lastItem {
-                            for index in firstItem...lastItem {
-                                if !swipeSelectedIndexArray!.contains(index) {
-                                    continue
+                    }else {
+                        for index in indexArray {
+                            if lastIndex < beganIndex {
+                                if index < lastIndex || index > beganIndex {
+                                    updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                    let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                    swipeSelectedIndexArray?.remove(at: firstIndex)
                                 }
-                                if filterBeganIndex && index == beganIndex {
-                                    continue
+                            }else if lastIndex > beganIndex {
+                                if index > lastIndex || index < beganIndex {
+                                    updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                    let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                    swipeSelectedIndexArray?.remove(at: firstIndex)
                                 }
+                            }else {
                                 updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
                                 let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
                                 swipeSelectedIndexArray?.remove(at: firstIndex)
-                            }
-                            if let lastPhotoAsset = pickerController?.selectedAssetArray.last, let cell = getCell(for: lastPhotoAsset), let cellIndexPath = collectionView.indexPath(for: cell) {
-                                // 防止有错过的数据
-                                if lastIndex < beganIndex && cellIndexPath.item < firstItem {
-                                    for index in cellIndexPath.item...firstItem {
-                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                                        if let array = swipeSelectedIndexArray, array.contains(index) {
-                                            let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                                            swipeSelectedIndexArray?.remove(at: firstIndex)
-                                        }
-                                    }
-                                }else if lastIndex > beganIndex && cellIndexPath.item > lastItem {
-                                    for index in lastItem...cellIndexPath.item {
-                                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                                        if let array = swipeSelectedIndexArray, array.contains(index) {
-                                            let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                                            swipeSelectedIndexArray?.remove(at: firstIndex)
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
@@ -107,13 +98,6 @@ extension HXPHPickerViewController {
                         panGRChangedUpdateState(index: beganIndex, state: swipeSelectState)
                     }
                     updateCellSelectedTitle()
-                    if swipeSelectState == .select {
-                        if swipeSelectLastIndexPath?.item != lastIndex {
-                            swipeSelectLastIndexPath = lastIndexPath
-                        }
-                    }else {
-                        swipeSelectLastIndexPath = lastIndexPath
-                    }
                 }else {
                     if let cell = getCell(for: lastIndex) {
                         swipeSelectedIndexArray = []
@@ -125,26 +109,39 @@ extension HXPHPickerViewController {
                     }
                 }
             }else {
-                
-                if let beganIndex = swipeSelectBeganIndexPath?.item, let swipeSelectState = swipeSelectState, let swipeSelectLastIndex = swipeSelectLastIndexPath?.item {
-                    if let lastPhotoAsset = pickerController?.selectedAssetArray.last, let cell = getCell(for: lastPhotoAsset), let cellIndexPath = collectionView.indexPath(for: cell) {
-                        // 防止有错过的数据
-                        if swipeSelectLastIndex < beganIndex && cellIndexPath.item < swipeSelectLastIndex {
-                            for index in cellIndexPath.item...swipeSelectLastIndex {
+                if let beganIndex = swipeSelectBeganIndexPath?.item, let swipeSelectState = swipeSelectState, let indexArray = swipeSelectedIndexArray, let point = swipeSelectLastLocalPoint {
+                    let largeHeight = collectionView.contentSize.height > collectionView.height
+                    var exceedBottom: Bool
+                    let offsety = self.collectionView.contentOffset.y
+                    let maxOffsetY = collectionView.contentSize.height - collectionView.height + collectionView.contentInset.bottom - 1
+                    if offsety > maxOffsetY {
+                        exceedBottom = largeHeight ? point.y > collectionView.height - collectionView.contentInset.bottom - 1 - collectionViewLayout.itemSize.height : localPoint.y > collectionView.contentSize.height - 1 - collectionViewLayout.itemSize.height
+                    }else {
+                        exceedBottom = largeHeight ? false : localPoint.y > collectionView.contentSize.height - 1 - collectionViewLayout.itemSize.height
+                    }
+                    let inScope = point.x >= 0 && point.x <= collectionView.width
+                    if exceedBottom && inScope {
+                        for index in indexArray {
+                            if index < beganIndex {
                                 updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                                if let array = swipeSelectedIndexArray, array.contains(index) {
-                                    let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                                    swipeSelectedIndexArray?.remove(at: firstIndex)
-                                }
+                                let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                swipeSelectedIndexArray?.remove(at: firstIndex)
                             }
-                        }else if swipeSelectLastIndex > beganIndex && cellIndexPath.item > swipeSelectLastIndex {
-                            for index in swipeSelectLastIndex...cellIndexPath.item {
+                        }
+                        let endIndex = needOffset ? assets.count : assets.count - 1
+                        for index in beganIndex ... endIndex {
+                            panGRChangedUpdateState(index: index, state: swipeSelectState)
+                        }
+                    }else if localPoint.y < 0 && inScope {
+                        for index in indexArray {
+                            if index > beganIndex {
                                 updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                                if let array = swipeSelectedIndexArray, array.contains(index) {
-                                    let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                                    swipeSelectedIndexArray?.remove(at: firstIndex)
-                                }
+                                let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                swipeSelectedIndexArray?.remove(at: firstIndex)
                             }
+                        }
+                        for index in 0 ... beganIndex {
+                            panGRChangedUpdateState(index: index, state: swipeSelectState)
                         }
                     }
                 }
@@ -160,25 +157,25 @@ extension HXPHPickerViewController {
     func clearSwipeSelectData() {
         swipeSelectAutoScrollTimer?.cancel()
         swipeSelectAutoScrollTimer = nil
-        
-        swipeSelectLastIndexPath = nil
         swipeSelectBeganIndexPath = nil
         swipeSelectState = nil
         swipeSelectedIndexArray = nil
     }
     func panGRChangedUpdateState(index: Int, state: HXPHPickerViewControllerSwipeSelectState) {
-        if let photoAsset = getCell(for: index)?.photoAsset {
-            if swipeSelectState == .select {
-                if let array = swipeSelectedIndexArray, !photoAsset.isSelected && !array.contains(index) {
-                    swipeSelectedIndexArray?.append(index)
-                }
-            }else {
-                if let array = swipeSelectedIndexArray, photoAsset.isSelected && !array.contains(index) {
-                    swipeSelectedIndexArray?.append(index)
-                }
-            }
-            updateCellSelectedState(for: index, isSelected: state == .select)
+        if index >= assets.count && !needOffset {
+            return
         }
+        let photoAsset = getPhotoAsset(for: index)
+        if swipeSelectState == .select {
+            if let array = swipeSelectedIndexArray, !photoAsset.isSelected,  !array.contains(index) {
+                swipeSelectedIndexArray?.append(index)
+            }
+        }else {
+            if let array = swipeSelectedIndexArray, photoAsset.isSelected, !array.contains(index) {
+                swipeSelectedIndexArray?.append(index)
+            }
+        }
+        updateCellSelectedState(for: index, isSelected: state == .select)
     }
     func swipeSelectAutoScroll() {
         if !config.swipeSelectAllowAutoScroll {
@@ -197,7 +194,7 @@ extension HXPHPickerViewController {
         if let localPoint = swipeSelectLastLocalPoint {
             let topRect = CGRect(x: 0, y: 0, width: view.width, height: config.autoSwipeTopAreaHeight + collectionView.contentInset.top)
             let bottomRect = CGRect(x: 0, y: collectionView.height - collectionView.contentInset.bottom - config.autoSwipeBottomAreaHeight, width: view.width, height: config.autoSwipeBottomAreaHeight + collectionView.contentInset.bottom)
-            let margin: CGFloat = 120 * config.swipeSelectScrollSpeed
+            let margin: CGFloat = 140 * config.swipeSelectScrollSpeed
             var offsety: CGFloat
             if topRect.contains(localPoint) {
                 offsety = self.collectionView.contentOffset.y - margin
@@ -224,28 +221,36 @@ extension HXPHPickerViewController {
     }
     
     func updateCellSelectedState(for item: Int, isSelected: Bool) {
+        if item >= assets.count && !needOffset {
+            return
+        }
         var showHUD = false
-        if let cell = getCell(for: item), let pickerController = pickerController {
-            if cell.photoAsset!.isSelected != isSelected {
+        if let pickerController = pickerController {
+            let photoAsset = getPhotoAsset(for: item)
+            if photoAsset.isSelected != isSelected {
                 if isSelected {
-                    if pickerController.canSelectAsset(for: cell.photoAsset!, showHUD: false) {
-                        _ = pickerController.addedPhotoAsset(photoAsset: cell.photoAsset!)
-                        cell.updateSelectedState(isSelected: isSelected, animated: false)
+                    if pickerController.canSelectAsset(for: photoAsset, showHUD: false) {
+                        _ = pickerController.addedPhotoAsset(photoAsset: photoAsset)
+                        if let cell = getCell(for: item) {
+                            cell.updateSelectedState(isSelected: isSelected, animated: false)
+                        }
                     }else {
                         showHUD = true
                     }
                 }else {
-                    _ = pickerController.removePhotoAsset(photoAsset: cell.photoAsset!)
-                    cell.updateSelectedState(isSelected: isSelected, animated: false)
+                    _ = pickerController.removePhotoAsset(photoAsset: photoAsset)
+                    if let cell = getCell(for: item) {
+                        cell.updateSelectedState(isSelected: isSelected, animated: false)
+                    }
                 }
             }
             bottomView.updateFinishButtonTitle()
         }
         if pickerController!.selectArrayIsFull() && showHUD {
-            HXPHProgressHUD.showWarningHUD(addedTo: navigationController?.view, text: String.init(format: "已达到最大选择数".localized, arguments: [pickerController!.config.maximumSelectedPhotoCount]), animated: true, delay: 2)
             swipeSelectPanGR?.isEnabled = false
-            swipeSelectPanGR?.isEnabled = true
+            HXPHProgressHUD.showWarningHUD(addedTo: navigationController?.view, text: String.init(format: "已达到最大选择数".localized, arguments: [pickerController!.config.maximumSelectedPhotoCount]), animated: true, delay: 1.5)
             clearSwipeSelectData()
+            swipeSelectPanGR?.isEnabled = true
         }
     }
 }

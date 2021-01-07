@@ -13,7 +13,6 @@ public typealias statusHandler = (PHAuthorizationStatus) -> ()
 
 public class HXPHTools: NSObject {
     
-    
     /// 显示没有权限的弹窗
     /// - Parameters:
     ///   - viewController: 需要弹窗的viewController
@@ -51,16 +50,20 @@ public class HXPHTools: NSObject {
     
     
     /// 显示UIAlertController
-    public class func showAlert(viewController: UIViewController? , title: String? , message: String? , leftActionTitle: String ,  leftHandler: @escaping (UIAlertAction)->(), rightActionTitle: String , rightHandler: @escaping (UIAlertAction)->()) {
+    public class func showAlert(viewController: UIViewController? , title: String? , message: String? , leftActionTitle: String? ,  leftHandler: ((UIAlertAction) -> Void)?, rightActionTitle: String? , rightHandler: ((UIAlertAction) -> Void)?) {
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
-        let leftAction = UIAlertAction.init(title: leftActionTitle, style: UIAlertAction.Style.cancel, handler: leftHandler)
-        let rightAction = UIAlertAction.init(title: rightActionTitle, style: UIAlertAction.Style.default, handler: rightHandler)
-        alertController.addAction(leftAction)
-        alertController.addAction(rightAction)
+        if let leftActionTitle = leftActionTitle {
+            let leftAction = UIAlertAction.init(title: leftActionTitle, style: UIAlertAction.Style.cancel, handler: leftHandler)
+            alertController.addAction(leftAction)
+        }
+        if let rightActionTitle = rightActionTitle {
+            let rightAction = UIAlertAction.init(title: rightActionTitle, style: UIAlertAction.Style.default, handler: rightHandler)
+            alertController.addAction(rightAction)
+        }
         viewController?.present(alertController, animated: true, completion: nil)
     }
     
-    /// 转换视频时长为 00:00 格式的字符串
+    /// 转换视频时长为 mm:ss 格式的字符串
     public class func transformVideoDurationToString(duration: TimeInterval) -> String {
         let time = Int(round(Double(duration)))
         if time < 10 {

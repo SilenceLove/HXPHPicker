@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B2A0BE025A6EE2F00E949FD /* HXPHPicker.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */; };
 		7B49EDB6259D67F800A3D91A /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B49EDB2259D67F800A3D91A /* BaseViewController.swift */; };
 		7B49EDB7259D67F800A3D91A /* ConfigurationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7B49EDB3259D67F800A3D91A /* ConfigurationViewController.xib */; };
 		7B49EDB8259D67F800A3D91A /* ConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B49EDB4259D67F800A3D91A /* ConfigurationViewController.swift */; };
@@ -75,6 +76,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; };
 		7B49EDB2259D67F800A3D91A /* BaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		7B49EDB3259D67F800A3D91A /* ConfigurationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigurationViewController.xib; sourceTree = "<group>"; };
 		7B49EDB4259D67F800A3D91A /* ConfigurationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationViewController.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				7B49EDC3259DD87600A3D91A /* README.md */,
+				7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */,
 				7B73D67D259C88A90045DA42 /* HXPHPicker */,
 				7B73D62A259C76210045DA42 /* Example */,
 				7B73D629259C76210045DA42 /* Products */,
@@ -396,6 +399,7 @@
 				7B73D64F259C783D0045DA42 /* Assets.xcassets in Resources */,
 				7B73D6DD259C88A90045DA42 /* HXPHPicker.bundle in Resources */,
 				7B49EDB7259D67F800A3D91A /* ConfigurationViewController.xib in Resources */,
+				7B2A0BE025A6EE2F00E949FD /* HXPHPicker.podspec in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -611,6 +615,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -631,6 +636,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

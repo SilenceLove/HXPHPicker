@@ -35,7 +35,7 @@ open class HXPHAsset: NSObject {
         }
     }
 
-    /// 图片/视频大小
+    /// 图片/视频文件大小
     public var fileSize: Int {
         get {
             return getFileSize()
@@ -54,7 +54,7 @@ open class HXPHAsset: NSObject {
     /// 选中时的下标
     public var selectIndex: Int = 0
     
-    /// 当前资源的图片大小
+    /// 图片/视频尺寸大小
     public var imageSize: CGSize {
         get {
             return getImageSize()

@@ -26,7 +26,6 @@ public class HXPHPickerViewController: UIViewController {
     var assetCollection: HXPHAssetCollection!
     var assets: [HXPHAsset] = []
     var swipeSelectBeganIndexPath: IndexPath?
-    var swipeSelectLastIndexPath: IndexPath?
     var swipeSelectedIndexArray: [Int]?
     var swipeSelectState: HXPHPickerViewControllerSwipeSelectState?
     lazy var collectionViewLayout: UICollectionViewFlowLayout = {
@@ -141,7 +140,7 @@ public class HXPHPickerViewController: UIViewController {
         initView()
         configColor()
         fetchData()
-        if config.allowSwipeToSelect {
+        if config.allowSwipeToSelect && pickerController!.config.selectMode == .multiple {
             swipeSelectPanGR = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureRecognizer(panGR:)))
             view.addGestureRecognizer(swipeSelectPanGR!)
         }
@@ -431,25 +430,26 @@ extension HXPHPickerViewController {
         return cell
     }
     func getCell(for photoAsset: HXPHAsset) -> HXPHPickerBaseViewCell? {
+        if let item = getIndexPath(for: photoAsset)?.item {
+            return getCell(for: item)
+        }
+        return nil
+    }
+    func getIndexPath(for photoAsset: HXPHAsset) -> IndexPath? {
         if assets.isEmpty {
             return nil
         }
-        var item = assets.firstIndex(of: photoAsset)
-        if item == nil {
-            return nil
+        if var item = assets.firstIndex(of: photoAsset) {
+            if needOffset {
+                item += 1
+            }
+            return IndexPath(item: item, section: 0)
         }
-        if needOffset {
-            item! += 1
-        }
-        return getCell(for: item!)
+        return nil
     }
     func reloadCell(for photoAsset: HXPHAsset) {
-        var item = assets.firstIndex(of: photoAsset)
-        if item != nil {
-            if needOffset {
-                item! += 1
-            }
-            collectionView.reloadItems(at: [IndexPath.init(item: item!, section: 0)])
+        if let indexPath = getIndexPath(for: photoAsset) {
+            collectionView.reloadItems(at: [indexPath])
         }
     }
     func getPhotoAsset(for index: Int) -> HXPHAsset {

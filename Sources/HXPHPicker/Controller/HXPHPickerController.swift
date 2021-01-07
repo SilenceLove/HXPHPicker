@@ -180,7 +180,7 @@ open class HXPHPickerController: UINavigationController {
         reloadAlbumData()
     }
     
-    /// 刷新相册数据，只对单独控制器有效
+    /// 刷新相册数据，只对单独控制器展示的有效
     public func reloadAlbumData() {
         albumViewController()?.tableView.reloadData()
     }
@@ -721,6 +721,10 @@ extension HXPHPickerController {
             // 单选模式不可添加
             return false
         }
+        if selectedAssetArray.contains(photoAsset) {
+            photoAsset.isSelected = true
+            return true
+        }
         let canSelect = canSelectAsset(for: photoAsset, showHUD: true)
         if canSelect {
             pickerControllerDelegate?.pickerController?(self, willSelectAsset: photoAsset, atIndex: selectedAssetArray.count)
@@ -826,7 +830,7 @@ extension HXPHPickerController {
             }
         }
         if !canSelect && text != nil && showHUD {
-            HXPHProgressHUD.showWarningHUD(addedTo: view, text: text!, animated: true, delay: 2)
+            HXPHProgressHUD.showWarningHUD(addedTo: view, text: text!, animated: true, delay: 1.5)
         }
         return canSelect
     }
