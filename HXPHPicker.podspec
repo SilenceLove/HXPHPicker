@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker"
-    spec.version                = "1.0.0"
+    spec.version                = "1.0.1"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
@@ -11,10 +11,15 @@ Pod::Spec.new do |spec|
     spec.framework              = 'UIKit','Photos','PhotosUI'
     spec.requires_arc           = true
     
-    spec.default_subspec        = 'Core'
+    spec.default_subspec        = 'Core', 'Picker'
   
     spec.subspec 'Core' do |core|
-        core.source_files   = "Sources/HXPHPicker/**/*.swift"
+        core.source_files   = "Sources/HXPHPicker/Core/**/*.swift"
         core.resources      = "Sources/HXPHPicker/Resources/*.{bundle}"
+    end
+  
+    spec.subspec 'Picker' do |picker|
+        picker.source_files   = "Sources/HXPHPicker/Picker/**/*.swift"
+        picker.dependency 'HXPHPicker/Core'
     end
 end

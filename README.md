@@ -1,5 +1,5 @@
 # HXPHPicker
-<p align="center">
+<p align="left">
 <a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%209.0%2B?color=cyan&icon=apple&label"></a>
 <a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
 <a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
@@ -35,7 +35,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.1"))
 ]
 ```
 
@@ -69,7 +69,7 @@ class ViewController: UIViewController {
 
     func presentPickerController() {
         // 设置与微信主题一致的配置
-        let config = HXPHTools.getWXConfig()
+        let config = HXPHTools.getWXPickerConfig()
         let pickerController = HXPHPickerController.init(picker: config)
         pickerController.pickerControllerDelegate = self
         // 当前被选择的资源对应的 HXPHAsset 对象数组
@@ -119,6 +119,13 @@ extension ViewController: HXPHPickerControllerDelegate {
     }
 }
 ```
+
+## 更新日志
+
+| 版本 | 发布时间 | Xcode | Swift | iOS |
+| ---- | ----  | ---- | ---- | ---- |
+| [v1.0.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#101) | 2021-01-08 | 12.2 | 5.3 | 9.0+ |
+
 ## 版权协议
 
 HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文件](./LICENSE)。

@@ -39,7 +39,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     /// 相机拍摄的本地资源
     var localCameraAssetArray: [HXPHAsset] = []
     /// 相关配置
-    var config: HXPHConfiguration = HXPHTools.getWXConfig()
+    var config: HXPHPickerConfiguration = HXPHTools.getWXPickerConfig()
     
     weak var previewTitleLabel: UILabel?
     weak var currentPickerController: HXPHPickerController?
@@ -260,16 +260,19 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         if selectedAssets.isEmpty {
             return
         }
-//        config.previewView.bottomView.showSelectedView = false
-        // 预览时可以重新初始化一个config设置单独的颜色或其他配置
         // modalPresentationStyle = .custom 会使用框架自带的动画效果
-        let pickerController = HXPHPickerController.init(preview: config, currentIndex: indexPath.item, modalPresentationStyle: .custom)
+        // 预览时可以重新初始化一个config设置单独的颜色或其他配置
+        let previewConfig = HXPHTools.getWXPickerConfig()
+//        previewConfig.prefersStatusBarHidden = true
+//        previewConfig.previewView.bottomView.showSelectedView = false
+        let pickerController = HXPHPickerController.init(preview: previewConfig, currentIndex: indexPath.item, modalPresentationStyle: .custom)
         pickerController.selectedAssetArray = selectedAssets
         pickerController.pickerControllerDelegate = self
-        // 透明导航栏建议修改取消图片
+        // 透明导航栏建议修改取消图片,换张带阴影的图片
 //        config.previewView.cancelImageName = ""
 //        pickerController.navigationBar.setBackgroundImage(UIImage.image(for: UIColor.clear, havingSize: .zero), for: .default)
 //        pickerController.navigationBar.shadowImage = UIImage.image(for: UIColor.clear, havingSize: .zero)
+        
         let titleLabel = UILabel.init()
         titleLabel.size = CGSize(width: 100, height: 30)
         titleLabel.textColor = .white
@@ -410,6 +413,7 @@ extension BaseViewController: HXPHPickerControllerDelegate {
 class HXPHAlbumViewCustomCell: HXPHAlbumViewCell {
     override func layoutView() {
         super.layoutView()
+        // 测试修改 x
         photoCountLb.x += 100
     }
 }
@@ -432,7 +436,7 @@ class HXPHPickerMultiSelectViewCustomCell: HXPHPickerSelectableViewCell {
         imageView.image = UIImage.image(for: "hx_picker_add_img")
     }
     override func didSelectControlClick(control: HXPHPickerSelectBoxView) {
-        delegate?.cell?(didSelectControl: self, isSelected: control.isSelected)
+        delegate?.cell?(self, didSelectControl: control.isSelected)
         // 重写选择框事件，也可以将选择框隐藏。自己新加一个选择框，然后触发代理回调
     }
     override func updateSelectedState(isSelected: Bool, animated: Bool) {
@@ -475,7 +479,7 @@ class BaseViewCell: HXPHPickerViewCell {
         requestID = photoAsset?.requestThumbnailImage(targetWidth: width * UIScreen.main.scale, completion: { (image, photoAsset, info) in
             if photoAsset == weakSelf?.photoAsset && image != nil {
                 weakSelf?.imageView.image = image
-                if !HXPHAssetManager.assetDownloadIsDegraded(for: info) {
+                if !HXPHAssetManager.assetIsDegraded(for: info) {
                     weakSelf?.requestID = nil
                 }
             }
