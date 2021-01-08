@@ -14,12 +14,12 @@ Pod::Spec.new do |spec|
     spec.default_subspec        = 'Core', 'Picker'
   
     spec.subspec 'Core' do |core|
-        core.source_files   = "Sources/HXPHPicker/Core/**/*.swift"
+        core.source_files   = "Sources/HXPHPicker/Core/**/*.{swift}"
         core.resources      = "Sources/HXPHPicker/Resources/*.{bundle}"
     end
   
     spec.subspec 'Picker' do |picker|
-        picker.source_files   = "Sources/HXPHPicker/Picker/**/*.swift"
+        picker.source_files   = "Sources/HXPHPicker/Picker/**/*.{swift}"
         picker.dependency 'HXPHPicker/Core'
     end
 end
