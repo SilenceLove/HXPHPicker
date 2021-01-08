@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		7B2A0BE025A6EE2F00E949FD /* HXPHPicker.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */; };
 		7B2A0BE425A702D000E949FD /* Picker+PHAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */; };
-		7B2A0BE725A7043900E949FD /* Picker+PHAssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE625A7043900E949FD /* Picker+PHAssetCollection.swift */; };
+		7B2A0BE725A7043900E949FD /* Core +PHAssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE625A7043900E949FD /* Core +PHAssetCollection.swift */; };
 		7B2A0BEA25A705E900E949FD /* Core+Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */; };
 		7B2A0BF525A711BB00E949FD /* HXPHError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BF425A711BB00E949FD /* HXPHError.swift */; };
 		7B2A0BF925A7127F00E949FD /* HXPHPickerTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BF825A7127F00E949FD /* HXPHPickerTypes.swift */; };
@@ -97,7 +97,7 @@
 /* Begin PBXFileReference section */
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; };
 		7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PHAsset.swift"; sourceTree = "<group>"; };
-		7B2A0BE625A7043900E949FD /* Picker+PHAssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PHAssetCollection.swift"; sourceTree = "<group>"; };
+		7B2A0BE625A7043900E949FD /* Core +PHAssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core +PHAssetCollection.swift"; sourceTree = "<group>"; };
 		7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+Dictionary.swift"; sourceTree = "<group>"; };
 		7B2A0BF425A711BB00E949FD /* HXPHError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPHError.swift; sourceTree = "<group>"; };
 		7B2A0BF825A7127F00E949FD /* HXPHPickerTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPHPickerTypes.swift; sourceTree = "<group>"; };
@@ -198,6 +198,7 @@
 		7B2A0BF225A7116A00E949FD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				7B73D6A8259C88A90045DA42 /* HXPHPicker.swift */,
 				7B87B89625A8071F009327C4 /* Config */,
 				7B87B86B25A7EED8009327C4 /* View */,
 				7B2A0BF325A7118000E949FD /* Model */,
@@ -285,7 +286,6 @@
 		7B73D67D259C88A90045DA42 /* HXPHPicker */ = {
 			isa = PBXGroup;
 			children = (
-				7B73D6A8259C88A90045DA42 /* HXPHPicker.swift */,
 				7B2A0BF225A7116A00E949FD /* Core */,
 				7B87B87D25A7F181009327C4 /* Picker */,
 				7B73D6A0259C88A90045DA42 /* Resources */,
@@ -307,7 +307,6 @@
 			isa = PBXGroup;
 			children = (
 				7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */,
-				7B2A0BE625A7043900E949FD /* Picker+PHAssetCollection.swift */,
 				7B73D689259C88A90045DA42 /* Picker+UIViewController.swift */,
 			);
 			path = Extension;
@@ -423,6 +422,7 @@
 				7B73D683259C88A90045DA42 /* Core+UIImage.swift */,
 				7B73D686259C88A90045DA42 /* Core+UIView.swift */,
 				7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */,
+				7B2A0BE625A7043900E949FD /* Core +PHAssetCollection.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -565,7 +565,7 @@
 				7B73D62C259C76210045DA42 /* AppDelegate.swift in Sources */,
 				7B73D6DF259C88A90045DA42 /* HXPHPreviewViewController.swift in Sources */,
 				7B73D6E0259C88A90045DA42 /* HXPHPickerController.swift in Sources */,
-				7B2A0BE725A7043900E949FD /* Picker+PHAssetCollection.swift in Sources */,
+				7B2A0BE725A7043900E949FD /* Core +PHAssetCollection.swift in Sources */,
 				7B2A0C0C25A7189F00E949FD /* Picker+HXPHTools.swift in Sources */,
 				7B73D6CE259C88A90045DA42 /* HXPHManager+Language.swift in Sources */,
 				7B73D6F5259C88A90045DA42 /* HXPHAlbumTitleArrowView.swift in Sources */,
