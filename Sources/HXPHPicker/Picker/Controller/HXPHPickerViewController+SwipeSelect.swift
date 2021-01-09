@@ -18,10 +18,13 @@ extension HXPHPickerViewController {
         swipeSelectLastLocalPoint = panGR.location(in: view)
         switch panGR.state {
         case .began:
-            if let indexPath = collectionView.indexPathForItem(at: localPoint), let cell = getCell(for: indexPath.item) {
+            if let indexPath = collectionView.indexPathForItem(at: localPoint), let photoAsset = getCell(for: indexPath.item)?.photoAsset, let pickerController = pickerController {
+                if !pickerController.canSelectAsset(for: photoAsset, showHUD: false) && !photoAsset.isSelected {
+                    return
+                }
                 swipeSelectedIndexArray = []
                 swipeSelectBeganIndexPath = collectionView.indexPathForItem(at: localPoint)
-                swipeSelectState = cell.photoAsset!.isSelected ? .unselect : .select
+                swipeSelectState = photoAsset.isSelected ? .unselect : .select
                 updateCellSelectedState(for: indexPath.item, isSelected: swipeSelectState == .select)
                 swipeSelectedIndexArray?.append(indexPath.item)
                 swipeSelectAutoScroll()
@@ -99,10 +102,13 @@ extension HXPHPickerViewController {
                     }
                     updateCellSelectedTitle()
                 }else {
-                    if let cell = getCell(for: lastIndex) {
+                    if let photoAsset = getCell(for: lastIndex)?.photoAsset, let pickerController = pickerController {
+                        if !pickerController.canSelectAsset(for: photoAsset, showHUD: false) && !photoAsset.isSelected {
+                            return
+                        }
                         swipeSelectedIndexArray = []
                         swipeSelectBeganIndexPath = lastIndexPath
-                        swipeSelectState = cell.photoAsset!.isSelected ? .unselect : .select
+                        swipeSelectState = photoAsset.isSelected ? .unselect : .select
                         updateCellSelectedState(for: lastIndex, isSelected: swipeSelectState == .select)
                         swipeSelectedIndexArray?.append(lastIndex)
                         swipeSelectAutoScroll()

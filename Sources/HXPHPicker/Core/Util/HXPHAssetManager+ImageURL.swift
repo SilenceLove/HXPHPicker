@@ -46,7 +46,7 @@ public extension HXPHAssetManager {
         }
     }
     
-    /// 请求获取图片地址
+    /// 请求获取图片地址，不建议使用此方法获取图片地址
     /// - Parameters:
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果

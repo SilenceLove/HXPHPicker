@@ -476,7 +476,7 @@ class BaseViewCell: HXPHPickerViewCell {
     override func requestThumbnailImage() {
         // 因为这里的cell不会很多，重新设置 targetWidth，使图片更加清晰
         weak var weakSelf = self
-        requestID = photoAsset?.requestThumbnailImage(targetWidth: width * UIScreen.main.scale, completion: { (image, photoAsset, info) in
+        requestID = photoAsset.requestThumbnailImage(targetWidth: width * UIScreen.main.scale, completion: { (image, photoAsset, info) in
             if photoAsset == weakSelf?.photoAsset && image != nil {
                 weakSelf?.imageView.image = image
                 if !HXPHAssetManager.assetIsDegraded(for: info) {

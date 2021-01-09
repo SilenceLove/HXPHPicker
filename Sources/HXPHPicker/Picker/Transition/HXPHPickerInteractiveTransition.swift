@@ -232,7 +232,7 @@ class HXPHPickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIG
                 previewView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
                 previewView.frame = self.beforePreviewFrame
                 previewViewController.collectionView.addSubview(previewView)
-                previewView.scrollContentView?.showOtherSubview()
+                previewView.scrollContentView.showOtherSubview()
                 self.backgroundView.removeFromSuperview()
                 self.previewView = nil
                 self.toView = nil
@@ -260,7 +260,7 @@ class HXPHPickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIG
                     previewViewController.navigationController?.navigationBar.alpha = navigationBarAlpha
                 }
             }
-            previewView.scrollContentView?.isBacking = true
+            previewView.scrollContentView.isBacking = true
             let toVC = self.transitionContext?.viewController(forKey: .to) as? HXPHPickerViewController
             
             UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: [.layoutSubviews, .curveEaseOut]) {
@@ -271,7 +271,7 @@ class HXPHPickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIG
                     previewView.transform = .identity
                     previewView.frame = toRect
                     previewView.scrollView.contentOffset = .zero
-                    previewView.scrollContentView?.frame = CGRect(x: 0, y: 0, width: toRect.width, height: toRect.height)
+                    previewView.scrollContentView.frame = CGRect(x: 0, y: 0, width: toRect.width, height: toRect.height)
                 }else {
                     previewView.alpha = 0
                     previewView.transform = CGAffineTransform.init(scaleX: 0.1, y: 0.1)
@@ -392,7 +392,7 @@ class HXPHPickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIG
             }
             
             if let previewCell = previewViewController.getCell(for: previewViewController.currentPreviewIndex) {
-                previewCell.scrollContentView?.hiddenOtherSubview()
+                previewCell.scrollContentView.hiddenOtherSubview()
                 beforePreviewFrame = previewCell.frame
                 previewView = previewCell
             }

@@ -250,9 +250,9 @@ extension HXPHPreviewViewController {
     func setCurrentCellImage(image: UIImage?) {
         if image != nil {
             if let cell = getCell(for: currentPreviewIndex) {
-                if cell.photoAsset?.mediaSubType != .imageAnimated {
+                if cell.photoAsset.mediaSubType != .imageAnimated {
                     cell.cancelRequest()
-                    cell.scrollContentView?.imageView.image = image
+                    cell.scrollContentView.imageView.image = image
                 }
             }
         }
@@ -395,7 +395,7 @@ extension HXPHPreviewViewController: UICollectionViewDelegate {
     
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let myCell = cell as! HXPHPreviewViewCell
-        myCell.scrollContentView?.startAnimatedImage()
+        myCell.scrollContentView.startAnimatedImage()
     }
     public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let myCell = cell as! HXPHPreviewViewCell
@@ -461,7 +461,7 @@ extension HXPHPreviewViewController: UINavigationControllerDelegate{
         }else if operation == .pop {
             if fromVC is HXPHPreviewViewController && toVC is HXPHPickerViewController {
                 let cell = getCell(for: currentPreviewIndex)
-                cell?.scrollContentView?.hiddenOtherSubview()
+                cell?.scrollContentView.hiddenOtherSubview()
                 return HXPHPickerControllerTransition.init(type: .pop)
             }
         }
@@ -490,12 +490,12 @@ extension HXPHPreviewViewController: HXPHPreviewViewCellDelegate {
         let currentCell = getCell(for: currentPreviewIndex)
         if !statusBarShouldBeHidden {
             self.bottomView.isHidden = false
-            if currentCell?.photoAsset?.mediaType == .video {
-                currentCell?.scrollContentView?.videoView.stopPlay()
+            if currentCell?.photoAsset.mediaType == .video {
+                currentCell?.scrollContentView.videoView.stopPlay()
             }
         }else {
-            if currentCell?.photoAsset?.mediaType == .video {
-                currentCell?.scrollContentView?.videoView.startPlay()
+            if currentCell?.photoAsset.mediaType == .video {
+                currentCell?.scrollContentView.videoView.startPlay()
             }
         }
         UIView.animate(withDuration: 0.25) {
@@ -567,9 +567,9 @@ extension HXPHPreviewViewController {
     @objc func deviceOrientationChanged(notify: Notification) {
         orientationDidChange = true
         let cell = getCell(for: currentPreviewIndex)
-        if cell?.photoAsset?.mediaSubType == .livePhoto {
+        if cell?.photoAsset.mediaSubType == .livePhoto {
             if #available(iOS 9.1, *) {
-                cell?.scrollContentView?.livePhotoView.stopPlayback()
+                cell?.scrollContentView.livePhotoView.stopPlayback()
             }
         }
         if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {

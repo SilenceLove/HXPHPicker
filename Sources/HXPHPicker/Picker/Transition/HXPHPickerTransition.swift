@@ -109,7 +109,7 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
             
             let cell = previewVC!.getCell(for: previewVC!.currentPreviewIndex)
             fromView = cell?.scrollContentView
-            fromView?.frame = cell?.scrollContentView?.convert(cell?.scrollContentView?.bounds ?? CGRect.zero, to: containerView) ?? CGRect.zero
+            fromView?.frame = cell?.scrollContentView.convert(cell?.scrollContentView.bounds ?? CGRect.zero, to: containerView) ?? CGRect.zero
             contentView.addSubview(fromView!)
             
             if photoAsset != nil && pickerVC != nil {

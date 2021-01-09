@@ -47,19 +47,19 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
     }
     var currentLoadAssetLocalIdentifier: String?
-    var photoAsset: HXPHAsset? {
+    var photoAsset: HXPHAsset! {
         didSet {
             if type == .livePhoto {
                 if #available(iOS 9.1, *) {
                     livePhotoView.livePhoto = nil
                 }
             }
-            if photoAsset?.mediaSubType == .localImage {
+            if photoAsset.mediaSubType == .localImage {
                 requestCompletion = true
             }
             weak var weakSelf = self
             
-            requestID = photoAsset?.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { (image, asset, info) in
+            requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { (image, asset, info) in
                 if asset == weakSelf?.photoAsset && image != nil {
                     weakSelf?.imageView.image = image
                 }
@@ -85,15 +85,15 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
         if requestCompletion {
             return
         }
-        if photoAsset?.mediaSubType == .localImage {
+        if photoAsset.mediaSubType == .localImage {
             return
         }
         var canRequest = true
-        if let localIdentifier = currentLoadAssetLocalIdentifier, localIdentifier == photoAsset?.phAsset?.localIdentifier {
+        if let localIdentifier = currentLoadAssetLocalIdentifier, localIdentifier == photoAsset.phAsset?.localIdentifier {
             canRequest = false
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             if loadingView == nil {
-                loadingView = HXPHProgressHUD.showLoadingHUD(addedTo: self, text: "正在下载".localized + "(" + String(Int(photoAsset!.downloadProgress * 100)) + "%)", animated: true)
+                loadingView = HXPHProgressHUD.showLoadingHUD(addedTo: self, text: "正在下载".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
             }
         }else {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -103,7 +103,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
         }
         if type == .photo {
-            if photoAsset?.mediaSubType == .imageAnimated &&
+            if photoAsset.mediaSubType == .imageAnimated &&
                 imageView.gifImage != nil {
                 imageView.startAnimating()
             }else {
@@ -126,7 +126,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
     
     func requestOriginalImage() {
         weak var weakSelf = self
-        requestID = photoAsset?.requestImageData(iCloudHandler: { (asset, iCloudRequestID) in
+        requestID = photoAsset.requestImageData(iCloudHandler: { (asset, iCloudRequestID) in
             if asset == weakSelf?.photoAsset {
                 weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
             }
@@ -175,7 +175,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
     func requestLivePhoto() {
         let targetSize : CGSize = size
         weak var weakSelf = self
-        requestID = photoAsset?.requestLivePhoto(targetSize: targetSize, iCloudHandler: { (asset, requestID) in
+        requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { (asset, requestID) in
             if asset == weakSelf?.photoAsset {
                 weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
@@ -202,7 +202,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     func requestAVAsset() {
         weak var weakSelf = self
-        requestID = photoAsset?.requestAVAsset(iCloudHandler: { (asset, requestID) in
+        requestID = photoAsset.requestAVAsset(iCloudHandler: { (asset, requestID) in
             if asset == weakSelf?.photoAsset {
                 weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
@@ -232,7 +232,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
     func requestShowDonwloadICloudHUD(iCloudRequestID: PHImageRequestID) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         requestID = iCloudRequestID
-        currentLoadAssetLocalIdentifier = photoAsset?.phAsset?.localIdentifier
+        currentLoadAssetLocalIdentifier = photoAsset.phAsset?.localIdentifier
         loadingView = HXPHProgressHUD.showLoadingHUD(addedTo: self, text: "正在下载".localized, animated: true)
     }
     func requestUpdateProgress(progress: Double) {
@@ -255,7 +255,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
     }
     func cancelRequest() {
-        if photoAsset?.mediaSubType == .localImage {
+        if photoAsset.mediaSubType == .localImage {
             requestCompletion = false
             return
         }
@@ -278,24 +278,24 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
         requestCompletion = false
     }
     func showOtherSubview() {
-        if photoAsset?.mediaType == .video {
+        if photoAsset.mediaType == .video {
             videoView.showPlayButton()
         }
     }
     func hiddenOtherSubview() {
-        if photoAsset?.mediaType == .video {
+        if photoAsset.mediaType == .video {
             videoView.hiddenPlayButton()
         }
         loadingView = nil
         HXPHProgressHUD.hideHUD(forView: self, animated: false)
     }
     func startAnimatedImage() {
-        if photoAsset?.mediaSubType == .imageAnimated {
+        if photoAsset.mediaSubType == .imageAnimated {
             imageView.setupDisplayLink()
         }
     }
     func stopAnimatedImage() {
-        if photoAsset?.mediaSubType == .imageAnimated {
+        if photoAsset.mediaSubType == .imageAnimated {
             imageView.displayLink?.invalidate()
             imageView.gifImage = nil
         }

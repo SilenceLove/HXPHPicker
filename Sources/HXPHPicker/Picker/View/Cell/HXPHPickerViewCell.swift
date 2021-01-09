@@ -39,11 +39,9 @@ open class HXPHPickerBaseViewCell: UICollectionViewCell {
     /// 请求ID
     public var requestID: PHImageRequestID?
     
-    open var photoAsset: HXPHAsset? {
+    open var photoAsset: HXPHAsset! {
         didSet {
-            if let photoAsset = photoAsset {
-                updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
-            }
+            updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
             requestThumbnailImage()
         }
     }
@@ -66,7 +64,7 @@ open class HXPHPickerBaseViewCell: UICollectionViewCell {
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
         weak var weakSelf = self
-        requestID = photoAsset?.requestThumbnailImage(targetWidth: width * 2, completion: { (image, photoAsset, info) in
+        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { (image, photoAsset, info) in
             if photoAsset == weakSelf?.photoAsset && image != nil {
                 if !(weakSelf?.firstLoadCompletion ?? true) {
                     weakSelf?.isHidden = false
@@ -87,9 +85,7 @@ open class HXPHPickerBaseViewCell: UICollectionViewCell {
     ///   - isSelected: 是否已选择
     ///   - animated: 是否需要动画效果
     open func updateSelectedState(isSelected: Bool, animated: Bool) {
-        if let photoAsset = photoAsset {
-            selectedTitle = isSelected ? String(photoAsset.selectIndex + 1) : "0"
-        }
+        selectedTitle = isSelected ? String(photoAsset.selectIndex + 1) : "0"
     }
     /// 布局，重写此方法修改布局
     open func layoutView() {
@@ -171,9 +167,9 @@ open class HXPHPickerViewCell: HXPHPickerBaseViewCell {
     }()
     
     /// 资源对象
-    open override var photoAsset: HXPHAsset? {
+    open override var photoAsset: HXPHAsset! {
         didSet {
-            switch photoAsset?.mediaSubType {
+            switch photoAsset.mediaSubType {
             case .imageAnimated:
                 assetTypeLb.text = "GIF"
                 assetTypeMaskView.isHidden = false
@@ -183,14 +179,14 @@ open class HXPHPickerViewCell: HXPHPickerBaseViewCell {
                 assetTypeMaskView.isHidden = false
                 break
             case .video, .localVideo:
-                assetTypeLb.text = photoAsset?.videoTime
+                assetTypeLb.text = photoAsset.videoTime
                 assetTypeMaskView.isHidden = false
                 break
             default:
                 assetTypeLb.text = nil
                 assetTypeMaskView.isHidden = true
             }
-            videoIcon.isHidden = photoAsset?.mediaType != .video
+            videoIcon.isHidden = photoAsset.mediaType != .video
         }
     }
     
@@ -247,10 +243,8 @@ open class HXPHPickerViewCell: HXPHPickerBaseViewCell {
     
     /// 设置高亮遮罩
     open func setupHighlightedMask() {
-        if let selected = photoAsset?.isSelected {
-            if !selected {
-                selectMaskLayer.isHidden = !isHighlighted
-            }
+        if !photoAsset.isSelected {
+            selectMaskLayer.isHidden = !isHighlighted
         }
     }
 }

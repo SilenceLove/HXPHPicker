@@ -39,7 +39,7 @@ open class HXPHPreviewSelectedViewCell: UICollectionViewCell {
     
     public var requestID: PHImageRequestID?
     
-    open var photoAsset: HXPHAsset? {
+    open var photoAsset: HXPHAsset! {
         didSet {
             reqeustAssetImage()
         }
@@ -47,7 +47,7 @@ open class HXPHPreviewSelectedViewCell: UICollectionViewCell {
     /// 获取图片，重写此方法可以修改图片
     open func reqeustAssetImage() {
         weak var weakSelf = self
-        requestID = photoAsset?.requestThumbnailImage(targetWidth: width * 2, completion: { (image, asset, info) in
+        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { (image, asset, info) in
             if weakSelf?.photoAsset == asset {
                 weakSelf?.imageView.image = image
             }

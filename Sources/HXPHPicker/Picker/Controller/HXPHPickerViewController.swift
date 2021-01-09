@@ -384,15 +384,14 @@ extension HXPHPickerViewController {
         }
     }
     func scrollToCenter(for photoAsset: HXPHAsset?) {
-        if assets.isEmpty || photoAsset == nil {
+        if assets.isEmpty {
             return
         }
-        var item = assets.firstIndex(of: photoAsset!)
-        if item != nil {
+        if let photoAsset = photoAsset, var item = assets.firstIndex(of: photoAsset) {
             if needOffset {
-                item! += 1
+                item += 1
             }
-            collectionView.scrollToItem(at: IndexPath(item: item!, section: 0), at: .centeredVertically, animated: false)
+            collectionView.scrollToItem(at: IndexPath(item: item, section: 0), at: .centeredVertically, animated: false)
         }
     }
     func scrollCellToVisibleArea(_ cell: HXPHPickerBaseViewCell) {
@@ -415,8 +414,8 @@ extension HXPHPickerViewController {
             return
         }
         var item = !pickerController!.config.reverseOrder ? assets.count - 1 : 0
-        if photoAsset != nil {
-            item = assets.firstIndex(of: photoAsset!) ?? item
+        if let photoAsset = photoAsset {
+            item = assets.firstIndex(of: photoAsset) ?? item
             if needOffset {
                 item += 1
             }
@@ -673,7 +672,7 @@ extension HXPHPickerViewController: UICollectionViewDelegate {
                 return
             }
             if let pickerController = pickerController {
-                if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset!, index: indexPath.item) {
+                if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset, index: indexPath.item) {
                     return
                 }
             }
@@ -857,12 +856,12 @@ extension HXPHPickerViewController: HXPHPickerViewCellDelegate {
     public func cell(_ cell: HXPHPickerBaseViewCell, didSelectControl isSelected: Bool) {
         if isSelected {
             // 取消选中
-            _ = pickerController?.removePhotoAsset(photoAsset: cell.photoAsset!)
+            _ = pickerController?.removePhotoAsset(photoAsset: cell.photoAsset)
             cell.updateSelectedState(isSelected: false, animated: true)
             updateCellSelectedTitle()
         }else {
             // 选中
-            if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset!) {
+            if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
                 cell.updateSelectedState(isSelected: true, animated: true)
                 updateCellSelectedTitle()
             }

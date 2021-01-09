@@ -8,6 +8,6 @@
 
 import UIKit
 
-class HXPHPicker: NSObject {
-     
+public class HXPHPicker: NSObject {
+    
 }

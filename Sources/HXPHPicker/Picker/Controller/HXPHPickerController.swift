@@ -208,8 +208,8 @@ open class HXPHPickerController: UINavigationController {
     /// 获取预览界面当前显示的 image 视图
     /// - Returns: 对应的 UIImageView
     public func getCurrentPreviewImageView() -> UIImageView? {
-        if let previewVC = previewViewController(), let cell = previewVC.getCell(for: previewVC.currentPreviewIndex), let imageView = cell.scrollContentView?.imageView {
-            return imageView
+        if let previewVC = previewViewController(), let cell = previewVC.getCell(for: previewVC.currentPreviewIndex) {
+            return cell.scrollContentView.imageView
         }
         return nil
     }
