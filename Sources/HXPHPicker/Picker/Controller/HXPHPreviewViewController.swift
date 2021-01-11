@@ -595,12 +595,12 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
     }
 }
 
-extension HXPHPreviewViewController: HXVideoEditorViewControllerDelegate {
-    public func videoEditorViewController(_ videoEditorViewController: HXVideoEditorViewController, didFinish videoURL: URL) {
-        let photoAsset = HXPHAsset.init(videoURL: videoURL)
-        pickerController?.addedCameraPhotoAsset(photoAsset)
-    }
-    public func videoEditorViewController(didCancel videoEditorViewController: HXVideoEditorViewController) {
-        
-    }
-}
+//extension HXPHPreviewViewController: HXVideoEditorViewControllerDelegate {
+//    public func videoEditorViewController(_ videoEditorViewController: HXVideoEditorViewController, didFinish videoURL: URL) {
+//        let photoAsset = HXPHAsset.init(videoURL: videoURL)
+//        pickerController?.addedCameraPhotoAsset(photoAsset)
+//    }
+//    public func videoEditorViewController(didCancel videoEditorViewController: HXVideoEditorViewController) {
+//        
+//    }
+//}
