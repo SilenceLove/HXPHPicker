@@ -67,7 +67,7 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
             previewVC = fromVC as? HXPHPreviewViewController
         }
         
-        let backgroundColor = HXPHManager.shared.isDark ? previewVC?.config.backgroundDarkColor : previewVC?.config.backgroundColor
+        let backgroundColor = HXPHManager.isDark ? previewVC?.config.backgroundDarkColor : previewVC?.config.backgroundColor
         
         let photoAsset = previewVC?.previewAssets[previewVC!.currentPreviewIndex]
          
@@ -130,7 +130,7 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
         var rect: CGRect = .zero
         if type == .push {
             if photoAsset != nil {
-                rect = getPreviewViewFrame(photoAsset: photoAsset!, size: toVC.view.size)
+                rect = HXPHTools.transformImageSize(photoAsset!.imageSize, to: toVC.view)
             }
             fromView?.isHidden = true
         }else if type == .pop {
@@ -205,7 +205,7 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
         }else {
             pickerController = fromVC as! HXPHPickerController
         }
-        let backgroundColor = HXPHManager.shared.isDark ? pickerController.config.previewView.backgroundDarkColor : pickerController.config.previewView.backgroundColor
+        let backgroundColor = HXPHManager.isDark ? pickerController.config.previewView.backgroundDarkColor : pickerController.config.previewView.backgroundColor
         var fromView: UIView
         var previewView: UIView?
         var toRect: CGRect = .zero
@@ -245,7 +245,7 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
                 }else if pushImageView.image == nil {
                     pushImageView.image = photoAsset.originalImage
                 }
-                toRect = getPreviewViewFrame(photoAsset: photoAsset, size: toVC.view.size)
+                toRect = HXPHTools.transformImageSize(photoAsset.imageSize, to: toVC.view)
             }
         }else {
             previewViewController?.view.insertSubview(contentView, at: 0)
@@ -365,30 +365,5 @@ class HXPHPickerControllerTransition: NSObject, UIViewControllerAnimatedTransiti
                 self.requestID = nil
             }
         }
-    }
-    func getPreviewViewFrame(photoAsset: HXPHAsset, size: CGSize) -> CGRect {
-        var imageSize: CGSize = .zero
-        var imageCenter: CGPoint = .zero
-        if UIDevice.current.isPortrait {
-            let aspectRatio = size.width / photoAsset.imageSize.width
-            let contentWidth = size.width
-            let contentHeight = photoAsset.imageSize.height * aspectRatio
-            imageSize = CGSize(width: contentWidth, height: contentHeight)
-            if contentHeight < size.height {
-                imageCenter = CGPoint(x: size.width * 0.5, y: size.height * 0.5)
-            }
-        }else {
-            let aspectRatio = size.height / photoAsset.imageSize.height
-            let contentWidth = photoAsset.imageSize.width * aspectRatio
-            let contentHeight = size.height
-            imageSize = CGSize(width: contentWidth, height: contentHeight)
-        }
-        var rectY: CGFloat
-        if imageCenter.equalTo(.zero) {
-            rectY = 0
-        }else {
-            rectY = (size.height - imageSize.height) * 0.5
-        }
-        return CGRect(x: (size.width - imageSize.width) * 0.5, y: rectY, width: imageSize.width, height: imageSize.height)
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B250BB725AB07BA00387A8D /* HXVideoCroppingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B250BB625AB07BA00387A8D /* HXVideoCroppingConfiguration.swift */; };
 		7B2A0BE025A6EE2F00E949FD /* HXPHPicker.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */; };
 		7B2A0BE425A702D000E949FD /* Picker+PHAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */; };
 		7B2A0BE725A7043900E949FD /* Core+PHAssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */; };
@@ -92,9 +93,30 @@
 		7B87B89025A7FD4F009327C4 /* HXPHAssetManager+ImageURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B87B88F25A7FD4F009327C4 /* HXPHAssetManager+ImageURL.swift */; };
 		7B87B89325A7FE41009327C4 /* HXPHAssetManager+LivePhotoURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B87B89225A7FE41009327C4 /* HXPHAssetManager+LivePhotoURL.swift */; };
 		7B87B89825A8073C009327C4 /* HXPHConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B87B89725A8073C009327C4 /* HXPHConfiguration.swift */; };
+		7BB285AE25A9E59600DBCF2B /* Core+UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB285AD25A9E59600DBCF2B /* Core+UIImageView.swift */; };
+		7BB285B225A9F26A00DBCF2B /* HXPHViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB285B125A9F26A00DBCF2B /* HXPHViewController.swift */; };
+		7BB285B625A9FB8400DBCF2B /* HXPHVideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB285B525A9FB8400DBCF2B /* HXPHVideoPlayerView.swift */; };
+		7BB285BA25A9FD4A00DBCF2B /* HXVideoEditorPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB285B925A9FD4A00DBCF2B /* HXVideoEditorPlayerView.swift */; };
+		7BEB056625A93FBF00B39BE5 /* HXEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056525A93FBF00B39BE5 /* HXEditorController.swift */; };
+		7BEB056A25A9417000B39BE5 /* HXEditorToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056925A9417000B39BE5 /* HXEditorToolView.swift */; };
+		7BEB056E25A9428B00B39BE5 /* HXEditorToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056D25A9428B00B39BE5 /* HXEditorToolModel.swift */; };
+		7BEB057225A942EA00B39BE5 /* HXEditorToolViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057125A942EA00B39BE5 /* HXEditorToolViewCell.swift */; };
+		7BEB057725A94FD600B39BE5 /* HXPhotoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057625A94FD600B39BE5 /* HXPhotoEditorViewController.swift */; };
+		7BEB057C25A9504F00B39BE5 /* HXVideoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057B25A9504F00B39BE5 /* HXVideoEditorViewController.swift */; };
+		7BEB058225A954CF00B39BE5 /* HXEditorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058125A954CF00B39BE5 /* HXEditorConfiguration.swift */; };
+		7BEB058525A954D600B39BE5 /* HXVideoEditorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058425A954D600B39BE5 /* HXVideoEditorConfiguration.swift */; };
+		7BEB058925A959D100B39BE5 /* Editor+HXPHTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058825A959D100B39BE5 /* Editor+HXPHTools.swift */; };
+		7BEB058D25A9851C00B39BE5 /* HXEditorToolViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058C25A9851C00B39BE5 /* HXEditorToolViewConfiguration.swift */; };
+		7BEB059025A9922D00B39BE5 /* HXVideoEditorCropConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058F25A9922D00B39BE5 /* HXVideoEditorCropConfirmView.swift */; };
+		7BEB059325A9934500B39BE5 /* HXVideoCropConfirmViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059225A9934500B39BE5 /* HXVideoCropConfirmViewConfiguration.swift */; };
+		7BEB059825A998E400B39BE5 /* HXVideoEditorCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059725A998E400B39BE5 /* HXVideoEditorCropView.swift */; };
+		7BEB059B25A99A7800B39BE5 /* HXVideoEditorCropViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059A25A99A7800B39BE5 /* HXVideoEditorCropViewCell.swift */; };
+		7BEB059E25A99DFC00B39BE5 /* HXVideoEditorFrameMaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059D25A99DFC00B39BE5 /* HXVideoEditorFrameMaskView.swift */; };
+		7BFD79FE25AC8AF700694499 /* RELEASE_NOTE.md in Resources */ = {isa = PBXBuildFile; fileRef = 7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7B250BB625AB07BA00387A8D /* HXVideoCroppingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoCroppingConfiguration.swift; sourceTree = "<group>"; };
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; };
 		7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PHAsset.swift"; sourceTree = "<group>"; };
 		7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+PHAssetCollection.swift"; sourceTree = "<group>"; };
@@ -182,6 +204,26 @@
 		7B87B88F25A7FD4F009327C4 /* HXPHAssetManager+ImageURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HXPHAssetManager+ImageURL.swift"; sourceTree = "<group>"; };
 		7B87B89225A7FE41009327C4 /* HXPHAssetManager+LivePhotoURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HXPHAssetManager+LivePhotoURL.swift"; sourceTree = "<group>"; };
 		7B87B89725A8073C009327C4 /* HXPHConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPHConfiguration.swift; sourceTree = "<group>"; };
+		7BB285AD25A9E59600DBCF2B /* Core+UIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIImageView.swift"; sourceTree = "<group>"; };
+		7BB285B125A9F26A00DBCF2B /* HXPHViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPHViewController.swift; sourceTree = "<group>"; };
+		7BB285B525A9FB8400DBCF2B /* HXPHVideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPHVideoPlayerView.swift; sourceTree = "<group>"; };
+		7BB285B925A9FD4A00DBCF2B /* HXVideoEditorPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HXVideoEditorPlayerView.swift; sourceTree = "<group>"; };
+		7BEB056525A93FBF00B39BE5 /* HXEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorController.swift; sourceTree = "<group>"; };
+		7BEB056925A9417000B39BE5 /* HXEditorToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorToolView.swift; sourceTree = "<group>"; };
+		7BEB056D25A9428B00B39BE5 /* HXEditorToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorToolModel.swift; sourceTree = "<group>"; };
+		7BEB057125A942EA00B39BE5 /* HXEditorToolViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorToolViewCell.swift; sourceTree = "<group>"; };
+		7BEB057625A94FD600B39BE5 /* HXPhotoEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXPhotoEditorViewController.swift; sourceTree = "<group>"; };
+		7BEB057B25A9504F00B39BE5 /* HXVideoEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorViewController.swift; sourceTree = "<group>"; };
+		7BEB058125A954CF00B39BE5 /* HXEditorConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorConfiguration.swift; sourceTree = "<group>"; };
+		7BEB058425A954D600B39BE5 /* HXVideoEditorConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorConfiguration.swift; sourceTree = "<group>"; };
+		7BEB058825A959D100B39BE5 /* Editor+HXPHTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Editor+HXPHTools.swift"; sourceTree = "<group>"; };
+		7BEB058C25A9851C00B39BE5 /* HXEditorToolViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXEditorToolViewConfiguration.swift; sourceTree = "<group>"; };
+		7BEB058F25A9922D00B39BE5 /* HXVideoEditorCropConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorCropConfirmView.swift; sourceTree = "<group>"; };
+		7BEB059225A9934500B39BE5 /* HXVideoCropConfirmViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoCropConfirmViewConfiguration.swift; sourceTree = "<group>"; };
+		7BEB059725A998E400B39BE5 /* HXVideoEditorCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorCropView.swift; sourceTree = "<group>"; };
+		7BEB059A25A99A7800B39BE5 /* HXVideoEditorCropViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorCropViewCell.swift; sourceTree = "<group>"; };
+		7BEB059D25A99DFC00B39BE5 /* HXVideoEditorFrameMaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXVideoEditorFrameMaskView.swift; sourceTree = "<group>"; };
+		7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = RELEASE_NOTE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +242,7 @@
 			children = (
 				7B73D6A8259C88A90045DA42 /* HXPHPicker.swift */,
 				7B87B89625A8071F009327C4 /* Config */,
+				7BB285B025A9F25000DBCF2B /* Controller */,
 				7B87B86B25A7EED8009327C4 /* View */,
 				7B2A0BF325A7118000E949FD /* Model */,
 				7B2A0C0625A7179A00E949FD /* Util */,
@@ -257,6 +300,7 @@
 			children = (
 				7B49EDC3259DD87600A3D91A /* README.md */,
 				7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */,
+				7BFD79FC25AC8AF700694499 /* Documentation */,
 				7B73D67D259C88A90045DA42 /* HXPHPicker */,
 				7B73D62A259C76210045DA42 /* Example */,
 				7B73D629259C76210045DA42 /* Products */,
@@ -288,6 +332,7 @@
 			children = (
 				7B2A0BF225A7116A00E949FD /* Core */,
 				7B87B87D25A7F181009327C4 /* Picker */,
+				7BEB056225A93F6C00B39BE5 /* Editor */,
 				7B73D6A0259C88A90045DA42 /* Resources */,
 			);
 			name = HXPHPicker;
@@ -407,6 +452,7 @@
 			isa = PBXGroup;
 			children = (
 				7B87B86C25A7EEEA009327C4 /* HXPHProgressHUD.swift */,
+				7BB285B525A9FB8400DBCF2B /* HXPHVideoPlayerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -423,6 +469,7 @@
 				7B73D686259C88A90045DA42 /* Core+UIView.swift */,
 				7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */,
 				7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */,
+				7BB285AD25A9E59600DBCF2B /* Core+UIImageView.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -447,6 +494,86 @@
 				7B87B89725A8073C009327C4 /* HXPHConfiguration.swift */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		7BB285B025A9F25000DBCF2B /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				7BB285B125A9F26A00DBCF2B /* HXPHViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		7BEB056225A93F6C00B39BE5 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				7BEB057425A94F2500B39BE5 /* Config */,
+				7BEB056325A93F8300B39BE5 /* Controller */,
+				7BEB056C25A9427A00B39BE5 /* Model */,
+				7BEB056425A93F8800B39BE5 /* View */,
+				7BEB058725A959A500B39BE5 /* Util */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		7BEB056325A93F8300B39BE5 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				7BEB056525A93FBF00B39BE5 /* HXEditorController.swift */,
+				7BEB057625A94FD600B39BE5 /* HXPhotoEditorViewController.swift */,
+				7BEB057B25A9504F00B39BE5 /* HXVideoEditorViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		7BEB056425A93F8800B39BE5 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				7BB285B925A9FD4A00DBCF2B /* HXVideoEditorPlayerView.swift */,
+				7BEB059725A998E400B39BE5 /* HXVideoEditorCropView.swift */,
+				7BEB059A25A99A7800B39BE5 /* HXVideoEditorCropViewCell.swift */,
+				7BEB059D25A99DFC00B39BE5 /* HXVideoEditorFrameMaskView.swift */,
+				7BEB058F25A9922D00B39BE5 /* HXVideoEditorCropConfirmView.swift */,
+				7BEB056925A9417000B39BE5 /* HXEditorToolView.swift */,
+				7BEB057125A942EA00B39BE5 /* HXEditorToolViewCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		7BEB056C25A9427A00B39BE5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7BEB056D25A9428B00B39BE5 /* HXEditorToolModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		7BEB057425A94F2500B39BE5 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				7BEB058125A954CF00B39BE5 /* HXEditorConfiguration.swift */,
+				7BEB058425A954D600B39BE5 /* HXVideoEditorConfiguration.swift */,
+				7B250BB625AB07BA00387A8D /* HXVideoCroppingConfiguration.swift */,
+				7BEB058C25A9851C00B39BE5 /* HXEditorToolViewConfiguration.swift */,
+				7BEB059225A9934500B39BE5 /* HXVideoCropConfirmViewConfiguration.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		7BEB058725A959A500B39BE5 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				7BEB058825A959D100B39BE5 /* Editor+HXPHTools.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		7BFD79FC25AC8AF700694499 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */,
+			);
+			path = Documentation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -510,6 +637,7 @@
 				7B73D638259C76240045DA42 /* LaunchScreen.storyboard in Resources */,
 				7B49EDB9259D67F800A3D91A /* BaseViewController.xib in Resources */,
 				7B73D64F259C783D0045DA42 /* Assets.xcassets in Resources */,
+				7BFD79FE25AC8AF700694499 /* RELEASE_NOTE.md in Resources */,
 				7B73D6DD259C88A90045DA42 /* HXPHPicker.bundle in Resources */,
 				7B49EDB7259D67F800A3D91A /* ConfigurationViewController.xib in Resources */,
 				7B2A0BE025A6EE2F00E949FD /* HXPHPicker.podspec in Resources */,
@@ -530,28 +658,35 @@
 				7B73D6CB259C88A90045DA42 /* HXPHManager.swift in Sources */,
 				7B73D6E1259C88A90045DA42 /* HXPHAlbumViewController.swift in Sources */,
 				7B87B89025A7FD4F009327C4 /* HXPHAssetManager+ImageURL.swift in Sources */,
+				7BEB057725A94FD600B39BE5 /* HXPhotoEditorViewController.swift in Sources */,
 				7B2A0C0125A7171600E949FD /* HXPHLivePhotoError.swift in Sources */,
+				7BB285B225A9F26A00DBCF2B /* HXPHViewController.swift in Sources */,
 				7B2A0C0425A7175500E949FD /* HXPHAppearanceStyle.swift in Sources */,
 				7B73D6D3259C88A90045DA42 /* HXPHPickerConfiguration.swift in Sources */,
 				7B73D6EC259C88A90045DA42 /* HXPHPickerCamerViewCell.swift in Sources */,
+				7BEB056E25A9428B00B39BE5 /* HXEditorToolModel.swift in Sources */,
 				7B73D6CF259C88A90045DA42 /* HXPHAssetManager.swift in Sources */,
 				7B73D6D7259C88A90045DA42 /* HXPHPreviewViewConfiguration.swift in Sources */,
 				7B73D6EB259C88A90045DA42 /* HXPHAlbumViewCell.swift in Sources */,
 				7B87B88025A7FBA4009327C4 /* HXPHAssetManager+Image.swift in Sources */,
 				7B87B86D25A7EEEA009327C4 /* HXPHProgressHUD.swift in Sources */,
 				7B49EDB8259D67F800A3D91A /* ConfigurationViewController.swift in Sources */,
+				7BEB058925A959D100B39BE5 /* Editor+HXPHTools.swift in Sources */,
 				7B73D6D4259C88A90045DA42 /* HXPHPickerBottomViewConfiguration.swift in Sources */,
 				7B73D6CC259C88A90045DA42 /* HXPHAssetManager+Asset.swift in Sources */,
 				7B73D6EA259C88A90045DA42 /* HXPHPreviewViewCell.swift in Sources */,
 				7B73D6E5259C88A90045DA42 /* HXPHAssetCollection.swift in Sources */,
 				7B73D6C3259C88A90045DA42 /* Core+UIColor.swift in Sources */,
 				7B87B89825A8073C009327C4 /* HXPHConfiguration.swift in Sources */,
+				7BEB058D25A9851C00B39BE5 /* HXEditorToolViewConfiguration.swift in Sources */,
 				7B2A0C0825A717D100E949FD /* HXPHCustomLanguage.swift in Sources */,
 				7B73D6EE259C88A90045DA42 /* HXPHPreviewSelectedViewCell.swift in Sources */,
 				7B2A0BF525A711BB00E949FD /* HXPHError.swift in Sources */,
+				7BEB059325A9934500B39BE5 /* HXVideoCropConfirmViewConfiguration.swift in Sources */,
 				7B73D6DA259C88A90045DA42 /* HXPHEmptyViewConfiguration.swift in Sources */,
 				7B73D6F1259C88A90045DA42 /* HXPHDeniedAuthorizationView.swift in Sources */,
 				7B73D6C6259C88A90045DA42 /* Core+UIFont.swift in Sources */,
+				7BEB057C25A9504F00B39BE5 /* HXVideoEditorViewController.swift in Sources */,
 				7B73D6E2259C88A90045DA42 /* HXPHCameraPickerController.swift in Sources */,
 				7B73D6C0259C88A90045DA42 /* HXPHPickerTransition.swift in Sources */,
 				7B73D6D5259C88A90045DA42 /* HXPHCameraConfiguration.swift in Sources */,
@@ -559,29 +694,41 @@
 				7B73D6DE259C88A90045DA42 /* HXPHPickerViewController.swift in Sources */,
 				7B2A0BE425A702D000E949FD /* Picker+PHAsset.swift in Sources */,
 				7B49EDB6259D67F800A3D91A /* BaseViewController.swift in Sources */,
+				7BB285B625A9FB8400DBCF2B /* HXPHVideoPlayerView.swift in Sources */,
 				7B73D6EF259C88A90045DA42 /* HXPHVideoView.swift in Sources */,
 				7B73D6ED259C88A90045DA42 /* HXPHPickerViewCell.swift in Sources */,
 				7B73D6F3259C88A90045DA42 /* HXPHPreviewSelectedView.swift in Sources */,
 				7B73D62C259C76210045DA42 /* AppDelegate.swift in Sources */,
 				7B73D6DF259C88A90045DA42 /* HXPHPreviewViewController.swift in Sources */,
 				7B73D6E0259C88A90045DA42 /* HXPHPickerController.swift in Sources */,
+				7BEB056625A93FBF00B39BE5 /* HXEditorController.swift in Sources */,
 				7B2A0BE725A7043900E949FD /* Core+PHAssetCollection.swift in Sources */,
 				7B2A0C0C25A7189F00E949FD /* Picker+HXPHTools.swift in Sources */,
+				7BEB059E25A99DFC00B39BE5 /* HXVideoEditorFrameMaskView.swift in Sources */,
 				7B73D6CE259C88A90045DA42 /* HXPHManager+Language.swift in Sources */,
+				7BB285BA25A9FD4A00DBCF2B /* HXVideoEditorPlayerView.swift in Sources */,
+				7BEB059025A9922D00B39BE5 /* HXVideoEditorCropConfirmView.swift in Sources */,
 				7B73D6F5259C88A90045DA42 /* HXPHAlbumTitleArrowView.swift in Sources */,
+				7B250BB725AB07BA00387A8D /* HXVideoCroppingConfiguration.swift in Sources */,
+				7BEB059825A998E400B39BE5 /* HXVideoEditorCropView.swift in Sources */,
 				7B73D6E7259C88A90045DA42 /* HXPHAlbumTickView.swift in Sources */,
 				7B73D6C8259C88A90045DA42 /* Picker+UIViewController.swift in Sources */,
 				7B73D6C5259C88A90045DA42 /* Core+UIView.swift in Sources */,
 				7B2A0BF925A7127F00E949FD /* HXPHPickerTypes.swift in Sources */,
+				7BEB058225A954CF00B39BE5 /* HXEditorConfiguration.swift in Sources */,
 				7B73D6F2259C88A90045DA42 /* HXPHAlbumView.swift in Sources */,
 				7B73D6D1259C88A90045DA42 /* HXPHPhotoListCameraCellConfiguration.swift in Sources */,
 				7B73D6D6259C88A90045DA42 /* HXPHAlbumTitleViewConfiguration.swift in Sources */,
 				7B73D6D9259C88A90045DA42 /* HXPHNotAuthorizedConfiguration.swift in Sources */,
 				7B73D6E3259C88A90045DA42 /* HXPHPicker.swift in Sources */,
+				7BEB059B25A99A7800B39BE5 /* HXVideoEditorCropViewCell.swift in Sources */,
+				7BEB058525A954D600B39BE5 /* HXVideoEditorConfiguration.swift in Sources */,
 				7B73D6E8259C88A90045DA42 /* HXPHPreviewContentView.swift in Sources */,
 				7B73D6F4259C88A90045DA42 /* HXPHGIFImageView.swift in Sources */,
 				7B73D6DC259C88A90045DA42 /* HXPHSelectBoxConfiguration.swift in Sources */,
+				7BEB056A25A9417000B39BE5 /* HXEditorToolView.swift in Sources */,
 				7B87B89325A7FE41009327C4 /* HXPHAssetManager+LivePhotoURL.swift in Sources */,
+				7BB285AE25A9E59600DBCF2B /* Core+UIImageView.swift in Sources */,
 				7B73D6E9259C88A90045DA42 /* HXPHPickerBottomView.swift in Sources */,
 				7B73D6CA259C88A90045DA42 /* Picker+HXPHManager.swift in Sources */,
 				7B73D6C7259C88A90045DA42 /* Core+String.swift in Sources */,
@@ -599,6 +746,7 @@
 				7B87B88725A7FBC1009327C4 /* HXPHAssetManager+Video.swift in Sources */,
 				7B87B88425A7FBB6009327C4 /* HXPHAssetManager+ImageData.swift in Sources */,
 				7B49EDC0259DCA1D00A3D91A /* HXPHPickerViewController+SwipeSelect.swift in Sources */,
+				7BEB057225A942EA00B39BE5 /* HXEditorToolViewCell.swift in Sources */,
 				7B73D6F0259C88A90045DA42 /* HXPHPickerSelectBoxView.swift in Sources */,
 				7B73D6E6259C88A90045DA42 /* HXPHAlbumTitleView.swift in Sources */,
 			);
@@ -747,7 +895,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -768,7 +916,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

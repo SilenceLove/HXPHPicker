@@ -108,12 +108,19 @@ extension HXPHTools {
             return nil
         }
         let urlAsset = AVURLAsset.init(url: videoURL!)
-        let assetImageGenerator = AVAssetImageGenerator.init(asset: urlAsset)
+        return getVideoThumbnailImage(avAsset: urlAsset as AVAsset, atTime: atTime)
+    }
+    // 根据视频地址获取视频封面
+    public class func getVideoThumbnailImage(avAsset: AVAsset?, atTime: TimeInterval) -> UIImage? {
+        if avAsset == nil {
+            return nil
+        }
+        let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset!)
         assetImageGenerator.appliesPreferredTrackTransform = true
         assetImageGenerator.apertureMode = .encodedPixels
         let thumbnailImageTime: CFTimeInterval = atTime
         do {
-            let thumbnailImageRef = try assetImageGenerator.copyCGImage(at: CMTime(value: CMTimeValue(thumbnailImageTime), timescale: urlAsset.duration.timescale), actualTime: nil)
+            let thumbnailImageRef = try assetImageGenerator.copyCGImage(at: CMTime(value: CMTimeValue(thumbnailImageTime), timescale: avAsset!.duration.timescale), actualTime: nil)
             let image = UIImage.init(cgImage: thumbnailImageRef)
             return image
         } catch {

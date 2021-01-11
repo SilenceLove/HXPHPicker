@@ -43,8 +43,8 @@ class HXPHAlbumTitleArrowView: UIView {
     }
     
     func configColor() {
-        backgroundLayer.fillColor = HXPHManager.shared.isDark ? config.arrowBackgroudDarkColor.cgColor : config.arrowBackgroundColor.cgColor
-        arrowLayer.strokeColor = HXPHManager.shared.isDark ? config.arrowDarkColor.cgColor : config.arrowColor.cgColor
+        backgroundLayer.fillColor = HXPHManager.isDark ? config.arrowBackgroudDarkColor.cgColor : config.arrowBackgroundColor.cgColor
+        arrowLayer.strokeColor = HXPHManager.isDark ? config.arrowDarkColor.cgColor : config.arrowColor.cgColor
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

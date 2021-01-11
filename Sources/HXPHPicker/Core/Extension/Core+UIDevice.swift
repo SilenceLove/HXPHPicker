@@ -9,7 +9,7 @@
 import UIKit
 
 public extension UIDevice {
-    var isPortrait: Bool {
+    class var isPortrait: Bool {
         get {
             let orientation = UIApplication.shared.statusBarOrientation
             if  orientation == .landscapeLeft ||
@@ -19,12 +19,12 @@ public extension UIDevice {
             return true
         }
     }
-    var navigationBarHeight: CGFloat {
+    class var navigationBarHeight: CGFloat {
         get {
             return statusBarHeight + 44
         }
     }
-    var statusBarHeight: CGFloat {
+    class var statusBarHeight: CGFloat {
         get {
             let statusBarHeight : CGFloat;
             let window = UIApplication.shared.windows.first
@@ -36,7 +36,7 @@ public extension UIDevice {
             return statusBarHeight
         }
     }
-    var topMargin: CGFloat {
+    class var topMargin: CGFloat {
         get {
             if isAllIPhoneX {
                 return statusBarHeight
@@ -44,7 +44,7 @@ public extension UIDevice {
             return 0
         }
     }
-    var leftMargin: CGFloat {
+    class var leftMargin: CGFloat {
         get {
             if isAllIPhoneX {
                 if !isPortrait {
@@ -54,7 +54,7 @@ public extension UIDevice {
             return 0
         }
     }
-    var rightMargin: CGFloat {
+    class var rightMargin: CGFloat {
         get {
             if isAllIPhoneX {
                 if !isPortrait {
@@ -64,7 +64,7 @@ public extension UIDevice {
             return 0
         }
     }
-    var bottomMargin: CGFloat {
+    class var bottomMargin: CGFloat {
         get {
             if isAllIPhoneX {
                 if isPortrait {
@@ -76,17 +76,17 @@ public extension UIDevice {
             return 0
         }
     }
-    var isPad: Bool {
+    class var isPad: Bool {
         get {
             return UI_USER_INTERFACE_IDIOM() == .pad
         }
     }
-    var isAllIPhoneX: Bool {
+    class var isAllIPhoneX: Bool {
         get {
             return (isIPhoneX || isIPhoneXR || isIPhoneXsMax || isIPhoneXsMax || isIPhoneTwelveMini || isIPhoneTwelve || isIPhoneTwelveProMax)
         }
     }
-    var isIPhoneX: Bool {
+    class var isIPhoneX: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {
@@ -97,7 +97,7 @@ public extension UIDevice {
             return false
         }
     }
-    var isIPhoneXR: Bool {
+    class var isIPhoneXR: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {
@@ -108,7 +108,7 @@ public extension UIDevice {
             return false
         }
     }
-    var isIPhoneXsMax: Bool {
+    class var isIPhoneXsMax: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {
@@ -119,7 +119,7 @@ public extension UIDevice {
             return false
         }
     }
-    var isIPhoneTwelveMini: Bool {
+    class var isIPhoneTwelveMini: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {
@@ -130,7 +130,7 @@ public extension UIDevice {
             return false
         }
     }
-    var isIPhoneTwelve: Bool {
+    class var isIPhoneTwelve: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {
@@ -141,7 +141,7 @@ public extension UIDevice {
             return false
         }
     }
-    var isIPhoneTwelveProMax: Bool {
+    class var isIPhoneTwelveProMax: Bool {
         get {
             if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
                 isPad == false {

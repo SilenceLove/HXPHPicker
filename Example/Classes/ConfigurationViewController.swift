@@ -72,7 +72,7 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "保存", style: .done, target: self, action: #selector(didSaveButtonClick))
         if let nav = navigationController {
             if nav.modalPresentationStyle == .fullScreen {
-                topMarginConstraint.constant = UIDevice.current.navigationBarHeight + 5
+                topMarginConstraint.constant = UIDevice.navigationBarHeight + 5
             }else {
                 topMarginConstraint.constant = nav.navigationBar.height + 5
             }

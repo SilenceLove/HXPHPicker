@@ -61,12 +61,12 @@ public class HXPHPickerSelectBoxView: UIControl {
     func drawBackgroundLayer() {
         backgroundLayer.path = backgroundPath()
         if isSelected {
-            backgroundLayer.fillColor = HXPHManager.shared.isDark ? config.selectedBackgroudDarkColor.cgColor : config.selectedBackgroundColor.cgColor
+            backgroundLayer.fillColor = HXPHManager.isDark ? config.selectedBackgroudDarkColor.cgColor : config.selectedBackgroundColor.cgColor
             backgroundLayer.lineWidth = 0
         }else {
             backgroundLayer.lineWidth = config.borderWidth
-            backgroundLayer.fillColor = HXPHManager.shared.isDark ? config.darkBackgroundColor.cgColor : config.backgroundColor.cgColor
-            backgroundLayer.strokeColor = HXPHManager.shared.isDark ? config.borderDarkColor.cgColor : config.borderColor.cgColor
+            backgroundLayer.fillColor = HXPHManager.isDark ? config.darkBackgroundColor.cgColor : config.backgroundColor.cgColor
+            backgroundLayer.strokeColor = HXPHManager.isDark ? config.borderDarkColor.cgColor : config.borderColor.cgColor
         }
     }
     func drawTextLayer() {
@@ -91,7 +91,7 @@ public class HXPHPickerSelectBoxView: UIControl {
         textLayer.frame = CGRect(x: (width - textWidth) * 0.5, y: (height - textHeight) * 0.5, width: textWidth, height: textHeight)
         textLayer.font = CGFont.init(font.fontName as CFString)
         textLayer.fontSize = config.titleFontSize
-        textLayer.foregroundColor = HXPHManager.shared.isDark ? config.titleDarkColor.cgColor : config.titleColor.cgColor
+        textLayer.foregroundColor = HXPHManager.isDark ? config.titleDarkColor.cgColor : config.titleColor.cgColor
     }
     
     func tickPath() -> CGPath {
@@ -109,7 +109,7 @@ public class HXPHPickerSelectBoxView: UIControl {
         tickLayer.isHidden = !isSelected
         tickLayer.path = tickPath()
         tickLayer.lineWidth = config.tickWidth
-        tickLayer.strokeColor = HXPHManager.shared.isDark ? config.tickDarkColor.cgColor : config.tickColor.cgColor
+        tickLayer.strokeColor = HXPHManager.isDark ? config.tickDarkColor.cgColor : config.tickColor.cgColor
         tickLayer.fillColor = UIColor.clear.cgColor
     }
     

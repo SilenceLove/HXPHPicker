@@ -85,7 +85,7 @@ class HXPHAlbumTitleView: UIControl {
    }
    
    func configColor() {
-       contentView.backgroundColor = HXPHManager.shared.isDark ? config.backgroudDarkColor : config.backgroundColor
+       contentView.backgroundColor = HXPHManager.isDark ? config.backgroudDarkColor : config.backgroundColor
    }
    
    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

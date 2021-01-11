@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-public class HXPHAlbumViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+public class HXPHAlbumViewController: HXPHViewController, UITableViewDataSource, UITableViewDelegate {
     
     lazy var tableView : UITableView = {
         let tableView = UITableView.init(frame: CGRect.init(), style: .plain)
@@ -67,16 +67,15 @@ public class HXPHAlbumViewController: UIViewController, UITableViewDataSource, U
         view.addSubview(tableView)
         configColor()
         fetchCameraAssetCollection()
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationChanged(notify:)), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
     }
     func configColor() {
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         tableView.backgroundColor = isDark ? config!.backgroundDarkColor : config!.backgroundColor
         view.backgroundColor = isDark ? config!.backgroundDarkColor : config!.backgroundColor
         promptLb.textColor = isDark ? config!.limitedStatusPromptDarkColor : config!.limitedStatusPromptColor
         titleLabel.textColor = isDark ? pickerController?.config.navigationTitleDarkColor : pickerController?.config.navigationTitleColor
     }
-    @objc func deviceOrientationChanged(notify: Notification) {
+    public override func deviceOrientationDidChanged(notify: Notification) {
         beforeOrientationIndexPath = tableView.indexPathsForVisibleRows?.first
         orientationDidChange = true
     }
@@ -171,12 +170,12 @@ public class HXPHAlbumViewController: UIViewController, UITableViewDataSource, U
             titleWidth = view.width * 0.6
         }
         titleLabel.size = CGSize(width: titleWidth, height: 30)
-        let margin: CGFloat = UIDevice.current.leftMargin
+        let margin: CGFloat = UIDevice.leftMargin
         tableView.frame = CGRect(x: margin, y: 0, width: view.width - 2 * margin, height: view.height)
-        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.current.isPortrait {
-            tableView.contentInset = UIEdgeInsets.init(top: UIDevice.current.navigationBarHeight, left: 0, bottom: UIDevice.current.bottomMargin, right: 0)
+        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
+            tableView.contentInset = UIEdgeInsets.init(top: UIDevice.navigationBarHeight, left: 0, bottom: UIDevice.bottomMargin, right: 0)
         }else {
-            tableView.contentInset = UIEdgeInsets.init(top: navigationController!.navigationBar.height, left: 0, bottom: UIDevice.current.bottomMargin, right: 0)
+            tableView.contentInset = UIEdgeInsets.init(top: navigationController!.navigationBar.height, left: 0, bottom: UIDevice.bottomMargin, right: 0)
         }
         if orientationDidChange {
             if !assetCollectionsArray.isEmpty {

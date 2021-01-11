@@ -21,7 +21,7 @@ public extension HXPHAssetManager {
     /// - Returns: 请求ID
     class func requestAVAsset(for asset: PHAsset, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
-        var deliveryMode = PHVideoRequestOptionsDeliveryMode.fastFormat
+        var deliveryMode = PHVideoRequestOptionsDeliveryMode.highQualityFormat
         return requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (avAsset, audioMix, info) in
             if self.assetDownloadFinined(for: info) {
                 DispatchQueue.main.async {

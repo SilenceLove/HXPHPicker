@@ -37,8 +37,8 @@ class HXPHEmptyView: UIView {
     }
     
     func configColor() {
-        titleLb.textColor = HXPHManager.shared.isDark ? config?.titleDarkColor : config?.titleColor
-        subTitleLb.textColor = HXPHManager.shared.isDark ? config?.subTitleDarkColor : config?.subTitleColor
+        titleLb.textColor = HXPHManager.isDark ? config?.titleDarkColor : config?.titleColor
+        subTitleLb.textColor = HXPHManager.isDark ? config?.subTitleDarkColor : config?.subTitleColor
     }
     
     override func layoutSubviews() {

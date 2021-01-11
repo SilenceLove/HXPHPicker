@@ -39,8 +39,8 @@ class HXPHPickerCamerViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     func configProperty() {
-        imageView.image = UIImage.image(for: HXPHManager.shared.isDark ? config?.cameraDarkImageName : config?.cameraImageName)
-        backgroundColor = HXPHManager.shared.isDark ? config?.backgroundDarkColor : config?.backgroundColor
+        imageView.image = UIImage.image(for: HXPHManager.isDark ? config?.cameraDarkImageName : config?.cameraImageName)
+        backgroundColor = HXPHManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
         imageView.size = imageView.image?.size ?? .zero
         if let allowPreview = config?.allowPreview, allowPreview == true {
             requestCameraAccess()

@@ -67,7 +67,7 @@ class HXPHPickerBottomView: UIToolbar, HXPHPreviewSelectedViewDelegate {
     }()
     
     lazy var contentView: UIView = {
-        let contentView = UIView.init(frame: CGRect(x: 0, y: 0, width: width, height: 50 + UIDevice.current.bottomMargin))
+        let contentView = UIView.init(frame: CGRect(x: 0, y: 0, width: width, height: 50 + UIDevice.bottomMargin))
         contentView.addSubview(previewBtn)
         contentView.addSubview(editBtn)
         contentView.addSubview(originalBtn)
@@ -269,7 +269,7 @@ class HXPHPickerBottomView: UIToolbar, HXPHPreviewSelectedViewDelegate {
         }
     }
     func configColor() {
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         barTintColor = isDark ? config.barTintDarkColor : config.barTintColor
         barStyle = isDark ? config.barDarkStyle : config.barStyle
@@ -312,7 +312,7 @@ class HXPHPickerBottomView: UIToolbar, HXPHPreviewSelectedViewDelegate {
     }
     func configPromptColor() {
         if config.showPrompt && HXPHAssetManager.authorizationStatusIsLimited() && allowLoadPhotoLibrary && !isPreview && !isExternalPreview {
-            let isDark = HXPHManager.shared.isDark
+            let isDark = HXPHManager.isDark
             promptLb.textColor = isDark ? config.promptTitleDarkColor : config.promptTitleColor
             promptIcon.tintColor = isDark ? config.promptIconDarkColor : config.promptIconColor
             promptArrow.tintColor = isDark ? config.promptArrowDarkColor : config.promptArrowColor
@@ -348,7 +348,7 @@ class HXPHPickerBottomView: UIToolbar, HXPHPreviewSelectedViewDelegate {
         if finishWidth < 60 {
             finishWidth = 60
         }
-        finishBtn.frame = CGRect(x: width - UIDevice.current.rightMargin - finishWidth - 12, y: 0, width: finishWidth, height: 33)
+        finishBtn.frame = CGRect(x: width - UIDevice.rightMargin - finishWidth - 12, y: 0, width: finishWidth, height: 33)
         finishBtn.centerY = 25
     }
     func updateOriginalButtonFrame() {
@@ -388,30 +388,30 @@ class HXPHPickerBottomView: UIToolbar, HXPHPreviewSelectedViewDelegate {
         super.layoutSubviews()
         if !isExternalPreview {
             contentView.width = width
-            contentView.height = 50 + UIDevice.current.bottomMargin
+            contentView.height = 50 + UIDevice.bottomMargin
             contentView.y = height - contentView.height
-            previewBtn.x = 12 + UIDevice.current.leftMargin
+            previewBtn.x = 12 + UIDevice.leftMargin
             editBtn.x = previewBtn.x
             updateFinishButtonFrame()
             updateOriginalButtonFrame()
         }
         if config.showPrompt && HXPHAssetManager.authorizationStatusIsLimited() && allowLoadPhotoLibrary && !isPreview && !isExternalPreview {
             promptView.width = width
-            promptIcon.x = 12 + UIDevice.current.leftMargin
+            promptIcon.x = 12 + UIDevice.leftMargin
             promptIcon.centerY = promptView.height * 0.5
-            promptArrow.x = width - 12 - promptArrow.width - UIDevice.current.rightMargin
+            promptArrow.x = width - 12 - promptArrow.width - UIDevice.rightMargin
             promptLb.x = promptIcon.frame.maxX + 12
             promptLb.width = promptArrow.x - promptLb.x - 12
             promptLb.centerY = promptView.height * 0.5
             promptArrow.centerY = promptView.height * 0.5
         }
         if isExternalPreview {
-            editBtn.x = 12 + UIDevice.current.leftMargin
+            editBtn.x = 12 + UIDevice.leftMargin
             if config.showSelectedView {
                 if !config.editButtonHidden {
                     selectedView.x = editBtn.frame.maxX + 12
                     selectedView.width = width - selectedView.x
-                    selectedView.collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 5, right: 12 + UIDevice.current.rightMargin)
+                    selectedView.collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 5, right: 12 + UIDevice.rightMargin)
                 }else {
                     selectedView.width = width
                 }

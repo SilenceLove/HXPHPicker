@@ -77,7 +77,7 @@ class HXPHDeniedAuthorizationView: UIView {
     func configColor() {
         let closeButtonImageName = config?.closeButtonImageName ?? "hx_picker_notAuthorized_close"
         let closeButtonDarkImageName = config?.closeButtonDarkImageName ?? "hx_picker_notAuthorized_close_dark"
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         closeBtn.setImage(UIImage.image(for: isDark ? closeButtonDarkImageName : closeButtonImageName), for: .normal)
         backgroundColor = isDark ? config?.darkBackgroundColor : config?.backgroundColor
         titleLb.textColor = isDark ? config?.titleDarkColor : config?.titleColor
@@ -96,7 +96,7 @@ class HXPHDeniedAuthorizationView: UIView {
         super.layoutSubviews()
         var barHeight: CGFloat = 0
         if viewController()?.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen {
-            barHeight = (viewController()?.navigationController?.navigationBar.height ?? 44) + UIDevice.current.statusBarHeight
+            barHeight = (viewController()?.navigationController?.navigationBar.height ?? 44) + UIDevice.statusBarHeight
         }else {
             barHeight = viewController()?.navigationController?.navigationBar.height ?? 44
         }
@@ -106,7 +106,7 @@ class HXPHDeniedAuthorizationView: UIView {
         titleLb.frame = CGRect(x: 0, y: 0, width: width, height: titleHeight)
         
         let subTitleHeight = subTitleLb.text?.height(ofFont: subTitleLb.font, maxWidth: width - 40) ?? 0
-        subTitleLb.frame = CGRect(x: 20, y: height / 2 - subTitleHeight - 30 - UIDevice.current.topMargin, width: width - 40, height: subTitleHeight)
+        subTitleLb.frame = CGRect(x: 20, y: height / 2 - subTitleHeight - 30 - UIDevice.topMargin, width: width - 40, height: subTitleHeight)
         titleLb.y = subTitleLb.y - 15 - titleHeight
         
         let jumpBtnBottomMargin : CGFloat = UIDevice.isProxy() ? 120 : 50
@@ -114,7 +114,7 @@ class HXPHDeniedAuthorizationView: UIView {
         if jumpBtnWidth < 150 {
             jumpBtnWidth = 150
         }
-        jumpBtn.frame = CGRect(x: 0, y: height - UIDevice.current.bottomMargin - 40 - jumpBtnBottomMargin, width: jumpBtnWidth, height: 40)
+        jumpBtn.frame = CGRect(x: 0, y: height - UIDevice.bottomMargin - 40 - jumpBtnBottomMargin, width: jumpBtnWidth, height: 40)
         jumpBtn.centerX = width * 0.5
     }
     

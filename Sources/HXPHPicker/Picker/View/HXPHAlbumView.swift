@@ -73,9 +73,9 @@ class HXPHAlbumView: UIView, UITableViewDataSource, UITableViewDelegate {
         tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
     }
     func configColor() {
-        tableView.backgroundColor = HXPHManager.shared.isDark ? config.backgroundDarkColor : config.backgroundColor
-        backgroundColor = HXPHManager.shared.isDark ? config.backgroundDarkColor : config.backgroundColor
-        promptLb.textColor = HXPHManager.shared.isDark ? config.limitedStatusPromptDarkColor : config.limitedStatusPromptColor
+        tableView.backgroundColor = HXPHManager.isDark ? config.backgroundDarkColor : config.backgroundColor
+        backgroundColor = HXPHManager.isDark ? config.backgroundDarkColor : config.backgroundColor
+        promptLb.textColor = HXPHManager.isDark ? config.limitedStatusPromptDarkColor : config.limitedStatusPromptColor
     }
     func updatePrompt() {
         if HXPHAssetManager.authorizationStatusIsLimited() {

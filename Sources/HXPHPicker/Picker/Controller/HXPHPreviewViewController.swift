@@ -14,7 +14,7 @@ protocol HXPHPreviewViewControllerDelegate: NSObjectProtocol {
     func previewViewController(_ previewController: HXPHPreviewViewController, didSelectBox photoAsset: HXPHAsset, isSelected: Bool)
 }
 
-public class HXPHPreviewViewController: UIViewController {
+public class HXPHPreviewViewController: HXPHViewController {
     
     weak var delegate: HXPHPreviewViewControllerDelegate?
     var config : HXPHPreviewViewConfiguration!
@@ -116,16 +116,28 @@ public class HXPHPreviewViewController: UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = ""
         isMultipleSelect = pickerController?.config.selectMode == .multiple
         allowLoadPhotoLibrary = pickerController?.config.allowLoadPhotoLibrary ?? true
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
         view.clipsToBounds = true
         config = pickerController!.config.previewView
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationChanged(notify:)), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
         initView()
         if pickerController?.modalPresentationStyle == .fullScreen {
             interactiveTransition = HXPHPickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .pop)
+        }
+    }
+    public override func deviceOrientationDidChanged(notify: Notification) {
+        orientationDidChange = true
+        let cell = getCell(for: currentPreviewIndex)
+        if cell?.photoAsset.mediaSubType == .livePhoto {
+            if #available(iOS 9.1, *) {
+                cell?.scrollContentView.livePhotoView.stopPlayback()
+            }
+        }
+        if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {
+            bottomView.selectedView.reloadSectionInset()
         }
     }
     
@@ -189,7 +201,7 @@ extension HXPHPreviewViewController {
             }else {
                 var cancelItem: UIBarButtonItem
                 if config.cancelType == .image {
-                    let isDark = HXPHManager.shared.isDark
+                    let isDark = HXPHManager.isDark
                     cancelItem = UIBarButtonItem.init(image: UIImage.image(for: isDark ? config.cancelDarkImageName : config.cancelImageName), style: .done, target: self, action: #selector(didCancelItemClick))
                 }else {
                     cancelItem = UIBarButtonItem.init(title: "取消".localized, style: .done, target: self, action: #selector(didCancelItemClick))
@@ -221,24 +233,24 @@ extension HXPHPreviewViewController {
     func configBottomViewFrame() {
         var bottomHeight: CGFloat
         if isExternalPreview {
-            bottomHeight = (pickerController?.selectedAssetArray.isEmpty ?? true) ? 0 : UIDevice.current.bottomMargin + 70
+            bottomHeight = (pickerController?.selectedAssetArray.isEmpty ?? true) ? 0 : UIDevice.bottomMargin + 70
             if !config.bottomView.showSelectedView && config.bottomView.editButtonHidden {
                 if config.bottomView.editButtonHidden {
                     bottomHeight = 0
                 }else {
-                    bottomHeight = UIDevice.current.bottomMargin + 50
+                    bottomHeight = UIDevice.bottomMargin + 50
                 }
             }
         }else {
-            bottomHeight = pickerController?.selectedAssetArray.isEmpty ?? true ? 50 + UIDevice.current.bottomMargin : 50 + UIDevice.current.bottomMargin + 70
+            bottomHeight = pickerController?.selectedAssetArray.isEmpty ?? true ? 50 + UIDevice.bottomMargin : 50 + UIDevice.bottomMargin + 70
             if !config.bottomView.showSelectedView || !isMultipleSelect {
-                bottomHeight = 50 + UIDevice.current.bottomMargin
+                bottomHeight = 50 + UIDevice.bottomMargin
             }
         }
         bottomView.frame = CGRect(x: 0, y: view.height - bottomHeight, width: view.width, height: bottomHeight)
     }
     func configColor() {
-        view.backgroundColor = HXPHManager.shared.isDark ? config.backgroundDarkColor : config.backgroundColor
+        view.backgroundColor = HXPHManager.isDark ? config.backgroundDarkColor : config.backgroundColor
     }
     func getCell(for item: Int) -> HXPHPreviewViewCell? {
         if previewAssets.isEmpty {
@@ -277,8 +289,18 @@ extension HXPHPreviewViewController {
         setupRequestPreviewTimer()
     }
     func addedCameraPhotoAsset(_ photoAsset: HXPHAsset) {
+        if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {
+            bottomView.selectedView.reloadData(photoAssets: pickerController!.selectedAssetArray)
+            configBottomViewFrame()
+            bottomView.layoutSubviews()
+            bottomView.updateFinishButtonTitle()
+        }
+        getCell(for: currentPreviewIndex)?.cancelRequest()
         previewAssets.insert(photoAsset, at: currentPreviewIndex)
         collectionView.insertItems(at: [IndexPath.init(item: currentPreviewIndex, section: 0)])
+        collectionView.scrollToItem(at: IndexPath(item: currentPreviewIndex, section: 0), at: .centeredHorizontally, animated: false)
+        scrollViewDidScroll(collectionView)
+        setupRequestPreviewTimer()
     }
 }
 // MARK: Action
@@ -516,6 +538,19 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
                 return
             }
         }
+//#if
+//        _ = getCell(for: currentPreviewIndex)?.scrollContentView.stopVideo()
+//        _ = HXPHProgressHUD.showLoadingHUD(addedTo: self.view, text: "视频获取中".localized, animated: true)
+//        weak var weakSelf = self
+//        _ = photoAsset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (photoAsset, avAsset, info) in
+//            HXPHProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
+//            let videoEditorVC = HXVideoEditorViewController.init(avAsset: avAsset, config: .init())
+//            videoEditorVC.delegate = weakSelf
+//            weakSelf?.navigationController?.pushViewController(videoEditorVC, animated: true)
+//        } failure: { (photoAsset, info) in
+//            HXPHProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
+//        }
+//#endif
     }
     func bottomView(didFinishButtonClick bottomView: HXPHPickerBottomView) {
         if previewAssets.isEmpty {
@@ -545,7 +580,6 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
             getCell(for: currentPreviewIndex)?.cancelRequest()
             collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .centeredHorizontally, animated: false)
             setupRequestPreviewTimer()
-            RunLoop.main.add(self.requestPreviewTimer!, forMode: RunLoop.Mode.common)
         }else {
             bottomView.selectedView.scrollTo(photoAsset: nil)
         }
@@ -561,19 +595,12 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
     }
 }
 
-// MARK: Notification
-extension HXPHPreviewViewController {
-    
-    @objc func deviceOrientationChanged(notify: Notification) {
-        orientationDidChange = true
-        let cell = getCell(for: currentPreviewIndex)
-        if cell?.photoAsset.mediaSubType == .livePhoto {
-            if #available(iOS 9.1, *) {
-                cell?.scrollContentView.livePhotoView.stopPlayback()
-            }
-        }
-        if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {
-            bottomView.selectedView.reloadSectionInset()
-        }
+extension HXPHPreviewViewController: HXVideoEditorViewControllerDelegate {
+    public func videoEditorViewController(_ videoEditorViewController: HXVideoEditorViewController, didFinish videoURL: URL) {
+        let photoAsset = HXPHAsset.init(videoURL: videoURL)
+        pickerController?.addedCameraPhotoAsset(photoAsset)
+    }
+    public func videoEditorViewController(didCancel videoEditorViewController: HXVideoEditorViewController) {
+        
     }
 }

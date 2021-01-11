@@ -94,7 +94,7 @@ open class HXPHAlbumViewCell: UITableViewCell {
     }
     // 颜色配置，重写此方法修改颜色配置
     open func configColor() {
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         albumNameLb.textColor = isDark ? config?.albumNameDarkColor : config?.albumNameColor
         photoCountLb.textColor = isDark ? config?.photoCountDarkColor : config?.photoCountColor
         bottomLineView.backgroundColor = isDark ? config?.separatorLineDarkColor : config?.separatorLineColor
@@ -118,7 +118,7 @@ open class HXPHAlbumViewCell: UITableViewCell {
         let coverWidth = height - (coverMargin * 2)
         albumCoverView.frame = CGRect(x: coverMargin, y: coverMargin, width: coverWidth, height: coverWidth)
         
-        tickView.x = width - 12 - tickView.width - UIDevice.current.rightMargin
+        tickView.x = width - 12 - tickView.width - UIDevice.rightMargin
         tickView.centerY = height * 0.5
         
         albumNameLb.x = albumCoverView.frame.maxX + 10

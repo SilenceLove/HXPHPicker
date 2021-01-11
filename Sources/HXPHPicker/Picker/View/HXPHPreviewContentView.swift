@@ -150,7 +150,7 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
                     DispatchQueue.main.async {
                         if asset == weakSelf?.photoAsset {
                             weakSelf?.requestSucceed()
-                            weakSelf?.setImage(for: image)
+                            weakSelf?.imageView.setImage(image, animated: true)
                             weakSelf?.requestID = nil
                             weakSelf?.requestCompletion = true
                         }
@@ -162,14 +162,6 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 weakSelf?.requestFailed(info: info)
             }
         })
-    }
-    func setImage(for image: UIImage?) {
-        let transition = CATransition.init()
-        transition.duration = 0.2
-        transition.timingFunction = CAMediaTimingFunction.init(name: .linear)
-        transition.type = .fade
-        imageView.layer.add(transition, forKey: nil)
-        imageView.image = image
     }
     @available(iOS 9.1, *)
     func requestLivePhoto() {
@@ -276,6 +268,11 @@ class HXPHPreviewContentView: UIView, PHLivePhotoViewDelegate {
             videoView.alpha = 0
         }
         requestCompletion = false
+    }
+    func stopVideo() {
+        if photoAsset.mediaType == .video {
+            videoView.stopPlay()
+        }
     }
     func showOtherSubview() {
         if photoAsset.mediaType == .video {

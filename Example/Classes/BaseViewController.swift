@@ -123,8 +123,8 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         beforeRowCount = rowCount
         let itemWidth = Int((view.width - 24 - 2) / 3)
         var heightConstraint = CGFloat(rowCount * itemWidth + rowCount)
-        if heightConstraint > view.height - UIDevice.current.navigationBarHeight - 20 - 150 {
-            heightConstraint = view.height - UIDevice.current.navigationBarHeight - 20 - 150
+        if heightConstraint > view.height - UIDevice.navigationBarHeight - 20 - 150 {
+            heightConstraint = view.height - UIDevice.navigationBarHeight - 20 - 150
         }
         collectionViewHeightConstraint.constant = heightConstraint
     }
@@ -162,9 +162,8 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
             HXPHProgressHUD.showWarningHUD(addedTo: self.view, text: "请先选择资源", animated: true, delay: 1.5)
             return
         }
-        var count = 0
-        _ = HXPHProgressHUD.showLoadingHUD(addedTo: self.view, text: "获取中", animated: true)
         weak var weakSelf = self
+        var count = 0
         for photoAsset in selectedAssets {
             if photoAsset.mediaType == .photo {
                 if photoAsset.mediaSubType == .livePhoto {

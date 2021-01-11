@@ -16,7 +16,7 @@ enum HXPHPickerViewControllerSwipeSelectState {
     case unselect
 }
 
-public class HXPHPickerViewController: UIViewController {
+public class HXPHPickerViewController: HXPHViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
     }
@@ -145,19 +145,22 @@ public class HXPHPickerViewController: UIViewController {
             swipeSelectPanGR = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureRecognizer(panGR:)))
             view.addGestureRecognizer(swipeSelectPanGR!)
         }
+    }
+     
+    public override func deviceOrientationDidChanged(notify: Notification) {
         guard #available(iOS 13.0, *) else {
-            NotificationCenter.default.addObserver(self, selector: #selector(deviceOrientationChanged(notify:)), name: UIApplication.didChangeStatusBarOrientationNotification, object: nil)
+            beforeOrientationIndexPath = collectionView.indexPathsForVisibleItems.first
+            orientationDidChange = true
             return
         }
     }
-    
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let margin: CGFloat = UIDevice.current.leftMargin
+        let margin: CGFloat = UIDevice.leftMargin
         collectionView.frame = CGRect(x: margin, y: 0, width: view.width - 2 * margin, height: view.height)
         var collectionTop: CGFloat
-        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.current.isPortrait {
-            collectionTop = UIDevice.current.navigationBarHeight
+        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
+            collectionTop = UIDevice.navigationBarHeight
         }else {
             collectionTop = navigationController!.navigationBar.height
         }
@@ -175,16 +178,16 @@ public class HXPHPickerViewController: UIViewController {
         }
         if isMultipleSelect {
             let promptHeight: CGFloat = (HXPHAssetManager.authorizationStatusIsLimited() && config.bottomView.showPrompt && allowLoadPhotoLibrary) ? 70 : 0
-            let bottomHeight: CGFloat = 50 + UIDevice.current.bottomMargin + promptHeight
+            let bottomHeight: CGFloat = 50 + UIDevice.bottomMargin + promptHeight
             bottomView.frame = CGRect(x: 0, y: view.height - bottomHeight, width: view.width, height: bottomHeight)
             collectionView.contentInset = UIEdgeInsets(top: collectionTop, left: 0, bottom: bottomView.height + 0.5, right: 0)
-            collectionView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: bottomHeight - UIDevice.current.bottomMargin, right: 0)
+            collectionView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: bottomHeight - UIDevice.bottomMargin, right: 0)
         }else {
-            collectionView.contentInset = UIEdgeInsets(top: collectionTop, left: 0, bottom: UIDevice.current.bottomMargin, right: 0)
+            collectionView.contentInset = UIEdgeInsets(top: collectionTop, left: 0, bottom: UIDevice.bottomMargin, right: 0)
         }
         let space = config.spacing
         let count : CGFloat
-        if  UIDevice.current.isPortrait == true {
+        if  UIDevice.isPortrait == true {
             count = CGFloat(config.rowNumber)
         }else {
             count = CGFloat(config.landscapeRowNumber)
@@ -334,7 +337,7 @@ extension HXPHPickerViewController {
             if config.cancelType == .text {
                 cancelItem = UIBarButtonItem.init(title: "取消".localized, style: .done, target: self, action: #selector(didCancelItemClick))
             }else {
-                cancelItem = UIBarButtonItem.init(image: UIImage.image(for: HXPHManager.shared.isDark ? config.cancelDarkImageName : config.cancelImageName), style: .done, target: self, action: #selector(didCancelItemClick))
+                cancelItem = UIBarButtonItem.init(image: UIImage.image(for: HXPHManager.isDark ? config.cancelDarkImageName : config.cancelImageName), style: .done, target: self, action: #selector(didCancelItemClick))
             }
             if config.cancelPosition == .left {
                 navigationItem.leftBarButtonItem = cancelItem
@@ -358,7 +361,7 @@ extension HXPHPickerViewController {
         updateTitle()
     }
     func configColor() {
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         view.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         collectionView.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         let titleColor = isDark ? pickerController?.config.navigationTitleDarkColor : pickerController?.config.navigationTitleColor
@@ -568,8 +571,8 @@ extension HXPHPickerViewController {
     func configAlbumViewFrame() {
         self.albumView.size = CGSize(width: view.width, height: getAlbumViewHeight())
         if titleView.isSelected {
-            if self.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen && UIDevice.current.isPortrait {
-                self.albumView.y = UIDevice.current.navigationBarHeight
+            if self.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen && UIDevice.isPortrait {
+                self.albumView.y = UIDevice.navigationBarHeight
             }else {
                 self.albumView.y = self.navigationController?.navigationBar.height ?? 0
             }
@@ -774,7 +777,7 @@ extension HXPHPickerViewController: UIImagePickerControllerDelegate, UINavigatio
         }
     }
     func addedCameraPhotoAsset(_ photoAsset: HXPHAsset) {
-        DispatchQueue.main.async {
+        func addPhotoAsset(_ photoAsset: HXPHAsset) {
             HXPHProgressHUD.hideHUD(forView: self.navigationController?.view, animated: true)
             if self.config.takePictureCompletionToSelected {
                 if self.pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
@@ -791,6 +794,13 @@ extension HXPHPickerViewController: UIImagePickerControllerDelegate, UINavigatio
             self.addedPhotoAsset(for: photoAsset)
             self.bottomView.updateFinishButtonTitle()
             self.setupEmptyView()
+        }
+        if Thread.current.isMainThread {
+            addPhotoAsset(photoAsset)
+        }else {
+            DispatchQueue.main.async {
+                addPhotoAsset(photoAsset)
+            }
         }
     }
 }
@@ -867,14 +877,5 @@ extension HXPHPickerViewController: HXPHPickerViewCellDelegate {
             }
         }
         bottomView.updateFinishButtonTitle()
-    }
-}
-
-// MARK: Notification
-extension HXPHPickerViewController {
-    
-    @objc func deviceOrientationChanged(notify: Notification) {
-        beforeOrientationIndexPath = collectionView.indexPathsForVisibleItems.first
-        orientationDidChange = true
     }
 }

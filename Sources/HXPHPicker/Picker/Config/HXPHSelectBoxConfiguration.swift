@@ -55,12 +55,12 @@ public class HXPHSelectBoxConfiguration: NSObject {
     
     /// 选中之后的背景颜色
     public lazy var selectedBackgroundColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下选中之后的背景颜色
     public lazy var selectedBackgroudDarkColor : UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 未选中时的边框宽度

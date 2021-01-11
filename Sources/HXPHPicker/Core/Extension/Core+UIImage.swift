@@ -48,21 +48,24 @@ public extension UIImage {
         return image
     }
     
-    class func image(for color: UIColor, havingSize: CGSize) -> UIImage? {
-        let rect: CGRect
-        if havingSize.equalTo(CGSize.zero) {
-            rect = CGRect(x: 0, y: 0, width: 1, height: 1)
-        }else {
-            rect = CGRect(x: 0, y: 0, width: havingSize.width, height: havingSize.height)
+    class func image(for color: UIColor?, havingSize: CGSize) -> UIImage? {
+        if let color = color {
+            let rect: CGRect
+            if havingSize.equalTo(CGSize.zero) {
+                rect = CGRect(x: 0, y: 0, width: 1, height: 1)
+            }else {
+                rect = CGRect(x: 0, y: 0, width: havingSize.width, height: havingSize.height)
+            }
+            UIGraphicsBeginImageContext(rect.size)
+            let context = UIGraphicsGetCurrentContext()
+            context?.setFillColor(color.cgColor)
+            context?.fill(rect)
+        
+            let image = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return image
         }
-        UIGraphicsBeginImageContext(rect.size)
-        let context = UIGraphicsGetCurrentContext()
-        context?.setFillColor(color.cgColor)
-        context?.fill(rect)
-    
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
+        return nil
     }
     
     func normalizedImage() -> UIImage? {

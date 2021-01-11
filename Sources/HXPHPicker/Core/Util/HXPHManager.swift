@@ -28,12 +28,12 @@ public class HXPHManager: NSObject {
     /// 当前外观样式，每次创建HXPHPickerController时赋值
     public var appearanceStyle: HXPHAppearanceStyle = .varied
     /// 当前是否是暗黑模式
-    public var isDark: Bool {
+    public class var isDark: Bool {
         get {
-            if appearanceStyle == .normal {
+            if shared.appearanceStyle == .normal {
                 return false
             }
-            if appearanceStyle == .dark {
+            if shared.appearanceStyle == .dark {
                 return true
             }
             if #available(iOS 13.0, *) {

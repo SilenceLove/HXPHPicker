@@ -31,7 +31,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 预览按钮标题颜色
     public lazy var previewButtonTitleColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下预览按钮标题颜色
@@ -50,7 +50,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 原图按钮标题颜色
     public lazy var originalButtonTitleColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下预览按钮标题颜色
@@ -71,7 +71,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
         let config = HXPHSelectBoxConfiguration.init()
         config.type = .tick
         // 原图按钮选中时的背景颜色
-        config.selectedBackgroundColor = UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        config.selectedBackgroundColor = .systemTintColor
         // 暗黑风格下原图按钮选中时的背景颜色
         config.selectedBackgroudDarkColor = UIColor.white
         // 原图按钮未选中时的边框宽度
@@ -109,7 +109,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 完成按钮选中时的背景颜色
     public lazy var finishButtonBackgroundColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下完成按钮选中时的背景颜色
@@ -119,7 +119,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 完成按钮禁用时的背景颜色
     public lazy var finishButtonDisableBackgroundColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1).withAlphaComponent(0.4)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下完成按钮禁用时的背景颜色
@@ -136,7 +136,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 编辑按钮标题颜色
     public lazy var editButtonTitleColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下编辑按钮标题颜色
@@ -153,7 +153,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 提示图标颜色
     public lazy var promptIconColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下提示图标颜色
@@ -163,7 +163,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 提示语颜色
     public lazy var promptTitleColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下提示语颜色
@@ -173,7 +173,7 @@ public class HXPHPickerBottomViewConfiguration: NSObject {
     
     /// 提示语颜色
     public lazy var promptArrowColor: UIColor = {
-        return UIColor.init(red: 0, green: 0.47843137254901963, blue: 1, alpha: 1)
+        return .systemTintColor
     }()
     
     /// 暗黑风格下提示语颜色

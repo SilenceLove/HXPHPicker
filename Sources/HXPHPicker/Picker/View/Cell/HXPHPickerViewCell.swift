@@ -24,7 +24,7 @@ open class HXPHPickerBaseViewCell: UICollectionViewCell {
         }
     }
     open func configColor() {
-        backgroundColor = HXPHManager.shared.isDark ? config?.backgroundDarkColor : config?.backgroundColor
+        backgroundColor = HXPHManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
     }
     // 展示图片
     public lazy var imageView: UIImageView = {
@@ -227,7 +227,7 @@ open class HXPHPickerViewCell: HXPHPickerBaseViewCell {
         selectMaskLayer.frame = imageView.bounds
         disableMaskLayer.frame = imageView.bounds
         assetTypeMaskView.frame = CGRect(x: 0, y: imageView.height - 25, width: width, height: 25)
-        assetTypeMaskLayer.frame = assetTypeMaskView.bounds
+        assetTypeMaskLayer.frame = CGRect(x: 0, y: -5, width: assetTypeMaskView.width, height: assetTypeMaskView.height + 5)
         assetTypeLb.frame = CGRect(x: 0, y: height - 19, width: width - 5, height: 18)
         videoIcon.x = 5
         videoIcon.y = height - videoIcon.height - 5

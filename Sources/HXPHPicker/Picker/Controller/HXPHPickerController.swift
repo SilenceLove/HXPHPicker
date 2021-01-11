@@ -145,7 +145,7 @@ open class HXPHPickerController: UINavigationController {
     public weak var pickerControllerDelegate : HXPHPickerControllerDelegate?
     
     /// 相关配置
-    public var config : HXPHPickerConfiguration
+    public var config : HXPHPickerConfiguration!
     
     /// fetch Assets 时的选项配置
     public lazy var options : PHFetchOptions = {
@@ -189,9 +189,7 @@ open class HXPHPickerController: UINavigationController {
     /// - Parameter photoAsset: 对应的 HXPHAsset 数据
     public func addedCameraPhotoAsset(_ photoAsset: HXPHAsset) {
         pickerViewController()?.addedCameraPhotoAsset(photoAsset)
-        if topViewController is HXPHPreviewViewController {
-            previewViewController()?.addedCameraPhotoAsset(photoAsset)
-        }
+        previewViewController()?.addedCameraPhotoAsset(photoAsset)
     }
     
     /// 删除当前预览的 Asset
@@ -237,12 +235,6 @@ open class HXPHPickerController: UINavigationController {
     public init(config: HXPHPickerConfiguration) {
         HXPHManager.shared.appearanceStyle = config.appearanceStyle
         _ = HXPHManager.shared.createLanguageBundle(languageType: config.languageType)
-        var photoVC : UIViewController
-        if config.albumShowMode == .normal {
-            photoVC = HXPHAlbumViewController.init()
-        }else {
-            photoVC = HXPHPickerViewController.init()
-        }
         self.config = config
         if config.selectMode == .multiple &&
             !config.allowSelectedTogether &&
@@ -250,7 +242,14 @@ open class HXPHPickerController: UINavigationController {
             config.selectType == .any {
             singleVideo = true
         }
-        super.init(rootViewController: photoVC)
+        super.init(nibName: nil, bundle: nil)
+        var photoVC : UIViewController
+        if config.albumShowMode == .normal {
+            photoVC = HXPHAlbumViewController.init()
+        }else {
+            photoVC = HXPHPickerViewController.init()
+        }
+        self.viewControllers = [photoVC]
     }
     
     /// 外部预览资源初始化
@@ -258,14 +257,15 @@ open class HXPHPickerController: UINavigationController {
     ///   - config: 相关配置
     ///   - modalPresentationStyle: 设置 custom 样式，框架自带动画效果
     public init(preview config: HXPHPickerConfiguration, currentIndex: Int, modalPresentationStyle: UIModalPresentationStyle) {
-        isPreviewAsset = true
         HXPHManager.shared.appearanceStyle = config.appearanceStyle
         _ = HXPHManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
+        isPreviewAsset = true
+        super.init(nibName: nil, bundle: nil)
         let vc = HXPHPreviewViewController.init()
         vc.isExternalPreview = true
         vc.currentPreviewIndex = currentIndex
-        super.init(rootViewController: vc)
+        self.viewControllers = [vc]
         self.modalPresentationStyle = modalPresentationStyle
         if modalPresentationStyle == .custom {
             transitioningDelegate = self
@@ -318,10 +318,6 @@ open class HXPHPickerController: UINavigationController {
         }
     }
     private var interactiveTransition: HXPHPickerInteractiveTransition?
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        self.config = HXPHPickerConfiguration.init()
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -593,7 +589,7 @@ extension HXPHPickerController {
 extension HXPHPickerController {
     
     func configBackgroundColor() {
-        view.backgroundColor = HXPHManager.shared.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
+        view.backgroundColor = HXPHManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
     }
     func finishCallback() {
         pickerControllerDelegate?.pickerController?(self, didFinishSelection: selectedAssetArray, isOriginal)
@@ -866,7 +862,7 @@ extension HXPHPickerController {
         if modalPresentationStyle != .custom {
             configBackgroundColor()
         }
-        let isDark = HXPHManager.shared.isDark
+        let isDark = HXPHManager.isDark
         navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : isDark ? config.navigationTitleDarkColor : config.navigationTitleColor]
         navigationBar.tintColor = isDark ? config.navigationDarkTintColor : config.navigationTintColor
         navigationBar.barStyle = isDark ? config.navigationBarDarkStyle : config.navigationBarStyle

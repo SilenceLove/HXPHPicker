@@ -9,9 +9,9 @@
 import UIKit
 import AVKit
 
-class HXPHVideoView: UIView {
+class HXPHVideoView: HXPHVideoPlayerView {
     
-    var avAsset: AVAsset? {
+    override var avAsset: AVAsset? {
         didSet {
             if playButton.alpha == 0 {
                 UIView.animate(withDuration: 0.25) {
@@ -23,17 +23,6 @@ class HXPHVideoView: UIView {
             playerLayer.player = player
             addedPlayerObservers()
         }
-    }
-    override class var layerClass: AnyClass {
-        return AVPlayerLayer.self
-    }
-    
-    lazy var player: AVPlayer = {
-        let player = AVPlayer.init()
-        return player
-    }()
-    var playerLayer: AVPlayerLayer {
-        return layer as! AVPlayerLayer
     }
     
     lazy var playButton: UIButton = {
@@ -64,8 +53,8 @@ class HXPHVideoView: UIView {
         }
     }
     
-    init() {
-        super.init(frame: CGRect.zero)
+    override init() {
+        super.init()
         layer.masksToBounds = true
         playerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         addSubview(playButton)
@@ -207,7 +196,6 @@ class HXPHVideoView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        playerLayer.frame = bounds
         playButton.centerX = width * 0.5
         playButton.centerY = height * 0.5
     }

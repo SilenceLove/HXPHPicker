@@ -159,4 +159,79 @@ public class HXPHTools: NSObject {
             return
         }
     }
+    
+    class func transformImageSize(_ imageSize: CGSize, to view: UIView) -> CGRect {
+        return transformImageSize(imageSize, toViewSize: view.size)
+    }
+    
+    class func transformImageSize(_ imageSize: CGSize, toViewSize viewSize: CGSize, directions: [HXPHToolsTransformImageSizeDirections] = [.horizontal, .vertical]) -> CGRect {
+        var size: CGSize = .zero
+        var center: CGPoint = .zero
+        
+        func handleVertical(_ imageSize: CGSize, _ viewSize: CGSize) -> (CGSize, CGPoint) {
+            let aspectRatio = viewSize.width / imageSize.width
+            let contentWidth = viewSize.width
+            let contentHeight = imageSize.height * aspectRatio
+            let _size = CGSize(width: contentWidth, height: contentHeight)
+            if contentHeight < viewSize.height {
+                let center = CGPoint(x: viewSize.width * 0.5, y: viewSize.height * 0.5)
+                return (_size, center)
+            }
+            return (_size, .zero)
+        }
+        func handleHorizontal(_ imageSize: CGSize, _ viewSize: CGSize) -> (CGSize, CGPoint) {
+            let aspectRatio = viewSize.height / imageSize.height
+            var contentWidth = imageSize.width * aspectRatio
+            var contentHeight = viewSize.height
+            if contentWidth > viewSize.width {
+                contentHeight = viewSize.width / contentWidth * contentHeight
+                contentWidth = viewSize.width
+            }
+            let _size = CGSize(width: contentWidth, height: contentHeight)
+            return (_size, .zero)
+        }
+        
+        if directions.contains(.horizontal) && directions.contains(.vertical) {
+            if UIDevice.isPortrait {
+                let content = handleVertical(imageSize, viewSize)
+                size = content.0
+                center = content.1
+            }else {
+                let content = handleHorizontal(imageSize, viewSize)
+                size = content.0
+            }
+        }else if directions.contains(.horizontal) {
+            size = handleHorizontal(imageSize, viewSize).0
+        }else if directions.contains(.vertical) {
+            let content = handleVertical(imageSize, viewSize)
+            size = content.0
+            center = content.1
+        }
+//        if UIDevice.isPortrait {
+//            let aspectRatio = viewSize.width / imageSize.width
+//            let contentWidth = viewSize.width
+//            let contentHeight = imageSize.height * aspectRatio
+//            imageSize = CGSize(width: contentWidth, height: contentHeight)
+//            if contentHeight < viewSize.height {
+//                imageCenter = CGPoint(x: viewSize.width * 0.5, y: viewSize.height * 0.5)
+//            }
+//        }else {
+//            let aspectRatio = viewSize.height / imageSize.height
+//            let contentWidth = imageSize.width * aspectRatio
+//            let contentHeight = viewSize.height
+//            imageSize = CGSize(width: contentWidth, height: contentHeight)
+//        }
+        var rectY: CGFloat
+        if center.equalTo(.zero) {
+            rectY = 0
+        }else {
+            rectY = (viewSize.height - size.height) * 0.5
+        }
+        return CGRect(x: (viewSize.width - size.width) * 0.5, y: rectY, width: size.width, height: size.height)
+    }
+}
+
+enum HXPHToolsTransformImageSizeDirections {
+    case horizontal
+    case vertical
 }
