@@ -538,17 +538,6 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
                 return
             }
         }
-//        _ = getCell(for: currentPreviewIndex)?.scrollContentView.stopVideo()
-//        _ = HXPHProgressHUD.showLoadingHUD(addedTo: self.view, text: "视频获取中".localized, animated: true)
-//        weak var weakSelf = self
-//        _ = photoAsset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (photoAsset, avAsset, info) in
-//            HXPHProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
-//            let videoEditorVC = HXVideoEditorViewController.init(avAsset: avAsset, config: .init())
-//            videoEditorVC.delegate = weakSelf
-//            weakSelf?.navigationController?.pushViewController(videoEditorVC, animated: true)
-//        } failure: { (photoAsset, info) in
-//            HXPHProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
-//        }
     }
     func bottomView(didFinishButtonClick bottomView: HXPHPickerBottomView) {
         if previewAssets.isEmpty {
@@ -592,13 +581,3 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
         self.requestPreviewTimer = nil
     }
 }
-
-//extension HXPHPreviewViewController: HXVideoEditorViewControllerDelegate {
-//    public func videoEditorViewController(_ videoEditorViewController: HXVideoEditorViewController, didFinish videoURL: URL) {
-//        let photoAsset = HXPHAsset.init(videoURL: videoURL)
-//        pickerController?.addedCameraPhotoAsset(photoAsset)
-//    }
-//    public func videoEditorViewController(didCancel videoEditorViewController: HXVideoEditorViewController) {
-//        
-//    }
-//}
