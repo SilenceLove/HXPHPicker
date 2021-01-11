@@ -538,7 +538,6 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
                 return
             }
         }
-//#if
 //        _ = getCell(for: currentPreviewIndex)?.scrollContentView.stopVideo()
 //        _ = HXPHProgressHUD.showLoadingHUD(addedTo: self.view, text: "视频获取中".localized, animated: true)
 //        weak var weakSelf = self
@@ -550,7 +549,6 @@ extension HXPHPreviewViewController: HXPHPickerBottomViewDelegate {
 //        } failure: { (photoAsset, info) in
 //            HXPHProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
 //        }
-//#endif
     }
     func bottomView(didFinishButtonClick bottomView: HXPHPickerBottomView) {
         if previewAssets.isEmpty {
