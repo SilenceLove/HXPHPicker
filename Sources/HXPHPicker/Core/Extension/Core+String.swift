@@ -9,7 +9,7 @@
 import UIKit
 import CommonCrypto
 
-public extension String {
+extension String {
     
     var localized: String {
         get {

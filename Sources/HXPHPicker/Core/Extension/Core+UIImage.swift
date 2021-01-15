@@ -8,13 +8,13 @@
 
 import UIKit
 
-public extension UIImage {
+extension UIImage {
     
     class func image(for named: String?) -> UIImage? {
         if named == nil {
             return nil
         }
-        let bundle = HXPHManager.shared.bundle
+        let bundle = PhotoManager.shared.bundle
         var image : UIImage?
         if bundle != nil {
             var path = bundle?.path(forResource: "images", ofType: nil)

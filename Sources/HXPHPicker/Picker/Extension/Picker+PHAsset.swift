@@ -44,8 +44,8 @@ import Photos
             options.isSynchronous = true
             options.deliveryMode = .fastFormat
             options.resizeMode = .fast
-            _ = HXPHAssetManager.requestImageData(for: self, options: options) { (imageData, dataUTI, orientation, info) in
-                if imageData == nil && HXPHAssetManager.assetIsInCloud(for: info) {
+            _ = AssetManager.requestImageData(for: self, options: options) { (imageData, dataUTI, orientation, info) in
+                if imageData == nil && AssetManager.assetIsInCloud(for: info) {
                     isICloud = true
                 }
             }

@@ -10,10 +10,10 @@ import UIKit
 
 extension UIViewController {
     
-    var pickerController: HXPHPickerController? {
+    var pickerController: PhotoPickerController? {
         get {
-            if self.navigationController is HXPHPickerController {
-                return self.navigationController as? HXPHPickerController
+            if self.navigationController is PhotoPickerController {
+                return self.navigationController as? PhotoPickerController
             }
             return nil
         }

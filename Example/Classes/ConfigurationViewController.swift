@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import HXPHPicker
 
 protocol ConfigurationViewControllerDelegate: NSObjectProtocol {
-    func ConfigurationViewControllerDidSave(_ config: HXPHPickerConfiguration)
+    func ConfigurationViewControllerDidSave(_ config: PickerConfiguration)
 }
 
 class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
@@ -38,9 +39,9 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var saveAlbumSwitch: UISwitch!
     @IBOutlet weak var customAlbumNameField: UITextField!
     
-    var config: HXPHPickerConfiguration
+    var config: PickerConfiguration
     
-    init(config: HXPHPickerConfiguration) {
+    init(config: PickerConfiguration) {
         self.config = config
         super.init(nibName:"ConfigurationViewController",bundle: nil)
     }
@@ -82,11 +83,11 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         dismiss(animated: true, completion: nil)
     }
     @objc func didSaveButtonClick() {
-        config.languageType = HXPHLanguageType.init(rawValue: languageControl.selectedSegmentIndex)!
-        config.selectType = HXPHPickerSelectType.init(rawValue: selectTypeControl.selectedSegmentIndex)!
-        config.selectMode = HXPHPickerSelectMode.init(rawValue: selectModeControl.selectedSegmentIndex)!
-        config.albumShowMode = HXPHPickerAlbumShowMode.init(rawValue: albumShowModeControl.selectedSegmentIndex)!
-        config.appearanceStyle = HXPHAppearanceStyle.init(rawValue: appearanceStyleControl.selectedSegmentIndex)!
+        config.languageType = LanguageType.init(rawValue: languageControl.selectedSegmentIndex)!
+        config.selectType = SelectType.init(rawValue: selectTypeControl.selectedSegmentIndex)!
+        config.selectMode = SelectMode.init(rawValue: selectModeControl.selectedSegmentIndex)!
+        config.albumShowMode = AlbumShowMode.init(rawValue: albumShowModeControl.selectedSegmentIndex)!
+        config.appearanceStyle = AppearanceStyle.init(rawValue: appearanceStyleControl.selectedSegmentIndex)!
         config.allowSelectedTogether = allowTogetherSelectedSwitch.isOn
         config.allowLoadPhotoLibrary = allowLoadPhotoLibrarySwitch.isOn
         config.creationDate = createdDateSwitch.isOn
@@ -116,7 +117,7 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         view.endEditing(true)
     }
     required init?(coder aDecoder: NSCoder) {
-        self.config = HXPHPickerConfiguration.init()
+        self.config = PickerConfiguration.init()
         super.init(coder: aDecoder)
     }
 }

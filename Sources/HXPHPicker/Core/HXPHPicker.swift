@@ -7,7 +7,4 @@
 //
 
 import UIKit
-
-public class HXPHPicker: NSObject {
-    
-}
+class HXPHPicker: NSObject {}

@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7B73D627259C76210045DA42"
-               BuildableName = "HXPHPicker.app"
+               BlueprintIdentifier = "7BBBD56325AEFDD600301DCC"
+               BuildableName = "HXPHPicker.framework"
                BlueprintName = "HXPHPicker"
                ReferencedContainer = "container:HXPHPicker.xcodeproj">
             </BuildableReference>
@@ -40,16 +40,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7B73D627259C76210045DA42"
-            BuildableName = "HXPHPicker.app"
-            BlueprintName = "HXPHPicker"
-            ReferencedContainer = "container:HXPHPicker.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -57,16 +47,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "7B73D627259C76210045DA42"
-            BuildableName = "HXPHPicker.app"
+            BlueprintIdentifier = "7BBBD56325AEFDD600301DCC"
+            BuildableName = "HXPHPicker.framework"
             BlueprintName = "HXPHPicker"
             ReferencedContainer = "container:HXPHPicker.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

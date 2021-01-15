@@ -43,8 +43,16 @@ dependencies: [
 
 将下面内容添加到 `Podfile`，并执行依赖更新。
 
-```ruby
+```swift
 pod 'HXPHPicker'
+```
+
+### [Carthage](https://github.com/Carthage/Carthage)
+
+将下面内容添加到 `Cartfile`，并执行依赖更新。
+
+```swift
+github "SilenceLove/HXPHPicker"
 ```
 
 ## 使用方法
@@ -69,10 +77,10 @@ class ViewController: UIViewController {
 
     func presentPickerController() {
         // 设置与微信主题一致的配置
-        let config = HXPHTools.getWXPickerConfig()
-        let pickerController = HXPHPickerController.init(picker: config)
+        let config = PhotoTools.getWXPickerConfig()
+        let pickerController = PhotoPickerController.init(picker: config)
         pickerController.pickerControllerDelegate = self
-        // 当前被选择的资源对应的 HXPHAsset 对象数组
+        // 当前被选择的资源对应的 PhotoAsset 对象数组
         pickerController.selectedAssetArray = selectedAssets 
         // 是否选中原图
         pickerController.isOriginal = isOriginal
@@ -80,14 +88,14 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: HXPHPickerControllerDelegate {
+extension ViewController: PhotoPickerControllerDelegate {
     
     /// 选择完成之后调用，单选模式下不会触发此回调
     /// - Parameters:
-    ///   - pickerController: 对应的 HXPHPickerController
-    ///   - selectedAssetArray: 选择的资源对应的 HXPHAsset 数据
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - selectedAssetArray: 选择的资源对应的 PhotoAsset 数据
     ///   - isOriginal: 是否选中的原图
-    func pickerController(_ pickerController: HXPHPickerController, didFinishSelection selectedAssetArray: [HXPHAsset], _ isOriginal: Bool) {
+    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection selectedAssetArray: [PhotoAsset], _ isOriginal: Bool) {
         self.selectedAssets = selectedAssetArray
         self.isOriginal = isOriginal
     }
@@ -95,26 +103,26 @@ extension ViewController: HXPHPickerControllerDelegate {
     
     /// 单选完成之后调用
     /// - Parameters:
-    ///   - pickerController: 对应的 HXPHPickerController
-    ///   - photoAsset: 对应的 HXPHAsset 数据
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应的 PhotoAsset 数据
     ///   - isOriginal: 是否选中的原图
-    func pickerController(_ pickerController: HXPHPickerController, singleFinishSelection photoAsset:HXPHAsset, _ isOriginal: Bool) {
+    func pickerController(_ pickerController: PhotoPickerController, singleFinishSelection photoAsset:PhotoAsset, _ isOriginal: Bool) {
         self.selectedAssets = [photoAsset]
         self.isOriginal = isOriginal
     }
     
     /// 点击取消时调用
-    /// - Parameter pickerController: 对应的 HXPHPickerController
-    func pickerController(didCancel pickerController: HXPHPickerController) {
+    /// - Parameter pickerController: 对应的 PhotoPickerController
+    func pickerController(didCancel pickerController: PhotoPickerController) {
         
     }
     
     /// dismiss后调用
     /// - Parameters:
-    ///   - pickerController: 对应的 HXPHPickerController
-    ///   - localCameraAssetArray: 相机拍摄存在本地的 HXPHAsset 数据
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - localCameraAssetArray: 相机拍摄存在本地的 PhotoAsset 数据
     ///     可以在下次进入选择时赋值给localCameraAssetArray，列表则会显示
-    func pickerController(_ pickerController: HXPHPickerController, didDismissComplete localCameraAssetArray: [HXPHAsset]) {
+    func pickerController(_ pickerController: PhotoPickerController, didDismissComplete localCameraAssetArray: [PhotoAsset]) {
         
     }
 }
