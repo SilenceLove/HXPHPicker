@@ -68,7 +68,7 @@ open class PickerConfiguration: BaseConfiguration {
     
     /// 允许编辑视频，只控制按钮是否被禁用
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
-    public var allowEditVideo: Bool = true
+    public var allowEditVideo: Bool = false
     
     /// 状态栏样式
     public var statusBarStyle: UIStatusBarStyle = .default

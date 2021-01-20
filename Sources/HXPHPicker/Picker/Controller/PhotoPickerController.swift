@@ -511,6 +511,7 @@ extension PhotoPickerController {
             var localIndex = -1
             for (index, photoAsset) in self.selectedAssetArray.enumerated() {
                 photoAsset.selectIndex = index
+                photoAsset.isSelected = true
                 if let phAsset = photoAsset.phAsset {
                     selectedAssets.append(phAsset)
                     selectedPhotoAssets.append(photoAsset)
@@ -926,7 +927,6 @@ extension PhotoPickerController {
             return
         }
         for photoAsset in selectedAssetArray {
-            photoAsset.isSelected = true
             if photoAsset.mediaType == .photo {
                 selectedPhotoAssetArray.append(photoAsset)
             }else if photoAsset.mediaType == .video {

@@ -132,6 +132,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#103) | 2021-01-20 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#102) | 2021-01-11 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#101) | 2021-01-08 | 12.2 | 5.3 | 9.0+ |
 
