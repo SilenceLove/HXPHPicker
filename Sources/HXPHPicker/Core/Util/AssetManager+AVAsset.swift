@@ -1,5 +1,5 @@
 //
-//  AssetManager+Video.swift
+//  AssetManager+AVAsset.swift
 //  HXPHPicker
 //
 //  Created by Slience on 2021/1/8.
@@ -8,7 +8,7 @@
 import UIKit
 import Photos
 
-public typealias VideoResultHandler = (AVAsset?, AVAudioMix?, [AnyHashable : Any]?) -> Void
+public typealias AVAssetResultHandler = (AVAsset?, AVAudioMix?, [AnyHashable : Any]?) -> Void
 
 public extension AssetManager {
     
@@ -57,7 +57,7 @@ public extension AssetManager {
     ///   - progressHandler: iCloud下载进度
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
-    class func requestAVAsset(for asset: PHAsset, version: PHVideoRequestOptionsVersion, deliveryMode: PHVideoRequestOptionsDeliveryMode, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping VideoResultHandler) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset, version: PHVideoRequestOptionsVersion, deliveryMode: PHVideoRequestOptionsDeliveryMode, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         let options = PHVideoRequestOptions.init()
         options.isNetworkAccessAllowed = isNetworkAccessAllowed
         options.progressHandler = progressHandler
@@ -72,7 +72,7 @@ public extension AssetManager {
     ///   - options: 可选项
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
-    class func requestAVAsset(for asset: PHAsset, options: PHVideoRequestOptions, resultHandler: @escaping VideoResultHandler) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset, options: PHVideoRequestOptions, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         return PHImageManager.default().requestAVAsset(forVideo: asset, options: options, resultHandler: resultHandler)
     }
 }

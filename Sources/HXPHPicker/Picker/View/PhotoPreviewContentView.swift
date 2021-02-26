@@ -93,7 +93,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             canRequest = false
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             if loadingView == nil {
-                loadingView = ProgressHUD.showLoadingHUD(addedTo: self, text: "正在下载".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
+                loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
             }
         }else {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -225,7 +225,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         requestID = iCloudRequestID
         currentLoadAssetLocalIdentifier = photoAsset.phAsset?.localIdentifier
-        loadingView = ProgressHUD.showLoadingHUD(addedTo: self, text: "正在下载".localized, animated: true)
+        loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized, animated: true)
     }
     func requestUpdateProgress(progress: Double) {
         loadingView?.updateText(text: "正在下载".localized + "(" + String(Int(progress * 100)) + "%)")
@@ -234,7 +234,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         currentLoadAssetLocalIdentifier = nil
         loadingView = nil
-        ProgressHUD.hideHUD(forView: self, animated: true)
+        ProgressHUD.hide(forView: self, animated: true)
     }
     func requestFailed(info: [AnyHashable : Any]?) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -242,8 +242,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         loadingView = nil
         currentLoadAssetLocalIdentifier = nil
         if !AssetManager.assetCancelDownload(for: info) {
-            ProgressHUD.hideHUD(forView: self, animated: true)
-            ProgressHUD.showWarningHUD(addedTo: self, text: "下载失败".localized, animated: true, delay: 2)
+            ProgressHUD.hide(forView: self, animated: true)
+            ProgressHUD.showWarning(addedTo: self, text: "下载失败".localized, animated: true, delayHide: 2)
         }
     }
     func cancelRequest() {
@@ -257,7 +257,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             requestID = nil
         }
         stopAnimatedImage()
-        ProgressHUD.hideHUD(forView: self, animated: false)
+        ProgressHUD.hide(forView: self, animated: false)
         if type == .livePhoto {
             if #available(iOS 9.1, *) {
                 livePhotoView.stopPlayback()
@@ -284,7 +284,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             videoView.hiddenPlayButton()
         }
         loadingView = nil
-        ProgressHUD.hideHUD(forView: self, animated: false)
+        ProgressHUD.hide(forView: self, animated: false)
     }
     func startAnimatedImage() {
         if photoAsset.mediaSubType == .imageAnimated {

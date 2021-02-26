@@ -254,7 +254,7 @@ extension PhotoPickerViewController {
         }
         if pickerController!.selectArrayIsFull() && showHUD {
             swipeSelectPanGR?.isEnabled = false
-            ProgressHUD.showWarningHUD(addedTo: navigationController?.view, text: String.init(format: "已达到最大选择数".localized, arguments: [pickerController!.config.maximumSelectedPhotoCount]), animated: true, delay: 1.5)
+            ProgressHUD.showWarning(addedTo: navigationController?.view, text: String.init(format: "已达到最大选择数".localized, arguments: [pickerController!.config.maximumSelectedPhotoCount]), animated: true, delayHide: 1.5)
             clearSwipeSelectData()
             swipeSelectPanGR?.isEnabled = true
         }

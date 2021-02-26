@@ -356,7 +356,7 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
 extension VideoEditorViewController: EditorToolViewDelegate {
     
     func toolView(didFinishButtonClick toolView: EditorToolView) {
-        _ = ProgressHUD.showLoadingHUD(addedTo: view, text: "视频导出中", animated: true)
+        _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中", animated: true)
         if let startTime = playerView.playStartTime, let endTime = playerView.playEndTime {
             weak var weakSelf = self
             PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { (videoURL, error) in
@@ -364,8 +364,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                     weakSelf?.delegate?.videoEditorViewController?(weakSelf!, didFinish: videoURL)
                     weakSelf?.backAction()
                 }else {
-                    ProgressHUD.hideHUD(forView: weakSelf?.view, animated: true)
-                    ProgressHUD.showWarningHUD(addedTo: weakSelf?.view, text: "导出失败", animated: true, delay: 1.5)
+                    ProgressHUD.hide(forView: weakSelf?.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: weakSelf?.view, text: "导出失败", animated: true, delayHide: 1.5)
                 }
             }
             

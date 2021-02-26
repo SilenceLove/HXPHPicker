@@ -5,7 +5,7 @@
 //  Created by Slience on 2021/1/8.
 //
 
-import Foundation
+import UIKit
 
 open class BaseConfiguration: NSObject {
     
@@ -20,4 +20,10 @@ open class BaseConfiguration: NSObject {
     
     /// 隐藏状态栏
     public var prefersStatusBarHidden: Bool = false
+    
+    /// 允许旋转
+    public var shouldAutorotate: Bool = true
+    
+    /// 支持的方向
+    public var supportedInterfaceOrientations: UIInterfaceOrientationMask = .all
 }

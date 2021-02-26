@@ -61,10 +61,16 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     
     /// 当前选中时显示的标题数字
     open var selectedTitle: String = "0"
+    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
+        requestThumbnailImage(targetWidth: width * 2)
+    }
+    
+    /// 获取图片，重写此方法可以修改图片
+    open func requestThumbnailImage(targetWidth: CGFloat) {
         weak var weakSelf = self
-        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { (image, photoAsset, info) in
+        requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { (image, photoAsset, info) in
             if photoAsset == weakSelf?.photoAsset && image != nil {
                 if !(weakSelf?.firstLoadCompletion ?? true) {
                     weakSelf?.isHidden = false

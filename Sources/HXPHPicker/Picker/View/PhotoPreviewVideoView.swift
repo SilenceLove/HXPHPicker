@@ -94,7 +94,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
         isPlaying = false
     }
     func hiddenPlayButton() {
-        ProgressHUD.hideHUD(forView: self, animated: true)
+        ProgressHUD.hide(forView: self, animated: true)
         UIView.animate(withDuration: 0.15) {
             self.playButton.alpha = 0
         }
@@ -118,7 +118,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             player.replaceCurrentItem(with: nil)
             playerLayer.player = nil
             removePlayerObservers()
-            ProgressHUD.hideHUD(forView: self, animated: true)
+            ProgressHUD.hide(forView: self, animated: true)
         }
     }
     func addedPlayerObservers() {
@@ -169,10 +169,10 @@ class PhotoPreviewVideoView: VideoPlayerView {
             }else if keyPath == "playbackLikelyToKeepUp" {
                 if !player.currentItem!.isPlaybackLikelyToKeepUp {
                     // 缓冲完成
-                    _ = ProgressHUD.showLoadingHUD(addedTo: self, animated: true)
+                    _ = ProgressHUD.showLoading(addedTo: self, animated: true)
                 }else {
                     // 缓冲中
-                    ProgressHUD.hideHUD(forView: self, animated: true)
+                    ProgressHUD.hide(forView: self, animated: true)
                 }
             }
         }else if object is AVPlayerLayer && keyPath == "readyForDisplay" {

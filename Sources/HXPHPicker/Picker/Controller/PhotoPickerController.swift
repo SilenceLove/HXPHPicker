@@ -262,6 +262,14 @@ open class PhotoPickerController: UINavigationController {
         self.viewControllers = [photoVC]
     }
     
+    /// 外部预览资源初始化，默认自带动画效果
+    /// - Parameters:
+    ///   - config: 相关配置
+    ///   - currentIndex: 当前预览的下标
+    public convenience init(preview config: PickerConfiguration, currentIndex: Int) {
+        self.init(preview: config, currentIndex: currentIndex, modalPresentationStyle: .custom)
+    }
+    
     /// 外部预览资源初始化
     /// - Parameters:
     ///   - config: 相关配置
@@ -340,7 +348,9 @@ open class PhotoPickerController: UINavigationController {
             setOptions()
             requestAuthorization()
         }else {
-            interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .dismiss)
+            if modalPresentationStyle == .custom {
+                interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .dismiss)
+            }
         }
     }
     public override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
@@ -357,8 +367,9 @@ open class PhotoPickerController: UINavigationController {
             deniedView.frame = view.bounds
         }
     }
+    
     public override var preferredStatusBarStyle: UIStatusBarStyle {
-        return config.statusBarStyle
+        config.statusBarStyle
     }
     public override var prefersStatusBarHidden: Bool {
         if config.prefersStatusBarHidden {
@@ -366,6 +377,12 @@ open class PhotoPickerController: UINavigationController {
         }else {
             return topViewController?.prefersStatusBarHidden ?? false
         }
+    }
+    open override var shouldAutorotate: Bool {
+        config.shouldAutorotate
+    }
+    open override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        config.supportedInterfaceOrientations
     }
     public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
         return topViewController?.preferredStatusBarUpdateAnimation ?? UIStatusBarAnimation.fade
@@ -388,7 +405,6 @@ open class PhotoPickerController: UINavigationController {
     
     deinit {
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
-        print("\(self) deinit")
     }
 }
 
@@ -843,7 +859,7 @@ extension PhotoPickerController {
             }
         }
         if !canSelect && text != nil && showHUD {
-            ProgressHUD.showWarningHUD(addedTo: view, text: text!, animated: true, delay: 1.5)
+            ProgressHUD.showWarning(addedTo: view, text: text!, animated: true, delayHide: 1.5)
         }
         return canSelect
     }
@@ -907,7 +923,7 @@ extension PhotoPickerController {
         if status.rawValue >= 3 {
             PHPhotoLibrary.shared().register(self)
             // 有权限
-            _ = ProgressHUD.showLoadingHUD(addedTo: view, afterDelay: 0.15, animated: true)
+            _ = ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
             fetchCameraAssetCollection()
         }else if status.rawValue >= 1 {
             // 无权限

@@ -61,7 +61,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         if type == .pop {
             if let cell = previewViewController?.getCell(for: previewViewController?.currentPreviewIndex ?? 0), let contentView = cell.scrollContentView {
                 let toRect = contentView.convert(contentView.bounds, to: cell.scrollView)
-                if  ((cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || toRect.minX != 0)) && !canInteration {
+                if  ((cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || (toRect.minX != 0 && contentView.width > cell.scrollView.width))) && !canInteration {
                     return
                 }else {
                     isTracking = cell.scrollView.isTracking

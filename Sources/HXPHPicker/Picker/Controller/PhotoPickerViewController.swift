@@ -278,7 +278,7 @@ extension PhotoPickerViewController {
             title = ""
             navigationItem.titleView = titleLabel
             if showLoading {
-                _ = ProgressHUD.showLoadingHUD(addedTo: view, afterDelay: 0.15, animated: true)
+                _ = ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
             }
             fetchPhotoAssets()
         }
@@ -312,10 +312,10 @@ extension PhotoPickerViewController {
             weakSelf?.collectionView.reloadData()
             weakSelf?.scrollToAppropriatePlace(photoAsset: photoAsset)
             if weakSelf != nil && weakSelf!.showLoading {
-                ProgressHUD.hideHUD(forView: weakSelf?.view, animated: true)
+                ProgressHUD.hide(forView: weakSelf?.view, animated: true)
                 weakSelf?.showLoading = false
             }else {
-                ProgressHUD.hideHUD(forView: weakSelf?.navigationController?.view, animated: false)
+                ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: false)
             }
         }
     }
@@ -477,7 +477,7 @@ extension PhotoPickerViewController {
         collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     func changedAssetCollection(collection: PhotoAssetCollection?) {
-        _ = ProgressHUD.showLoadingHUD(addedTo: navigationController?.view, animated: true)
+        _ = ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
         if collection == nil {
             updateTitle()
             fetchPhotoAssets()
@@ -528,8 +528,8 @@ extension PhotoPickerViewController {
         if control.isSelected {
             // 展开
             if albumView.assetCollectionsArray.isEmpty {
-//                ProgressHUD.showLoadingHUD(addedTo: view, animated: true)
-//                ProgressHUD.hideHUD(forView: weakSelf?.navigationController?.view, animated: true)
+//                ProgressHUD.showLoading(addedTo: view, animated: true)
+//                ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: true)
                 control.isSelected = false
                 return
             }
@@ -546,6 +546,7 @@ extension PhotoPickerViewController {
     }
     
     func openAlbumView() {
+        collectionView.scrollsToTop = false
         albumBackgroudView.alpha = 0
         albumBackgroudView.isHidden = false
         albumView.scrollToMiddle()
@@ -557,6 +558,7 @@ extension PhotoPickerViewController {
     }
     
     func closeAlbumView() {
+        collectionView.scrollsToTop = true
         UIView.animate(withDuration: 0.25) {
             self.albumBackgroudView.alpha = 0
             self.configAlbumViewFrame()
@@ -659,7 +661,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
         if cell is PickerCamerViewCell {
             if !UIImagePickerController.isSourceTypeAvailable(.camera) {
-                ProgressHUD.showWarningHUD(addedTo: self.navigationController?.view, text: "相机不可用!".localized, animated: true, delay: 1.5)
+                ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "相机不可用!".localized, animated: true, delayHide: 1.5)
                 return
             }
             AssetManager.requestCameraAccess { (granted) in
@@ -720,7 +722,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
     }
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        _ = ProgressHUD.showLoadingHUD(addedTo: self.navigationController?.view, animated: true)
+        _ = ProgressHUD.showLoading(addedTo: self.navigationController?.view, animated: true)
         picker.dismiss(animated: true, completion: nil)
         DispatchQueue.global().async {
             let mediaType = info[.mediaType] as! String
@@ -748,8 +750,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                             let phAsset: PhotoAsset = PhotoAsset.init(videoURL: url, localIdentifier: String(Date.init().timeIntervalSince1970))
                             self.addedCameraPhotoAsset(phAsset)
                         }else {
-                            ProgressHUD.hideHUD(forView: self.navigationController?.view, animated: false)
-                            ProgressHUD.showWarningHUD(addedTo: self.navigationController?.view, text: "视频导出失败".localized, animated: true, delay: 1.5)
+                            ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
+                            ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "视频导出失败".localized, animated: true, delayHide: 1.5)
                         }
                     }
                     return
@@ -770,15 +772,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                 self.addedCameraPhotoAsset(PhotoAsset.init(asset: phAsset))
             }else {
                 DispatchQueue.main.async {
-                    ProgressHUD.hideHUD(forView: self.navigationController?.view, animated: true)
-                    ProgressHUD.showWarningHUD(addedTo: self.navigationController?.view, text: "保存失败".localized, animated: true, delay: 1.5)
+                    ProgressHUD.hide(forView: self.navigationController?.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "保存失败".localized, animated: true, delayHide: 1.5)
                 }
             }
         }
     }
     func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
         func addPhotoAsset(_ photoAsset: PhotoAsset) {
-            ProgressHUD.hideHUD(forView: self.navigationController?.view, animated: true)
+            ProgressHUD.hide(forView: self.navigationController?.view, animated: true)
             if self.config.takePictureCompletionToSelected {
                 if self.pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
                     self.updateCellSelectedTitle()
@@ -841,7 +843,7 @@ extension PhotoPickerViewController: AlbumViewDelegate {
         assetCollection.isSelected = true
         self.assetCollection.isSelected = false
         self.assetCollection = assetCollection
-        _ = ProgressHUD.showLoadingHUD(addedTo: navigationController?.view, animated: true)
+        _ = ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
         fetchPhotoAssets()
     }
 }

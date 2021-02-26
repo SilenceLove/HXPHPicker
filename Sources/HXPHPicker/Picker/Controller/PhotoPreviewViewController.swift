@@ -190,6 +190,9 @@ extension PhotoPreviewViewController {
     func initView() {
         view.addSubview(collectionView)
         view.addSubview(bottomView)
+        if let pc = pickerController, pc.modalPresentationStyle != .custom, isExternalPreview {
+            configColor()
+        }
         bottomView.updateFinishButtonTitle()
         if isMultipleSelect || isExternalPreview {
             if !pickerController!.config.allowSelectedTogether && pickerController!.config.maximumSelectedVideoCount == 1 &&
@@ -554,24 +557,24 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video {
             _ = getCell(for: currentPreviewIndex)?.scrollContentView.stopVideo()
-            _ = ProgressHUD.showLoadingHUD(addedTo: self.view, text: "视频获取中".localized, animated: true)
+            _ = ProgressHUD.showLoading(addedTo: self.view, text: "视频获取中".localized, animated: true)
             weak var weakSelf = self
             _ = photoAsset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (photoAsset, avAsset, info) in
                 if let weakSelf = weakSelf, let config = weakSelf.pickerController?.config {
-                    ProgressHUD.hideHUD(forView: weakSelf.view, animated: false)
+                    ProgressHUD.hide(forView: weakSelf.view, animated: false)
                     let videoEditorVC = VideoEditorViewController.init(avAsset: avAsset, config: config.videoEditor)
                     videoEditorVC.delegate = weakSelf
                     weakSelf.navigationController?.pushViewController(videoEditorVC, animated: true)
                 }
             } failure: { (photoAsset, info) in
-                ProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
+                ProgressHUD.hide(forView: weakSelf?.view, animated: false)
             }
         }
         #endif
     }
     func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView) {
         if previewAssets.isEmpty {
-            ProgressHUD.showWarningHUD(addedTo: self.view, text: "没有可选资源".localized, animated: true, delay: 2)
+            ProgressHUD.showWarning(addedTo: self.view, text: "没有可选资源".localized, animated: true, delayHide: 2)
             return
         }
         let photoAsset = previewAssets[currentPreviewIndex]

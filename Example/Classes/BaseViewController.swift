@@ -16,6 +16,8 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var pickerStyleControl: UISegmentedControl!
+    @IBOutlet weak var previewStyleControl: UISegmentedControl!
     
     var addCell: BaseAddViewCell {
         get {
@@ -153,14 +155,16 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         pickerController.selectedAssetArray = selectedAssets
         pickerController.localCameraAssetArray = localCameraAssetArray
         pickerController.isOriginal = isOriginal
-//        pickerController.modalPresentationStyle = .fullScreen
+        if pickerStyleControl.selectedSegmentIndex == 0 {
+            pickerController.modalPresentationStyle = .fullScreen
+        }
         present(pickerController, animated: true, completion: nil)
     }
     /// 获取已选资源的地址
     @IBAction func didRequestSelectedAssetURL(_ sender: Any) {
         let total = selectedAssets.count
         if total == 0 {
-            ProgressHUD.showWarningHUD(addedTo: self.view, text: "请先选择资源", animated: true, delay: 1.5)
+            ProgressHUD.showWarning(addedTo: self.view, text: "请先选择资源", animated: true, delay: 1.5)
             return
         }
         weak var weakSelf = self
@@ -184,8 +188,8 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
                             print("LivePhoto中的内容获取失败\(error!)")
                         }
                         if count == total {
-                            ProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
-                            ProgressHUD.showSuccessHUD(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
+                            ProgressHUD.hide(forView: weakSelf?.view, animated: false)
+                            ProgressHUD.showSuccess(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
                         }
                     }
                 }else {
@@ -197,13 +201,13 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
                             print("图片地址获取失败")
                         }
                         if count == total {
-                            ProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
-                            ProgressHUD.showSuccessHUD(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
+                            ProgressHUD.hide(forView: weakSelf?.view, animated: false)
+                            ProgressHUD.showSuccess(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
                         }
                     }
 //                    print("图片：\(photoAsset.originalImage!)")
 //                    if count == total {
-//                        ProgressHUD.hideHUD(forView: weakSelf?.navigationController?.view, animated: true)
+//                        ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: true)
 //                    }
                 }
             }else {
@@ -215,8 +219,8 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
                         print("视频地址：\(videoURL!)")
                     }
                     if count == total {
-                        ProgressHUD.hideHUD(forView: weakSelf?.view, animated: false)
-                        ProgressHUD.showSuccessHUD(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
+                        ProgressHUD.hide(forView: weakSelf?.view, animated: false)
+                        ProgressHUD.showSuccess(addedTo: weakSelf?.view, text: "获取完成", animated: true, delay: 1.5)
                     }
                 }
             }
@@ -265,7 +269,13 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         let previewConfig = PhotoTools.getWXPickerConfig()
 //        previewConfig.prefersStatusBarHidden = true
 //        previewConfig.previewView.bottomView.showSelectedView = false
-        let pickerController = PhotoPickerController.init(preview: previewConfig, currentIndex: indexPath.item, modalPresentationStyle: .custom)
+        var style: UIModalPresentationStyle = .custom
+        if previewStyleControl.selectedSegmentIndex == 1 {
+            if #available(iOS 13.0, *) {
+                style = .automatic
+            }
+        }
+        let pickerController = PhotoPickerController.init(preview: previewConfig, currentIndex: indexPath.item, modalPresentationStyle: style)
         pickerController.selectedAssetArray = selectedAssets
         pickerController.pickerControllerDelegate = self
         // 透明导航栏建议修改取消图片,换张带阴影的图片
@@ -481,15 +491,7 @@ class BaseViewCell: PhotoPickerViewCell {
     }()
     override func requestThumbnailImage() {
         // 因为这里的cell不会很多，重新设置 targetWidth，使图片更加清晰
-        weak var weakSelf = self
-        requestID = photoAsset.requestThumbnailImage(targetWidth: width * UIScreen.main.scale, completion: { (image, photoAsset, info) in
-            if photoAsset == weakSelf?.photoAsset && image != nil {
-                weakSelf?.imageView.image = image
-                if !AssetManager.assetIsDegraded(for: info) {
-                    weakSelf?.requestID = nil
-                }
-            }
-        })
+        super.requestThumbnailImage(targetWidth: width * UIScreen.main.scale)
     }
     @objc func didDeleteButtonClick() {
         baseDelegate?.cell?(didDeleteButton: self)
