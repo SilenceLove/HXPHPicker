@@ -7,32 +7,140 @@
 
 import UIKit
 import AVKit
+import Photos
 
-public enum VideoEditorViewControllerState {
-    case normal
-    case crop
-}
 @objc public protocol VideoEditorViewControllerDelegate: NSObjectProtocol {
-    @objc optional func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish videoURL: URL)
+    
+    /// 编辑完成
+    /// - Parameters:
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
+    ///   - videoURL: 编辑后的视频地址
+    @objc optional func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult)
+    
+    /// 点击完成按钮，但是视频未编辑
+    /// - Parameters:
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
+    @objc optional func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController)
+    
+    /// 取消编辑
+    /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
     @objc optional func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController)
 }
 
 open class VideoEditorViewController: BaseViewController {
     public weak var delegate: VideoEditorViewControllerDelegate?
     public var avAsset: AVAsset!
+    
+    /// 编辑配置
     public var config: VideoEditorConfiguration!
+    
+    /// 编辑状态
     public var state: VideoEditorViewControllerState = .normal
     
-    public convenience init(videoURL: URL, config: VideoEditorConfiguration) {
-        self.init(avAsset: AVAsset.init(url: videoURL), config: config)
+    /// 在视频未获取成功之前展示的视频封面
+    public var coverImage: UIImage?
+    
+    /// 根据视频地址初始化
+    /// - Parameters:
+    ///   - videoURL: 本地视频地址
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public convenience init(videoURL: URL, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+        self.init(avAsset: AVAsset.init(url: videoURL), editResult: editResult, config: config)
     }
-    public init(avAsset: AVAsset, config: VideoEditorConfiguration) {
+    
+    /// 根据AVAsset初始化
+    /// - Parameters:
+    ///   - avAsset: 视频对应的AVAsset对象
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(avAsset: AVAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        if config.mustBeTailored {
+            onceState = config.defaultState
+        }
+        self.editResult = editResult
+        self.state = config.defaultState
         self.config = config
         self.avAsset = avAsset
         videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
         super.init(nibName: nil, bundle: nil)
     }
     
+    /// 是否是从picker界面跳转过来的
+    var isPicker: Bool = false
+    
+    /// 请求获取AVAsset完成
+    var reqeustAssetCompletion: Bool = false
+    
+    var editResult: VideoEditResult?
+    var onceState: VideoEditorViewControllerState = .normal
+    var assetRequestID: PHImageRequestID?
+    var didEdited: Bool = false
+    #if HXPICKER_ENABLE_PICKER
+    /// 视频对应的资源
+    public var photoAsset: PhotoAsset!
+    
+    /// 根据PhotoAsset初始化
+    /// - Parameters:
+    ///   - photoAsset: 视频对应的PhotoAsset对象
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(photoAsset: PhotoAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        if config.mustBeTailored {
+            onceState = config.defaultState
+        }
+        if config.defaultState == .cropping {
+            firstPlay = true
+        }
+        self.editResult = editResult
+        self.state = config.defaultState
+        self.config = config
+        self.photoAsset = photoAsset
+        isPicker = true
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    func requestAVAsset() {
+        weak var weakSelf = self
+        _ = ProgressHUD.showLoading(addedTo: view, text: "视频获取中...".localized, animated: true)
+        view.bringSubviewToFront(topView)
+        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, iCloudHandler: nil, progressHandler: nil) { (photoAsset, avAsset, info) in
+            ProgressHUD.hide(forView: weakSelf?.view, animated: false)
+            weakSelf?.avAsset = avAsset
+            weakSelf?.reqeustAssetCompletion = true
+            weakSelf?.assetRequestComplete()
+        } failure: { (photoAsset, info) in
+            if info?.isCancel != true {
+                ProgressHUD.hide(forView: weakSelf?.view, animated: false)
+                weakSelf?.backAction()
+            }
+        }
+    }
+    func assetRequestComplete() {
+        videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
+        playerView.avAsset = avAsset
+        playerView.configAsset()
+        cropView.avAsset = avAsset
+        if orientationDidChange {
+            setCropViewFrame()
+        }
+        if state == .cropping {
+            state = .normal
+            if playerView.playerLayer.isReadyForDisplay {
+                firstPlay = false
+                croppingAction()
+            }
+        }else {
+            setPlayerViewFrame()
+        }
+    }
+    #endif
+    var firstPlay: Bool = false
+    var firstLayoutSubviews: Bool = true
     var videoSize: CGSize = .zero
     lazy var scrollView : UIScrollView = {
         let scrollView = UIScrollView.init()
@@ -76,12 +184,23 @@ open class VideoEditorViewController: BaseViewController {
         }
     }
     lazy var playerView: VideoEditorPlayerView = {
-        let playerView = VideoEditorPlayerView.init(avAsset: avAsset)
+        let playerView: VideoEditorPlayerView
+        if isPicker {
+            playerView = VideoEditorPlayerView.init()
+        }else {
+            playerView = VideoEditorPlayerView.init(avAsset: avAsset)
+        }
+        playerView.coverImageView.image = coverImage
         playerView.delegate = self
         return playerView
     }()
     lazy var cropView: VideoEditorCropView = {
-        let cropView = VideoEditorCropView.init(avAsset: avAsset, config: config.cropping)
+        let cropView : VideoEditorCropView
+        if isPicker {
+            cropView = VideoEditorCropView.init(config: config.cropping)
+        }else {
+            cropView = VideoEditorCropView.init(avAsset: avAsset, config: config.cropping)
+        }
         cropView.delegate = self
         cropView.alpha = 0
         cropView.isHidden = true
@@ -125,11 +244,15 @@ open class VideoEditorViewController: BaseViewController {
         return layer
     }()
     var orientationDidChange : Bool = true
+    /// 当前裁剪框的位置大小
     var currentValidRect: CGRect = .zero
+    /// 当前裁剪框帧画面的偏移量
     var currentCropOffset: CGPoint?
     var beforeStartTime: CMTime?
     var beforeEndTime: CMTime?
+    /// 旋转之前vc存储的当前编辑数据
     var rotateBeforeStorageData: (CGFloat, CGFloat, CGFloat)?
+    /// 旋转之前cropview存储的裁剪框数据
     var rotateBeforeData: (CGFloat, CGFloat, CGFloat)?
     var playTimer: DispatchSourceTimer?
     
@@ -148,12 +271,27 @@ open class VideoEditorViewController: BaseViewController {
         view.addSubview(toolView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
+        #if HXPICKER_ENABLE_PICKER
+        if isPicker {
+            requestAVAsset()
+        }
+        #endif
+        if let editResult = editResult {
+            didEdited = true
+            playerView.playStartTime = CMTimeMakeWithSeconds(editResult.cropData.startTime, preferredTimescale: 1)
+            playerView.playEndTime = CMTimeMakeWithSeconds(editResult.cropData.endTime, preferredTimescale: 1)
+            rotateBeforeStorageData = editResult.cropData.vcData
+            rotateBeforeData = editResult.cropData.cropViewData
+        }
     }
     @objc func didBackClick() {
         delegate?.videoEditorViewController?(didCancel: self)
         backAction()
     }
     func backAction() {
+        if let requestID = assetRequestID {
+            PHImageManager.default().cancelImageRequest(requestID)
+        }
         if let navigationController = navigationController, navigationController.viewControllers.count > 1 {
             navigationController.popViewController(animated: true)
         }else {
@@ -186,14 +324,45 @@ open class VideoEditorViewController: BaseViewController {
             topView.y = UIDevice.generalStatusBarHeight
         }
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
+        cropConfirmView.frame = toolView.frame
+        scrollView.frame = view.bounds
+        if isPicker {
+            firstLayoutSubviews = false
+            if reqeustAssetCompletion {
+                setCropViewFrame()
+                setPlayerViewFrame()
+            }else {
+                if let size = coverImage?.size {
+                    playerView.frame = PhotoTools.transformImageSize(size, to: view)
+                }else {
+                    playerView.frame = scrollView.bounds
+                }
+                scrollView.contentSize = playerView.size
+            }
+        }else {
+            setCropViewFrame()
+            setPlayerViewFrame()
+            if firstLayoutSubviews {
+                if state == .cropping {
+                    state = .normal
+                    croppingAction()
+                }
+                firstLayoutSubviews = false
+            }
+        }
+    }
+    /// 设置裁剪框frame
+    func setCropViewFrame() {
         if orientationDidChange {
             cropView.configData()
             if let rotateBeforeData = rotateBeforeData {
                 cropView.layoutSubviews()
                 cropView.rotateAfterSetData(offsetXScale: rotateBeforeData.0, validXScale: rotateBeforeData.1, validWithScale: rotateBeforeData.2)
                 cropView.updateTimeLabels()
-                playerView.playStartTime = cropView.getStartTime()
-                playerView.playEndTime = cropView.getEndTime()
+                if state == .cropping || didEdited {
+                    playerView.playStartTime = cropView.getStartTime()
+                    playerView.playEndTime = cropView.getEndTime()
+                }
                 if let rotateBeforeStorageData = rotateBeforeStorageData {
                     rotateAfterSetStorageData(offsetXScale: rotateBeforeStorageData.0, validXScale: rotateBeforeStorageData.1, validWithScale: rotateBeforeStorageData.2)
                 }
@@ -204,9 +373,6 @@ open class VideoEditorViewController: BaseViewController {
                 self.orientationDidChange = false
             }
         }
-        cropConfirmView.frame = toolView.frame
-        setPlayerViewFrame()
-        scrollView.frame = view.bounds
     }
     
     func rotateAfterSetStorageData(offsetXScale: CGFloat, validXScale: CGFloat, validWithScale: CGFloat) {
@@ -236,9 +402,14 @@ open class VideoEditorViewController: BaseViewController {
                 y += UIDevice.generalStatusBarHeight
             }
             let rect = PhotoTools.transformImageSize(videoSize, toViewSize: CGSize(width: width, height: height), directions: [.horizontal])
-            playerView.frame = CGRect(x: leftMargin + (width - rect.width) * 0.5, y: y + (height - rect.height) * 0.5, width: rect.width, height: rect.height)
+            let playerFrame = CGRect(x: leftMargin + (width - rect.width) * 0.5, y: y + (height - rect.height) * 0.5, width: rect.width, height: rect.height)
+            if !playerView.frame.equalTo(playerFrame) {
+                playerView.frame = playerFrame
+            }
         }
-        scrollView.contentSize = playerView.size
+        if !scrollView.contentSize.equalTo(playerView.size) {
+            scrollView.contentSize = playerView.size
+        }
     }
     open override var prefersStatusBarHidden: Bool {
         return config.prefersStatusBarHidden
@@ -249,16 +420,12 @@ open class VideoEditorViewController: BaseViewController {
     }
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if navigationController?.topViewController != self {
-//            navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-//            navigationController?.navigationBar.shadowImage = nil
+        if navigationController?.topViewController != self && navigationController?.viewControllers.contains(self) == false {
             navigationController?.setNavigationBarHidden(false, animated: true)
         }
     }
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        navigationController?.navigationBar.setBackgroundImage(UIImage.image(for: UIColor.clear, havingSize: .zero), for: .default)
-//        navigationController?.navigationBar.shadowImage = UIImage.image(for: UIColor.clear, havingSize: .zero)
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
     deinit {
@@ -268,14 +435,21 @@ open class VideoEditorViewController: BaseViewController {
 
 // MARK: VideoEditorPlayerViewDelegate
 extension VideoEditorViewController: VideoEditorPlayerViewDelegate {
+    func playerView(_ playerViewReadyForDisplay: VideoEditorPlayerView) {
+        if firstPlay {
+            croppingAction()
+            firstPlay = false
+        }
+    }
+    
     func playerView(_ playerView: VideoEditorPlayerView, didPlayAt time: CMTime) {
-        if state == .crop {
+        if state == .cropping {
             cropView.startLineAnimation(at: time)
         }
     }
     
     func playerView(_ playerView: VideoEditorPlayerView, didPauseAt time: CMTime) {
-        if state == .crop {
+        if state == .cropping {
             cropView.stopLineAnimation()
         }
     }
@@ -305,7 +479,7 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         
     }
     func pausePlay(at time: CMTime) {
-        if state == .crop && !orientationDidChange {
+        if state == .cropping && !orientationDidChange {
             stopPlayTimer()
             playerView.shouldPlay = false
             playerView.playStartTime = time
@@ -315,7 +489,7 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         }
     }
     func startPlay(at time: CMTime) {
-        if state == .crop && !orientationDidChange {
+        if state == .cropping && !orientationDidChange {
             playerView.playStartTime = time
             playerView.playEndTime = cropView.getEndTime()
             playerView.resetPlay()
@@ -324,7 +498,7 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         }
     }
     func startPlayTimer(reset: Bool = true) {
-        startPlayTimer(reset: reset, startTime: cropView.getStartTime(), endTime: cropView.getEndTime())
+        startPlayTimer(reset: reset, startTime: cropView.getStartTime(real: true), endTime: cropView.getEndTime(real: true))
     }
     func startPlayTimer(reset: Bool = true, startTime: CMTime, endTime: CMTime) {
         stopPlayTimer()
@@ -333,11 +507,11 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         if reset {
             milliseconds = (endTime.seconds - startTime.seconds) * 1000
         }else {
-            milliseconds = (playerView.player.currentTime().seconds - cropView.getStartTime().seconds) * 1000
+            milliseconds = (playerView.player.currentTime().seconds - cropView.getStartTime(real: true).seconds) * 1000
         }
         playTimer.schedule(deadline: .now(), repeating: .milliseconds(Int(milliseconds)), leeway: .microseconds(0))
         playTimer.setEventHandler(handler: {
-            DispatchQueue.main.async {
+            DispatchQueue.main.sync {
                 self.playerView.resetPlay()
             }
         })
@@ -355,33 +529,44 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
 // MARK: EditorToolViewDelegate
 extension VideoEditorViewController: EditorToolViewDelegate {
     
+    /// 裁剪视频
+    /// - Parameter toolView: 底部工具视频
     func toolView(didFinishButtonClick toolView: EditorToolView) {
-        _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中", animated: true)
+        _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
         if let startTime = playerView.playStartTime, let endTime = playerView.playEndTime {
             weak var weakSelf = self
             PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { (videoURL, error) in
                 if let videoURL = videoURL {
-                    weakSelf?.delegate?.videoEditorViewController?(weakSelf!, didFinish: videoURL)
+                    weakSelf?.editFinishCallBack(videoURL)
                     weakSelf?.backAction()
                 }else {
                     ProgressHUD.hide(forView: weakSelf?.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: weakSelf?.view, text: "导出失败", animated: true, delayHide: 1.5)
+                    ProgressHUD.showWarning(addedTo: weakSelf?.view, text: "导出失败".localized, animated: true, delayHide: 1.5)
                 }
             }
-            
         }else {
-            didBackClick()
+            delegate?.videoEditorViewController?(didFinishWithUnedited: self)
+            backAction()
         }
     }
+    func editFinishCallBack(_ videoURL: URL) {
+        if let currentCropOffset = currentCropOffset {
+            rotateBeforeStorageData = cropView.getRotateBeforeData(offsetX: currentCropOffset.x, validX: currentValidRect.minX, validWidth: currentValidRect.width)
+        }
+        rotateBeforeData = cropView.getRotateBeforeData()
+        let cropData = VideoCropData.init(startTime: playerView.playStartTime!.seconds, endTime: playerView.playEndTime!.seconds, vcData: rotateBeforeStorageData!, cropViewData: rotateBeforeData!)
+        let editResult = VideoEditResult.init(editedURL: videoURL, cropData: cropData)
+        delegate?.videoEditorViewController?(self, didFinish: editResult)
+    }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolModel) {
-        if model.type == .crop {
-            cropAction()
+        if model.type == .cropping {
+            croppingAction()
         }
     }
     
-    func cropAction() {
+    /// 进入裁剪界面
+    func croppingAction() {
         if state == .normal {
-            navigationController?.setNavigationBarHidden(true, animated: true)
             beforeStartTime = playerView.playStartTime
             beforeEndTime = playerView.playEndTime
             if let offset = currentCropOffset {
@@ -402,16 +587,17 @@ extension VideoEditorViewController: EditorToolViewDelegate {
             cropConfirmView.isHidden = false
             cropView.isHidden = false
             cropView.updateTimeLabels()
-            state = .crop
+            state = .cropping
             if currentValidRect.equalTo(.zero) {
                 playerView.resetPlay()
                 startPlayTimer()
             }
             hidenTopView()
-            UIView.animate(withDuration: 0.25) {
+            UIView.animate(withDuration: 0.25, delay: 0, options: [.layoutSubviews]) {
+                self.setPlayerViewFrame()
                 self.cropView.alpha = 1
                 self.cropConfirmView.alpha = 1
-                self.setPlayerViewFrame()
+            } completion: { (isFinished) in
             }
         }
     }
@@ -420,7 +606,13 @@ extension VideoEditorViewController: EditorToolViewDelegate {
 // MARK: VideoEditorCropConfirmViewDelegate
 extension VideoEditorViewController: VideoEditorCropConfirmViewDelegate {
     
+    /// 点击完成按钮
+    /// - Parameter cropConfirmView: 裁剪视图
     func cropConfirmView(didFinishButtonClick cropConfirmView: VideoEditorCropConfirmView) {
+        if onceState == .cropping {
+            onceState = .normal
+        }
+        didEdited = true
         state = .normal
         cropView.stopScroll()
         currentCropOffset = cropView.collectionView.contentOffset
@@ -430,7 +622,14 @@ extension VideoEditorViewController: VideoEditorCropConfirmViewDelegate {
         playerView.play()
         hiddenCropConfirmView()
     }
+    
+    /// 点击取消按钮
+    /// - Parameter cropConfirmView: 裁剪视图
     func cropConfirmView(didCancelButtonClick cropConfirmView: VideoEditorCropConfirmView) {
+        if onceState == .cropping {
+            backAction()
+            return
+        }
         state = .normal
         cropView.stopScroll()
         cropView.stopLineAnimation()

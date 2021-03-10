@@ -125,7 +125,7 @@ class VideoEditorFrameMaskView: UIView {
             if point.x < minX {
                 point.x = minX
             }else {
-                if rightControl.x - point.x <= minWidth {
+                if rightControl.x - point.x - imageWidth * 0.5 <= minWidth {
                     point.x = rightControl.x - minWidth - imageWidth * 0.5
                 }
             }
@@ -138,7 +138,7 @@ class VideoEditorFrameMaskView: UIView {
             if point.x > maxX {
                 point.x = maxX
             }else {
-                if point.x - leftControl.frame.maxX <= minWidth {
+                if point.x - leftControl.frame.maxX - imageWidth * 0.5 <= minWidth {
                     point.x = leftControl.frame.maxX + minWidth + imageWidth * 0.5
                 }
             }

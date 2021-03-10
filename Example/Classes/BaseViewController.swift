@@ -264,6 +264,12 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         if selectedAssets.isEmpty {
             return
         }
+//        let config = VideoEditorConfiguration.init()
+//        config.languageType = .english
+//        let vc = EditorController.init(photoAsset: selectedAssets.first!, config: config)
+////        vc.videoEditorDelegate = self
+//        present(vc, animated: true, completion: nil)
+//        return
         // modalPresentationStyle = .custom 会使用框架自带的动画效果
         // 预览时可以重新初始化一个config设置单独的颜色或其他配置
         let previewConfig = PhotoTools.getWXPickerConfig()
@@ -374,18 +380,16 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
 // MARK: PhotoPickerControllerDelegate
 extension BaseViewController: PhotoPickerControllerDelegate {
     
-    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection selectedAssetArray: [PhotoAsset], _ isOriginal: Bool) {
-        self.selectedAssets = selectedAssetArray
-        self.isOriginal = isOriginal
+    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
+        selectedAssets = result.photoAssets
+        isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
+//        result.getURLs { (urls) in
+//            print(urls)
+//        }
     }
-    func pickerController(_ pickerController: PhotoPickerController, singleFinishSelection photoAsset:PhotoAsset, _ isOriginal: Bool) {
-        selectedAssets = [photoAsset]
-        self.isOriginal = isOriginal
-        collectionView.reloadData()
-        updateCollectionViewHeight()
-    }
+    
     func pickerController(_ pickerController: PhotoPickerController, didEditAsset photoAsset: PhotoAsset, atIndex: Int) {
         if pickerController.isPreviewAsset {
             selectedAssets[atIndex] = photoAsset
@@ -508,5 +512,3 @@ class BaseViewCell: PhotoPickerViewCell {
         deleteButton.x = width - deleteButton.width
     }
 }
-
- 

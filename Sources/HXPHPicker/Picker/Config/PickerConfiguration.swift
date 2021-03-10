@@ -62,13 +62,15 @@ open class PickerConfiguration: BaseConfiguration {
     /// 限制并且显示遮罩会导致界面滑动卡顿 
     public var maximumSelectedPhotoFileSize: Int = 0
     
+    #if HXPICKER_ENABLE_EDITOR
     /// 允许编辑照片，只控制按钮是否被禁用
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
     public var allowEditPhoto: Bool = false
     
     /// 允许编辑视频，只控制按钮是否被禁用
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
-    public var allowEditVideo: Bool = false
+    public var allowEditVideo: Bool = true
+    #endif
     
     /// 状态栏样式
     public var statusBarStyle: UIStatusBarStyle = .default

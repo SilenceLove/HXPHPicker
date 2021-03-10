@@ -69,7 +69,9 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
     lazy var contentView: UIView = {
         let contentView = UIView.init(frame: CGRect(x: 0, y: 0, width: width, height: 50 + UIDevice.bottomMargin))
         contentView.addSubview(previewBtn)
+        #if HXPICKER_ENABLE_EDITOR
         contentView.addSubview(editBtn)
+        #endif
         contentView.addSubview(originalBtn)
         contentView.addSubview(finishBtn)
         return contentView
@@ -92,6 +94,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         hx_delegate?.bottomView?(didPreviewButtonClick: self)
     }
     
+    #if HXPICKER_ENABLE_EDITOR
     lazy var editBtn: UIButton = {
         let editBtn = UIButton.init(type: .custom)
         editBtn.setTitle("编辑".localized, for: .normal)
@@ -107,6 +110,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
     @objc func didEditBtnButtonClick(button: UIButton) {
         hx_delegate?.bottomView?(didEditButtonClick: self)
     }
+    #endif
     
     lazy var originalBtn: UIView = {
         let originalBtn = UIView.init()
@@ -244,9 +248,11 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             if config.showSelectedView {
                 addSubview(selectedView)
             }
+            #if HXPICKER_ENABLE_EDITOR
             if !config.editButtonHidden {
                 addSubview(editBtn)
             }
+            #endif
         }else {
             addSubview(contentView)
             if config.showSelectedView && isMultipleSelect {
@@ -275,29 +281,35 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         barStyle = isDark ? config.barDarkStyle : config.barStyle
         if !isExternalPreview {
             previewBtn.setTitleColor(isDark ? config.previewButtonTitleDarkColor : config.previewButtonTitleColor, for: .normal)
+            #if HXPICKER_ENABLE_EDITOR
             editBtn.setTitleColor(isDark ? config.editButtonTitleDarkColor : config.editButtonTitleColor, for: .normal)
+            #endif
             if isDark {
                 if config.previewButtonDisableTitleDarkColor != nil {
                     previewBtn.setTitleColor(config.previewButtonDisableTitleDarkColor, for: .disabled)
                 }else {
                     previewBtn.setTitleColor(config.previewButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
                 }
+                #if HXPICKER_ENABLE_EDITOR
                 if config.editButtonDisableTitleDarkColor != nil {
                     editBtn.setTitleColor(config.editButtonDisableTitleDarkColor, for: .disabled)
                 }else {
                     editBtn.setTitleColor(config.editButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
                 }
+                #endif
             }else {
                 if config.previewButtonDisableTitleColor != nil {
                     previewBtn.setTitleColor(config.previewButtonDisableTitleColor, for: .disabled)
                 }else {
                     previewBtn.setTitleColor(config.previewButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
                 }
+                #if HXPICKER_ENABLE_EDITOR
                 if config.editButtonDisableTitleColor != nil {
                     editBtn.setTitleColor(config.editButtonDisableTitleColor, for: .disabled)
                 }else {
                     editBtn.setTitleColor(config.editButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
                 }
+                #endif
             }
             originalLoadingView.style = isDark ? config.originalLoadingDarkStyle : config.originalLoadingStyle
             originalTitleLb.textColor = isDark ? config.originalButtonTitleDarkColor : config.originalButtonTitleColor
@@ -308,6 +320,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             finishBtn.setBackgroundImage(UIImage.image(for: finishBtnBackgroundColor, havingSize: CGSize.zero), for: .normal)
             finishBtn.setBackgroundImage(UIImage.image(for: isDark ? config.finishButtonDisableDarkBackgroundColor : config.finishButtonDisableBackgroundColor, havingSize: CGSize.zero), for: .disabled)
         }else {
+            #if HXPICKER_ENABLE_EDITOR
             if isDark {
                 if config.editButtonDisableTitleDarkColor != nil {
                     editBtn.setTitleColor(config.editButtonDisableTitleDarkColor, for: .disabled)
@@ -321,6 +334,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
                     editBtn.setTitleColor(config.editButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
                 }
             }
+            #endif
         }
         configPromptColor()
     }
@@ -405,7 +419,9 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             contentView.height = 50 + UIDevice.bottomMargin
             contentView.y = height - contentView.height
             previewBtn.x = 12 + UIDevice.leftMargin
+            #if HXPICKER_ENABLE_EDITOR
             editBtn.x = previewBtn.x
+            #endif
             updateFinishButtonFrame()
             updateOriginalButtonFrame()
         }
@@ -420,8 +436,11 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             promptArrow.centerY = promptView.height * 0.5
         }
         if isExternalPreview {
+            #if HXPICKER_ENABLE_EDITOR
             editBtn.x = 12 + UIDevice.leftMargin
+            #endif
             if config.showSelectedView {
+                #if HXPICKER_ENABLE_EDITOR
                 if !config.editButtonHidden {
                     selectedView.x = editBtn.frame.maxX + 12
                     selectedView.width = width - selectedView.x
@@ -430,6 +449,9 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
                     selectedView.width = width
                 }
                 editBtn.centerY = selectedView.centerY
+                #else
+                selectedView.width = width
+                #endif
             }
         }else {
             if config.showSelectedView && isMultipleSelect {

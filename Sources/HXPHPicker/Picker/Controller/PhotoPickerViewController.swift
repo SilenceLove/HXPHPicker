@@ -522,7 +522,6 @@ extension PhotoPickerViewController {
 // MARK: Action
 extension PhotoPickerViewController {
     
-     
     @objc func didTitleViewClick(control: AlbumTitleView) {
         control.isSelected = !control.isSelected
         if control.isSelected {
@@ -681,10 +680,83 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                     return
                 }
             }
+            if needEditVideo(photoAsset: myCell.photoAsset, coverImage: myCell.imageView.image) {
+                return
+            }
             pushPreviewViewController(previewAssets: assets, currentPreviewIndex: needOffset ? indexPath.item - 1 : indexPath.item)
         }
     }
+    func needEditVideo(photoAsset: PhotoAsset, isDidSelectItem: Bool = true, coverImage: UIImage? = nil) -> Bool {
+        #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
+        if let pickerController = pickerController, photoAsset.mediaType == .video ,
+            pickerController.config.allowEditVideo {
+            if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
+                return false
+            }
+            let isExceedsTheLimit = pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset)
+            if isDidSelectItem || isExceedsTheLimit {
+                let config: VideoEditorConfiguration
+                if isExceedsTheLimit {
+                    config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
+                    config.defaultState = .cropping
+                    config.mustBeTailored = true
+                }else {
+                    config = pickerController.config.videoEditor
+                }
+                config.languageType = pickerController.config.languageType
+                config.appearanceStyle = pickerController.config.appearanceStyle
+                let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: config)
+                videoEditorVC.coverImage = coverImage;
+                videoEditorVC.delegate = self
+                navigationController?.pushViewController(videoEditorVC, animated: true)
+                return true
+            }
+        }
+        #endif
+        return false
+    }
 }
+
+#if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
+// MARK: VideoEditorViewControllerDelegate
+extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
+    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
+        let photoAsset = videoEditorViewController.photoAsset!
+        photoAsset.videoEdit = result
+        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        if videoLoadSingleCell || !isMultipleSelect {
+            pickerController?.singleFinishCallback(for: photoAsset)
+            return
+        }
+        if !photoAsset.isSelected {
+            let cell = getCell(for: photoAsset)
+            cell?.photoAsset = photoAsset
+            if pickerController!.addedPhotoAsset(photoAsset: videoEditorViewController.photoAsset) {
+                updateCellSelectedTitle()
+            }
+        }else {
+            reloadCell(for: photoAsset)
+        }
+        bottomView.updateFinishButtonTitle()
+    }
+    public func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {
+        
+    }
+    public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
+        let photoAsset = videoEditorViewController.photoAsset!
+        if videoLoadSingleCell || !isMultipleSelect {
+            pickerController?.singleFinishCallback(for: photoAsset)
+            return
+        }
+        if !photoAsset.isSelected {
+            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+                updateCellSelectedTitle()
+            }
+            bottomView.updateFinishButtonTitle()
+        }
+    }
+}
+#endif
 
 // MARK: UIImagePickerControllerDelegate
 extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -818,15 +890,23 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
         navigationController?.delegate = vc
         navigationController?.pushViewController(vc, animated: true)
     }
-    
+    func previewViewController(_ previewController: PhotoPreviewViewController, editAssetFinished photoAsset: PhotoAsset) {
+        reloadCell(for: photoAsset)
+        bottomView.updateFinishButtonTitle()
+    }
     func previewViewController(_ previewController: PhotoPreviewViewController, didOriginalButton isOriginal: Bool) {
         if isMultipleSelect {
             bottomView.boxControl.isSelected = isOriginal
             bottomView.requestAssetBytes()
         }
     }
-    func previewViewController(_ previewController: PhotoPreviewViewController, didSelectBox photoAsset: PhotoAsset, isSelected: Bool) {
-        updateCellSelectedTitle()
+    func previewViewController(_ previewController: PhotoPreviewViewController, didSelectBox photoAsset: PhotoAsset, isSelected: Bool, updateCell: Bool) {
+        if !isSelected && updateCell{
+            let cell = getCell(for: photoAsset)
+            cell?.photoAsset = photoAsset
+        }else {
+            updateCellSelectedTitle()
+        }
         bottomView.updateFinishButtonTitle()
     }
 }
@@ -868,11 +948,23 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
     public func cell(_ cell: PhotoPickerBaseViewCell, didSelectControl isSelected: Bool) {
         if isSelected {
             // 取消选中
-            _ = pickerController?.removePhotoAsset(photoAsset: cell.photoAsset)
-            cell.updateSelectedState(isSelected: false, animated: true)
+            let photoAsset = cell.photoAsset!
+            _ = pickerController?.removePhotoAsset(photoAsset: photoAsset)
+            // 清空视频编辑的数据
+            if photoAsset.videoEdit != nil {
+                photoAsset.videoEdit = nil
+                cell.photoAsset = photoAsset
+            }else {
+                cell.updateSelectedState(isSelected: false, animated: true)
+            }
             updateCellSelectedTitle()
         }else {
             // 选中
+            if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
+                if needEditVideo(photoAsset: cell.photoAsset, isDidSelectItem: false, coverImage: cell.imageView.image) {
+                    return
+                }
+            }
             if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
                 cell.updateSelectedState(isSelected: true, animated: true)
                 updateCellSelectedTitle()

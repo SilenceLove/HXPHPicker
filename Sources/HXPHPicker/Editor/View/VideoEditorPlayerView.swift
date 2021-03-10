@@ -11,6 +11,7 @@ import AVKit
 protocol VideoEditorPlayerViewDelegate: NSObjectProtocol {
     func playerView(_ playerView: VideoEditorPlayerView, didPlayAt time: CMTime)
     func playerView(_ playerView: VideoEditorPlayerView, didPauseAt time: CMTime)
+    func playerView(_ playerViewReadyForDisplay: VideoEditorPlayerView)
 }
 
 class VideoEditorPlayerView: VideoPlayerView {
@@ -20,22 +21,37 @@ class VideoEditorPlayerView: VideoPlayerView {
     var playEndTime: CMTime?
     var isPlaying: Bool = false
     var shouldPlay = true
+    var addObserverReadyForDisplay = false
+    
+    lazy var coverImageView: UIImageView = {
+        let imageView = UIImageView.init()
+        return imageView
+    }()
     
     convenience init(videoURL: URL) {
         self.init(avAsset: AVAsset.init(url: videoURL))
     }
-    
-    init(avAsset: AVAsset) {
-        super.init()
+    convenience init(avAsset: AVAsset) {
+        self.init()
         self.avAsset = avAsset
-        let playerItem = AVPlayerItem.init(asset: avAsset)
-        player.replaceCurrentItem(with: playerItem)
-        playerLayer.player = player
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
-        
-        playerLayer.addObserver(self, forKeyPath: "readyForDisplay", options: [.new, .old], context: nil)
+        configAsset()
+    }
+    override init() {
+        super.init()
+        addSubview(coverImageView)
+    }
+    func configAsset() {
+        if let avAsset = avAsset {
+            let playerItem = AVPlayerItem.init(asset: avAsset)
+            player.replaceCurrentItem(with: playerItem)
+            playerLayer.player = player
+            NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+            
+            playerLayer.addObserver(self, forKeyPath: "readyForDisplay", options: [.new, .old], context: nil)
+            addObserverReadyForDisplay = true
+        }
     }
     @objc func appDidEnterBackground() {
         pause()
@@ -74,7 +90,7 @@ class VideoEditorPlayerView: VideoPlayerView {
                 }
             }
         }else {
-            seek(to: CMTime.init(value: 0, timescale: 1)) { (isFinished) in
+            seek(to: CMTime.zero) { (isFinished) in
                 if isFinished {
                     self.play()
                 }
@@ -87,14 +103,24 @@ class VideoEditorPlayerView: VideoPlayerView {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
-            play()
+            if playerLayer.isReadyForDisplay {
+                coverImageView.isHidden = true
+                play()
+                delegate?.playerView(self)
+            }
         }
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        coverImageView.frame = bounds
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
-        playerLayer.removeObserver(self, forKeyPath: "readyForDisplay")
+        if addObserverReadyForDisplay {
+            playerLayer.removeObserver(self, forKeyPath: "readyForDisplay")
+        }
         NotificationCenter.default.removeObserver(self)
     }
 }

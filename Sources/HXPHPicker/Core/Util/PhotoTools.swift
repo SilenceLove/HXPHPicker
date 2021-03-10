@@ -97,8 +97,8 @@ public class PhotoTools {
         }
         let options = [AVURLAssetPreferPreciseDurationAndTimingKey: false]
         let urlAsset = AVURLAsset.init(url: videoURL!, options: options)
-        let second = Int(urlAsset.duration.value) / Int(urlAsset.duration.timescale)
-        return TimeInterval(second)
+//        let second = TimeInterval(urlAsset.duration.value) / TimeInterval(urlAsset.duration.timescale)
+        return TimeInterval(round(urlAsset.duration.seconds))
     }
     
     /// 导出编辑视频

@@ -213,7 +213,6 @@ extension PhotoTools {
         config.previewView.selectBox.selectedBackgroundColor = "#07C160".color
         
         config.previewView.bottomView.barStyle = .black
-        config.previewView.bottomView.editButtonTitleColor = .white
         
         config.previewView.bottomView.originalButtonTitleColor = .white
         config.previewView.bottomView.originalSelectBox.backgroundColor = .clear
@@ -230,6 +229,7 @@ extension PhotoTools {
         
         
         #if HXPICKER_ENABLE_EDITOR
+        config.previewView.bottomView.editButtonTitleColor = .white
         config.videoEditor.cropView.finishButtonBackgroundColor = "#07C160".color
         config.videoEditor.cropView.finishButtonDarkBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonBackgroundColor = "#07C160".color

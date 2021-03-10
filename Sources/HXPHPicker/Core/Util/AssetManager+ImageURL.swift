@@ -27,7 +27,13 @@ public extension AssetManager {
     ///   - suffix: 后缀格式
     ///   - resultHandler: 获取结果
     class func requestImageURL(for asset: PHAsset, suffix: String, resultHandler: @escaping ImageURLResultHandler) {
-        let imageResource = PHAssetResource.assetResources(for: asset).first
+        var imageResource: PHAssetResource?
+        for resource in PHAssetResource.assetResources(for: asset) {
+            if resource.type == .photo {
+                imageResource = resource
+                break
+            }
+        }
         if imageResource == nil {
             resultHandler(nil)
             return

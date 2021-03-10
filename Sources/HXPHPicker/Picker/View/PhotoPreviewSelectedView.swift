@@ -55,6 +55,11 @@ class PhotoPreviewSelectedView: UIView, UICollectionViewDataSource, UICollection
         photoAssetArray = photoAssets
         collectionView.reloadData()
     }
+    func reloadData(photoAsset: PhotoAsset) {
+        if let index = photoAssetArray.firstIndex(of: photoAsset) {
+            collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        }
+    }
     
     func insertPhotoAsset(photoAsset: PhotoAsset) {
         let beforeIsEmpty = photoAssetArray.isEmpty
@@ -75,13 +80,13 @@ class PhotoPreviewSelectedView: UIView, UICollectionViewDataSource, UICollection
     
     func removePhotoAsset(photoAsset: PhotoAsset) {
         let beforeIsEmpty = photoAssetArray.isEmpty
-        let item = photoAssetArray.firstIndex(of: photoAsset)
-        if item != nil {
-            if item! == currentSelectedIndexPath?.item {
+        
+        if let item = photoAssetArray.firstIndex(of: photoAsset) {
+            if item == currentSelectedIndexPath?.item {
                 currentSelectedIndexPath = nil
             }
-            photoAssetArray.remove(at: item!)
-            collectionView.deleteItems(at: [IndexPath(item: item!, section: 0)])
+            photoAssetArray.remove(at: item)
+            collectionView.deleteItems(at: [IndexPath(item: item, section: 0)])
         }
         if !beforeIsEmpty && photoAssetArray.isEmpty {
             UIView.animate(withDuration: 0.25) {

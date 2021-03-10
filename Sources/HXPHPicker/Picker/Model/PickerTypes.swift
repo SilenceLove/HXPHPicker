@@ -71,7 +71,7 @@ extension PhotoPreviewViewController {
 }
 
 extension PhotoManager {
-    public enum CameraAlbumLocal: String {
+    enum CameraAlbumLocal: String {
         case identifier = "HXCameraAlbumLocalIdentifier"
         case identifierType = "HXCameraAlbumLocalIdentifierType"
         case language = "HXCameraAlbumLocalLanguage"

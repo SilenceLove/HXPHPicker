@@ -130,6 +130,7 @@ public class PickerBottomViewConfiguration: NSObject {
     /// 未选择资源时是否禁用完成按钮
     public var disableFinishButtonWhenNotSelected: Bool = true
     
+    #if HXPICKER_ENABLE_EDITOR
     /// 隐藏编辑按钮
     /// 目前只支持预览界面显示
     public var editButtonHidden: Bool = true
@@ -147,6 +148,7 @@ public class PickerBottomViewConfiguration: NSObject {
     /// 编辑按钮禁用下的标题颜色
     public var editButtonDisableTitleColor: UIColor?
     public var editButtonDisableTitleDarkColor: UIColor?
+    #endif
     
     /// 相册权限为选部分时显示提示
     public var showPrompt: Bool = true

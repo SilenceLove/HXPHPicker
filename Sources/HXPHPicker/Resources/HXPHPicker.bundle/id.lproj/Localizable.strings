@@ -31,6 +31,9 @@
 "视频导出失败" = "Ekspor video gagal";
 "保存失败" = "Gagal menyimpan";
 "所有照片" = "Semua foto";
+"视频导出中" = "Ekspor video";
+"导出失败" = "Ekspor gagal";
+"视频获取中..." = "Akuisisi video...";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

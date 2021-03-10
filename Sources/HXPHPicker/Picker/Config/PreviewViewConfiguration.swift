@@ -35,7 +35,9 @@ public class PreviewViewConfiguration: NSObject {
         let config = PickerBottomViewConfiguration.init()
         config.previewButtonHidden = true
         config.disableFinishButtonWhenNotSelected = false
-        config.editButtonHidden = true
+        #if HXPICKER_ENABLE_EDITOR
+        config.editButtonHidden = false
+        #endif
         config.showSelectedView = true
         return config
     }()

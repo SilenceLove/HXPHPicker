@@ -35,8 +35,8 @@ public class AssetManager {
                 completion(nil)
                 return
             }
+            var placeholder: PHObjectPlaceholder?
             do {
-                var placeholder: PHObjectPlaceholder?
                 try PHPhotoLibrary.shared().performChangesAndWait {
                     var creationRequest: PHAssetCreationRequest? = nil
                     if asset is URL {
@@ -56,17 +56,15 @@ public class AssetManager {
                     creationRequest?.location = location
                     placeholder = creationRequest?.placeholderForCreatedAsset
                 }
-                if let placeholder = placeholder, let phAsset = fetchAsset(withLocalIdentifier: placeholder.localIdentifier) {
-                    completion(phAsset)
-                    if let albumName = albumName, let assetCollection = createAssetCollection(for: albumName) {
-                        do {try PHPhotoLibrary.shared().performChangesAndWait {
-                            PHAssetCollectionChangeRequest.init(for: assetCollection)?.insertAssets([phAsset] as NSFastEnumeration, at: IndexSet.init(integer: 0))
-                        }}catch{}
-                    }
-                }else {
-                    completion(nil)
+            }catch { }
+            if let placeholder = placeholder, let phAsset = fetchAsset(withLocalIdentifier: placeholder.localIdentifier) {
+                completion(phAsset)
+                if let albumName = albumName, let assetCollection = createAssetCollection(for: albumName) {
+                    do {try PHPhotoLibrary.shared().performChangesAndWait {
+                        PHAssetCollectionChangeRequest.init(for: assetCollection)?.insertAssets([phAsset] as NSFastEnumeration, at: IndexSet.init(integer: 0))
+                    }}catch{}
                 }
-            }catch {
+            }else {
                 completion(nil)
             }
         }

@@ -91,7 +91,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     pushImageView.center = CGPoint(x: toVC.view.width * 0.5, y: toVC.view.height * 0.5)
                 }
                 
-                if let phAsset = photoAsset.phAsset {
+                if let phAsset = photoAsset.phAsset, photoAsset.videoEdit == nil {
                     requestAssetImage(for: phAsset)
                 }else if pushImageView.image == nil {
                     pushImageView.image = photoAsset.originalImage
@@ -240,7 +240,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
             if !pickerController.selectedAssetArray.isEmpty {
                 let photoAsset = pickerController.selectedAssetArray[currentPreviewIndex]
-                if let phAsset = photoAsset.phAsset {
+                if let phAsset = photoAsset.phAsset, photoAsset.videoEdit == nil {
                     requestAssetImage(for: phAsset)
                 }else if pushImageView.image == nil {
                     pushImageView.image = photoAsset.originalImage

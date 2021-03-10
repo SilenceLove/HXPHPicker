@@ -90,25 +90,14 @@ class ViewController: UIViewController {
 
 extension ViewController: PhotoPickerControllerDelegate {
     
-    /// 选择完成之后调用，单选模式下不会触发此回调
+    /// 选择完成之后调用
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
-    ///   - selectedAssetArray: 选择的资源对应的 PhotoAsset 数据
-    ///   - isOriginal: 是否选中的原图
-    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection selectedAssetArray: [PhotoAsset], _ isOriginal: Bool) {
-        self.selectedAssets = selectedAssetArray
-        self.isOriginal = isOriginal
-    }
-    
-    
-    /// 单选完成之后调用
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    ///   - isOriginal: 是否选中的原图
-    func pickerController(_ pickerController: PhotoPickerController, singleFinishSelection photoAsset:PhotoAsset, _ isOriginal: Bool) {
-        self.selectedAssets = [photoAsset]
-        self.isOriginal = isOriginal
+    ///   - result: 选择的结果
+    ///     result.photoAssets  选择的资源数组
+    ///     result.isOriginal   是否选中原图
+    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
+        
     }
     
     /// 点击取消时调用

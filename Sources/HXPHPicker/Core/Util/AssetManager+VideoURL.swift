@@ -22,12 +22,12 @@ public extension AssetManager {
         } progressHandler: { (progress, error, stop, info) in
         } resultHandler: { (avAsset, audioMix, info, downloadSuccess) in
             DispatchQueue.main.async {
-                if avAsset is AVURLAsset {
-                    let urlAsset = avAsset as! AVURLAsset
-                    resultHandler(urlAsset.url)
-                }else {
+//                if avAsset is AVURLAsset {
+//                    let urlAsset = avAsset as! AVURLAsset
+//                    resultHandler(urlAsset.url)
+//                }else {
                     self.requestVideoURL(mp4Format: asset, resultHandler: resultHandler)
-                }
+//                }
             }
         }
     }
@@ -37,7 +37,12 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
     class func requestVideoURL(mp4Format asset: PHAsset, resultHandler: @escaping VideoURLResultHandler) {
-        let videoResource = PHAssetResource.assetResources(for: asset).first
+        var videoResource: PHAssetResource?
+        for resource in PHAssetResource.assetResources(for: asset) {
+            if resource.type == .video {
+                videoResource = resource
+            }
+        }
         if videoResource == nil {
             resultHandler(nil)
             return

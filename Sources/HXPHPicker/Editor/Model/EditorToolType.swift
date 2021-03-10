@@ -8,5 +8,5 @@
 import Foundation
 
 public enum EditorToolType {
-    case crop
+    case cropping
 }

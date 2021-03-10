@@ -42,11 +42,28 @@ open class PhotoAsset: NSObject {
         }
     }
     
+    /// 视频编辑数据
+    public var videoEdit: VideoEditResult?
+    
     /// 视频时长 格式：00:00
-    public var videoTime: String?
+    public var videoTime: String? {
+        get {
+            if let videoEdit = videoEdit {
+                return videoEdit.videoTime
+            }
+            return pVideoTime
+        }
+    }
     
     /// 视频时长 秒
-    public var videoDuration: TimeInterval = 0
+    public var videoDuration: TimeInterval {
+        get {
+            if let videoEdit = videoEdit {
+                return videoEdit.videoDuration
+            }
+            return pVideoDuration
+        }
+    }
     
     /// 当前资源是否被选中
     public var isSelected: Bool = false
@@ -117,8 +134,8 @@ open class PhotoAsset: NSObject {
         super.init()
         localAssetIdentifier = localIdentifier
         localImage = PhotoTools.getVideoThumbnailImage(videoURL: videoURL, atTime: 0.1)
-        videoDuration = PhotoTools.getVideoDuration(videoURL: videoURL)
-        videoTime = PhotoTools.transformVideoDurationToString(duration: videoDuration)
+        pVideoDuration = PhotoTools.getVideoDuration(videoURL: videoURL)
+        pVideoTime = PhotoTools.transformVideoDurationToString(duration: pVideoDuration)
         localVideoURL = videoURL
         mediaType = .video
         mediaSubType = .localVideo
@@ -130,6 +147,8 @@ open class PhotoAsset: NSObject {
     private var localImage: UIImage?
     private var localVideoURL: URL?
     private var pFileSize: Int?
+    private var pVideoTime: String?
+    private var pVideoDuration: TimeInterval = 0
 }
 // MARK: 获取资源
 public extension PhotoAsset {
@@ -144,8 +163,16 @@ public extension PhotoAsset {
     }
     /// 获取原始视频地址
     func requestVideoURL(resultHandler: @escaping (URL?) -> Void) {
+        if let videoEdit = videoEdit {
+            resultHandler(videoEdit.editedURL)
+            return
+        }
         if phAsset == nil {
-            resultHandler(localVideoURL)
+            if mediaType == .photo {
+                resultHandler(nil)
+            }else {
+                resultHandler(localVideoURL)
+            }
             return
         }
         requestAssetVideoURL(resultHandler: resultHandler)
@@ -158,6 +185,10 @@ public extension PhotoAsset {
         return requestThumbnailImage(targetWidth: 180, completion: completion)
     }
     func requestThumbnailImage(targetWidth: CGFloat, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
+        if let videoEdit = videoEdit {
+            completion?(videoEdit.coverImage, self, nil)
+            return nil
+        }
         if phAsset == nil {
             completion?(localImage, self, nil)
             return nil
@@ -173,6 +204,19 @@ public extension PhotoAsset {
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
     func requestImageData(iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, Data, UIImage.Orientation, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+        if let videoEdit = videoEdit {
+            DispatchQueue.global().async {
+                let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
+                DispatchQueue.main.async {
+                    if let imageData = imageData {
+                        success?(self, imageData, videoEdit.coverImage!.imageOrientation, nil)
+                    }else {
+                        failure?(self, nil)
+                    }
+                }
+            }
+            return 0
+        }
         if phAsset == nil {
             failure?(self, nil)
             return 0
@@ -245,10 +289,15 @@ public extension PhotoAsset {
     
     /// 请求AVAsset，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset
     /// - Parameters:
+    ///   - filterEditor: 过滤编辑过的视频，取原视频
     ///   - iCloudHandler: 下载iCloud上的资源时回调iCloud的请求ID
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
-    func requestAVAsset(iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+    func requestAVAsset(filterEditor: Bool = false, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+        if let videoEdit = videoEdit, !filterEditor {
+            success?(self, AVAsset.init(url: videoEdit.editedURL), nil)
+            return 0
+        }
         if phAsset == nil {
             if localVideoURL != nil {
                 success?(self, AVAsset.init(url: localVideoURL!), nil)
@@ -329,14 +378,20 @@ extension PhotoAsset {
         }else if phAsset?.mediaType.rawValue == 2 {
             mediaType = .video
             mediaSubType = .video
-            videoDuration = phAsset!.duration
-            videoTime = PhotoTools.transformVideoDurationToString(duration: phAsset!.duration)
+            pVideoDuration = phAsset!.duration
+            pVideoTime = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(phAsset!.duration)))
         }
     }
     func getLocalImageData() -> Data? {
+        if let videoEdit = videoEdit {
+            return PhotoTools.getImageData(for: videoEdit.coverImage)
+        }
         return PhotoTools.getImageData(for: localImage)
     }
     func getFileSize() -> Int {
+        if let videoEdit = videoEdit {
+            return videoEdit.editedFileSize
+        }
         if let fileSize = pFileSize {
             return fileSize
         }
@@ -375,6 +430,9 @@ extension PhotoAsset {
         return fileSize
     }
     func getOriginalImage() -> UIImage? {
+        if let videoEdit = videoEdit {
+            return videoEdit.coverImage
+        }
         if phAsset == nil {
             return localImage
         }
@@ -398,6 +456,9 @@ extension PhotoAsset {
         return originalImage
     }
     func getImageSize() -> CGSize {
+        if let videoEdit = videoEdit {
+            return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
+        }
         let size : CGSize
         if let phAsset = phAsset {
             if phAsset.pixelWidth == 0 || phAsset.pixelHeight == 0 {
@@ -415,16 +476,9 @@ extension PhotoAsset {
     func requestLocalImageURL(resultHandler: @escaping (URL?) -> Void) {
         DispatchQueue.global().async {
             if let imageData = self.getLocalImageData() {
-                let imageURL = PhotoTools.getImageTmpURL()
-                do {
-                    try imageData.write(to: imageURL)
-                    DispatchQueue.main.async {
-                        resultHandler(imageURL)
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        resultHandler(nil)
-                    }
+                let imageURL = self.write(imageData: imageData)
+                DispatchQueue.main.async {
+                    resultHandler(imageURL)
                 }
             }else {
                 DispatchQueue.main.async {
@@ -433,8 +487,44 @@ extension PhotoAsset {
             }
         }
     }
+    private func write(imageData: Data) -> URL? {
+        let imageURL = PhotoTools.getImageTmpURL()
+        do {
+            try imageData.write(to: imageURL)
+            return imageURL
+        } catch {
+            return nil
+        }
+    }
     func requestAssetImageURL(resultHandler: @escaping (URL?) -> Void) {
+        if let videoEdit = videoEdit {
+            DispatchQueue.global().async {
+                var imageURL: URL?
+                if let imageData = PhotoTools.getImageData(for: videoEdit.coverImage) {
+                    imageURL = self.write(imageData: imageData)
+                }
+                DispatchQueue.main.async {
+                    resultHandler(imageURL)
+                }
+            }
+            return
+        }
         if phAsset == nil {
+            resultHandler(nil)
+            return
+        }
+        if mediaType == .video {
+            weak var weakSelf = self
+            _ = requestImageData(iCloudHandler: nil, progressHandler: nil) { (photoAsset, imageData, imageOrientation, info) in
+                DispatchQueue.global().async {
+                    let imageURL = weakSelf?.write(imageData: imageData)
+                    DispatchQueue.main.async {
+                        resultHandler(imageURL)
+                    }
+                }
+            } failure: { (photoAsset, ino) in
+                resultHandler(nil)
+            }
             return
         }
         var suffix: String
@@ -464,6 +554,10 @@ extension PhotoAsset {
         }
     }
     func requestAssetVideoURL(resultHandler: @escaping (URL?) -> Void) {
+        if let videoEdit = videoEdit {
+            resultHandler(videoEdit.editedURL)
+            return
+        }
         if mediaSubType == .livePhoto {
             var videoURL: URL?
             AssetManager.requestLivePhoto(content: phAsset!) { (imageData) in
@@ -473,6 +567,10 @@ extension PhotoAsset {
                 resultHandler(videoURL)
             }
         }else {
+            if mediaType == .photo {
+                resultHandler(nil)
+                return
+            }
             AssetManager.requestVideoURL(mp4Format: phAsset!) { (videoURL) in
                 resultHandler(videoURL)
             }

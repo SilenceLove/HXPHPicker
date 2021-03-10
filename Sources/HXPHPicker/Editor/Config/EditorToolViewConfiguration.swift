@@ -13,7 +13,7 @@ public class EditorToolViewConfiguration: NSObject {
     public lazy var toolModelArray: [EditorToolModel] = {
         let cropModel = EditorToolModel.init()
         cropModel.imageName = "hx_editor_video_crop"
-        cropModel.type = .crop
+        cropModel.type = .cropping
         let models: [EditorToolModel] = [cropModel]
         return models
     }()

@@ -9,144 +9,6 @@
 import UIKit
 import Photos
 
-@objc public protocol PhotoPickerControllerDelegate: NSObjectProtocol {
-    
-    /// 选择完成之后调用，单选模式下不会触发此回调
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - selectedAssetArray: 选择的资源对应的 PhotoAsset 数据
-    ///   - isOriginal: 是否选中的原图
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didFinishSelection selectedAssetArray: [PhotoAsset], _ isOriginal: Bool)
-    
-    /// 单选完成之后调用
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    ///   - isOriginal: 是否选中的原图
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, singleFinishSelection photoAsset:PhotoAsset, _ isOriginal: Bool)
-    
-    /// 点击了原图按钮
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - isOriginal: 是否选中的原图
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didOriginalButton isOriginal: Bool)
-    
-    /// 将要点击cell，允许的话点击之后会跳转预览界面
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    ///   - atIndex: indexPath.item
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, shouldClickCell photoAsset: PhotoAsset, atIndex: Int) -> Bool
-    
-    /// 将要选择cell 不能选择时需要自己手动弹出提示框
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    ///   - atIndex: 将要添加的索引
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, shouldSelectedAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool
-
-    /// 即将选择 cell 时调用
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, willSelectAsset photoAsset: PhotoAsset, atIndex: Int)
-
-    /// 选择了 cell 之后调用
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didSelectAsset photoAsset: PhotoAsset, atIndex: Int)
-
-    /// 即将取消了选择 cell
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, willUnselectAsset photoAsset: PhotoAsset, atIndex: Int)
-
-    /// 取消了选择 cell
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didUnselectAsset photoAsset: PhotoAsset, atIndex: Int)
-    
-    /// 是否能够推出相机界面，点击相机cell时调用
-    /// 可以跳转其他相机界面然后调用 addedCameraPhotoAsset
-    @objc optional func pickerController(shouldPresentCamera pickerController: PhotoPickerController) -> Bool
-    
-    /// 将要编辑 Asset，不允许的话可以自己跳转其他编辑界面
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, shouldEditAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool
-    
-    /// Asset 编辑完后调用
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应的 PhotoAsset 数据
-    ///   - atIndex: 对应的下标
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didEditAsset photoAsset: PhotoAsset, atIndex: Int)
-    
-    /// 预览界面更新当前显示的资源，collectionView滑动了就会调用
-    /// - Parameters:
-    ///   - pikcerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应显示的 PhotoAsset 数据
-    ///   - index: 对应显示的位置
-    @objc optional func pickerController(_ pikcerController: PhotoPickerController, previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset, atIndex: Int)
-    
-    /// 预览界面将要删除 Asset
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应被删除的 PhotoAsset 数据
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, previewShouldDeleteAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool
-    
-    /// 预览界面已经删除了 Asset
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应被删除的 PhotoAsset 数据
-    ///   - atIndex: 资源对应的位置索引
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int)
-    
-    /// 视图控制器即将显示
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - viewController: 对应的控制器 [AlbumViewController, PhotoPickerViewController, PhotoPreviewViewController]
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, viewControllersWillAppear viewController: UIViewController)
-    
-    /// 视图控制器已经显示
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, viewControllersDidAppear viewController: UIViewController)
-    
-    /// 视图控制器即将消失
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, viewControllersWillDisappear viewController: UIViewController)
-    
-    /// 视图控制器已经消失
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, viewControllersDidDisappear viewController: UIViewController)
-    
-    /// 点击取消时调用
-    /// - Parameter pickerController: 对应的 PhotoPickerController
-    @objc optional func pickerController(didCancel pickerController: PhotoPickerController)
-    
-    /// dismiss后调用
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - localCameraAssetArray: 相机拍摄存在本地的 PhotoAsset 数据
-    ///     可以在下次进入选择时赋值给localCameraAssetArray，列表则会显示
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, didDismissComplete localCameraAssetArray: [PhotoAsset])
-    
-    
-    // MARK: 单独预览时的自定义转场动画
-    /// present预览时展示的image
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - index: 预览资源对应的位置
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, presentPreviewImageForIndexAt index: Int) -> UIImage?
-    
-    /// present 预览时起始的视图，用于获取位置大小。与 presentPreviewFrameForIndexAt 一样
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, presentPreviewViewForIndexAt index: Int) -> UIView?
-    
-    /// dismiss 结束时对应的视图，用于获取位置大小。与 dismissPreviewFrameForIndexAt 一样
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, dismissPreviewViewForIndexAt index: Int) -> UIView?
-    
-    /// present 预览时对应的起始位置大小
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, presentPreviewFrameForIndexAt index: Int) -> CGRect
-    
-    /// dismiss 结束时对应的位置大小
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, dismissPreviewFrameForIndexAt index: Int) -> CGRect
-    
-    /// 外部预览自定义 present 完成
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, previewPresentComplete atIndex: Int)
-    
-    /// 外部预览自定义 dismiss 完成
-    @objc optional func pickerController(_ pickerController: PhotoPickerController, previewDismissComplete atIndex: Int)
-}
-
 open class PhotoPickerController: UINavigationController {
     
     public weak var pickerControllerDelegate : PhotoPickerControllerDelegate?
@@ -168,6 +30,9 @@ open class PhotoPickerController: UINavigationController {
         }
     }
     
+    /// 是否选中了原图
+    public var isOriginal: Bool = false
+    
     /// 本地资源数组
     /// 创建本地资源的PhotoAsset然后赋值即可添加到照片列表，如需选中也要添加到selectedAssetArray中
     public var localAssetArray: [PhotoAsset] = []
@@ -175,9 +40,6 @@ open class PhotoPickerController: UINavigationController {
     /// 相机拍摄存在本地的资源数组
     /// 可以通过 pickerControllerDidDismiss 得到上一次相机拍摄的资源，然后赋值即可显示上一次相机拍摄的资源
     public var localCameraAssetArray: [PhotoAsset] = []
-    
-    /// 是否选中了原图
-    public var isOriginal: Bool = false
     
     /// 刷新数据
     /// 可以在传入 selectedPhotoAssetArray 之后重新加载数据将重新设置的被选择的 PhotoAsset 选中
@@ -618,11 +480,11 @@ extension PhotoPickerController {
         view.backgroundColor = PhotoManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
     }
     func finishCallback() {
-        pickerControllerDelegate?.pickerController?(self, didFinishSelection: selectedAssetArray, isOriginal)
+        pickerControllerDelegate?.pickerController?(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
         dismiss(animated: true, completion: nil)
     }
     func singleFinishCallback(for photoAsset: PhotoAsset) {
-        pickerControllerDelegate?.pickerController?(self, singleFinishSelection: photoAsset, isOriginal)
+        pickerControllerDelegate?.pickerController?(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
         dismiss(animated: true, completion: nil)
     }
     func cancelCallback() {
@@ -738,10 +600,17 @@ extension PhotoPickerController {
         }
         reloadAlbumData()
     }
+    
+    /// 添加根据本地资源生成的PhotoAsset对象
+    /// - Parameter photoAsset: 对应的PhotoAsset对象
     func addedLocalCameraAsset(photoAsset: PhotoAsset) {
         photoAsset.localIndex = localCameraAssetArray.count
         localCameraAssetArray.append(photoAsset)
     }
+    
+    /// 添加PhotoAsset对象到已选数组
+    /// - Parameter photoAsset: 对应的PhotoAsset对象
+    /// - Returns: 添加结果
     func addedPhotoAsset(photoAsset: PhotoAsset) -> Bool {
         if singleVideo && photoAsset.mediaType == .video {
             return false
@@ -770,6 +639,10 @@ extension PhotoPickerController {
         }
         return canSelect
     }
+    
+    /// 移除已选的PhotoAsset对象
+    /// - Parameter photoAsset: 对应PhotoAsset对象
+    /// - Returns: 移除结果
     func removePhotoAsset(photoAsset: PhotoAsset) -> Bool {
         if selectedAssetArray.isEmpty || !selectedAssetArray.contains(photoAsset) {
             return false
@@ -789,6 +662,12 @@ extension PhotoPickerController {
         pickerControllerDelegate?.pickerController?(self, didUnselectAsset: photoAsset, atIndex: selectedAssetArray.count)
         return true
     }
+    
+    /// 是否能够选择Asset
+    /// - Parameters:
+    ///   - photoAsset: 对应的PhotoAsset
+    ///   - showHUD: 是否显示HUD
+    /// - Returns: 结果
     func canSelectAsset(for photoAsset: PhotoAsset, showHUD: Bool) -> Bool {
         var canSelect = true
         var text: String?
@@ -825,8 +704,15 @@ extension PhotoPickerController {
             }
             if config.maximumSelectedVideoDuration > 0 {
                 if round(photoAsset.videoDuration) > Double(config.maximumSelectedVideoDuration) {
+                    #if HXPICKER_ENABLE_EDITOR
+                    if !config.allowEditVideo {
+                        text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])
+                        canSelect = false
+                    }
+                    #else
                     text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])
                     canSelect = false
+                    #endif
                 }
             }
             if config.minimumSelectedVideoDuration > 0 {
@@ -863,6 +749,21 @@ extension PhotoPickerController {
         }
         return canSelect
     }
+    
+    /// 视频时长是否超过最大限制
+    /// - Parameter photoAsset: 对应的PhotoAsset对象
+    func videoDurationExceedsTheLimit(photoAsset: PhotoAsset) -> Bool {
+        if photoAsset.mediaType == .video {
+            if config.maximumSelectedVideoDuration > 0 {
+                if round(photoAsset.videoDuration) > Double(config.maximumSelectedVideoDuration) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    /// 选择数是否达到最大
     func selectArrayIsFull() -> Bool {
         if selectedAssetArray.count >= config.maximumSelectedCount && config.maximumSelectedCount > 0 {
             return true

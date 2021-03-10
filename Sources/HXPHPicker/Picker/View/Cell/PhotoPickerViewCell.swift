@@ -155,12 +155,11 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         return assetTypeLb
     }()
     
-    /// 视频图标
-    public lazy var videoIcon: UIImageView = {
-        let videoIcon = UIImageView.init(image: UIImage.image(for: "hx_picker_cell_video_icon"))
-        videoIcon.size = videoIcon.image?.size ?? CGSize.zero
-        videoIcon.isHidden = true
-        return videoIcon
+    /// 资源类型图标
+    public lazy var assetTypeIcon: UIImageView = {
+        let assetTypeIcon = UIImageView.init(image: UIImage.image(for: "hx_picker_cell_video_icon"))
+        assetTypeIcon.isHidden = true
+        return assetTypeIcon
     }()
     
     /// 禁用遮罩
@@ -187,12 +186,17 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
             case .video, .localVideo:
                 assetTypeLb.text = photoAsset.videoTime
                 assetTypeMaskView.isHidden = false
+//                if photoAsset.videoEdit == nil {
+//                    assetTypeIcon.image = UIImage.image(for: "hx_picker_cell_video_icon")
+//                }else {
+//                    assetTypeIcon.image = UIImage.image(for: "hx_picker_cell_video_edit_icon")
+//                }
                 break
             default:
                 assetTypeLb.text = nil
                 assetTypeMaskView.isHidden = true
             }
-            videoIcon.isHidden = photoAsset.mediaType != .video
+            assetTypeIcon.isHidden = photoAsset.mediaType != .video
         }
     }
     
@@ -219,7 +223,7 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         imageView.addSubview(assetTypeMaskView)
         imageView.layer.addSublayer(selectMaskLayer)
         contentView.addSubview(assetTypeLb)
-        contentView.addSubview(videoIcon)
+        contentView.addSubview(assetTypeIcon)
         contentView.layer.addSublayer(disableMaskLayer)
     }
     
@@ -235,9 +239,10 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         assetTypeMaskView.frame = CGRect(x: 0, y: imageView.height - 25, width: width, height: 25)
         assetTypeMaskLayer.frame = CGRect(x: 0, y: -5, width: assetTypeMaskView.width, height: assetTypeMaskView.height + 5)
         assetTypeLb.frame = CGRect(x: 0, y: height - 19, width: width - 5, height: 18)
-        videoIcon.x = 5
-        videoIcon.y = height - videoIcon.height - 5
-        assetTypeLb.centerY = videoIcon.centerY
+        assetTypeIcon.size = assetTypeIcon.image?.size ?? CGSize.zero
+        assetTypeIcon.x = 5
+        assetTypeIcon.y = height - assetTypeIcon.height - 5
+        assetTypeLb.centerY = assetTypeIcon.centerY
     }
     
     /// 设置高亮时的遮罩

@@ -27,7 +27,11 @@ class VideoEditorCropView: UIView {
         30 + UIDevice.leftMargin
     }
     var contentWidth: CGFloat = 0
-    var avAsset: AVAsset
+    var avAsset: AVAsset! {
+        didSet {
+            videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
+        }
+    }
     var config: VideoCroppingConfiguration
     
     var videoFrameCount: Int = 0
@@ -97,10 +101,14 @@ class VideoEditorCropView: UIView {
     var itemHeight: CGFloat = 60
     var lineDidAnimate = false
     
-    init(avAsset: AVAsset, config: VideoCroppingConfiguration) {
+    convenience init(avAsset: AVAsset, config: VideoCroppingConfiguration) {
+        self.init(config: config)
         self.avAsset = avAsset
-        self.config = config
         videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
+    }
+    
+    init(config: VideoCroppingConfiguration) {
+        self.config = config
         super.init(frame: .zero)
         addSubview(collectionView)
         addSubview(frameMaskView)
@@ -159,6 +167,16 @@ class VideoEditorCropView: UIView {
             let scale = videoMinimunCropDuration / videoSecond
             frameMaskView.minWidth = contentWidth * scale
         }
+//        let imageGenerator = getImageGenerator()
+//        var times:[NSValue] = []
+//        for index in 0...videoFrameCount {
+//            let time = getVideoCurrentTime(for: index)
+//            times.append(NSValue.init(time: time))
+//        }
+//        imageGenerator.generateCGImagesAsynchronously(forTimes: times) { (time, cgImage, actualTime, result, error) in
+//            print(time.seconds)
+//        }
+        
         collectionView.reloadData()
     }
     override func layoutSubviews() {
@@ -190,10 +208,11 @@ extension VideoEditorCropView {
             return
         }
         lineDidAnimate = true
-        let duration = getEndDuration() - CGFloat(time.seconds)
+//        let duration = getEndDuration() - CGFloat(time.seconds)
+        let duration = getEndDuration(real: true) - CGFloat(time.seconds)
         let mixX = frameMaskView.leftControl.frame.maxX
         var x: CGFloat
-        if round(time.seconds) == round(getStartTime().seconds) {
+        if time.seconds == getStartTime(real: true).seconds {
             x = mixX
         }else {
             x = CGFloat(time.seconds / avAsset.duration.seconds) * contentWidth - collectionView.contentOffset.x
@@ -210,7 +229,7 @@ extension VideoEditorCropView {
         } completion: { (isFinished) in
             if self.lineDidAnimate && isFinished {
                 let mixX = self.frameMaskView.leftControl.frame.maxX
-                let duration = self.getEndDuration() - self.getStartDuration()
+                let duration = self.getEndDuration(real: true) - self.getStartDuration(real: true)
                 self.setLineAnimation(x: mixX, duration: TimeInterval(duration))
             }
         }
@@ -224,7 +243,10 @@ extension VideoEditorCropView {
         let imgWidth = imageWidth * 0.5
         frameMaskView.validRect = CGRect(x: validRectX + imgWidth, y: 0, width: width - (validRectX + imgWidth) * 2, height: itemHeight)
     }
-    func videoDuration() -> CGFloat {
+    func videoDuration(real: Bool = false) -> CGFloat {
+        if real {
+            return CGFloat(avAsset.duration.seconds)
+        }
         return CGFloat(round(avAsset.duration.seconds))
     }
     func getRotateBeforeData() -> (offsetXScale: CGFloat, validXScale: CGFloat, validWithScale: CGFloat) {
@@ -250,41 +272,50 @@ extension VideoEditorCropView {
         frameMaskView.validRect = CGRect(x: validX, y: 0, width: vaildWidth, height: itemHeight)
     }
     func updateTimeLabels() {
-        let startDuration = round(getStartDuration())
-        let endDuration = round(getStartDuration()) + round(getMiddleDuration())
-        startTimeLb.text = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(startDuration)))
+        if avAsset == nil {
+            return
+        }
+        let startDuration = getStartDuration(real: true)
+        let endDuration = getEndDuration()
+        let totalDuration = round(endDuration - startDuration)
         endTimeLb.text = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(endDuration)))
-        totalTimeLb.text = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(endDuration - startDuration)))
+        totalTimeLb.text = PhotoTools.transformVideoDurationToString(duration: TimeInterval(totalDuration))
+        startTimeLb.text = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(endDuration) - totalDuration))
     }
-    func getMiddleDuration() -> CGFloat {
+    func getMiddleDuration(real: Bool = false) -> CGFloat {
         let validWidth = frameMaskView.validRect.width - imageWidth
-        let second = validWidth / contentWidth * videoDuration()
+        let second = validWidth / contentWidth * videoDuration(real: real)
         return second
     }
-    func getStartDuration() -> CGFloat {
-        let offsetX = collectionView.contentOffset.x + collectionView.contentInset.left
+    func getStartDuration(real: Bool = false) -> CGFloat {
+        var offsetX = collectionView.contentOffset.x + collectionView.contentInset.left
         let validX = frameMaskView.validRect.minX + imageWidth * 0.5 - collectionView.contentInset.left
-        var second = (offsetX + validX) / contentWidth * videoDuration()
+        let maxOfssetX = contentWidth - (collectionView.width - collectionView.contentInset.left * 2.0)
+        if offsetX > maxOfssetX {
+            offsetX = maxOfssetX
+        }
+        var second = (offsetX + validX) / contentWidth * videoDuration(real: real)
         if second < 0 {
             second = 0
-        }else if second > videoDuration() {
-            second = videoDuration()
+        }else if second > videoDuration(real: real) {
+            second = videoDuration(real: real)
         }
         return second
     }
-    func getStartTime() -> CMTime {
-        return CMTimeMakeWithSeconds(Float64(getStartDuration()), preferredTimescale: avAsset.duration.timescale)
+    func getStartTime(real: Bool = false) -> CMTime {
+        return CMTimeMakeWithSeconds(Float64(getStartDuration(real: real)), preferredTimescale: avAsset.duration.timescale)
     }
-    func getEndDuration() -> CGFloat {
+    func getEndDuration(real: Bool = false) -> CGFloat {
+        let videoSecond = videoDuration(real: real)
         let validWidth = frameMaskView.validRect.width - imageWidth * 0.5
-        var second = getStartDuration() + validWidth / contentWidth * videoDuration()
-        if second > videoDuration() {
-            second = videoDuration()
+        var second = getStartDuration(real: real) + validWidth / contentWidth * videoSecond
+        if second > videoSecond {
+            second = videoSecond
         }
         return second
     }
-    func getEndTime() -> CMTime {
-        return CMTimeMakeWithSeconds(Float64(getEndDuration()), preferredTimescale: avAsset.duration.timescale)
+    func getEndTime(real: Bool = false) -> CMTime {
+        return CMTimeMakeWithSeconds(Float64(getEndDuration(real: real)), preferredTimescale: avAsset.duration.timescale)
     }
     func stopScroll() {
         let inset = collectionView.contentInset
@@ -355,12 +386,20 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
     }
     func getVideoCurrentTime(for index: Int) -> CMTime {
         var second: CGFloat
+        var maxIndex = videoFrameCount - 1
+        if avAsset.duration.seconds < 8 {
+            maxIndex = videoFrameCount - 4
+        }
         if index == 0 {
-            second = 0
-        }else if index == videoFrameCount - 1 {
-            second = videoDuration()
+            second = 0.1
+        }else if index >= maxIndex {
+            second = CGFloat(avAsset.duration.seconds - 0.5)
         }else {
-            second = CGFloat(index) * interval + interval * 0.5
+            if avAsset.duration.seconds < 1 {
+                second = 0
+            }else {
+                second = CGFloat(index) * interval + interval * 0.5
+            }
         }
         let time = CMTimeMakeWithSeconds(Float64(second), preferredTimescale: avAsset.duration.timescale)
         return time
@@ -368,37 +407,43 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
     func getImageGenerator() -> AVAssetImageGenerator {
         let imageGenerator = AVAssetImageGenerator.init(asset: avAsset)
         if videoSize.width > videoSize.height / 9 * 15 {
-            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.5, height: videoSize.height * 0.5)
+            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.4, height: videoSize.height * 0.4)
         }else {
-            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.3, height: videoSize.height * 0.3)
+            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.2, height: videoSize.height * 0.2)
         }
         imageGenerator.appliesPreferredTrackTransform = true
         imageGenerator.apertureMode = .productionAperture
+        if avAsset.duration.seconds <= 16 {
+            imageGenerator.requestedTimeToleranceAfter = .zero
+        }
+        imageGenerator.requestedTimeToleranceBefore = .zero
         return imageGenerator
     }
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        delegate?.cropView(self, didScrollAt: getStartTime())
-        updateTimeLabels()
+        if videoFrameCount > 0 {
+            delegate?.cropView(self, didScrollAt: getStartTime(real: true))
+            updateTimeLabels()
+        }
     }
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            delegate?.cropView(self, endScrollAt: getStartTime())
+            delegate?.cropView(self, endScrollAt: getStartTime(real: true))
             updateTimeLabels()
         }
     }
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        delegate?.cropView(self, endScrollAt: getStartTime())
+        delegate?.cropView(self, endScrollAt: getStartTime(real: true))
         updateTimeLabels()
     }
 }
 
 extension VideoEditorCropView: VideoEditorFrameMaskViewDelegate {
     func frameMaskView(validRectDidChanged frameMaskView: VideoEditorFrameMaskView) {
-        delegate?.cropView(self, didChangedValidRectAt: getStartTime())
+        delegate?.cropView(self, didChangedValidRectAt: getStartTime(real: true))
         updateTimeLabels()
     }
     func frameMaskView(validRectEndChanged frameMaskView: VideoEditorFrameMaskView) {
-        delegate?.cropView(self, endChangedValidRectAt: getStartTime())
+        delegate?.cropView(self, endChangedValidRectAt: getStartTime(real: true))
         updateTimeLabels()
     }
 }
