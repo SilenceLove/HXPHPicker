@@ -25,7 +25,9 @@ let package = Package(
                 .process("Resources")
             ],
             swiftSettings: [
-                .define("HXPHPICKER_ENABLE_SPM")
+                .define("HXPICKER_ENABLE_SPM"),
+                .define("HXPICKER_ENABLE_PICKER"),
+                .define("HXPICKER_ENABLE_EDITOR")
             ]),
     ]
 )

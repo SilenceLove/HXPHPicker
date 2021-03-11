@@ -15,6 +15,8 @@
     - [x] GIF
     - [x] Live Photo
     - [x] Video
+- [x] 编辑视频
+    - [x] 裁剪
 - [x] 支持本地资源
 - [x] 在线下载iCloud上的资源
 - [x] 两种相册展现方式（单独列表、弹窗）
@@ -35,7 +37,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.2"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.4"))
 ]
 ```
 
@@ -105,15 +107,6 @@ extension ViewController: PhotoPickerControllerDelegate {
     func pickerController(didCancel pickerController: PhotoPickerController) {
         
     }
-    
-    /// dismiss后调用
-    /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - localCameraAssetArray: 相机拍摄存在本地的 PhotoAsset 数据
-    ///     可以在下次进入选择时赋值给localCameraAssetArray，列表则会显示
-    func pickerController(_ pickerController: PhotoPickerController, didDismissComplete localCameraAssetArray: [PhotoAsset]) {
-        
-    }
 }
 ```
 
@@ -121,6 +114,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#104) | 2021-03-11 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#103) | 2021-01-20 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#102) | 2021-01-11 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#101) | 2021-01-08 | 12.2 | 5.3 | 9.0+ |

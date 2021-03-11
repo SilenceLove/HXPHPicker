@@ -88,18 +88,15 @@ class VideoEditorCropView: UIView {
         lineView.isHidden = true
         return lineView
     }()
-    lazy var operationQueue: OperationQueue = {
-        let operationQueue = OperationQueue.init()
-        operationQueue.maxConcurrentOperationCount = 10
-        return operationQueue
-    }()
-    lazy var operationMap: [Int : BlockOperation] = [:]
+    lazy var videoFrameMap: [Int: CGImage] = [:]
+    
     var videoSize: CGSize = .zero
     /// 一个item代表多少秒
     var interval: CGFloat = -1
     var itemWidth: CGFloat = 0
     var itemHeight: CGFloat = 60
     var lineDidAnimate = false
+    var imageGenerator: AVAssetImageGenerator?
     
     convenience init(avAsset: AVAsset, config: VideoCroppingConfiguration) {
         self.init(config: config)
@@ -119,6 +116,9 @@ class VideoEditorCropView: UIView {
     }
     
     func configData() {
+        imageGenerator?.cancelAllCGImageGeneration()
+        videoFrameMap.removeAll()
+        
         collectionView.contentInset = UIEdgeInsets(top: 2, left: validRectX + imageWidth, bottom: 2, right: validRectX + imageWidth)
         let cellHeight = itemHeight - 4
         itemWidth = cellHeight / 16 * 9
@@ -167,17 +167,8 @@ class VideoEditorCropView: UIView {
             let scale = videoMinimunCropDuration / videoSecond
             frameMaskView.minWidth = contentWidth * scale
         }
-//        let imageGenerator = getImageGenerator()
-//        var times:[NSValue] = []
-//        for index in 0...videoFrameCount {
-//            let time = getVideoCurrentTime(for: index)
-//            times.append(NSValue.init(time: time))
-//        }
-//        imageGenerator.generateCGImagesAsynchronously(forTimes: times) { (time, cgImage, actualTime, result, error) in
-//            print(time.seconds)
-//        }
-        
         collectionView.reloadData()
+        getVideoFrame()
     }
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -191,14 +182,13 @@ class VideoEditorCropView: UIView {
             resetValidRect()
         }
     }
-    
+    deinit {
+        imageGenerator?.cancelAllCGImageGeneration()
+        videoFrameMap.removeAll()
+//        print("deinit \(self)")
+    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        operationMap.removeAll()
-        operationQueue.cancelAllOperations()
     }
 }
 // MARK: function
@@ -338,9 +328,6 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoEditorCropViewCellID", for: indexPath) as! VideoEditorCropViewCell
         return cell
     }
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        copyCurrentFrameImage(index: indexPath.item)
-    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.item < videoFrameCount - 1 {
             return CGSize(width: itemWidth, height: itemHeight - 4)
@@ -349,34 +336,10 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
         return CGSize(width: itemW, height: itemHeight - 4)
     }
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        getVideoFrame(index: indexPath.item)
-    }
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let blockOperation = self.operationMap[indexPath.item] {
-            blockOperation.cancel()
-            operationMap.removeValue(forKey: indexPath.item)
+        if let cgImage = videoFrameMap[indexPath.item] {
+            let myCell = cell as! VideoEditorCropViewCell
+            myCell.image = UIImage.init(cgImage: cgImage)
         }
-    }
-    func getVideoFrame(index: Int) {
-        if let operation = operationMap[index] {
-            operation.cancel()
-            operationMap.removeValue(forKey: index)
-        }
-        weak var weakSelf = self
-        let blockOperation = BlockOperation.init {
-            weakSelf?.copyCurrentFrameImage(index: index)
-        }
-        operationMap[index] = blockOperation
-        operationQueue.addOperation(blockOperation)
-    }
-    func copyCurrentFrameImage(index: Int) {
-        let imageGenerator = getImageGenerator()
-        let time = self.getVideoCurrentTime(for: index)
-        do {
-            let cgImage = try imageGenerator.copyCGImage(at: time, actualTime: nil)
-            let image = UIImage.init(cgImage: cgImage)
-            self.setCurrentCell(image: image, index: index)
-        }catch {}
     }
     func setCurrentCell(image: UIImage, index: Int) {
         DispatchQueue.main.async {
@@ -386,14 +349,15 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
     }
     func getVideoCurrentTime(for index: Int) -> CMTime {
         var second: CGFloat
-        var maxIndex = videoFrameCount - 1
-        if avAsset.duration.seconds < 8 {
-            maxIndex = videoFrameCount - 4
-        }
+        let maxIndex = videoFrameCount - 1
         if index == 0 {
             second = 0.1
         }else if index >= maxIndex {
-            second = CGFloat(avAsset.duration.seconds - 0.5)
+            if avAsset.duration.seconds < 1 {
+                second = CGFloat(avAsset.duration.seconds - 0.1)
+            }else {
+                second = CGFloat(avAsset.duration.seconds - 0.5)
+            }
         }else {
             if avAsset.duration.seconds < 1 {
                 second = 0
@@ -404,20 +368,44 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
         let time = CMTimeMakeWithSeconds(Float64(second), preferredTimescale: avAsset.duration.timescale)
         return time
     }
-    func getImageGenerator() -> AVAssetImageGenerator {
-        let imageGenerator = AVAssetImageGenerator.init(asset: avAsset)
-        if videoSize.width > videoSize.height / 9 * 15 {
-            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.4, height: videoSize.height * 0.4)
-        }else {
-            imageGenerator.maximumSize = CGSize(width: videoSize.width * 0.2, height: videoSize.height * 0.2)
+    func getVideoFrame() {
+        imageGenerator = AVAssetImageGenerator.init(asset: avAsset)
+        imageGenerator?.maximumSize = CGSize(width: itemWidth * 2, height: itemHeight * 2)
+        imageGenerator?.appliesPreferredTrackTransform = true
+        imageGenerator?.requestedTimeToleranceAfter = .zero
+        imageGenerator?.requestedTimeToleranceBefore = .zero
+         
+        var times:[NSValue] = []
+        for index in 0..<videoFrameCount {
+            let time = getVideoCurrentTime(for: index)
+            times.append(NSValue.init(time: time))
         }
-        imageGenerator.appliesPreferredTrackTransform = true
-        imageGenerator.apertureMode = .productionAperture
-        if avAsset.duration.seconds <= 16 {
-            imageGenerator.requestedTimeToleranceAfter = .zero
+        var index: Int = 0
+        var hasError = false
+        var errorIndex: [Int] = []
+        imageGenerator?.generateCGImagesAsynchronously(forTimes: times) { (time, cgImage, actualTime, result, error) in
+            if result != .cancelled {
+                if let cgImage = cgImage {
+                    self.videoFrameMap[index] = cgImage
+                    if hasError {
+                        for inde in errorIndex {
+                            self.setCurrentCell(image: UIImage.init(cgImage: cgImage), index: inde)
+                        }
+                        errorIndex.removeAll()
+                        hasError = false
+                    }
+                    self.setCurrentCell(image: UIImage.init(cgImage: cgImage), index: index)
+                }else {
+                    if let cgImage = self.videoFrameMap[index - 1] {
+                        self.setCurrentCell(image: UIImage.init(cgImage: cgImage), index: index)
+                    }else {
+                        errorIndex.append(index)
+                        hasError = true
+                    }
+                }
+                index = index + 1
+            }
         }
-        imageGenerator.requestedTimeToleranceBefore = .zero
-        return imageGenerator
     }
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if videoFrameCount > 0 {

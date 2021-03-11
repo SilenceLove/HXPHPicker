@@ -56,7 +56,7 @@ public class PhotoManager: NSObject {
     }
     func createBundle() -> Bundle? {
         if self.bundle == nil {
-            #if HXPHPICKER_ENABLE_SPM
+            #if HXPICKER_ENABLE_SPM
             if let path = Bundle.module.path(forResource: "HXPHPicker", ofType: "bundle") {
                 self.bundle = Bundle.init(path: path)
             }else {

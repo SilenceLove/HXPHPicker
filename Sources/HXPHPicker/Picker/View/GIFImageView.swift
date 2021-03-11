@@ -8,7 +8,7 @@
 
 import UIKit
 
-class HXPHGIFImage {
+class GIFImage {
     /// 内部读取图片帧队列
     fileprivate lazy var readFrameQueue: DispatchQueue = DispatchQueue(label: "hxpickerimage.gif.readFrameQueue", qos: .background)
     /// 图片资源数据
@@ -66,7 +66,7 @@ class HXPHGIFImage {
         frameTotalCount = numOfFrames
         for index in 0..<numOfFrames {
             // 获取每一帧的动画时长
-            let frameDuration = HXPHGIFImage.getCGImageSourceGifFrameDelay(imageSource: cgImageSource, index: index)
+            let frameDuration = GIFImage.getCGImageSourceGifFrameDelay(imageSource: cgImageSource, index: index)
             self.frameDurations[index] = max(GlobalSetting.minFrameDuration, frameDuration)
             self.totalDuration += frameDuration
             // 一开始初始化预加载一定数量的图片，而不是全部图片
@@ -118,7 +118,7 @@ class GIFImageView: UIImageView {
     /// 当前正在显示的图片
     fileprivate var currentFrame: UIImage?
     /// 动画图片存储属性
-    fileprivate var animatedImage: HXPHGIFImage?
+    fileprivate var animatedImage: GIFImage?
     /// 定时器
     var displayLink: CADisplayLink?
 
@@ -139,7 +139,7 @@ class GIFImageView: UIImageView {
     }
 
     /// 设置 GIF 图片
-    var gifImage: HXPHGIFImage? {
+    var gifImage: GIFImage? {
         get {
             return self.animatedImage
         }

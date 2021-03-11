@@ -406,7 +406,7 @@ extension PhotoPreviewViewController {
         let boxWidth = config!.selectBox.size.width
         let boxHeight = config!.selectBox.size.height
         if isSelected {
-            if config.selectBox.type == .number {
+            if config.selectBox.style == .number {
                 let text = String(format: "%d", arguments: [photoAsset.selectIndex + 1])
                 let font = UIFont.mediumPingFang(ofSize: config!.selectBox.titleFontSize)
                 let textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))

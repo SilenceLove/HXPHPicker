@@ -29,6 +29,7 @@ public class PhotoListCellConfiguration: NSObject {
     public var backgroundDarkColor: UIColor?
     
     /// cell在不可选择状态下是否显示禁用遮罩
+    /// 如果限制了照片/视频的文件大小，则无效
     public var showDisableMask: Bool = true
     
     /// 选择框顶部的间距

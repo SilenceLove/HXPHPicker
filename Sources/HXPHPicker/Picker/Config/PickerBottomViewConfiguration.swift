@@ -69,7 +69,7 @@ public class PickerBottomViewConfiguration: NSObject {
     /// 原图按钮选择框相关配置
     public lazy var originalSelectBox: SelectBoxConfiguration = {
         let config = SelectBoxConfiguration.init()
-        config.type = .tick
+        config.style = .tick
         // 原图按钮选中时的背景颜色
         config.selectedBackgroundColor = .systemTintColor
         // 暗黑风格下原图按钮选中时的背景颜色

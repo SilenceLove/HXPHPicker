@@ -11,7 +11,7 @@ import UIKit
 public class PhotoPickerSelectBoxView: UIControl {
     public var text: String = "0" {
         didSet {
-            if config.type == .number {
+            if config.style == .number {
                 textLayer.string = text
             }
         }
@@ -70,7 +70,7 @@ public class PhotoPickerSelectBoxView: UIControl {
         }
     }
     func drawTextLayer() {
-        if config.type != .number {
+        if config.style != .number {
             textLayer.isHidden = true
             return
         }
@@ -102,7 +102,7 @@ public class PhotoPickerSelectBoxView: UIControl {
         return tickPath.cgPath
     }
     func drawTickLayer() {
-        if config.type != .tick {
+        if config.style != .tick {
             tickLayer.isHidden = true
             return
         }
@@ -115,7 +115,7 @@ public class PhotoPickerSelectBoxView: UIControl {
     
     public func updateLayers() {
         backgroundLayer.frame = bounds
-        if config.type == .tick {
+        if config.style == .tick {
             tickLayer.frame = bounds
         }
         drawBackgroundLayer()

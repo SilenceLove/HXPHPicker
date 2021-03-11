@@ -37,7 +37,7 @@ open class PhotoPickerController: UINavigationController {
     /// 创建本地资源的PhotoAsset然后赋值即可添加到照片列表，如需选中也要添加到selectedAssetArray中
     public var localAssetArray: [PhotoAsset] = []
     
-    /// 相机拍摄存在本地的资源数组
+    /// 相机拍摄存在本地的资源数组（通过相机拍摄的但是没有保存到系统相册）
     /// 可以通过 pickerControllerDidDismiss 得到上一次相机拍摄的资源，然后赋值即可显示上一次相机拍摄的资源
     public var localCameraAssetArray: [PhotoAsset] = []
     
@@ -388,6 +388,9 @@ extension PhotoPickerController {
             var localAssets: [PhotoAsset] = []
             var localIndex = -1
             for (index, photoAsset) in self.selectedAssetArray.enumerated() {
+                if self.config.selectMode == .single {
+                    break
+                }
                 photoAsset.selectIndex = index
                 photoAsset.isSelected = true
                 if let phAsset = photoAsset.phAsset {
@@ -708,6 +711,11 @@ extension PhotoPickerController {
                     if !config.allowEditVideo {
                         text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])
                         canSelect = false
+                    }else {
+                        if config.maximumVideoEditDuration > 0 && round(photoAsset.videoDuration) > Double(config.maximumVideoEditDuration) {
+                            text = String.init(format: "视频可编辑最大时长为%d秒，无法编辑".localized, arguments: [config.maximumVideoEditDuration])
+                            canSelect = false
+                        }
                     }
                     #else
                     text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])

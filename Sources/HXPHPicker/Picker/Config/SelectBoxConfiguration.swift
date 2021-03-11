@@ -14,8 +14,8 @@ public class SelectBoxConfiguration: NSObject {
     /// 选择框的大小
     public var size: CGSize = CGSize(width: 25, height: 25)
     
-    /// 选择框的类型
-    public var type: PhotoPickerViewController.Cell.SelectBoxType = .number
+    /// 选择框的样式
+    public var style: PhotoPickerSelectBoxView.Style = .number
     
     /// 标题的文字大小
     public var titleFontSize: CGFloat = 16

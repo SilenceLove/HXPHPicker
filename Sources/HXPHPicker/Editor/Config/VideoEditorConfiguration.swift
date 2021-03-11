@@ -13,7 +13,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     public var exportPresetName: String = AVAssetExportPresetHighestQuality
     
     /// 编辑控制器的默认状态
-    public var defaultState: VideoEditorViewControllerState = .normal
+    public var defaultState: VideoEditorViewController.State = .normal
     
     /// 当编辑控制器默认状态是裁剪状态时是否必须裁剪视频
     public var mustBeTailored: Bool = true

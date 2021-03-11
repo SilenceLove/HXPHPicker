@@ -22,7 +22,7 @@ public class PickerResult: NSObject {
     ///     type = video    LivePhoto获取的URL为内部视频地址，会过滤其他图片
     ///     type = any      LivePhoto获取的URL为封面图片地址     
     ///   - completion: result
-    public func getURLs(type: SelectType = .any, completion: @escaping ([URL]) -> Void) {
+    public func getURLs(type: URLType = .any, completion: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.request.imageurl")
         var urls: [URL] = []

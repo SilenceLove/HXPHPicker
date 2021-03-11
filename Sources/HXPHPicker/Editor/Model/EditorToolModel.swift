@@ -13,11 +13,6 @@ public class EditorToolModel: NSObject {
     public var imageName: String = "Unknown"
     
     /// 类型
-    public var type: EditorToolType = .cropping
-}
-
-/// 视频编辑控制器的状态
-public enum VideoEditorViewControllerState {
-    case normal //!< 正常状态
-    case cropping   //!< 裁剪状态
+    public var type: `Type` = .cropping
+    
 }

@@ -17,6 +17,14 @@ public enum SelectMode: Int {
     case single = 0         //!< 单选模式
     case multiple = 1       //!< 多选模式
 }
+
+public enum QuickSelectMode: Int {
+    case none = 0       //!< 正常模式（点击选择框选中，点击cell进入预览界面）
+    case photo = 1      //!< 照片点击cell或选择按钮就进入选中状态，不会跳转预览界面
+    case video = 2      //!< 视频点击cell或选择按钮就进入选中状态，不会跳转预览界面（如果允许编辑视频的话会跳转编辑界面）
+    case any = 3        //!< 照片和视频点击cell或选择按钮就进入选中状态，不会跳转预览界面
+}
+
 public extension PhotoAsset {
     enum MediaType: Int {
         case photo = 0      //!< 照片
@@ -45,28 +53,37 @@ public enum AlbumShowMode: Int {
     case popup = 1          //!< 弹出展示
 }
 
-extension PhotoPickerViewController {
-    public enum CancelType {
+public extension PhotoPickerViewController {
+    enum CancelType {
         case text   //!< 文本
         case image  //!< 图片
     }
-    public enum CancelPosition {
+    enum CancelPosition {
         case left   //!< 左边
         case right  //!< 右边
     }
-    public enum Cell {
-        public enum SelectBoxType: Int {
-            case number //!< 数字
-            case tick   //!< √
-        }
+}
+
+public extension PhotoPickerSelectBoxView {
+    enum Style: Int {
+        case number //!< 数字
+        case tick   //!< √
     }
 }
 
-extension PhotoPreviewViewController {
-    public enum VideoPlayType {
+public extension PhotoPreviewViewController {
+    enum VideoPlayType {
         case normal     //!< 正常状态，不自动播放
         case auto       //!< 自动播放
         case once       //!< 自动播放一次
+    }
+}
+
+public extension PickerResult {
+    enum URLType {
+        case photo  //!< 照片
+        case video  //!< 视频
+        case any    //!< 任何类型
     }
 }
 

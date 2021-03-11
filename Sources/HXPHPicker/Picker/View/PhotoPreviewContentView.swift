@@ -138,7 +138,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             if asset.mediaSubType == .imageAnimated {
                 if asset == weakSelf?.photoAsset {
                     weakSelf?.requestSucceed()
-                    let image = HXPHGIFImage.init(data: imageData)
+                    let image = GIFImage.init(data: imageData)
                     weakSelf?.imageView.gifImage = image
                     weakSelf?.requestID = nil
                     weakSelf?.requestCompletion = true

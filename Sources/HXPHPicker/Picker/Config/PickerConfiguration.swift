@@ -16,6 +16,9 @@ open class PickerConfiguration: BaseConfiguration {
     /// 选择模式
     public var selectMode: SelectMode = .multiple
     
+    /// 快速选择模式
+    public var quickSelectMode: QuickSelectMode = .none
+    
     /// 照片和视频可以一起选择
     public var allowSelectedTogether: Bool = true
     
@@ -53,23 +56,25 @@ open class PickerConfiguration: BaseConfiguration {
     public var minimumSelectedVideoDuration: Int = 0
     
     /// 视频选择的最大文件大小，为0则不限制
-    /// 如果限制了大小请将 photoList.cell.showDisableMask = false
-    /// 限制并且显示遮罩会导致界面滑动卡顿
     public var maximumSelectedVideoFileSize: Int = 0
     
     /// 照片选择的最大文件大小，为0则不限制
-    /// 如果限制了大小请将 photoList.cell.showDisableMask = false
-    /// 限制并且显示遮罩会导致界面滑动卡顿 
     public var maximumSelectedPhotoFileSize: Int = 0
     
     #if HXPICKER_ENABLE_EDITOR
-    /// 允许编辑照片，只控制按钮是否被禁用
+    /// 允许编辑照片，只控制按钮是否被禁用（照片编辑功能还未完成）
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
     public var allowEditPhoto: Bool = false
     
     /// 允许编辑视频，只控制按钮是否被禁用
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
     public var allowEditVideo: Bool = true
+    
+    /// 视频最大编辑时长，为0则不限制，超过限制不可编辑（视频时长超出最大选择时长才生效）
+    public var maximumVideoEditDuration: Int = 0
+    
+    /// 视频编辑配置
+    public lazy var videoEditor: VideoEditorConfiguration = .init()
     #endif
     
     /// 状态栏样式
@@ -116,11 +121,6 @@ open class PickerConfiguration: BaseConfiguration {
     public lazy var previewView: PreviewViewConfiguration = {
         return PreviewViewConfiguration.init()
     }()
-
-    #if HXPICKER_ENABLE_EDITOR
-    /// 视频编辑配置
-    public lazy var videoEditor: VideoEditorConfiguration = .init()
-    #endif
     
     /// 未授权提示界面相关配置
     public lazy var notAuthorized : NotAuthorizedConfiguration = {

@@ -35,7 +35,7 @@ open class VideoEditorViewController: BaseViewController {
     public var config: VideoEditorConfiguration!
     
     /// 编辑状态
-    public var state: VideoEditorViewControllerState = .normal
+    public var state: State = .normal
     
     /// 在视频未获取成功之前展示的视频封面
     public var coverImage: UIImage?
@@ -75,7 +75,7 @@ open class VideoEditorViewController: BaseViewController {
     var reqeustAssetCompletion: Bool = false
     
     var editResult: VideoEditResult?
-    var onceState: VideoEditorViewControllerState = .normal
+    var onceState: State = .normal
     var assetRequestID: PHImageRequestID?
     var didEdited: Bool = false
     #if HXPICKER_ENABLE_PICKER
@@ -106,9 +106,15 @@ open class VideoEditorViewController: BaseViewController {
     
     func requestAVAsset() {
         weak var weakSelf = self
-        _ = ProgressHUD.showLoading(addedTo: view, text: "视频获取中...".localized, animated: true)
+        let loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频加载中".localized, animated: true)
         view.bringSubviewToFront(topView)
-        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, iCloudHandler: nil, progressHandler: nil) { (photoAsset, avAsset, info) in
+        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { (photoAsset, requestID) in
+            weakSelf?.assetRequestID = requestID
+        } progressHandler: { (photoAsset, progress) in
+            if progress > 0 {
+                loadingView?.updateText(text: "视频加载中".localized + "(" + String(Int(progress * 100)) + "%)")
+            }
+        } success: { (photoAsset, avAsset, info) in
             ProgressHUD.hide(forView: weakSelf?.view, animated: false)
             weakSelf?.avAsset = avAsset
             weakSelf?.reqeustAssetCompletion = true
@@ -429,7 +435,7 @@ open class VideoEditorViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
     deinit {
-        print("deinit \(self)")
+//        print("deinit \(self)")
     }
 }
 

@@ -51,13 +51,13 @@ class ProgressHUD: UIView {
         return textLb
     }()
     
-    lazy var imageView: HXPHProgressImageView = {
-        let imageView = HXPHProgressImageView.init(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+    lazy var imageView: ProgressImageView = {
+        let imageView = ProgressImageView.init(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         return imageView
     }()
     
-    lazy var tickView: HXPHProgressImageView = {
-        let tickView = HXPHProgressImageView.init(tickFrame: CGRect(x: 0, y: 0, width: 80, height: 80))
+    lazy var tickView: ProgressImageView = {
+        let tickView = ProgressImageView.init(tickFrame: CGRect(x: 0, y: 0, width: 80, height: 80))
         return tickView
     }()
     
@@ -270,7 +270,7 @@ class ProgressHUD: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 }
-class HXPHProgressImageView: UIView {
+class ProgressImageView: UIView {
     
     lazy var circleLayer: CAShapeLayer = {
         let circleLayer = CAShapeLayer.init()

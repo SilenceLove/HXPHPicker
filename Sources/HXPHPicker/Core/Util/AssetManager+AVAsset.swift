@@ -17,23 +17,31 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - iCloudHandler: 如果资源在iCloud上，下载之前回先回调出请求ID
     ///   - progressHandler: iCloud下载进度
-    ///   - resultHandler: 获取结果
+    ///   - resultHandler: AVAsset，AVAudioMix，info，downloadSuccess
     /// - Returns: 请求ID
-    class func requestAVAsset(for asset: PHAsset, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
-        var deliveryMode = PHVideoRequestOptionsDeliveryMode.highQualityFormat
         return requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (avAsset, audioMix, info) in
             if self.assetDownloadFinined(for: info) {
-                DispatchQueue.main.async {
-                    resultHandler(avAsset, audioMix, info, true)
+                if avAsset?.isPlayable == false {
+                    _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                }else {
+                    DispatchQueue.main.async {
+                        resultHandler(avAsset, audioMix, info, true)
+                    }
                 }
             }else {
                 if self.assetIsInCloud(for: info) {
-                    deliveryMode = .highQualityFormat
                     let iCloudRequestID = self.requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: true, progressHandler: progressHandler) { (avAsset, audioMix, info) in
                         DispatchQueue.main.async {
                             if self.assetDownloadFinined(for: info) {
-                                resultHandler(avAsset, audioMix, info, true)
+                                if avAsset?.isPlayable == false {
+                                    _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                                }else {
+                                    DispatchQueue.main.async {
+                                        resultHandler(avAsset, audioMix, info, true)
+                                    }
+                                }
                             }else {
                                 resultHandler(avAsset, audioMix, info, false)
                             }

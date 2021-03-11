@@ -511,7 +511,8 @@ extension PhotoPickerViewController {
         for visibleCell in collectionView.visibleCells {
             if visibleCell is PhotoPickerBaseViewCell, let photoAsset = (visibleCell as? PhotoPickerBaseViewCell)?.photoAsset, let pickerController = pickerController {
                 let cell = visibleCell as! PhotoPickerBaseViewCell
-                if !photoAsset.isSelected && config.cell.showDisableMask {
+                if !photoAsset.isSelected && config.cell.showDisableMask && pickerController.config.maximumSelectedVideoFileSize == 0  &&
+                    pickerController.config.maximumSelectedPhotoFileSize == 0 {
                     cell.canSelect = pickerController.canSelectAsset(for: photoAsset, showHUD: false)
                 }
                 cell.updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
@@ -638,7 +639,8 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         if let pickerController = pickerController, cell is PhotoPickerBaseViewCell {
             let myCell: PhotoPickerBaseViewCell = cell as! PhotoPickerBaseViewCell
             let photoAsset = getPhotoAsset(for: indexPath.item)
-            if !photoAsset.isSelected && config.cell.showDisableMask {
+            if !photoAsset.isSelected && config.cell.showDisableMask && pickerController.config.maximumSelectedVideoFileSize == 0  &&
+                pickerController.config.maximumSelectedPhotoFileSize == 0 {
                 myCell.canSelect = pickerController.canSelectAsset(for: photoAsset, showHUD: false)
             }else {
                 myCell.canSelect = true
@@ -683,8 +685,49 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             if needEditVideo(photoAsset: myCell.photoAsset, coverImage: myCell.imageView.image) {
                 return
             }
+            if quickSelect(myCell.photoAsset) {
+                return
+            }
             pushPreviewViewController(previewAssets: assets, currentPreviewIndex: needOffset ? indexPath.item - 1 : indexPath.item)
         }
+    }
+    func isQuickSelect(_ photoAsset: PhotoAsset) -> Bool{
+        if let pickerController = pickerController {
+            let quickModel = pickerController.config.quickSelectMode
+            if photoAsset.mediaType == .photo {
+                if quickModel == .photo || quickModel == .any {
+                    return true
+                }
+            }else if photoAsset.mediaType == .video {
+                if quickModel == .video || quickModel == .any {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    func quickSelect(_ photoAsset: PhotoAsset) -> Bool {
+        if isQuickSelect(photoAsset) {
+            if !photoAsset.isSelected {
+                if pickerController?.canSelectAsset(for: photoAsset, showHUD: true) == true {
+                    if !isMultipleSelect {
+                        pickerController?.singleFinishCallback(for: photoAsset)
+                    }else if videoLoadSingleCell && photoAsset.mediaType == .video {
+                        pickerController?.singleFinishCallback(for: photoAsset)
+                    }else {
+                        if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
+                            cell.didSelectControlClick(control: cell.selectControl)
+                        }
+                    }
+                }
+            }else {
+                if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
+                    cell.didSelectControlClick(control: cell.selectControl)
+                }
+            }
+            return true
+        }
+        return false
     }
     func needEditVideo(photoAsset: PhotoAsset, isDidSelectItem: Bool = true, coverImage: UIImage? = nil) -> Bool {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER

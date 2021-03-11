@@ -21,11 +21,11 @@ public class AssetManager {
     ///   - completion: PHAsset为空则保存失败
     public class func saveSystemAlbum(forAsset asset: Any, mediaType: PHAssetMediaType, customAlbumName: String?, creationDate: Date?, location: CLLocation?, completion: @escaping (PHAsset?) -> Void) {
         var albumName: String?
-        if let customAlbumName = customAlbumName {
+        if let customAlbumName = customAlbumName, customAlbumName.count > 0 {
             albumName = customAlbumName
         }else {
             if let displayName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String {
-                albumName = displayName
+                albumName = displayName.count > 0 ? displayName : "PhotoPicker"
             }else {
                 albumName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String
             }

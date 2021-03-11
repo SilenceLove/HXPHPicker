@@ -302,7 +302,7 @@ open class PhotoPickerSelectableViewCell : PhotoPickerViewCell {
                     return
                 }
                 selectMaskLayer.isHidden = false
-                if config.selectBox.type == .number {
+                if config.selectBox.style == .number {
                     let text = selectedTitle
                     let font = UIFont.mediumPingFang(ofSize: config.selectBox.titleFontSize)
                     let textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))

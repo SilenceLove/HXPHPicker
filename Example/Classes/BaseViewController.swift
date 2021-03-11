@@ -57,7 +57,6 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
 //        config.albumList.customCellClass = AlbumViewCustomCell.self
 //        config.photoList.cell.customSingleCellClass = HXPHPickerViewCustomCell.self
 //        config.photoList.cell.customSelectableCellClass = HXPHPickerMultiSelectViewCustomCell.self

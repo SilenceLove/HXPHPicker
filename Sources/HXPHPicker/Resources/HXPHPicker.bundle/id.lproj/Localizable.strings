@@ -33,7 +33,8 @@
 "所有照片" = "Semua foto";
 "视频导出中" = "Ekspor video";
 "导出失败" = "Ekspor gagal";
-"视频获取中..." = "Akuisisi video...";
+"视频加载中" = "Pemuatan video";
+"视频可编辑最大时长为%d秒，无法编辑" = "Panjang maksimal video yang dapat diedit adalah %d detik dan tidak dapat diedit";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

@@ -31,14 +31,14 @@ open class PhotoAsset: NSObject {
     /// 原图
     public var originalImage: UIImage? {
         get {
-            return getOriginalImage()
+            getOriginalImage()
         }
     }
 
     /// 图片/视频文件大小
     public var fileSize: Int {
         get {
-            return getFileSize()
+            getFileSize()
         }
     }
     
@@ -74,7 +74,7 @@ open class PhotoAsset: NSObject {
     /// 图片/视频尺寸大小
     public var imageSize: CGSize {
         get {
-            return getImageSize()
+            getImageSize()
         }
     }
     
@@ -144,9 +144,9 @@ open class PhotoAsset: NSObject {
     /// 本地资源的唯一标识符
     var localAssetIdentifier: String?
     var localIndex: Int = 0
+    var pFileSize: Int?
     private var localImage: UIImage?
     private var localVideoURL: URL?
-    private var pFileSize: Int?
     private var pVideoTime: String?
     private var pVideoDuration: TimeInterval = 0
 }
@@ -181,10 +181,7 @@ public extension PhotoAsset {
     /// 请求缩略图
     /// - Parameter completion: 完成回调
     /// - Returns: 请求ID
-    func requestThumbnailImage(completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
-        return requestThumbnailImage(targetWidth: 180, completion: completion)
-    }
-    func requestThumbnailImage(targetWidth: CGFloat, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
+    func requestThumbnailImage(targetWidth: CGFloat = 180, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
         if let videoEdit = videoEdit {
             completion?(videoEdit.coverImage, self, nil)
             return nil
@@ -293,7 +290,7 @@ public extension PhotoAsset {
     ///   - iCloudHandler: 下载iCloud上的资源时回调iCloud的请求ID
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
-    func requestAVAsset(filterEditor: Bool = false, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+    func requestAVAsset(filterEditor: Bool = false, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
         if let videoEdit = videoEdit, !filterEditor {
             success?(self, AVAsset.init(url: videoEdit.editedURL), nil)
             return 0
@@ -307,7 +304,7 @@ public extension PhotoAsset {
             return 0
         }
         downloadStatus = .downloading
-        return AssetManager.requestAVAsset(for: phAsset!) { (iCloudRequestID) in
+        return AssetManager.requestAVAsset(for: phAsset!, deliveryMode: deliveryMode) { (iCloudRequestID) in
             iCloudHandler?(self, iCloudRequestID)
         } progressHandler: { (progress, error, stop, info) in
             self.downloadProgress = progress
@@ -428,6 +425,14 @@ extension PhotoAsset {
         }
         pFileSize = fileSize
         return fileSize
+    }
+    func requestFileSize(result: @escaping (Int, PhotoAsset) -> Void) {
+        DispatchQueue.global().async {
+            let fileSize = self.getFileSize()
+            DispatchQueue.main.async {
+                result(fileSize, self)
+            }
+        }
     }
     func getOriginalImage() -> UIImage? {
         if let videoEdit = videoEdit {
