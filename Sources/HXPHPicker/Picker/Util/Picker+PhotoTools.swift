@@ -102,32 +102,6 @@ extension PhotoTools {
         return albumName
     }
     
-    // 根据视频地址获取视频封面
-    public class func getVideoThumbnailImage(videoURL: URL?, atTime: TimeInterval) -> UIImage? {
-        if videoURL == nil {
-            return nil
-        }
-        let urlAsset = AVURLAsset.init(url: videoURL!)
-        return getVideoThumbnailImage(avAsset: urlAsset as AVAsset, atTime: atTime)
-    }
-    // 根据视频地址获取视频封面
-    public class func getVideoThumbnailImage(avAsset: AVAsset?, atTime: TimeInterval) -> UIImage? {
-        if avAsset == nil {
-            return nil
-        }
-        let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset!)
-        assetImageGenerator.appliesPreferredTrackTransform = true
-        assetImageGenerator.apertureMode = .encodedPixels
-        let thumbnailImageTime: CFTimeInterval = atTime
-        do {
-            let thumbnailImageRef = try assetImageGenerator.copyCGImage(at: CMTime(value: CMTimeValue(thumbnailImageTime), timescale: avAsset!.duration.timescale), actualTime: nil)
-            let image = UIImage.init(cgImage: thumbnailImageRef)
-            return image
-        } catch {
-            return nil
-        }
-    }
-    
     /// 将字节转换成字符串
     public class func transformBytesToString(bytes: Int) -> String {
         if CGFloat(bytes) >= 0.5 * 1000 * 1000 {
