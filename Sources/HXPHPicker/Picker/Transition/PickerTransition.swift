@@ -90,8 +90,13 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }else {
                     pushImageView.center = CGPoint(x: toVC.view.width * 0.5, y: toVC.view.height * 0.5)
                 }
-                
-                if let phAsset = photoAsset.phAsset, photoAsset.videoEdit == nil {
+                var reqeustAsset = photoAsset.phAsset != nil
+                #if HXPICKER_ENABLE_EDITOR
+                if photoAsset.videoEdit != nil {
+                    reqeustAsset = false
+                }
+                #endif
+                if let phAsset = photoAsset.phAsset, reqeustAsset {
                     requestAssetImage(for: phAsset)
                 }else if pushImageView.image == nil {
                     pushImageView.image = photoAsset.originalImage
@@ -240,7 +245,13 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
             if !pickerController.selectedAssetArray.isEmpty {
                 let photoAsset = pickerController.selectedAssetArray[currentPreviewIndex]
-                if let phAsset = photoAsset.phAsset, photoAsset.videoEdit == nil {
+                var reqeustAsset = photoAsset.phAsset != nil
+                #if HXPICKER_ENABLE_EDITOR
+                if photoAsset.videoEdit != nil {
+                    reqeustAsset = false
+                }
+                #endif
+                if let phAsset = photoAsset.phAsset, reqeustAsset {
                     requestAssetImage(for: phAsset)
                 }else if pushImageView.image == nil {
                     pushImageView.image = photoAsset.originalImage

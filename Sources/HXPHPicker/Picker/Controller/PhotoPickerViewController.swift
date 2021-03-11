@@ -994,12 +994,16 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
             let photoAsset = cell.photoAsset!
             _ = pickerController?.removePhotoAsset(photoAsset: photoAsset)
             // 清空视频编辑的数据
+            #if HXPICKER_ENABLE_EDITOR
             if photoAsset.videoEdit != nil {
                 photoAsset.videoEdit = nil
                 cell.photoAsset = photoAsset
             }else {
                 cell.updateSelectedState(isSelected: false, animated: true)
             }
+            #else
+            cell.updateSelectedState(isSelected: false, animated: true)
+            #endif
             updateCellSelectedTitle()
         }else {
             // 选中

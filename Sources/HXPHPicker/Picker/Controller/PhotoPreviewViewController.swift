@@ -369,6 +369,7 @@ extension PhotoPreviewViewController {
             if config.bottomView.showSelectedView && isMultipleSelect {
                 bottomView.selectedView.removePhotoAsset(photoAsset: photoAsset)
             }
+            #if HXPICKER_ENABLE_EDITOR
             if photoAsset.videoEdit != nil {
                 photoAsset.videoEdit = nil
                 let cell = getCell(for: currentPreviewIndex)
@@ -377,6 +378,7 @@ extension PhotoPreviewViewController {
                 cell?.requestPreviewAsset()
                 pickerUpdateCell = true
             }
+            #endif
             canUpdate = true
         }
         if canUpdate {

@@ -41,16 +41,19 @@ open class PhotoAsset: NSObject {
             getFileSize()
         }
     }
-    
+    #if HXPICKER_ENABLE_EDITOR
     /// 视频编辑数据
     public var videoEdit: VideoEditResult?
+    #endif
     
     /// 视频时长 格式：00:00
     public var videoTime: String? {
         get {
+            #if HXPICKER_ENABLE_EDITOR
             if let videoEdit = videoEdit {
                 return videoEdit.videoTime
             }
+            #endif
             return pVideoTime
         }
     }
@@ -58,9 +61,11 @@ open class PhotoAsset: NSObject {
     /// 视频时长 秒
     public var videoDuration: TimeInterval {
         get {
+            #if HXPICKER_ENABLE_EDITOR
             if let videoEdit = videoEdit {
                 return videoEdit.videoDuration
             }
+            #endif
             return pVideoDuration
         }
     }
@@ -163,10 +168,12 @@ public extension PhotoAsset {
     }
     /// 获取原始视频地址
     func requestVideoURL(resultHandler: @escaping (URL?) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             resultHandler(videoEdit.editedURL)
             return
         }
+        #endif
         if phAsset == nil {
             if mediaType == .photo {
                 resultHandler(nil)
@@ -182,10 +189,12 @@ public extension PhotoAsset {
     /// - Parameter completion: 完成回调
     /// - Returns: 请求ID
     func requestThumbnailImage(targetWidth: CGFloat = 180, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             completion?(videoEdit.coverImage, self, nil)
             return nil
         }
+        #endif
         if phAsset == nil {
             completion?(localImage, self, nil)
             return nil
@@ -201,6 +210,7 @@ public extension PhotoAsset {
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
     func requestImageData(iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, Data, UIImage.Orientation, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             DispatchQueue.global().async {
                 let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
@@ -214,6 +224,7 @@ public extension PhotoAsset {
             }
             return 0
         }
+        #endif
         if phAsset == nil {
             failure?(self, nil)
             return 0
@@ -291,10 +302,12 @@ public extension PhotoAsset {
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
     func requestAVAsset(filterEditor: Bool = false, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit, !filterEditor {
             success?(self, AVAsset.init(url: videoEdit.editedURL), nil)
             return 0
         }
+        #endif
         if phAsset == nil {
             if localVideoURL != nil {
                 success?(self, AVAsset.init(url: localVideoURL!), nil)
@@ -380,15 +393,19 @@ extension PhotoAsset {
         }
     }
     func getLocalImageData() -> Data? {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             return PhotoTools.getImageData(for: videoEdit.coverImage)
         }
+        #endif
         return PhotoTools.getImageData(for: localImage)
     }
     func getFileSize() -> Int {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             return videoEdit.editedFileSize
         }
+        #endif
         if let fileSize = pFileSize {
             return fileSize
         }
@@ -435,9 +452,11 @@ extension PhotoAsset {
         }
     }
     func getOriginalImage() -> UIImage? {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             return videoEdit.coverImage
         }
+        #endif
         if phAsset == nil {
             return localImage
         }
@@ -461,9 +480,11 @@ extension PhotoAsset {
         return originalImage
     }
     func getImageSize() -> CGSize {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
         }
+        #endif
         let size : CGSize
         if let phAsset = phAsset {
             if phAsset.pixelWidth == 0 || phAsset.pixelHeight == 0 {
@@ -502,6 +523,7 @@ extension PhotoAsset {
         }
     }
     func requestAssetImageURL(resultHandler: @escaping (URL?) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             DispatchQueue.global().async {
                 var imageURL: URL?
@@ -514,6 +536,7 @@ extension PhotoAsset {
             }
             return
         }
+        #endif
         if phAsset == nil {
             resultHandler(nil)
             return
@@ -559,10 +582,12 @@ extension PhotoAsset {
         }
     }
     func requestAssetVideoURL(resultHandler: @escaping (URL?) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             resultHandler(videoEdit.editedURL)
             return
         }
+        #endif
         if mediaSubType == .livePhoto {
             var videoURL: URL?
             AssetManager.requestLivePhoto(content: phAsset!) { (imageData) in

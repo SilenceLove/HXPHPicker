@@ -186,11 +186,13 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
             case .video, .localVideo:
                 assetTypeLb.text = photoAsset.videoTime
                 assetTypeMaskView.isHidden = false
+//                #if HXPICKER_ENABLE_EDITOR
 //                if photoAsset.videoEdit == nil {
 //                    assetTypeIcon.image = UIImage.image(for: "hx_picker_cell_video_icon")
 //                }else {
 //                    assetTypeIcon.image = UIImage.image(for: "hx_picker_cell_video_edit_icon")
 //                }
+//                #endif
                 break
             default:
                 assetTypeLb.text = nil
