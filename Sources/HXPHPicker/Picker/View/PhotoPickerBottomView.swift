@@ -8,12 +8,20 @@
 
 import UIKit
 
-@objc protocol PhotoPickerBottomViewDelegate: NSObjectProtocol {
-    @objc optional func bottomView(didPreviewButtonClick bottomView: PhotoPickerBottomView)
-    @objc optional func bottomView(didEditButtonClick bottomView: PhotoPickerBottomView)
-    @objc optional func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView)
-    @objc optional func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool)
-    @objc optional func bottomView(_ bottomView: PhotoPickerBottomView, didSelectedItemAt photoAsset: PhotoAsset)
+protocol PhotoPickerBottomViewDelegate: AnyObject {
+    func bottomView(didPreviewButtonClick bottomView: PhotoPickerBottomView)
+    func bottomView(didEditButtonClick bottomView: PhotoPickerBottomView)
+    func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView)
+    func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool)
+    func bottomView(_ bottomView: PhotoPickerBottomView, didSelectedItemAt photoAsset: PhotoAsset)
+}
+
+extension PhotoPickerBottomViewDelegate {
+    func bottomView(didPreviewButtonClick bottomView: PhotoPickerBottomView) {}
+    func bottomView(didEditButtonClick bottomView: PhotoPickerBottomView) {}
+    func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView) {}
+    func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool) {}
+    func bottomView(_ bottomView: PhotoPickerBottomView, didSelectedItemAt photoAsset: PhotoAsset) {}
 }
 
 class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
@@ -91,7 +99,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
     }()
     
     @objc func didPreviewButtonClick(button: UIButton) {
-        hx_delegate?.bottomView?(didPreviewButtonClick: self)
+        hx_delegate?.bottomView(didPreviewButtonClick: self)
     }
     
     #if HXPICKER_ENABLE_EDITOR
@@ -108,7 +116,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
     }()
     
     @objc func didEditBtnButtonClick(button: UIButton) {
-        hx_delegate?.bottomView?(didEditButtonClick: self)
+        hx_delegate?.bottomView(didEditButtonClick: self)
     }
     #endif
     
@@ -133,7 +141,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             requestAssetBytes()
         }
         viewController()?.pickerController?.isOriginal = boxControl.isSelected
-        hx_delegate?.bottomView?(self, didOriginalButtonClick: boxControl.isSelected)
+        hx_delegate?.bottomView(self, didOriginalButtonClick: boxControl.isSelected)
         boxControl.layer.removeAnimation(forKey: "SelectControlAnimation")
         let keyAnimation = CAKeyframeAnimation.init(keyPath: "transform.scale")
         keyAnimation.duration = 0.3
@@ -227,7 +235,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         return finishBtn
     }()
     @objc func didFinishButtonClick(button: UIButton) {
-        hx_delegate?.bottomView?(didFinishButtonClick: self)
+        hx_delegate?.bottomView(didFinishButtonClick: self)
     }
     var allowLoadPhotoLibrary: Bool
     var isMultipleSelect : Bool
@@ -409,7 +417,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
     }
     // MARK: PhotoPreviewSelectedViewDelegate
     func selectedView(_ selectedView: PhotoPreviewSelectedView, didSelectItemAt photoAsset: PhotoAsset) {
-        hx_delegate?.bottomView?(self, didSelectedItemAt: photoAsset)
+        hx_delegate?.bottomView(self, didSelectedItemAt: photoAsset)
     }
     
     override func layoutSubviews() {

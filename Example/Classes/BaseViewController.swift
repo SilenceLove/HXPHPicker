@@ -455,7 +455,7 @@ class HXPHPickerMultiSelectViewCustomCell: PhotoPickerSelectableViewCell {
         imageView.image = UIImage.image(for: "hx_picker_add_img")
     }
     override func didSelectControlClick(control: PhotoPickerSelectBoxView) {
-        delegate?.cell?(self, didSelectControl: control.isSelected)
+        delegate?.cell(self, didSelectControl: control.isSelected)
         // 重写选择框事件，也可以将选择框隐藏。自己新加一个选择框，然后触发代理回调
     }
     override func updateSelectedState(isSelected: Bool, animated: Bool) {

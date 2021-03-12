@@ -483,64 +483,64 @@ extension PhotoPickerController {
         view.backgroundColor = PhotoManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
     }
     func finishCallback() {
-        pickerControllerDelegate?.pickerController?(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
+        pickerControllerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
         dismiss(animated: true, completion: nil)
     }
     func singleFinishCallback(for photoAsset: PhotoAsset) {
-        pickerControllerDelegate?.pickerController?(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
+        pickerControllerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
         dismiss(animated: true, completion: nil)
     }
     func cancelCallback() {
-        pickerControllerDelegate?.pickerController?(didCancel: self)
+        pickerControllerDelegate?.pickerController(didCancel: self)
         dismiss(animated: true, completion: nil)
     }
     func originalButtonCallback() {
-        pickerControllerDelegate?.pickerController?(self, didOriginalButton: isOriginal)
+        pickerControllerDelegate?.pickerController(self, didOriginalButton: isOriginal)
     }
     func shouldPresentCamera() -> Bool {
-        if let shouldPresent = pickerControllerDelegate?.pickerController?(shouldPresentCamera: self) {
+        if let shouldPresent = pickerControllerDelegate?.pickerController(shouldPresentCamera: self) {
             return shouldPresent
         }
         return true
     }
     func previewUpdateCurrentlyDisplayedAsset(photoAsset: PhotoAsset, index: Int) {
-        pickerControllerDelegate?.pickerController?(self, previewUpdateCurrentlyDisplayedAsset: photoAsset, atIndex: index)
+        pickerControllerDelegate?.pickerController(self, previewUpdateCurrentlyDisplayedAsset: photoAsset, atIndex: index)
     }
     func shouldClickCell(photoAsset: PhotoAsset, index: Int) -> Bool {
-        if let shouldClick = pickerControllerDelegate?.pickerController?(self, shouldClickCell: photoAsset, atIndex: index) {
+        if let shouldClick = pickerControllerDelegate?.pickerController(self, shouldClickCell: photoAsset, atIndex: index) {
             return shouldClick
         }
         return true
     }
     func shouldEditAsset(photoAsset: PhotoAsset, atIndex: Int) -> Bool {
-        if let shouldEditAsset = pickerControllerDelegate?.pickerController?(self, shouldEditAsset: photoAsset, atIndex: atIndex) {
+        if let shouldEditAsset = pickerControllerDelegate?.pickerController(self, shouldEditAsset: photoAsset, atIndex: atIndex) {
             return shouldEditAsset
         }
         return true
     }
     func didEditAsset(photoAsset: PhotoAsset, atIndex: Int) {
-        pickerControllerDelegate?.pickerController?(self, didEditAsset: photoAsset, atIndex: atIndex)
+        pickerControllerDelegate?.pickerController(self, didEditAsset: photoAsset, atIndex: atIndex)
     }
     func previewShouldDeleteAsset(photoAsset: PhotoAsset, index: Int) -> Bool {
-        if let previewShouldDeleteAsset = pickerControllerDelegate?.pickerController?(self, previewShouldDeleteAsset: photoAsset, atIndex: index) {
+        if let previewShouldDeleteAsset = pickerControllerDelegate?.pickerController(self, previewShouldDeleteAsset: photoAsset, atIndex: index) {
             return previewShouldDeleteAsset
         }
         return true
     }
     func previewDidDeleteAsset(photoAsset: PhotoAsset, index: Int) {
-        pickerControllerDelegate?.pickerController?(self, previewDidDeleteAsset: photoAsset, atIndex: index)
+        pickerControllerDelegate?.pickerController(self, previewDidDeleteAsset: photoAsset, atIndex: index)
     }
     func viewControllersWillAppear(_ viewController: UIViewController) {
-        pickerControllerDelegate?.pickerController?(self, viewControllersWillAppear: viewController)
+        pickerControllerDelegate?.pickerController(self, viewControllersWillAppear: viewController)
     }
     func viewControllersDidAppear(_ viewController: UIViewController) {
-        pickerControllerDelegate?.pickerController?(self, viewControllersDidAppear: viewController)
+        pickerControllerDelegate?.pickerController(self, viewControllersDidAppear: viewController)
     }
     func viewControllersWillDisappear(_ viewController: UIViewController) {
-        pickerControllerDelegate?.pickerController?(self, viewControllersWillDisappear: viewController)
+        pickerControllerDelegate?.pickerController(self, viewControllersWillDisappear: viewController)
     }
     func viewControllersDidDisappear(_ viewController: UIViewController) {
-        pickerControllerDelegate?.pickerController?(self, viewControllersDidDisappear: viewController)
+        pickerControllerDelegate?.pickerController(self, viewControllersDidDisappear: viewController)
     }
     
     /// 获取已选资源的总大小
@@ -628,7 +628,7 @@ extension PhotoPickerController {
         }
         let canSelect = canSelectAsset(for: photoAsset, showHUD: true)
         if canSelect {
-            pickerControllerDelegate?.pickerController?(self, willSelectAsset: photoAsset, atIndex: selectedAssetArray.count)
+            pickerControllerDelegate?.pickerController(self, willSelectAsset: photoAsset, atIndex: selectedAssetArray.count)
             canAddAsset = false
             photoAsset.isSelected = true
             photoAsset.selectIndex = selectedAssetArray.count
@@ -638,7 +638,7 @@ extension PhotoPickerController {
                 selectedVideoAssetArray.append(photoAsset)
             }
             selectedAssetArray.append(photoAsset)
-            pickerControllerDelegate?.pickerController?(self, didSelectAsset: photoAsset, atIndex: selectedAssetArray.count - 1)
+            pickerControllerDelegate?.pickerController(self, didSelectAsset: photoAsset, atIndex: selectedAssetArray.count - 1)
         }
         return canSelect
     }
@@ -651,7 +651,7 @@ extension PhotoPickerController {
             return false
         }
         canAddAsset = false
-        pickerControllerDelegate?.pickerController?(self, willUnselectAsset: photoAsset, atIndex: selectedAssetArray.count)
+        pickerControllerDelegate?.pickerController(self, willUnselectAsset: photoAsset, atIndex: selectedAssetArray.count)
         photoAsset.isSelected = false
         if photoAsset.mediaType == .photo {
             selectedPhotoAssetArray.remove(at: selectedPhotoAssetArray.firstIndex(of: photoAsset)!)
@@ -662,7 +662,7 @@ extension PhotoPickerController {
         for (index, asset) in selectedAssetArray.enumerated() {
             asset.selectIndex = index
         }
-        pickerControllerDelegate?.pickerController?(self, didUnselectAsset: photoAsset, atIndex: selectedAssetArray.count)
+        pickerControllerDelegate?.pickerController(self, didUnselectAsset: photoAsset, atIndex: selectedAssetArray.count)
         return true
     }
     
@@ -747,7 +747,7 @@ extension PhotoPickerController {
                 }
             }
         }
-        if let shouldSelect = pickerControllerDelegate?.pickerController?(self, shouldSelectedAsset: photoAsset, atIndex: selectedAssetArray.count) {
+        if let shouldSelect = pickerControllerDelegate?.pickerController(self, shouldSelectedAsset: photoAsset, atIndex: selectedAssetArray.count) {
             if canSelect {
                 canSelect = shouldSelect
             }
@@ -876,7 +876,7 @@ extension PhotoPickerController {
         for photoAsset in localCameraAssetArray {
             cameraAssetArray.append(photoAsset.copyCamera())
         }
-        pickerControllerDelegate?.pickerController?(self, didDismissComplete: cameraAssetArray)
+        pickerControllerDelegate?.pickerController(self, didDismissComplete: cameraAssetArray)
     }
 }
 

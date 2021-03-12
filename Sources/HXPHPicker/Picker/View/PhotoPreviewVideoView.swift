@@ -9,15 +9,18 @@
 import UIKit
 import AVKit
 
+protocol PhotoPreviewVideoViewDelegate: AnyObject {
+    func videoView(startPlay videoView: VideoPlayerView)
+    func videoView(stopPlay videoView: VideoPlayerView)
+    func videoView(showPlayButton videoView: VideoPlayerView)
+    func videoView(hidePlayButton videoView: VideoPlayerView)
+}
+
 class PhotoPreviewVideoView: VideoPlayerView {
-    
+    weak var delegate: PhotoPreviewVideoViewDelegate?
     override var avAsset: AVAsset? {
         didSet {
-            if playButton.alpha == 0 {
-                UIView.animate(withDuration: 0.25) {
-                    self.playButton.alpha = 1
-                }
-            }
+            delegate?.videoView(showPlayButton: self)
             let playerItem = AVPlayerItem.init(asset: avAsset!)
             player.replaceCurrentItem(with: playerItem)
             playerLayer.player = player
@@ -25,39 +28,16 @@ class PhotoPreviewVideoView: VideoPlayerView {
         }
     }
     
-    lazy var playButton: UIButton = {
-        let playButton = UIButton.init(type: UIButton.ButtonType.custom)
-        playButton.setImage("hx_picker_cell_video_play".image, for: UIControl.State.normal)
-        playButton.setImage(UIImage.init(), for: UIControl.State.selected)
-        playButton.addTarget(self, action: #selector(didPlayButtonClick(button:)), for: UIControl.Event.touchUpInside)
-        playButton.size = playButton.currentImage!.size
-        playButton.alpha = 0
-        return playButton
-    }()
-    @objc func didPlayButtonClick(button: UIButton) {
-        if !button.isSelected {
-            startPlay()
-        }else {
-            stopPlay()
-        }
-    }
     var isPlaying: Bool = false
     var didEnterBackground: Bool = false
     var enterPlayGroundShouldPlay: Bool = false
     var canRemovePlayerObservers: Bool = false
-    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
-        didSet {
-            if videoPlayType == .auto || videoPlayType == .once {
-                playButton.isSelected = true
-            }
-        }
-    }
+    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal
     
     override init() {
         super.init()
         layer.masksToBounds = true
         playerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        addSubview(playButton)
         
         playerLayer.addObserver(self, forKeyPath: "readyForDisplay", options: [.new, .old], context: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
@@ -82,33 +62,31 @@ class PhotoPreviewVideoView: VideoPlayerView {
             return
         }
         player.play()
-        playButton.isSelected = true
         isPlaying = true
+        delegate?.videoView(startPlay: self)
     }
     func stopPlay() {
         if !isPlaying {
             return
         }
         player.pause()
-        playButton.isSelected = false
         isPlaying = false
+        delegate?.videoView(stopPlay: self)
     }
     func hiddenPlayButton() {
         ProgressHUD.hide(forView: self, animated: true)
-        UIView.animate(withDuration: 0.15) {
-            self.playButton.alpha = 0
-        }
+        delegate?.videoView(hidePlayButton: self)
     }
     func showPlayButton() {
-        UIView.animate(withDuration: 0.25) {
-            self.playButton.alpha = 1
-        }
+        delegate?.videoView(showPlayButton: self)
     }
     func cancelPlayer() {
         if player.currentItem != nil {
             stopPlay()
             if videoPlayType == .auto || videoPlayType == .once {
-                playButton.isSelected = true
+                delegate?.videoView(startPlay: self)
+            }else {
+                delegate?.videoView(hidePlayButton: self)
             }
             player.seek(to: CMTime.zero)
             player.cancelPendingPrerolls()
@@ -179,7 +157,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
-            if self.playerLayer.isReadyForDisplay && !didEnterBackground && (videoPlayType == .auto || videoPlayType == .once) {
+            if playerLayer.isReadyForDisplay && !didEnterBackground && (videoPlayType == .auto || videoPlayType == .once) {
                 startPlay()
             }
         }
@@ -194,11 +172,6 @@ class PhotoPreviewVideoView: VideoPlayerView {
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        playButton.centerX = width * 0.5
-        playButton.centerY = height * 0.5
-    }
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }

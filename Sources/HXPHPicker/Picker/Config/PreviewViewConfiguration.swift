@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 预览界面配置类
-public class PreviewViewConfiguration: NSObject {
+public class PreviewViewConfiguration {
     
     /// 背景颜色
     public lazy var backgroundColor : UIColor = {
@@ -54,4 +54,6 @@ public class PreviewViewConfiguration: NSObject {
     
     /// 暗黑模式下取消按钮图片名
     public var cancelDarkImageName: String = "hx_picker_photolist_cancel"
+    
+    public init() { }
 }

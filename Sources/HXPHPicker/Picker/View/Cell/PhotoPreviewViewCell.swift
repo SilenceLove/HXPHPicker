@@ -49,7 +49,7 @@ class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
     var photoAsset: PhotoAsset! {
         didSet {
-            setupScrollViewContenSize()
+            setupScrollViewContentSize()
             scrollContentView.photoAsset = photoAsset
         }
     }
@@ -63,34 +63,40 @@ class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
     func initView() {
         contentView.addSubview(scrollView)
     }
-    func setupScrollViewContenSize() {
+    func setupScrollViewContentSize() {
         scrollView.zoomScale = 1
         if UIDevice.isPortrait {
-            let aspectRatio = width / photoAsset.imageSize.width
-            let contentWidth = width
-            let contentHeight = photoAsset.imageSize.height * aspectRatio
-            if contentWidth < contentHeight {
-                scrollView.maximumZoomScale = width * 2.5 / contentWidth
-            }else {
-                scrollView.maximumZoomScale = height * 2.5 / contentHeight
-            }
-            scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
-            if contentHeight < height {
-                scrollView.contentSize = size
-                scrollContentView.center = CGPoint(x: width * 0.5, y: height * 0.5)
-            }else {
-                scrollView.contentSize = CGSize(width: contentWidth, height: contentHeight)
-            }
+            setupPortraitContentSize()
         }else {
-            let aspectRatio = height / photoAsset.imageSize.height
-            let contentWidth = photoAsset.imageSize.width * aspectRatio
-            let contentHeight = height
-            scrollView.maximumZoomScale = width / contentWidth + 0.5
-            
-            scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
-            scrollContentView.center = CGPoint(x: width * 0.5, y: height * 0.5)
-            scrollView.contentSize = size
+            setupLandscapeContentSize()
         }
+    }
+    func setupPortraitContentSize() {
+        let aspectRatio = width / photoAsset.imageSize.width
+        let contentWidth = width
+        let contentHeight = photoAsset.imageSize.height * aspectRatio
+        if contentWidth < contentHeight {
+            scrollView.maximumZoomScale = width * 2.5 / contentWidth
+        }else {
+            scrollView.maximumZoomScale = height * 2.5 / contentHeight
+        }
+        scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
+        if contentHeight < height {
+            scrollView.contentSize = size
+            scrollContentView.center = CGPoint(x: width * 0.5, y: height * 0.5)
+        }else {
+            scrollView.contentSize = CGSize(width: contentWidth, height: contentHeight)
+        }
+    }
+    func setupLandscapeContentSize() {
+        let aspectRatio = height / photoAsset.imageSize.height
+        let contentWidth = photoAsset.imageSize.width * aspectRatio
+        let contentHeight = height
+        scrollView.maximumZoomScale = width / contentWidth + 0.5
+        
+        scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
+        scrollContentView.center = CGPoint(x: width * 0.5, y: height * 0.5)
+        scrollView.contentSize = size
     }
     func requestPreviewAsset() {
         scrollContentView.requestPreviewAsset()
@@ -143,52 +149,6 @@ class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
         }
     }
 }
-class PreviewPhotoViewCell: PhotoPreviewViewCell {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        scrollContentView = PhotoPreviewContentView.init(type: PhotoPreviewContentViewType.photo)
-        initView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
 
-class PreviewLivePhotoViewCell: PhotoPreviewViewCell {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        scrollContentView = PhotoPreviewContentView.init(type: PhotoPreviewContentViewType.livePhoto)
-        initView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
-
-class PreviewVideoViewCell: PhotoPreviewViewCell {
-    
-    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
-        didSet {
-            scrollContentView.videoView.videoPlayType = videoPlayType
-        }
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        scrollContentView = PhotoPreviewContentView.init(type: PhotoPreviewContentViewType.video)
-        initView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
 
 

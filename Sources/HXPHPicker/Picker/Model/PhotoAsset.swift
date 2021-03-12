@@ -13,7 +13,7 @@ public typealias PhotoAssetICloudHandlerHandler = (PhotoAsset, PHImageRequestID)
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
 public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?) -> Void
 
-open class PhotoAsset: NSObject {
+open class PhotoAsset: Equatable {
     
     /// 系统相册里的资源
     public var phAsset: PHAsset? {
@@ -92,7 +92,6 @@ open class PhotoAsset: NSObject {
     /// 根据系统相册里对应的 PHAsset 数据初始化
     /// - Parameter asset: 系统相册里对应的 PHAsset 数据
     public init(asset: PHAsset) {
-        super.init()
         self.phAsset = asset
         setMediaType()
     }
@@ -100,7 +99,6 @@ open class PhotoAsset: NSObject {
     /// 根据系统相册里对应的 PHAsset本地唯一标识符 初始化
     /// - Parameter localIdentifier: 系统相册里对应的 PHAsset本地唯一标识符
     public init(localIdentifier: String) {
-        super.init()
         phAsset = AssetManager.fetchAsset(withLocalIdentifier: localIdentifier)
         setMediaType()
     }
@@ -117,7 +115,6 @@ open class PhotoAsset: NSObject {
     ///   - image: 对应的 UIImage 数据
     ///   - localIdentifier: 自定义的本地唯一标识符
     public init(image: UIImage?, localIdentifier: String?) {
-        super.init()
         localAssetIdentifier = localIdentifier
         localImage = image
         mediaType = .photo
@@ -136,7 +133,6 @@ open class PhotoAsset: NSObject {
     ///   - videoURL: 对应的 URL 数据
     ///   - localIdentifier: 自定义的本地唯一标识符
     public init(videoURL: URL?, localIdentifier: String?) {
-        super.init()
         localAssetIdentifier = localIdentifier
         localImage = PhotoTools.getVideoThumbnailImage(videoURL: videoURL, atTime: 0.1)
         pVideoDuration = PhotoTools.getVideoDuration(videoURL: videoURL)
@@ -149,202 +145,26 @@ open class PhotoAsset: NSObject {
     /// 本地资源的唯一标识符
     var localAssetIdentifier: String?
     var localIndex: Int = 0
-    var pFileSize: Int?
-    private var localImage: UIImage?
-    private var localVideoURL: URL?
+    var localImage: UIImage?
+    var localVideoURL: URL?
+    private var pFileSize: Int?
     private var pVideoTime: String?
     private var pVideoDuration: TimeInterval = 0
+    
+    public static func == (lhs: PhotoAsset, rhs: PhotoAsset) -> Bool {
+        return lhs.isEqual(rhs)
+    }
 }
-// MARK: 获取资源
+// MARK: 
 public extension PhotoAsset {
-    
-    /// 获取原始图片地址
-    func requestImageURL(resultHandler: @escaping (URL?) -> Void) {
-        if phAsset == nil {
-            requestLocalImageURL(resultHandler: resultHandler)
-            return
-        }
-        requestAssetImageURL(resultHandler: resultHandler)
-    }
-    /// 获取原始视频地址
-    func requestVideoURL(resultHandler: @escaping (URL?) -> Void) {
-        #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
-            resultHandler(videoEdit.editedURL)
-            return
-        }
-        #endif
-        if phAsset == nil {
-            if mediaType == .photo {
-                resultHandler(nil)
-            }else {
-                resultHandler(localVideoURL)
-            }
-            return
-        }
-        requestAssetVideoURL(resultHandler: resultHandler)
-    }
-    
-    /// 请求缩略图
-    /// - Parameter completion: 完成回调
-    /// - Returns: 请求ID
-    func requestThumbnailImage(targetWidth: CGFloat = 180, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
-        #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
-            completion?(videoEdit.coverImage, self, nil)
-            return nil
-        }
-        #endif
-        if phAsset == nil {
-            completion?(localImage, self, nil)
-            return nil
-        }
-        return AssetManager.requestThumbnailImage(for: phAsset!, targetWidth: targetWidth) { (image, info) in
-            completion?(image, self, info)
-        }
-    }
-    
-    /// 请求imageData，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset
-    /// - Parameters:
-    ///   - iCloudHandler: 下载iCloud上的资源时回调iCloud的请求ID
-    ///   - progressHandler: iCloud下载进度
-    /// - Returns: 请求ID
-    func requestImageData(iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, Data, UIImage.Orientation, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
-        #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
-            DispatchQueue.global().async {
-                let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
-                DispatchQueue.main.async {
-                    if let imageData = imageData {
-                        success?(self, imageData, videoEdit.coverImage!.imageOrientation, nil)
-                    }else {
-                        failure?(self, nil)
-                    }
-                }
-            }
-            return 0
-        }
-        #endif
-        if phAsset == nil {
-            failure?(self, nil)
-            return 0
-        }
-        var version = PHImageRequestOptionsVersion.current
-        if mediaSubType == .imageAnimated {
-            version = .original
-        }
-        downloadStatus = .downloading
-        return AssetManager.requestImageData(for: phAsset!, version: version, iCloudHandler: { (iCloudRequestID) in
-            iCloudHandler?(self, iCloudRequestID)
-        }, progressHandler: { (progress, error, stop, info) in
-            self.downloadProgress = progress
-            DispatchQueue.main.async {
-                progressHandler?(self, progress)
-            }
-        }, resultHandler: { (data, dataUTI, imageOrientation, info, downloadSuccess) in
-            if downloadSuccess {
-                self.downloadProgress = 1
-                self.downloadStatus = .succeed
-                success?(self, data!, imageOrientation, info)
-            }else {
-                if AssetManager.assetCancelDownload(for: info) {
-                    self.downloadStatus = .canceled
-                }else {
-                    self.downloadProgress = 0
-                    self.downloadStatus = .failed
-                }
-                failure?(self, info)
-            }
-        })
-    }
-    
-    /// 请求LivePhoto，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset
-    /// - Parameters:
-    ///   - targetSize: 请求的大小
-    ///   - iCloudHandler: 下载iCloud上的资源时回调iCloud的请求ID
-    ///   - progressHandler: iCloud下载进度
-    /// - Returns: 请求ID
-    @available(iOS 9.1, *)
-    func requestLivePhoto(targetSize: CGSize, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, PHLivePhoto, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
-        if phAsset == nil {
-            failure?(self, nil)
-            return 0
-        }
-        downloadStatus = .downloading
-        return AssetManager.requestLivePhoto(for: phAsset!, targetSize: targetSize) { (iCloudRequestID) in
-            iCloudHandler?(self, iCloudRequestID)
-        } progressHandler: { (progress, error, stop, info) in
-            self.downloadProgress = progress
-            DispatchQueue.main.async {
-                progressHandler?(self, progress)
-            }
-        } resultHandler: { (livePhoto, info, downloadSuccess) in
-            if downloadSuccess {
-                self.downloadProgress = 1
-                self.downloadStatus = .succeed
-                success?(self, livePhoto!, info)
-            }else {
-                if AssetManager.assetCancelDownload(for: info) {
-                    self.downloadStatus = .canceled
-                }else {
-                    self.downloadProgress = 0
-                    self.downloadStatus = .failed
-                }
-                failure?(self, info)
-            }
-        }
-    }
-    
-    /// 请求AVAsset，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset
-    /// - Parameters:
-    ///   - filterEditor: 过滤编辑过的视频，取原视频
-    ///   - iCloudHandler: 下载iCloud上的资源时回调iCloud的请求ID
-    ///   - progressHandler: iCloud下载进度
-    /// - Returns: 请求ID
-    func requestAVAsset(filterEditor: Bool = false, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
-        #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit, !filterEditor {
-            success?(self, AVAsset.init(url: videoEdit.editedURL), nil)
-            return 0
-        }
-        #endif
-        if phAsset == nil {
-            if localVideoURL != nil {
-                success?(self, AVAsset.init(url: localVideoURL!), nil)
-            }else {
-                failure?(self, nil)
-            }
-            return 0
-        }
-        downloadStatus = .downloading
-        return AssetManager.requestAVAsset(for: phAsset!, deliveryMode: deliveryMode) { (iCloudRequestID) in
-            iCloudHandler?(self, iCloudRequestID)
-        } progressHandler: { (progress, error, stop, info) in
-            self.downloadProgress = progress
-            DispatchQueue.main.async {
-                progressHandler?(self, progress)
-            }
-        } resultHandler: { (avAsset, audioMix, info, downloadSuccess) in
-            if downloadSuccess {
-                self.downloadProgress = 1
-                self.downloadStatus = .succeed
-                success?(self, avAsset!, info)
-            }else {
-                if AssetManager.assetCancelDownload(for: info) {
-                    self.downloadStatus = .canceled
-                }else {
-                    self.downloadProgress = 0
-                    self.downloadStatus = .failed
-                }
-                failure?(self, info)
-            }
-        }
-    }
     
     /// 判断是否是同一个 PhotoAsset 对象
     func isEqual(_ photoAsset: PhotoAsset?) -> Bool {
         if let photoAsset = photoAsset {
-            if self == photoAsset {
+            if self === photoAsset {
+                return true
+            }
+            if let localIdentifier = phAsset?.localIdentifier, let phLocalIdentifier = photoAsset.phAsset?.localIdentifier, localIdentifier == phLocalIdentifier {
                 return true
             }
             if let localAssetIdentifier = localAssetIdentifier , let phLocalAssetIdentifier = photoAsset.localAssetIdentifier, localAssetIdentifier == phLocalAssetIdentifier {
@@ -357,9 +177,6 @@ public extension PhotoAsset {
                 return true
             }
             if let phAsset = phAsset, phAsset == photoAsset.phAsset {
-                return true
-            }
-            if let localIdentifier = phAsset?.localIdentifier, let phLocalIdentifier = photoAsset.phAsset?.localIdentifier, localIdentifier == phLocalIdentifier {
                 return true
             }
         }
@@ -469,8 +286,8 @@ extension PhotoAsset {
         }
         var originalImage: UIImage?
         _ = AssetManager.requestImageData(for: phAsset!, options: options) { (imageData, dataUTI, orientation, info) in
-            if imageData != nil {
-                originalImage = UIImage.init(data: imageData!)
+            if let imageData = imageData {
+                originalImage = UIImage.init(data: imageData)
                 if self.mediaSubType != .imageAnimated && self.phAsset!.isImageAnimated {
                     // 原始图片是动图，但是设置的是不显示动图，所以在这里处理一下
                     originalImage = originalImage?.images?.first
@@ -562,9 +379,9 @@ extension PhotoAsset {
             suffix = "jpeg"
         }
         AssetManager.requestImageURL(for: phAsset!, suffix: suffix) { (imageURL) in
-            if self.phAsset!.isImageAnimated && self.mediaSubType != .imageAnimated && imageURL != nil {
+            if let imageURL = imageURL, self.phAsset!.isImageAnimated, self.mediaSubType != .imageAnimated {
                 // 本质上是gif，需要变成静态图
-                let image = UIImage.init(contentsOfFile: imageURL!.path)
+                let image = UIImage.init(contentsOfFile: imageURL.path)
                 if let imageData = PhotoTools.getImageData(for: image) {
                     do {
                         let tempURL = PhotoTools.getImageTmpURL()

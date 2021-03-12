@@ -7,12 +7,16 @@
 
 import Foundation
 
-public class EditorToolModel: NSObject {
+public class EditorToolModel {
     
     /// icon图标
-    public var imageName: String = "Unknown"
+    public let imageName: String
     
     /// 类型
-    public var type: `Type` = .cropping
+    public let type: `Type`
     
+    public init(imageName: String, type: `Type`) {
+        self.imageName = imageName
+        self.type = type
+    }
 }

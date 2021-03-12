@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 照片列表配置类
-public class PhotoListConfiguration: NSObject {
+public class PhotoListConfiguration {
     /// 相册标题视图配置
     public lazy var titleViewConfig: AlbumTitleViewConfiguration = {
         let titleViewConfig = AlbumTitleViewConfiguration.init()
@@ -100,4 +100,6 @@ public class PhotoListConfiguration: NSObject {
     public lazy var emptyView : EmptyViewConfiguration = {
         return EmptyViewConfiguration.init()
     }()
+    
+    public init() { }
 }

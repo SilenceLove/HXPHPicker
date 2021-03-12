@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 相册列表配置类
-public class AlbumListConfiguration: NSObject {
+public class AlbumListConfiguration {
     
     /// 可访问权限下的提示语颜色
     public lazy var limitedStatusPromptColor: UIColor = {
@@ -114,4 +114,6 @@ public class AlbumListConfiguration: NSObject {
     public lazy var tickDarkColor : UIColor = {
         return "#ffffff".color
     }()
+    
+    public init() { }
 }

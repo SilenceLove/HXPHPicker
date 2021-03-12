@@ -10,6 +10,9 @@ import UIKit
 
 extension UIDevice {
     class var isPortrait: Bool {
+        if isPad {
+            return true
+        }
         let orientation = UIApplication.shared.statusBarOrientation
         if  orientation == .landscapeLeft ||
             orientation == .landscapeRight {
@@ -18,7 +21,12 @@ extension UIDevice {
         return true
     }
     class var navigationBarHeight: CGFloat {
-        statusBarHeight + 44
+        if isPad {
+            if #available(iOS 12, *) {
+                return statusBarHeight + 50
+            }
+        }
+        return statusBarHeight + 44
     }
     class var generalStatusBarHeight: CGFloat {
         return isAllIPhoneX ? 44 : 20

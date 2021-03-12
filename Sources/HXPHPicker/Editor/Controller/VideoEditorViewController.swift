@@ -9,22 +9,31 @@ import UIKit
 import AVKit
 import Photos
 
-@objc public protocol VideoEditorViewControllerDelegate: NSObjectProtocol {
+public protocol VideoEditorViewControllerDelegate: AnyObject {
     
     /// 编辑完成
     /// - Parameters:
     ///   - videoEditorViewController: 对应的 VideoEditorViewController
     ///   - videoURL: 编辑后的视频地址
-    @objc optional func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult)
+    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult)
     
     /// 点击完成按钮，但是视频未编辑
     /// - Parameters:
     ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    @objc optional func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController)
+    func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController)
     
     /// 取消编辑
     /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
-    @objc optional func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController)
+    func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController)
+}
+
+public extension VideoEditorViewControllerDelegate {
+    
+    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {}
+    
+    func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {}
+    
+    func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {}
 }
 
 open class VideoEditorViewController: BaseViewController {
@@ -286,12 +295,12 @@ open class VideoEditorViewController: BaseViewController {
             didEdited = true
             playerView.playStartTime = CMTimeMakeWithSeconds(editResult.cropData.startTime, preferredTimescale: 1)
             playerView.playEndTime = CMTimeMakeWithSeconds(editResult.cropData.endTime, preferredTimescale: 1)
-            rotateBeforeStorageData = editResult.cropData.vcData
-            rotateBeforeData = editResult.cropData.cropViewData
+            rotateBeforeStorageData = editResult.cropData.cropingData
+            rotateBeforeData = editResult.cropData.cropRectData
         }
     }
     @objc func didBackClick() {
-        delegate?.videoEditorViewController?(didCancel: self)
+        delegate?.videoEditorViewController(didCancel: self)
         backAction()
     }
     func backAction() {
@@ -339,7 +348,11 @@ open class VideoEditorViewController: BaseViewController {
                 setPlayerViewFrame()
             }else {
                 if let size = coverImage?.size {
-                    playerView.frame = PhotoTools.transformImageSize(size, to: view)
+                    if UIDevice.isPad {
+                        playerView.frame = PhotoTools.transformImageSize(size, toViewSize: view.size, directions: [.horizontal])
+                    }else {
+                        playerView.frame = PhotoTools.transformImageSize(size, to: view)
+                    }
                 }else {
                     playerView.frame = scrollView.bounds
                 }
@@ -393,7 +406,11 @@ open class VideoEditorViewController: BaseViewController {
     }
     func setPlayerViewFrame() {
         if state == .normal {
-            playerView.frame = PhotoTools.transformImageSize(videoSize, to: view)
+            if UIDevice.isPad {
+                playerView.frame = PhotoTools.transformImageSize(videoSize, toViewSize: view.size, directions: [.horizontal])
+            }else {
+                playerView.frame = PhotoTools.transformImageSize(videoSize, to: view)
+            }
         }else {
             let leftMargin = 30 + UIDevice.leftMargin
             let width = view.width - leftMargin * 2
@@ -551,7 +568,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 }
             }
         }else {
-            delegate?.videoEditorViewController?(didFinishWithUnedited: self)
+            delegate?.videoEditorViewController(didFinishWithUnedited: self)
             backAction()
         }
     }
@@ -560,9 +577,9 @@ extension VideoEditorViewController: EditorToolViewDelegate {
             rotateBeforeStorageData = cropView.getRotateBeforeData(offsetX: currentCropOffset.x, validX: currentValidRect.minX, validWidth: currentValidRect.width)
         }
         rotateBeforeData = cropView.getRotateBeforeData()
-        let cropData = VideoCropData.init(startTime: playerView.playStartTime!.seconds, endTime: playerView.playEndTime!.seconds, vcData: rotateBeforeStorageData!, cropViewData: rotateBeforeData!)
+        let cropData = VideoCropData.init(startTime: playerView.playStartTime!.seconds, endTime: playerView.playEndTime!.seconds, cropingData: rotateBeforeStorageData!, cropRectData: rotateBeforeData!)
         let editResult = VideoEditResult.init(editedURL: videoURL, cropData: cropData)
-        delegate?.videoEditorViewController?(self, didFinish: editResult)
+        delegate?.videoEditorViewController(self, didFinish: editResult)
     }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolModel) {
         if model.type == .cropping {

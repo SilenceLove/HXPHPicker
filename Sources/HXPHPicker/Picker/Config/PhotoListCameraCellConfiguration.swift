@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 照片列表相机Cell配置类
-public class PhotoListCameraCellConfiguration: NSObject {
+public class PhotoListCameraCellConfiguration {
     
     /// 允许相机预览
     public var allowPreview: Bool = true
@@ -25,4 +25,6 @@ public class PhotoListCameraCellConfiguration: NSObject {
     
     /// 暗黑风格下的相机图标
     public var cameraDarkImageName: String = "hx_picker_photoList_photograph_white"
+    
+    public init() { }
 }

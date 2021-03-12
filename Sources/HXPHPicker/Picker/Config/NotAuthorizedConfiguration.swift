@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 未授权界面配置类
-public class NotAuthorizedConfiguration: NSObject {
+public class NotAuthorizedConfiguration {
     
     /// 背景颜色
     public lazy var backgroundColor: UIColor = {
@@ -70,4 +70,6 @@ public class NotAuthorizedConfiguration: NSObject {
     public lazy var jumpButtonTitleDarkColor: UIColor = {
         return "#333333".color
     }()
+    
+    public init() { }
 }

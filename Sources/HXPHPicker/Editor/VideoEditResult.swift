@@ -8,7 +8,7 @@
 import UIKit
 import AVFoundation
 
-public class VideoEditResult: NSObject {
+public struct VideoEditResult {
     
     /// 编辑后的视频地址
     public let editedURL: URL
@@ -26,9 +26,9 @@ public class VideoEditResult: NSObject {
     public var videoDuration: TimeInterval = 0
     
     /// 裁剪数据
-    let cropData: VideoCropData
+    public let cropData: VideoCropData
     
-    init(editedURL: URL, cropData: VideoCropData) {
+    public init(editedURL: URL, cropData: VideoCropData) {
         do {
             let videofileSize = try editedURL.resourceValues(forKeys: [.fileSizeKey])
             editedFileSize = videofileSize.fileSize ?? 0
@@ -39,35 +39,33 @@ public class VideoEditResult: NSObject {
         self.editedURL = editedURL
         self.coverImage = PhotoTools.getVideoThumbnailImage(videoURL: editedURL, atTime: 0.1)
         self.cropData = cropData
-        super.init()
     }
 }
 
-class VideoCropData: NSObject {
+public struct VideoCropData {
     
     /// 编辑的开始时间
-    let startTime: TimeInterval
+    public let startTime: TimeInterval
     
     /// 编辑的结束时间
-    let endTime: TimeInterval
+    public let endTime: TimeInterval
     
-    /// 已经确定的编辑数据
+    /// 已经确定的裁剪数据
     /// 0：offsetX ，CollectionView的offset.x
     /// 1：validX ，裁剪框大小的x
     /// 2：validWidth ，裁剪框的宽度
-    let vcData: (CGFloat, CGFloat, CGFloat)
+    public let cropingData: (CGFloat, CGFloat, CGFloat)
     
     /// 裁剪框的位置大小
     /// 0：offsetX ，CollectionView的offset.x
     /// 1：validX ，裁剪框大小的x
     /// 2：validWidth ，裁剪框的宽度
-    let cropViewData: (CGFloat, CGFloat, CGFloat)
+    public let cropRectData: (CGFloat, CGFloat, CGFloat)
     
-    init(startTime: TimeInterval, endTime: TimeInterval, vcData: (CGFloat, CGFloat, CGFloat), cropViewData: (CGFloat, CGFloat, CGFloat)) {
+    public init(startTime: TimeInterval, endTime: TimeInterval, cropingData: (CGFloat, CGFloat, CGFloat), cropRectData: (CGFloat, CGFloat, CGFloat)) {
         self.startTime = startTime
         self.endTime = endTime
-        self.vcData = vcData
-        self.cropViewData = cropViewData
-        super.init()
+        self.cropingData = cropingData
+        self.cropRectData = cropRectData
     }
 }

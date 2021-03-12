@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 相册标题视图配置类，弹窗展示相册列表时有效
-public class AlbumTitleViewConfiguration: NSObject {
+public class AlbumTitleViewConfiguration {
     
     /// 背景颜色
     public var backgroundColor: UIColor?
@@ -36,4 +36,6 @@ public class AlbumTitleViewConfiguration: NSObject {
     public lazy var arrowDarkColor: UIColor = {
         return "#333333".color
     }()
+    
+    public init() { }
 }

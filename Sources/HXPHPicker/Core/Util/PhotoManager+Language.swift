@@ -49,13 +49,13 @@ extension PhotoManager {
             default:
                 if let fixedLanguage = fixedCustomLanguage {
                     isCustomLanguage = true
-                    languageBundle = Bundle.init(path: fixedLanguage.languagePath)
+                    languageBundle = Bundle.init(path: fixedLanguage.path)
                     return languageBundle
                 }
                 for customLanguage in customLanguages {
                     if Locale.preferredLanguages.contains(customLanguage.language) {
                         isCustomLanguage = true
-                        languageBundle = Bundle.init(path: customLanguage.languagePath)
+                        languageBundle = Bundle.init(path: customLanguage.path)
                         return languageBundle
                     }
                 }

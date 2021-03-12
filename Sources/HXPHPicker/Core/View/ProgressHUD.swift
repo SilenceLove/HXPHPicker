@@ -7,14 +7,15 @@
 
 import UIKit
 
-enum ProgressHUDMode : Int {
-    case indicator
-    case image
-    case success
+extension ProgressHUD {
+    enum Mode {
+        case indicator
+        case image
+        case success
+    }
 }
-
 class ProgressHUD: UIView {
-    var mode : ProgressHUDMode!
+    var mode : Mode
     
     lazy var backgroundView: UIView = {
         let backgroundView = UIView.init()
@@ -66,19 +67,19 @@ class ProgressHUD: UIView {
     var showDelayTimer : Timer?
     var hideDelayTimer : Timer?
     
-    init(addedTo view: UIView, mode: ProgressHUDMode) {
-        super.init(frame: view.bounds)
+    init(addedTo view: UIView, mode: Mode) {
         self.mode = mode
+        super.init(frame: view.bounds)
         initView()
     }
     func initView() {
         addSubview(backgroundView)
         contentView.addSubview(textLb)
-        if mode == ProgressHUDMode.indicator {
+        if mode == .indicator {
             contentView.addSubview(indicatorView)
-        }else if mode == ProgressHUDMode.image {
+        }else if mode == .image {
             contentView.addSubview(imageView)
-        }else if mode == ProgressHUDMode.success {
+        }else if mode == .success {
             contentView.addSubview(tickView)
         }
         backgroundView.addSubview(contentView)
@@ -162,7 +163,7 @@ class ProgressHUD: UIView {
         
         let centenrX = textMaxWidth / 2
         textLb.centerX = centenrX
-        if mode == ProgressHUDMode.indicator {
+        if mode == .indicator {
             indicatorView.startAnimating()
             indicatorView.centerX = centenrX
             if text != nil {
@@ -170,14 +171,14 @@ class ProgressHUD: UIView {
             }else {
                 textLb.y = indicatorView.frame.maxY
             }
-        }else if mode == ProgressHUDMode.image {
+        }else if mode == .image {
             imageView.centerX = centenrX
             if text != nil {
                 textLb.y = imageView.frame.maxY + 15
             }else {
                 textLb.y = imageView.frame.maxY
             }
-        }else if mode == ProgressHUDMode.success {
+        }else if mode == .success {
             tickView.centerX = centenrX
             textLb.y = tickView.frame.maxY
         }
@@ -214,7 +215,7 @@ class ProgressHUD: UIView {
         if view == nil {
             return nil
         }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: ProgressHUDMode.indicator)
+        let progressView = ProgressHUD.init(addedTo: view!, mode: .indicator)
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
         view!.addSubview(progressView)
         return progressView
@@ -227,7 +228,7 @@ class ProgressHUD: UIView {
         if view == nil {
             return
         }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: ProgressHUDMode.image)
+        let progressView = ProgressHUD.init(addedTo: view!, mode: .image)
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
         view!.addSubview(progressView)
     }
@@ -239,7 +240,7 @@ class ProgressHUD: UIView {
         if view == nil {
             return
         }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: ProgressHUDMode.success)
+        let progressView = ProgressHUD.init(addedTo: view!, mode: .success)
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
         view!.addSubview(progressView)
     }
@@ -265,110 +266,6 @@ class ProgressHUD: UIView {
             updateFrame()
         }
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-class ProgressImageView: UIView {
-    
-    lazy var circleLayer: CAShapeLayer = {
-        let circleLayer = CAShapeLayer.init()
-        circleLayer.contentsScale = UIScreen.main.scale
-        return circleLayer
-    }()
-    
-    lazy var lineLayer: CAShapeLayer = {
-        let lineLayer = CAShapeLayer.init()
-        lineLayer.contentsScale = UIScreen.main.scale
-        return lineLayer
-    }()
-    
-    lazy var pointLayer: CAShapeLayer = {
-        let pointLayer = CAShapeLayer.init()
-        pointLayer.contentsScale = UIScreen.main.scale
-        return pointLayer
-    }()
-    
-    lazy var tickLayer: CAShapeLayer = {
-        let tickLayer = CAShapeLayer.init()
-        tickLayer.contentsScale = UIScreen.main.scale
-        return tickLayer
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        layer.addSublayer(circleLayer)
-        layer.addSublayer(lineLayer)
-        layer.addSublayer(pointLayer)
-        drawCircle()
-        drawExclamationPoint()
-    }
-    init(tickFrame: CGRect) {
-        super.init(frame: tickFrame)
-        layer.addSublayer(tickLayer)
-        drawTickLayer()
-    }
-    func startAnimation() {
-    }
-    func drawCircle() {
-        let circlePath = UIBezierPath.init()
-        circlePath.addArc(withCenter: CGPoint(x: width * 0.5, y: height * 0.5), radius: width * 0.5, startAngle: 0, endAngle: 2 * .pi, clockwise: true)
-        circleLayer.path = circlePath.cgPath
-        circleLayer.lineWidth = 1.5
-        circleLayer.strokeColor = UIColor.white.cgColor
-        circleLayer.fillColor = UIColor.clear.cgColor
-        
-//        let circleAimation = CABasicAnimation.init(keyPath: "strokeEnd")
-//        circleAimation.fromValue = 0
-//        circleAimation.toValue = 1
-//        circleAimation.duration = 0.5
-//        circleLayer.add(circleAimation, forKey: "")
-    }
-    
-    func drawExclamationPoint() {
-        let linePath = UIBezierPath.init()
-        linePath.move(to: CGPoint(x: width * 0.5, y: 15))
-        linePath.addLine(to: CGPoint(x: width * 0.5, y: height - 22))
-        lineLayer.path = linePath.cgPath
-        lineLayer.lineWidth = 2
-        lineLayer.strokeColor = UIColor.white.cgColor
-        lineLayer.fillColor = UIColor.white.cgColor
-        
-//        let lineAimation = CABasicAnimation.init(keyPath: "strokeEnd")
-//        lineAimation.fromValue = 0
-//        lineAimation.toValue = 1
-//        lineAimation.duration = 0.3
-//        lineLayer.add(lineAimation, forKey: "")
-        
-        let pointPath = UIBezierPath.init()
-        pointPath.addArc(withCenter: CGPoint(x: width * 0.5, y: height - 15), radius: 1, startAngle: 0, endAngle: 2 * .pi, clockwise: true)
-        pointLayer.path = pointPath.cgPath
-        pointLayer.lineWidth = 1
-        pointLayer.strokeColor = UIColor.white.cgColor
-        pointLayer.fillColor = UIColor.white.cgColor
-        
-//        let pointAimation = CAKeyframeAnimation.init(keyPath: "transform.scale")
-//        pointAimation.values = [0, 1.2, 0.8, 1.1, 0.9 , 1]
-//        pointAimation.duration = 0.5
-//        pointLayer.add(pointAimation, forKey: "")
-    }
-    func drawTickLayer() {
-        let tickPath = UIBezierPath.init()
-        tickPath.move(to: CGPoint(x: scale(8), y: height * 0.5 + scale(1)))
-        tickPath.addLine(to: CGPoint(x: width * 0.5 - scale(2), y: height - scale(8)))
-        tickPath.addLine(to: CGPoint(x: width - scale(7), y: scale(9)))
-        tickLayer.path = tickPath.cgPath
-        tickLayer.lineWidth = 2
-        tickLayer.lineJoin = .round
-        tickLayer.strokeColor = UIColor.white.cgColor
-        tickLayer.fillColor = UIColor.clear.cgColor
-    }
-    
-    private func scale(_ numerator: CGFloat) -> CGFloat {
-        return numerator / 30 * height
-    }
-    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

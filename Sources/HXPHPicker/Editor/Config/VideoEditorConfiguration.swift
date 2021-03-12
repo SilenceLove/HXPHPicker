@@ -27,7 +27,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     /// 工具视图配置
     public lazy var toolView: EditorToolViewConfiguration = .init()
     
-    open override func mutableCopy() -> Any {
+    func mutableCopy() -> Any {
         let config = VideoEditorConfiguration.init()
         config.exportPresetName = exportPresetName
         config.defaultState = defaultState

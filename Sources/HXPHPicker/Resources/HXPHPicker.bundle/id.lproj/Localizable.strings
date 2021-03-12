@@ -35,6 +35,7 @@
 "导出失败" = "Ekspor gagal";
 "视频加载中" = "Pemuatan video";
 "视频可编辑最大时长为%d秒，无法编辑" = "Panjang maksimal video yang dapat diedit adalah %d detik dan tidak dapat diedit";
+"相机不可用!" = "Kamera tidak tersedia!";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

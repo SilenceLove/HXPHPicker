@@ -117,7 +117,7 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         view.endEditing(true)
     }
     required init?(coder aDecoder: NSCoder) {
-        self.config = PickerConfiguration.init()
+        self.config = PickerConfiguration()
         super.init(coder: aDecoder)
     }
 }

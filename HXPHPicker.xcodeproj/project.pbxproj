@@ -7,9 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */; };
+		7B09599425FB3548005DB27B /* PhotoPickerSelectableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */; };
+		7B09599725FB37DB005DB27B /* PreviewPhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */; };
+		7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */; };
+		7B09599D25FB380D005DB27B /* PreviewVideoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */; };
+		7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599F25FB39AD005DB27B /* ProgressImageView.swift */; };
 		7B4D86BC25F776E7008B923A /* PhotoPickerControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4D86BB25F776E7008B923A /* PhotoPickerControllerProtocol.swift */; };
 		7B5BF28825F719FB00E21D15 /* VideoEditResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */; };
 		7B62465F25F9E6EE00090025 /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B62465E25F9E6EE00090025 /* ExampleViewController.swift */; };
+		7B62469A25FA265A00090025 /* PhotoAsset+Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B62469925FA265A00090025 /* PhotoAsset+Request.swift */; };
 		7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8BFC4F25B096A0002DF0E8 /* EditorType.swift */; };
 		7BBA80D425F5C2EB00CECBA7 /* PickerResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBA80D325F5C2EB00CECBA7 /* PickerResult.swift */; };
 		7BBBD54025AEFC5F00301DCC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD53F25AEFC5F00301DCC /* AppDelegate.swift */; };
@@ -150,6 +157,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerBaseViewCell.swift; sourceTree = "<group>"; };
+		7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerSelectableViewCell.swift; sourceTree = "<group>"; };
+		7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPhotoViewCell.swift; sourceTree = "<group>"; };
+		7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLivePhotoViewCell.swift; sourceTree = "<group>"; };
+		7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideoViewCell.swift; sourceTree = "<group>"; };
+		7B09599F25FB39AD005DB27B /* ProgressImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressImageView.swift; sourceTree = "<group>"; };
+		7B0959A325FB5E95005DB27B /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
 		7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCroppingConfiguration.swift; sourceTree = "<group>"; };
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; };
 		7B2A0BE325A702D000E949FD /* Picker+PHAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PHAsset.swift"; sourceTree = "<group>"; };
@@ -171,6 +185,7 @@
 		7B4D86BB25F776E7008B923A /* PhotoPickerControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerControllerProtocol.swift; sourceTree = "<group>"; };
 		7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditResult.swift; sourceTree = "<group>"; };
 		7B62465E25F9E6EE00090025 /* ExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
+		7B62469925FA265A00090025 /* PhotoAsset+Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Request.swift"; sourceTree = "<group>"; };
 		7B73D67F259C88A90045DA42 /* PickerInteractiveTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerInteractiveTransition.swift; sourceTree = "<group>"; };
 		7B73D680259C88A90045DA42 /* PickerTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerTransition.swift; sourceTree = "<group>"; };
 		7B73D682259C88A90045DA42 /* Core+Bundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Core+Bundle.swift"; sourceTree = "<group>"; };
@@ -460,6 +475,7 @@
 			children = (
 				7B2A0BF825A7127F00E949FD /* PickerTypes.swift */,
 				7B73D6AA259C88A90045DA42 /* PhotoAsset.swift */,
+				7B62469925FA265A00090025 /* PhotoAsset+Request.swift */,
 				7B73D6AB259C88A90045DA42 /* PhotoAssetCollection.swift */,
 			);
 			path = Model;
@@ -490,8 +506,13 @@
 			children = (
 				7B73D6B3259C88A90045DA42 /* AlbumViewCell.swift */,
 				7B73D6B4259C88A90045DA42 /* PickerCamerViewCell.swift */,
+				7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */,
 				7B73D6B5259C88A90045DA42 /* PhotoPickerViewCell.swift */,
+				7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */,
 				7B73D6B2259C88A90045DA42 /* PhotoPreviewViewCell.swift */,
+				7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */,
+				7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */,
+				7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */,
 				7B73D6B6259C88A90045DA42 /* PhotoPreviewSelectedViewCell.swift */,
 			);
 			path = Cell;
@@ -501,6 +522,7 @@
 			isa = PBXGroup;
 			children = (
 				7B87B86C25A7EEEA009327C4 /* ProgressHUD.swift */,
+				7B09599F25FB39AD005DB27B /* ProgressImageView.swift */,
 				7BB285B525A9FB8400DBCF2B /* VideoPlayerView.swift */,
 			);
 			path = View;
@@ -557,6 +579,7 @@
 		7BBBD53E25AEFC5F00301DCC /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				7B0959A325FB5E95005DB27B /* Example.entitlements */,
 				7B49EDB1259D67F800A3D91A /* Classes */,
 				7BBBD53F25AEFC5F00301DCC /* AppDelegate.swift */,
 				7BBBD54825AEFC6200301DCC /* Assets.xcassets */,
@@ -791,6 +814,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BBBD57225AEFE9100301DCC /* HXPHPicker.swift in Sources */,
+				7B09599D25FB380D005DB27B /* PreviewVideoViewCell.swift in Sources */,
 				7BBBD57325AEFE9100301DCC /* BaseConfiguration.swift in Sources */,
 				7BBBD57425AEFE9100301DCC /* BaseViewController.swift in Sources */,
 				7BBBD57525AEFE9100301DCC /* ProgressHUD.swift in Sources */,
@@ -806,6 +830,7 @@
 				7BBBD57E25AEFE9100301DCC /* AssetManager+Image.swift in Sources */,
 				7BBBD57F25AEFE9100301DCC /* AssetManager+ImageData.swift in Sources */,
 				7BBBD58025AEFE9100301DCC /* AssetManager+ImageURL.swift in Sources */,
+				7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */,
 				7BBA80D425F5C2EB00CECBA7 /* PickerResult.swift in Sources */,
 				7BBBD58125AEFE9100301DCC /* AssetManager+AVAsset.swift in Sources */,
 				7BBBD58225AEFE9100301DCC /* AssetManager+VideoURL.swift in Sources */,
@@ -813,10 +838,12 @@
 				7BBBD58425AEFE9100301DCC /* AssetManager+LivePhotoURL.swift in Sources */,
 				7BBBD58525AEFE9100301DCC /* AssetManager+AssetCollection.swift in Sources */,
 				7BBBD58625AEFE9100301DCC /* AssetManager+Authorization.swift in Sources */,
+				7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */,
 				7BBBD58725AEFE9100301DCC /* PhotoManager.swift in Sources */,
 				7BBBD58825AEFE9100301DCC /* PhotoManager+Language.swift in Sources */,
 				7BBBD58925AEFE9100301DCC /* PhotoTools.swift in Sources */,
 				7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */,
+				7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */,
 				7BBBD58A25AEFE9100301DCC /* Core+Bundle.swift in Sources */,
 				7BBBD58B25AEFE9100301DCC /* Core+String.swift in Sources */,
 				7BBBD58C25AEFE9100301DCC /* Core+UIColor.swift in Sources */,
@@ -835,6 +862,7 @@
 				7BBBD59925AEFE9100301DCC /* PhotoListCameraCellConfiguration.swift in Sources */,
 				7BBBD59A25AEFE9100301DCC /* PhotoListCellConfiguration.swift in Sources */,
 				7BBBD59B25AEFE9100301DCC /* PickerBottomViewConfiguration.swift in Sources */,
+				7B09599725FB37DB005DB27B /* PreviewPhotoViewCell.swift in Sources */,
 				7BBBD59C25AEFE9100301DCC /* PreviewViewConfiguration.swift in Sources */,
 				7BBBD59D25AEFE9100301DCC /* SelectBoxConfiguration.swift in Sources */,
 				7BBBD59E25AEFE9100301DCC /* EmptyViewConfiguration.swift in Sources */,
@@ -866,6 +894,7 @@
 				7BBBD5B825AEFE9200301DCC /* PhotoAsset.swift in Sources */,
 				7BBBD5B925AEFE9200301DCC /* PhotoAssetCollection.swift in Sources */,
 				7BBBD5BA25AEFE9200301DCC /* Picker+PhotoManager.swift in Sources */,
+				7B62469A25FA265A00090025 /* PhotoAsset+Request.swift in Sources */,
 				7BBBD5BB25AEFE9200301DCC /* Picker+PhotoTools.swift in Sources */,
 				7BBBD5BC25AEFE9200301DCC /* Picker+PHAsset.swift in Sources */,
 				7BBBD5BD25AEFE9200301DCC /* Picker+UIViewController.swift in Sources */,
@@ -885,6 +914,7 @@
 				7BBBD5CA25AEFE9200301DCC /* VideoEditorCropView.swift in Sources */,
 				7BBBD5CB25AEFE9200301DCC /* VideoEditorCropViewCell.swift in Sources */,
 				7BBBD5CC25AEFE9200301DCC /* VideoEditorFrameMaskView.swift in Sources */,
+				7B09599425FB3548005DB27B /* PhotoPickerSelectableViewCell.swift in Sources */,
 				7BBBD5CD25AEFE9200301DCC /* VideoEditorCropConfirmView.swift in Sources */,
 				7BBBD5CE25AEFE9200301DCC /* EditorToolView.swift in Sources */,
 				7BBBD5CF25AEFE9200301DCC /* EditorToolViewCell.swift in Sources */,
@@ -1036,6 +1066,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Example/Example.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
@@ -1047,6 +1078,7 @@
 				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1059,6 +1091,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Example/Example.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
@@ -1070,6 +1103,7 @@
 				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1099,7 +1133,7 @@
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG HXPICKER_ENABLE_PICKER HXPICKER_ENABLE_EDITOR";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1131,7 +1165,7 @@
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "HXPICKER_ENABLE_EDITOR HXPICKER_ENABLE_PICKER";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

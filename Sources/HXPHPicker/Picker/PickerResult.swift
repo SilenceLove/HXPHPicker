@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class PickerResult: NSObject {
+public struct PickerResult {
     
     /// 已选的资源
     public let photoAssets: [PhotoAsset]
@@ -60,9 +60,12 @@ public class PickerResult: NSObject {
         }
     }
     
+    /// 初始化
+    /// - Parameters:
+    ///   - photoAssets: 对应 PhotoAsset 数据的数组
+    ///   - isOriginal: 是否原图
     public init(photoAssets: [PhotoAsset], isOriginal: Bool) {
         self.photoAssets = photoAssets
         self.isOriginal = isOriginal
-        super.init()
     }
 }

@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-open class PhotoAssetCollection: NSObject {
+open class PhotoAssetCollection: Equatable {
     
     /// 相册名称
     public var albumName : String?
@@ -34,21 +34,25 @@ open class PhotoAssetCollection: NSObject {
     
     /// 封面PHAsset
     var coverAsset: PHAsset?
+    
     /// 真实的封面图片，如果不为nil就是封面
     var realCoverImage: UIImage?
+    
     private var coverImage: UIImage?
     
     public init(collection: PHAssetCollection? , options: PHFetchOptions?) {
-        super.init()
         self.collection = collection
         self.options = options
         fetchResult()
     }
     
     public init(albumName: String?, coverImage: UIImage?) {
-        super.init()
         self.albumName = albumName
         self.coverImage = coverImage
+    }
+    
+    public static func == (lhs: PhotoAssetCollection, rhs: PhotoAssetCollection) -> Bool {
+        return lhs === rhs
     }
 }
  

@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class VideoCropConfirmViewConfiguration: NSObject {
+public class VideoCropConfirmViewConfiguration {
     
     /// 完成按钮标题颜色
     public lazy var finishButtonTitleColor: UIColor = {
@@ -44,4 +44,6 @@ public class VideoCropConfirmViewConfiguration: NSObject {
     
     /// 暗黑风格下取消按钮选的背景颜色
     public var cancelButtonDarkBackgroundColor: UIColor?
+    
+    public init() { }
 }

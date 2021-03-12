@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+ 
 class DeniedAuthorizationView: UIView {
     
     var config: NotAuthorizedConfiguration?
@@ -95,12 +95,14 @@ class DeniedAuthorizationView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         var barHeight: CGFloat = 0
-        if viewController()?.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen {
-            barHeight = (viewController()?.navigationController?.navigationBar.height ?? 44) + UIDevice.statusBarHeight
-        }else {
-            barHeight = viewController()?.navigationController?.navigationBar.height ?? 44
+        var barY: CGFloat = 0
+        if let pickerController = viewController() as? PhotoPickerController {
+            barHeight = pickerController.navigationBar.height
+            if pickerController.modalPresentationStyle == .fullScreen {
+                barY = UIDevice.statusBarHeight
+            }
         }
-        navigationBar.frame = CGRect(x: 0, y: 0, width: width, height: barHeight)
+        navigationBar.frame = CGRect(x: 0, y: barY, width: width, height: barHeight)
         
         let titleHeight = titleLb.text?.height(ofFont: titleLb.font, maxWidth: width) ?? 0
         titleLb.frame = CGRect(x: 0, y: 0, width: width, height: titleHeight)

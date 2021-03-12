@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 底部工具栏配置类
-public class PickerBottomViewConfiguration: NSObject {
+public class PickerBottomViewConfiguration {
     
     /// UIToolbar
     public var backgroundColor: UIColor?
@@ -193,4 +193,6 @@ public class PickerBottomViewConfiguration: NSObject {
     public lazy var selectedViewTickColor: UIColor = {
         return .white
     }()
+    
+    public init() { }
 }

@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 照片列表Cell配置类
-public class PhotoListCellConfiguration: NSObject {
+public class PhotoListCellConfiguration {
     
     /// 自定义不带选择框的cell
     /// 继承 PhotoPickerBaseViewCell 只有UIImageView，其他控件需要自己添加
@@ -42,4 +42,6 @@ public class PhotoListCellConfiguration: NSObject {
     public lazy var selectBox: SelectBoxConfiguration = {
         return SelectBoxConfiguration.init()
     }()
+    
+    public init() { }
 }

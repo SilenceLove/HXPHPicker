@@ -10,7 +10,7 @@ import UIKit
 import Photos
 import PhotosUI
 
-public class PhotoManager: NSObject {
+public class PhotoManager {
     
     public static let shared = PhotoManager()
     
@@ -21,13 +21,7 @@ public class PhotoManager: NSObject {
     /// 固定的自定义语言，不会受系统语言影响
     public var fixedCustomLanguage: CustomLanguage?
     
-    /// 当前语言文件，每次创建PhotoPickerController判断是否需要重新创建
-    public var languageBundle: Bundle?
-    /// 当前语言类型，每次创建PhotoPickerController时赋值
-    public var languageType: LanguageType?
-    /// 当前外观样式，每次创建PhotoPickerController时赋值
-    public var appearanceStyle: AppearanceStyle = .varied
-    /// 当前是否是暗黑模式
+    /// 当前是否处于暗黑模式
     public class var isDark: Bool {
         get {
             if shared.appearanceStyle == .normal {
@@ -44,14 +38,21 @@ public class PhotoManager: NSObject {
             return false
         }
     }
+    
+    /// 当前语言文件，每次创建PhotoPickerController判断是否需要重新创建
+    var languageBundle: Bundle?
+    /// 当前语言类型，每次创建PhotoPickerController时赋值
+    var languageType: LanguageType?
+    /// 当前外观样式，每次创建PhotoPickerController时赋值
+    var appearanceStyle: AppearanceStyle = .varied
+    
     /// 自带的bundle文件
     var bundle: Bundle?
     /// 是否使用了自定义的语言
     var isCustomLanguage: Bool = false
     
     
-    private override init() {
-        super.init()
+    private init() {
         _ = createBundle()
     }
     func createBundle() -> Bundle? {
@@ -79,6 +80,4 @@ public class PhotoManager: NSObject {
         }
         return self.bundle
     }
-    public override class func copy() -> Any { return self }
-    public override class func mutableCopy() -> Any { return self }
 }

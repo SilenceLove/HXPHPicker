@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 选择框配置类
-public class SelectBoxConfiguration: NSObject {
+public class SelectBoxConfiguration {
     
     /// 选择框的大小
     public var size: CGSize = CGSize(width: 25, height: 25)
@@ -76,4 +76,5 @@ public class SelectBoxConfiguration: NSObject {
         return .white
     }()
     
+    public init() { }
 }

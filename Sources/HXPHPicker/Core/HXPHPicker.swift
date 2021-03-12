@@ -6,5 +6,4 @@
 //  Copyright © 2020 Silence. All rights reserved.
 //
 
-import UIKit
-class HXPHPicker: NSObject {}
+class HXPHPicker {}

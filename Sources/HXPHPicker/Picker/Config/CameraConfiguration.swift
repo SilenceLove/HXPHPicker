@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 // MARK: 相机配置类
-public class CameraConfiguration: NSObject {
+public class CameraConfiguration {
     
     /// 媒体类型[kUTTypeImage, kUTTypeMovie]
     public var mediaTypes: [String] = []
@@ -29,4 +29,6 @@ public class CameraConfiguration: NSObject {
     
     /// 允许编辑
     public var allowsEditing: Bool = true
+    
+    public init() { }
 }

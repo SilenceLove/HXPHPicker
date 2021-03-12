@@ -7,13 +7,11 @@
 
 import UIKit
 
-public class EditorToolViewConfiguration: NSObject {
+public class EditorToolViewConfiguration {
     
     /// 工具栏item数据
     public lazy var toolModelArray: [EditorToolModel] = {
-        let cropModel = EditorToolModel.init()
-        cropModel.imageName = "hx_editor_video_crop"
-        cropModel.type = .cropping
+        let cropModel = EditorToolModel.init(imageName: "hx_editor_video_crop", type: .cropping)
         let models: [EditorToolModel] = [cropModel]
         return models
     }()
@@ -37,4 +35,6 @@ public class EditorToolViewConfiguration: NSObject {
     public lazy var finishButtonDarkBackgroundColor: UIColor = {
         return .systemTintColor
     }()
+    
+    public init() { }
 }

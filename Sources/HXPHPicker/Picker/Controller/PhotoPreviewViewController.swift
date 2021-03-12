@@ -100,7 +100,7 @@ public class PhotoPreviewViewController: BaseViewController {
         DispatchQueue.main.async {
             if self.orientationDidChange {
                 let cell = self.getCell(for: self.currentPreviewIndex)
-                cell?.setupScrollViewContenSize()
+                cell?.setupScrollViewContentSize()
                 self.orientationDidChange = false
             }
         }
@@ -125,9 +125,6 @@ public class PhotoPreviewViewController: BaseViewController {
         view.clipsToBounds = true
         config = pickerController!.config.previewView
         initView()
-        if pickerController?.modalPresentationStyle == .fullScreen {
-            interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .pop)
-        }
     }
     public override func deviceOrientationDidChanged(notify: Notification) {
         orientationDidChange = true
@@ -152,6 +149,9 @@ public class PhotoPreviewViewController: BaseViewController {
         let cell = getCell(for: currentPreviewIndex)
         cell?.requestPreviewAsset()
         pickerController?.viewControllersDidAppear(self)
+        if pickerController?.modalPresentationStyle == .fullScreen && interactiveTransition == nil {
+            interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .pop)
+        }
     }
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -230,6 +230,22 @@ extension PhotoPreviewViewController {
                             selectBoxControl.isSelected = photoAsset.isSelected
                         }
                     }
+                    #if HXPICKER_ENABLE_EDITOR
+                    if let pickerController = pickerController, !config.bottomView.editButtonHidden {
+                        if photoAsset.mediaType == .photo {
+                            bottomView.editBtn.isEnabled = pickerController.config.allowEditPhoto
+                        }else if photoAsset.mediaType == .video {
+                            bottomView.editBtn.isEnabled = pickerController.config.allowEditVideo
+                        }
+                    }
+                    #endif
+                    pickerController?.previewUpdateCurrentlyDisplayedAsset(photoAsset: photoAsset, index: currentPreviewIndex)
+                }
+            }
+        }else if !isMultipleSelect {
+            if !previewAssets.isEmpty {
+                if currentPreviewIndex == 0  {
+                    let photoAsset = previewAssets.first!
                     #if HXPICKER_ENABLE_EDITOR
                     if let pickerController = pickerController, !config.bottomView.editButtonHidden {
                         if photoAsset.mediaType == .photo {

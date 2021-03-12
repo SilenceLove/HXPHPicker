@@ -7,7 +7,7 @@
 
 import UIKit
 
-open class BaseConfiguration: NSObject {
+open class BaseConfiguration {
     
     /// 如果自带的语言不够，可以添加自定义的语言文字
     /// PhotoManager.shared.customLanguages 自定义语言数组
@@ -26,4 +26,6 @@ open class BaseConfiguration: NSObject {
     
     /// 支持的方向
     public var supportedInterfaceOrientations: UIInterfaceOrientationMask = .all
+    
+    public init() { }
 }

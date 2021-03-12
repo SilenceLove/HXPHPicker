@@ -9,7 +9,7 @@
 import UIKit
 
 // MARK: 照片列表空资源时展示的视图
-public class EmptyViewConfiguration: NSObject {
+public class EmptyViewConfiguration {
     
     /// 标题颜色
     public lazy var titleColor: UIColor = {
@@ -30,4 +30,6 @@ public class EmptyViewConfiguration: NSObject {
     public lazy var subTitleDarkColor: UIColor = {
         return "#dadada".color
     }()
+    
+    public init() { }
 }

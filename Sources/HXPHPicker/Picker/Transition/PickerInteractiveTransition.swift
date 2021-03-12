@@ -8,12 +8,15 @@
 
 import UIKit
 
-enum PickerInteractiveTransitionType: Int {
-    case pop
-    case dismiss
+extension PickerInteractiveTransition {
+    enum `Type` {
+        case pop
+        case dismiss
+    }
 }
+
 class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestureRecognizerDelegate {
-    var type: PickerInteractiveTransitionType
+    var type: `Type`
     weak var previewViewController: PhotoPreviewViewController?
     weak var pickerController: PhotoPickerController?
     lazy var panGestureRecognizer: UIPanGestureRecognizer = {
@@ -37,7 +40,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
     var slidingGap: CGPoint = .zero
     var navigationBarAlpha: CGFloat = 1
     
-    init(panGestureRecognizerFor previewViewController: PhotoPreviewViewController, type: PickerInteractiveTransitionType) {
+    init(panGestureRecognizerFor previewViewController: PhotoPreviewViewController, type: `Type`) {
         self.type = type
         super.init()
         self.previewViewController = previewViewController
@@ -45,7 +48,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         previewViewController.view.addGestureRecognizer(panGestureRecognizer)
     }
     
-    init(panGestureRecognizerFor pickerController: PhotoPickerController, type: PickerInteractiveTransitionType) {
+    init(panGestureRecognizerFor pickerController: PhotoPickerController, type: `Type`) {
         self.type = type
         super.init()
         self.pickerController = pickerController
@@ -61,7 +64,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         if type == .pop {
             if let cell = previewViewController?.getCell(for: previewViewController?.currentPreviewIndex ?? 0), let contentView = cell.scrollContentView {
                 let toRect = contentView.convert(contentView.bounds, to: cell.scrollView)
-                if  ((cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || (toRect.minX != 0 && contentView.width > cell.scrollView.width))) && !canInteration {
+                if  (cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || (toRect.minX != 0 && contentView.width > cell.scrollView.width)) && !canInteration {
                     return
                 }else {
                     isTracking = cell.scrollView.isTracking
@@ -74,7 +77,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             }
             if let cell = previewVC?.getCell(for: previewVC?.currentPreviewIndex ?? 0), let contentView = cell.scrollContentView {
                 let toRect = contentView.convert(contentView.bounds, to: cell.scrollView)
-                if  ((cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || toRect.minX != 0)) && !canInteration {
+                if  (cell.scrollView.isZooming || cell.scrollView.isZoomBouncing || cell.scrollView.contentOffset.y > 0 || !cell.allowInteration || (toRect.minX != 0 && contentView.width > cell.scrollView.width)) && !canInteration {
                     return
                 }else {
                     isTracking = cell.scrollView.isTracking
@@ -254,7 +257,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             var toRect = toView?.convert(toView?.bounds ?? .zero, to: transitionContext?.containerView) ?? .zero
             if type == .dismiss, let pickerController = pickerController {
                 if toRect.isEmpty {
-                    toRect = pickerController.pickerControllerDelegate?.pickerController?(pickerController, dismissPreviewFrameForIndexAt: previewViewController.currentPreviewIndex) ?? .zero
+                    toRect = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewFrameForIndexAt: previewViewController.currentPreviewIndex) ?? .zero
                 }
                 if let toView = toView, toView.layer.cornerRadius > 0 {
                     previewView.layer.masksToBounds = true
@@ -303,7 +306,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
                     self.backgroundView.removeFromSuperview()
                     previewView.removeFromSuperview()
                     if self.type == .dismiss, let pickerController = self.pickerController {
-                        pickerController.pickerControllerDelegate?.pickerController?(pickerController, previewDismissComplete: previewViewController.currentPreviewIndex)
+                        pickerController.pickerControllerDelegate?.pickerController(pickerController, previewDismissComplete: previewViewController.currentPreviewIndex)
                     }else if self.type == .pop {
                         toVC?.collectionView.layer.removeAllAnimations()
                     }
@@ -390,7 +393,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             backgroundView.frame = containerView.bounds
             backgroundView.backgroundColor = previewBackgroundColor
             containerView.addSubview(backgroundView)
-            if let view = pickerController.pickerControllerDelegate?.pickerController?(pickerController, dismissPreviewViewForIndexAt: previewViewController.currentPreviewIndex) {
+            if let view = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewViewForIndexAt: previewViewController.currentPreviewIndex) {
                 toView = view
             }
             

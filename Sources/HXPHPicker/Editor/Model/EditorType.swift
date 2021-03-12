@@ -11,12 +11,14 @@ import Foundation
 /// 视频编辑控制器的状态
 public extension VideoEditorViewController {
     enum State {
-        case normal //!< 正常状态
+        case normal     //!< 正常状态
         case cropping   //!< 裁剪状态
     }
 }
+
+/// 编辑工具模型
 public extension EditorToolModel {
     enum `Type` {
-        case cropping
+        case cropping   //!< 裁剪
     }
 }
