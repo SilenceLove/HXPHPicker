@@ -12,9 +12,9 @@ import PhotosUI
 
 extension PhotoManager {
     
-    var cameraAlbumLocalIdentifierType : SelectType? {
+    var cameraAlbumLocalIdentifierSelectOptions : PickerAssetOptions? {
         let identifierType = UserDefaults.standard.integer(forKey: PhotoManager.CameraAlbumLocal.identifierType.rawValue)
-        return SelectType(rawValue: identifierType)
+        return PickerAssetOptions(rawValue: identifierType)
     }
     
     var cameraAlbumLocalLanguage : String? {
@@ -67,13 +67,14 @@ extension PhotoManager {
     }
     
     /// 获取相机胶卷资源集合
-    public func fetchCameraAssetCollection(for type: SelectType, options: PHFetchOptions, completion :@escaping (PhotoAssetCollection)->()) {
+    public func fetchCameraAssetCollection(for selectOptions: PickerAssetOptions, options: PHFetchOptions, completion :@escaping (PhotoAssetCollection)->()) {
         DispatchQueue.global().async {
             var useLocalIdentifier = false
             let language = Locale.preferredLanguages.first
             if self.cameraAlbumLocalIdentifier != nil {
-                if  (self.cameraAlbumLocalIdentifierType == .any ||
-                    type == self.cameraAlbumLocalIdentifierType) &&
+                let localOptions = self.cameraAlbumLocalIdentifierSelectOptions
+                if  ((localOptions?.isPhoto == true && localOptions?.isVideo == true) ||
+                        selectOptions == self.cameraAlbumLocalIdentifierSelectOptions) &&
                     self.cameraAlbumLocalLanguage == language {
                     useLocalIdentifier = true
                 }
@@ -85,7 +86,7 @@ extension PhotoManager {
             }else {
                 collection = AssetManager.fetchCameraRollAlbum(options: nil)
                 UserDefaults.standard.set(collection?.localIdentifier, forKey: PhotoManager.CameraAlbumLocal.identifier.rawValue)
-                UserDefaults.standard.set(type.rawValue, forKey: PhotoManager.CameraAlbumLocal.identifierType.rawValue)
+                UserDefaults.standard.set(selectOptions.rawValue, forKey: PhotoManager.CameraAlbumLocal.identifierType.rawValue)
                 UserDefaults.standard.set(language, forKey: PhotoManager.CameraAlbumLocal.language.rawValue)
             }
             let assetCollection = PhotoAssetCollection.init(collection: collection, options: options)

@@ -233,7 +233,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             previewViewController?.collectionView.isHidden = true
             fromView = pushImageView
             let currentPreviewIndex = previewViewController?.currentPreviewIndex ?? 0
-            if let view = pickerController.pickerControllerDelegate?.pickerController(pickerController, presentPreviewViewForIndexAt: currentPreviewIndex) {
+            if let view = pickerController.pickerDelegate?.pickerController(pickerController, presentPreviewViewForIndexAt: currentPreviewIndex) {
                 let rect = view.convert(view.bounds, to: contentView)
                 fromView.frame = rect
                 if view.layer.cornerRadius > 0 {
@@ -241,13 +241,13 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     pushImageView.layer.masksToBounds = true
                 }
                 previewView = view
-            }else if let rect = pickerController.pickerControllerDelegate?.pickerController(pickerController, presentPreviewFrameForIndexAt: currentPreviewIndex), !rect.equalTo(.zero) {
+            }else if let rect = pickerController.pickerDelegate?.pickerController(pickerController, presentPreviewFrameForIndexAt: currentPreviewIndex), !rect.equalTo(.zero) {
                 fromView.frame = rect
             }else {
                 fromView.center = CGPoint(x: toVC.view.width * 0.5, y: toVC.view.height * 0.5)
             }
             
-            if let image = pickerController.pickerControllerDelegate?.pickerController(pickerController, presentPreviewImageForIndexAt: currentPreviewIndex) {
+            if let image = pickerController.pickerDelegate?.pickerController(pickerController, presentPreviewImageForIndexAt: currentPreviewIndex) {
                 pushImageView.image = image
             }
             if !pickerController.selectedAssetArray.isEmpty {
@@ -277,13 +277,13 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             contentView.backgroundColor = backgroundColor
             let currentPreviewIndex = previewViewController?.currentPreviewIndex ?? 0
             var hasCornerRadius = false
-            if let view = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewViewForIndexAt: currentPreviewIndex) {
+            if let view = pickerController.pickerDelegate?.pickerController(pickerController, dismissPreviewViewForIndexAt: currentPreviewIndex) {
                 toRect = view.convert(view.bounds, to: containerView)
                 previewView = view
                 if view.layer.cornerRadius > 0 {
                     hasCornerRadius = true
                 }
-            }else if let rect = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewFrameForIndexAt: currentPreviewIndex), !rect.equalTo(.zero) {
+            }else if let rect = pickerController.pickerDelegate?.pickerController(pickerController, dismissPreviewFrameForIndexAt: currentPreviewIndex), !rect.equalTo(.zero) {
                 toRect = rect
             }
             if let previewVC = previewViewController, let cell = previewVC.getCell(for: previewVC.currentPreviewIndex), let cellContentView = cell.scrollContentView {
@@ -340,7 +340,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     self.requestID = nil
                 }
                 let currentPreviewIndex = previewViewController?.currentPreviewIndex ?? 0
-                pickerController.pickerControllerDelegate?.pickerController(pickerController, previewPresentComplete: currentPreviewIndex)
+                pickerController.pickerDelegate?.pickerController(pickerController, previewPresentComplete: currentPreviewIndex)
                 previewViewController?.view.backgroundColor = backgroundColor.withAlphaComponent(1)
                 previewViewController?.setCurrentCellImage(image: self.pushImageView.image)
                 previewViewController?.collectionView.isHidden = false
@@ -350,7 +350,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 transitionContext.completeTransition(true)
             }else {
                 let currentPreviewIndex = previewViewController?.currentPreviewIndex ?? 0
-                pickerController.pickerControllerDelegate?.pickerController(pickerController, previewDismissComplete: currentPreviewIndex)
+                pickerController.pickerDelegate?.pickerController(pickerController, previewDismissComplete: currentPreviewIndex)
                 if toRect.isEmpty {
                     contentView.removeFromSuperview()
                     transitionContext.completeTransition(true)

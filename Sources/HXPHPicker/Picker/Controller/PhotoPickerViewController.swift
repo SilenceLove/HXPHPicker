@@ -11,11 +11,6 @@ import MobileCoreServices
 import AVFoundation
 import Photos
 
-enum PhotoPickerViewControllerSwipeSelectState {
-    case select
-    case unselect
-}
-
 public class PhotoPickerViewController: BaseViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -28,7 +23,7 @@ public class PhotoPickerViewController: BaseViewController {
     var assets: [PhotoAsset] = []
     var swipeSelectBeganIndexPath: IndexPath?
     var swipeSelectedIndexArray: [Int]?
-    var swipeSelectState: PhotoPickerViewControllerSwipeSelectState?
+    var swipeSelectState: SwipeSelectState?
     lazy var collectionViewLayout: UICollectionViewFlowLayout = {
         let collectionViewLayout = UICollectionViewFlowLayout.init()
         let space = config.spacing
@@ -352,11 +347,7 @@ extension PhotoPickerViewController {
     }
     func configData() {
         isMultipleSelect = pickerController!.config.selectMode == .multiple
-        if !pickerController!.config.allowSelectedTogether && pickerController!.config.maximumSelectedVideoCount == 1 &&
-            pickerController!.config.selectType == .any &&
-            isMultipleSelect {
-            videoLoadSingleCell = true
-        }
+        videoLoadSingleCell = pickerController!.singleVideo
         config = pickerController!.config.photoList
         updateTitle()
     }
@@ -677,83 +668,77 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             if !myCell.canSelect {
                 return
             }
+            let item = needOffset ? indexPath.item - 1 : indexPath.item
+            let photoAsset = myCell.photoAsset!
             if let pickerController = pickerController {
-                if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset, index: indexPath.item) {
+                if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset, index: item) {
                     return
                 }
             }
-            if needEditVideo(photoAsset: myCell.photoAsset, coverImage: myCell.imageView.image) {
-                return
-            }
-            if quickSelect(myCell.photoAsset) {
-                return
-            }
-            pushPreviewViewController(previewAssets: assets, currentPreviewIndex: needOffset ? indexPath.item - 1 : indexPath.item)
-        }
-    }
-    func isQuickSelect(_ photoAsset: PhotoAsset) -> Bool{
-        if let pickerController = pickerController {
-            let quickModel = pickerController.config.quickSelectMode
+            var selectionTapAction: SelectionTapAction
             if photoAsset.mediaType == .photo {
-                if quickModel == .photo || quickModel == .any {
-                    return true
-                }
-            }else if photoAsset.mediaType == .video {
-                if quickModel == .video || quickModel == .any {
-                    return true
-                }
+                selectionTapAction = pickerController!.config.photoSelectionTapAction
+            }else {
+                selectionTapAction = pickerController!.config.videoSelectionTapAction
+            }
+            switch selectionTapAction {
+            case .preview:
+                pushPreviewViewController(previewAssets: assets, currentPreviewIndex: item)
+            case .quickSelect:
+                quickSelect(photoAsset)
+            case .openEditor:
+                openEditor(photoAsset, myCell)
             }
         }
-        return false
     }
-    func quickSelect(_ photoAsset: PhotoAsset) -> Bool {
-        if isQuickSelect(photoAsset) {
-            if !photoAsset.isSelected {
+    
+    func quickSelect(_ photoAsset: PhotoAsset) {
+        if !photoAsset.isSelected {
+            if !isMultipleSelect || (videoLoadSingleCell && photoAsset.mediaType == .video) {
                 if pickerController?.canSelectAsset(for: photoAsset, showHUD: true) == true {
-                    if !isMultipleSelect {
-                        pickerController?.singleFinishCallback(for: photoAsset)
-                    }else if videoLoadSingleCell && photoAsset.mediaType == .video {
-                        pickerController?.singleFinishCallback(for: photoAsset)
-                    }else {
-                        if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
-                            cell.didSelectControlClick(control: cell.selectControl)
-                        }
-                    }
+                    pickerController?.singleFinishCallback(for: photoAsset)
                 }
             }else {
                 if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
                     cell.didSelectControlClick(control: cell.selectControl)
                 }
             }
-            return true
+        }else {
+            if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
+                cell.didSelectControlClick(control: cell.selectControl)
+            }
         }
-        return false
     }
-    func needEditVideo(photoAsset: PhotoAsset, isDidSelectItem: Bool = true, coverImage: UIImage? = nil) -> Bool {
+    func openEditor(_ photoAsset: PhotoAsset, _ cell: PhotoPickerBaseViewCell?) {
+        #if HXPICKER_ENABLE_EDITOR
+        if photoAsset.mediaType == .video {
+            _ = openVideoEditor(photoAsset: photoAsset, coverImage: cell?.imageView.image)
+        }
+        #endif
+    }
+    func openVideoEditor(photoAsset: PhotoAsset, coverImage: UIImage? = nil) -> Bool {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if let pickerController = pickerController, photoAsset.mediaType == .video ,
-            pickerController.config.allowEditVideo {
+           pickerController.config.editorOptions.contains(.video) {
             if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
                 return false
             }
             let isExceedsTheLimit = pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset)
-            if isDidSelectItem || isExceedsTheLimit {
-                let config: VideoEditorConfiguration
-                if isExceedsTheLimit {
-                    config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
-                    config.defaultState = .cropping
-                    config.mustBeTailored = true
-                }else {
-                    config = pickerController.config.videoEditor
-                }
-                config.languageType = pickerController.config.languageType
-                config.appearanceStyle = pickerController.config.appearanceStyle
-                let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: config)
-                videoEditorVC.coverImage = coverImage;
-                videoEditorVC.delegate = self
-                navigationController?.pushViewController(videoEditorVC, animated: true)
-                return true
+            let config: VideoEditorConfiguration
+            if isExceedsTheLimit {
+                config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
+                config.defaultState = .cropping
+                config.mustBeTailored = true
+            }else {
+                config = pickerController.config.videoEditor
             }
+            config.languageType = pickerController.config.languageType
+            config.appearanceStyle = pickerController.config.appearanceStyle
+            let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: config)
+            videoEditorVC.coverImage = coverImage;
+            videoEditorVC.delegate = self
+            navigationController?.pushViewController(videoEditorVC, animated: true)
+            return true
         }
         #endif
         return false
@@ -767,8 +752,10 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result
         pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
-        if videoLoadSingleCell || !isMultipleSelect {
-            pickerController?.singleFinishCallback(for: photoAsset)
+        if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController!.singleFinishCallback(for: photoAsset)
+            }
             return
         }
         if !photoAsset.isSelected {
@@ -787,8 +774,10 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     }
     public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
         let photoAsset = videoEditorViewController.photoAsset!
-        if videoLoadSingleCell || !isMultipleSelect {
-            pickerController?.singleFinishCallback(for: photoAsset)
+        if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController!.singleFinishCallback(for: photoAsset)
+            }
             return
         }
         if !photoAsset.isSelected {
@@ -817,19 +806,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         imagePickerController.videoQuality = config.camera.videoQuality
         imagePickerController.allowsEditing = config.camera.allowsEditing
         imagePickerController.cameraDevice = config.camera.cameraDevice
-        var mediaTypes: [String]
+        var mediaTypes: [String] = []
         if !config.camera.mediaTypes.isEmpty {
             mediaTypes = config.camera.mediaTypes
         }else {
-            switch pickerController!.config.selectType {
-            case .photo:
-                mediaTypes = [kUTTypeImage as String]
-                break
-            case .video:
-                mediaTypes = [kUTTypeMovie as String]
-                break
-            default:
-                mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
+            if pickerController!.config.selectOptions.isPhoto {
+                mediaTypes.append(kUTTypeImage as String)
+            }
+            if pickerController!.config.selectOptions.isVideo {
+                mediaTypes.append(kUTTypeMovie as String)
             }
         }
         imagePickerController.mediaTypes = mediaTypes
@@ -947,9 +932,8 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
         if !isSelected && updateCell{
             let cell = getCell(for: photoAsset)
             cell?.photoAsset = photoAsset
-        }else {
-            updateCellSelectedTitle()
         }
+        updateCellSelectedTitle()
         bottomView.updateFinishButtonTitle()
     }
 }
@@ -1007,10 +991,12 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
             updateCellSelectedTitle()
         }else {
             // 选中
-            if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
-                if needEditVideo(photoAsset: cell.photoAsset, isDidSelectItem: false, coverImage: cell.imageView.image) {
-                    return
+            if cell.photoAsset.mediaType == .video &&
+                pickerController!.videoDurationExceedsTheLimit(photoAsset: cell.photoAsset){
+                if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
+                    _ = openVideoEditor(photoAsset: cell.photoAsset, coverImage: cell.imageView.image)
                 }
+                return
             }
             if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
                 cell.updateSelectedState(isSelected: true, animated: true)

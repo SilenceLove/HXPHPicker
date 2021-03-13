@@ -257,7 +257,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             var toRect = toView?.convert(toView?.bounds ?? .zero, to: transitionContext?.containerView) ?? .zero
             if type == .dismiss, let pickerController = pickerController {
                 if toRect.isEmpty {
-                    toRect = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewFrameForIndexAt: previewViewController.currentPreviewIndex) ?? .zero
+                    toRect = pickerController.pickerDelegate?.pickerController(pickerController, dismissPreviewFrameForIndexAt: previewViewController.currentPreviewIndex) ?? .zero
                 }
                 if let toView = toView, toView.layer.cornerRadius > 0 {
                     previewView.layer.masksToBounds = true
@@ -306,7 +306,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
                     self.backgroundView.removeFromSuperview()
                     previewView.removeFromSuperview()
                     if self.type == .dismiss, let pickerController = self.pickerController {
-                        pickerController.pickerControllerDelegate?.pickerController(pickerController, previewDismissComplete: previewViewController.currentPreviewIndex)
+                        pickerController.pickerDelegate?.pickerController(pickerController, previewDismissComplete: previewViewController.currentPreviewIndex)
                     }else if self.type == .pop {
                         toVC?.collectionView.layer.removeAllAnimations()
                     }
@@ -393,7 +393,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             backgroundView.frame = containerView.bounds
             backgroundView.backgroundColor = previewBackgroundColor
             containerView.addSubview(backgroundView)
-            if let view = pickerController.pickerControllerDelegate?.pickerController(pickerController, dismissPreviewViewForIndexAt: previewViewController.currentPreviewIndex) {
+            if let view = pickerController.pickerDelegate?.pickerController(pickerController, dismissPreviewViewForIndexAt: previewViewController.currentPreviewIndex) {
                 toView = view
             }
             

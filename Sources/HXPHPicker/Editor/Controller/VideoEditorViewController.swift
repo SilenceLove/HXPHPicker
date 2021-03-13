@@ -41,10 +41,10 @@ open class VideoEditorViewController: BaseViewController {
     public var avAsset: AVAsset!
     
     /// 编辑配置
-    public var config: VideoEditorConfiguration!
+    public let config: VideoEditorConfiguration
     
-    /// 编辑状态
-    public var state: State = .normal
+    /// 当前编辑状态
+    public var state: State
     
     /// 在视频未获取成功之前展示的视频封面
     public var coverImage: UIImage?
@@ -293,8 +293,8 @@ open class VideoEditorViewController: BaseViewController {
         #endif
         if let editResult = editResult {
             didEdited = true
-            playerView.playStartTime = CMTimeMakeWithSeconds(editResult.cropData.startTime, preferredTimescale: 1)
-            playerView.playEndTime = CMTimeMakeWithSeconds(editResult.cropData.endTime, preferredTimescale: 1)
+            playerView.playStartTime = CMTimeMakeWithSeconds(editResult.cropData.startTime, preferredTimescale: editResult.cropData.preferredTimescale)
+            playerView.playEndTime = CMTimeMakeWithSeconds(editResult.cropData.endTime, preferredTimescale: editResult.cropData.preferredTimescale)
             rotateBeforeStorageData = editResult.cropData.cropingData
             rotateBeforeData = editResult.cropData.cropRectData
         }
@@ -379,8 +379,8 @@ open class VideoEditorViewController: BaseViewController {
                 cropView.rotateAfterSetData(offsetXScale: rotateBeforeData.0, validXScale: rotateBeforeData.1, validWithScale: rotateBeforeData.2)
                 cropView.updateTimeLabels()
                 if state == .cropping || didEdited {
-                    playerView.playStartTime = cropView.getStartTime()
-                    playerView.playEndTime = cropView.getEndTime()
+                    playerView.playStartTime = cropView.getStartTime(real: true)
+                    playerView.playEndTime = cropView.getEndTime(real: true)
                 }
                 if let rotateBeforeStorageData = rotateBeforeStorageData {
                     rotateAfterSetStorageData(offsetXScale: rotateBeforeStorageData.0, validXScale: rotateBeforeStorageData.1, validWithScale: rotateBeforeStorageData.2)
@@ -514,7 +514,7 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
     func startPlay(at time: CMTime) {
         if state == .cropping && !orientationDidChange {
             playerView.playStartTime = time
-            playerView.playEndTime = cropView.getEndTime()
+            playerView.playEndTime = cropView.getEndTime(real: true)
             playerView.resetPlay()
             playerView.shouldPlay = true
             startPlayTimer()
@@ -526,13 +526,13 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
     func startPlayTimer(reset: Bool = true, startTime: CMTime, endTime: CMTime) {
         stopPlayTimer()
         let playTimer = DispatchSource.makeTimerSource()
-        var milliseconds: Double
+        var microseconds: Double
         if reset {
-            milliseconds = (endTime.seconds - startTime.seconds) * 1000
+            microseconds = (endTime.seconds - startTime.seconds) * 1000000
         }else {
-            milliseconds = (playerView.player.currentTime().seconds - cropView.getStartTime(real: true).seconds) * 1000
+            microseconds = (playerView.player.currentTime().seconds - cropView.getStartTime(real: true).seconds) * 1000000
         }
-        playTimer.schedule(deadline: .now(), repeating: .milliseconds(Int(milliseconds)), leeway: .microseconds(0))
+        playTimer.schedule(deadline: .now(), repeating: .microseconds(Int(microseconds)), leeway: .microseconds(0))
         playTimer.setEventHandler(handler: {
             DispatchQueue.main.sync {
                 self.playerView.resetPlay()
@@ -577,7 +577,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
             rotateBeforeStorageData = cropView.getRotateBeforeData(offsetX: currentCropOffset.x, validX: currentValidRect.minX, validWidth: currentValidRect.width)
         }
         rotateBeforeData = cropView.getRotateBeforeData()
-        let cropData = VideoCropData.init(startTime: playerView.playStartTime!.seconds, endTime: playerView.playEndTime!.seconds, cropingData: rotateBeforeStorageData!, cropRectData: rotateBeforeData!)
+        let cropData = VideoCropData.init(startTime: playerView.playStartTime!.seconds, endTime: playerView.playEndTime!.seconds, preferredTimescale: avAsset.duration.timescale, cropingData: rotateBeforeStorageData!, cropRectData: rotateBeforeData!)
         let editResult = VideoEditResult.init(editedURL: videoURL, cropData: cropData)
         delegate?.videoEditorViewController(self, didFinish: editResult)
     }
@@ -605,8 +605,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 cropView.frameMaskView.validRect = currentValidRect
                 cropView.startLineAnimation(at: playerView.player.currentTime())
             }
-            playerView.playStartTime = cropView.getStartTime()
-            playerView.playEndTime = cropView.getEndTime()
+            playerView.playStartTime = cropView.getStartTime(real: true)
+            playerView.playEndTime = cropView.getEndTime(real: true)
             cropConfirmView.isHidden = false
             cropView.isHidden = false
             cropView.updateTimeLabels()
@@ -640,8 +640,8 @@ extension VideoEditorViewController: VideoEditorCropConfirmViewDelegate {
         cropView.stopScroll()
         currentCropOffset = cropView.collectionView.contentOffset
         currentValidRect = cropView.frameMaskView.validRect
-        playerView.playStartTime = cropView.getStartTime()
-        playerView.playEndTime = cropView.getEndTime()
+        playerView.playStartTime = cropView.getStartTime(real: true)
+        playerView.playEndTime = cropView.getEndTime(real: true)
         playerView.play()
         hiddenCropConfirmView()
     }

@@ -76,7 +76,7 @@ extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
     
     func videoView(showPlayButton videoView: VideoPlayerView) {
         if playButton.alpha == 0 {
-            UIView.animate(withDuration: 0.25) {
+            UIView.animate(withDuration: 0.15) {
                 self.playButton.alpha = 1
             }
         }
@@ -84,7 +84,7 @@ extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
     
     func videoView(hidePlayButton videoView: VideoPlayerView) {
         if playButton.alpha == 1 {
-            UIView.animate(withDuration: 0.25) {
+            UIView.animate(withDuration: 0.15) {
                 self.playButton.alpha = 0
             }
         }

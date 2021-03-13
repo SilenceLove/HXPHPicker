@@ -9,6 +9,10 @@ import UIKit
 
 // MARK: 滑动选择
 extension PhotoPickerViewController {
+    enum SwipeSelectState {
+        case select
+        case unselect
+    }
     
     @objc func panGestureRecognizer(panGR: UIPanGestureRecognizer) {
         if titleView.isSelected {
@@ -81,9 +85,11 @@ extension PhotoPickerViewController {
                                     swipeSelectedIndexArray?.remove(at: firstIndex)
                                 }
                             }else {
-                                updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                                let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                                swipeSelectedIndexArray?.remove(at: firstIndex)
+                                if index != lastIndex {
+                                    updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                                    let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                                    swipeSelectedIndexArray?.remove(at: firstIndex)
+                                }
                             }
                         }
                     }
@@ -167,7 +173,7 @@ extension PhotoPickerViewController {
         swipeSelectState = nil
         swipeSelectedIndexArray = nil
     }
-    func panGRChangedUpdateState(index: Int, state: PhotoPickerViewControllerSwipeSelectState) {
+    func panGRChangedUpdateState(index: Int, state: SwipeSelectState) {
         if index >= assets.count && !needOffset {
             return
         }

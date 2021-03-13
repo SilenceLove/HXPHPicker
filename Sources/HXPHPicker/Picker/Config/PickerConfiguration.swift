@@ -10,14 +10,13 @@ import UIKit
 
 open class PickerConfiguration: BaseConfiguration {
     
-    /// 选择的类型，控制获取系统相册资源的类型
-    public var selectType : SelectType = .any
+    /// 资源可选项，控制获取系统相册资源的类型
+    /// .livePhoto .gifPhoto 是photo的子项
+    /// 默认只获取静态图片和视频
+    public var selectOptions : PickerAssetOptions = [.photo, .video]
     
     /// 选择模式
-    public var selectMode: SelectMode = .multiple
-    
-    /// 快速选择模式
-    public var quickSelectMode: QuickSelectMode = .none
+    public var selectMode: PickerSelectMode = .multiple
     
     /// 照片和视频可以一起选择
     public var allowSelectedTogether: Bool = true
@@ -34,11 +33,11 @@ open class PickerConfiguration: BaseConfiguration {
     /// 获取资源列表后是否按倒序展示
     public var reverseOrder: Bool = false
     
-    /// 展示动图
-    public var showImageAnimated: Bool = true
+    /// 资源列表照片Cell点击动作
+    public var photoSelectionTapAction: SelectionTapAction = .preview
     
-    /// 展示LivePhoto
-    public var showLivePhoto: Bool = true
+    /// 资源列表视频Cell点击动作
+    public var videoSelectionTapAction: SelectionTapAction = .preview
     
     /// 最多可以选择的照片数，如果为0则不限制
     public var maximumSelectedPhotoCount : Int = 0
@@ -62,13 +61,10 @@ open class PickerConfiguration: BaseConfiguration {
     public var maximumSelectedPhotoFileSize: Int = 0
     
     #if HXPICKER_ENABLE_EDITOR
-    /// 允许编辑照片，只控制按钮是否被禁用（照片编辑功能还未完成）
+    /// 可编辑资源类型
+    /// 视频允许编辑：当选择的视频时长超过限制将自动进入编辑界面
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
-    public var allowEditPhoto: Bool = false
-    
-    /// 允许编辑视频，只控制按钮是否被禁用
-    /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
-    public var allowEditVideo: Bool = true
+    public var editorOptions: PickerAssetOptions = .video
     
     /// 视频最大编辑时长，为0则不限制，超过限制不可编辑（视频时长超出最大选择时长才生效）
     public var maximumVideoEditDuration: Int = 0

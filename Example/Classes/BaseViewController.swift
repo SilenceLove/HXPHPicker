@@ -42,7 +42,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     /// 相机拍摄的本地资源
     var localCameraAssetArray: [PhotoAsset] = []
     /// 相关配置
-    var config: PickerConfiguration = PhotoTools.getWXPickerConfig()
+    var config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: true)
     
     weak var previewTitleLabel: UILabel?
     weak var currentPickerController: PhotoPickerController?
@@ -57,6 +57,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 //        config.albumList.customCellClass = AlbumViewCustomCell.self
 //        config.photoList.cell.customSingleCellClass = HXPHPickerViewCustomCell.self
 //        config.photoList.cell.customSelectableCellClass = HXPHPickerMultiSelectViewCustomCell.self
@@ -150,13 +151,14 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     func presentPickerController() {
         let pickerController = PhotoPickerController.init(picker: config)
-        pickerController.pickerControllerDelegate = self
+        pickerController.pickerDelegate = self
         pickerController.selectedAssetArray = selectedAssets
         pickerController.localCameraAssetArray = localCameraAssetArray
         pickerController.isOriginal = isOriginal
         if pickerStyleControl.selectedSegmentIndex == 0 {
             pickerController.modalPresentationStyle = .fullScreen
         }
+        pickerController.autoDismiss = false
         present(pickerController, animated: true, completion: nil)
     }
     /// 获取已选资源的地址
@@ -282,7 +284,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         }
         let pickerController = PhotoPickerController.init(preview: previewConfig, currentIndex: indexPath.item, modalPresentationStyle: style)
         pickerController.selectedAssetArray = selectedAssets
-        pickerController.pickerControllerDelegate = self
+        pickerController.pickerDelegate = self
         // 透明导航栏建议修改取消图片,换张带阴影的图片
 //        config.previewView.cancelImageName = ""
 //        pickerController.navigationBar.setBackgroundImage(UIImage.image(for: UIColor.clear, havingSize: .zero), for: .default)
@@ -387,6 +389,7 @@ extension BaseViewController: PhotoPickerControllerDelegate {
 //        result.getURLs { (urls) in
 //            print(urls)
 //        }
+        pickerController.dismiss(animated: true, completion: nil)
     }
     
     func pickerController(_ pickerController: PhotoPickerController, didEditAsset photoAsset: PhotoAsset, atIndex: Int) {
@@ -396,7 +399,7 @@ extension BaseViewController: PhotoPickerControllerDelegate {
         }
     }
     func pickerController(didCancel pickerController: PhotoPickerController) {
-        
+        pickerController.dismiss(animated: true, completion: nil)
     }
     func pickerController(_ pickerController: PhotoPickerController, didDismissComplete localCameraAssetArray: [PhotoAsset]) {
         setNeedsStatusBarAppearanceUpdate()

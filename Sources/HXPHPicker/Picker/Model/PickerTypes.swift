@@ -6,23 +6,64 @@
 //
 
 import Foundation
- 
-public enum SelectType: Int {
-    case photo = 0      //!< 只显示图片
-    case video = 1      //!< 只显示视频
-    case any = 2        //!< 任何类型
+import Photos
+
+/// 资源类型可选项
+public struct PickerAssetOptions: OptionSet {
+    /// Photo 静态照片
+    public static let photo = PickerAssetOptions(rawValue: 1 << 0)
+    /// Video 视频
+    public static let video = PickerAssetOptions(rawValue: 1 << 1)
+    /// Gif 动图
+    public static let gifPhoto = PickerAssetOptions(rawValue: 1 << 2)
+    /// LivePhoto 实况照片
+    public static let livePhoto = PickerAssetOptions(rawValue: 1 << 3)
+    
+    public var isPhoto: Bool {
+        contains(.photo) || contains(.gifPhoto) || contains(.livePhoto)
+    }
+    public var isVideo: Bool {
+        contains(.video)
+    }
+    
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
 }
 
-public enum SelectMode: Int {
+public enum PickerSelectMode: Int {
     case single = 0         //!< 单选模式
     case multiple = 1       //!< 多选模式
 }
 
-public enum QuickSelectMode: Int {
-    case none = 0       //!< 正常模式（点击选择框选中，点击cell进入预览界面）
-    case photo = 1      //!< 照片点击cell或选择按钮就进入选中状态，不会跳转预览界面
-    case video = 2      //!< 视频点击cell或选择按钮就进入选中状态，不会跳转预览界面（如果允许编辑视频的话会跳转编辑界面）
-    case any = 3        //!< 照片和视频点击cell或选择按钮就进入选中状态，不会跳转预览界面
+/// 资源列表Cell点击动作
+public enum SelectionTapAction: Equatable {
+    
+    /// 进入预览界面
+    case preview
+    
+    /// 快速选择
+    /// - 点击资源时会直接选中，不会进入预览界面
+    case quickSelect
+    
+    /// 打开编辑器
+    /// - 点击资源时会进入编辑界面（照片编辑器未完成）
+    case openEditor
+}
+
+public extension PickerResult {
+    struct Options: OptionSet {
+        public static let photo = Options(rawValue: 1 << 0)
+        public static let video = Options(rawValue: 1 << 0)
+        public static let any: Options = [.photo, .video]
+        public let rawValue: Int
+        
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+    }
 }
 
 public extension PhotoAsset {
@@ -79,18 +120,23 @@ public extension PhotoPreviewViewController {
     }
 }
 
-public extension PickerResult {
-    enum URLType {
-        case photo  //!< 照片
-        case video  //!< 视频
-        case any    //!< 任何类型
-    }
-}
-
 extension PhotoManager {
     enum CameraAlbumLocal: String {
         case identifier = "HXCameraAlbumLocalIdentifier"
         case identifierType = "HXCameraAlbumLocalIdentifierType"
         case language = "HXCameraAlbumLocalLanguage"
+    }
+}
+extension PickerAssetOptions {
+    
+    var mediaTypes: [PHAssetMediaType] {
+        var result: [PHAssetMediaType] = []
+        if contains(.photo) || contains(.gifPhoto) || contains(.livePhoto) {
+            result.append(.image)
+        }
+        if contains(.video) {
+            result.append(.video)
+        }
+        return result
     }
 }

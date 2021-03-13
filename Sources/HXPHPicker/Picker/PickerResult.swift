@@ -17,25 +17,24 @@ public struct PickerResult {
     
     /// 获取已选资源的地址
     /// - Parameters:
-    ///   - type: 获取的类型
-    ///     type = photo    视频获取的是封面图片地址，LivePhoto获取的URL为封面图片地址
-    ///     type = video    LivePhoto获取的URL为内部视频地址，会过滤其他图片
-    ///     type = any      LivePhoto获取的URL为封面图片地址     
+    ///   - options: 获取的类型
+    ///         photo    视频获取的是封面图片地址，LivePhoto获取的URL为封面图片地址
+    ///         video    LivePhoto获取的URL为内部视频地址，会过滤其他图片
     ///   - completion: result
-    public func getURLs(type: URLType = .any, completion: @escaping ([URL]) -> Void) {
+    public func getURLs(options: Options = .any, completion: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
-        let queue = DispatchQueue.init(label: "hxphpicker.request.imageurl")
+        let queue = DispatchQueue.init(label: "hxphpicker.request.urls")
         var urls: [URL] = []
         for photoAsset in photoAssets {
             queue.async(group: group, execute: DispatchWorkItem.init(block: {
                 let semaphore = DispatchSemaphore.init(value: 0)
                 var mediatype: PhotoAsset.MediaType
-                if type == .any {
-                    mediatype = photoAsset.mediaType
-                }else if type == .photo {
+                if options.contains([.photo]) {
                     mediatype = .photo
-                }else {
+                }else if options.contains([.video]){
                     mediatype = .video
+                }else {
+                    mediatype = photoAsset.mediaType
                 }
                 if mediatype == .photo {
                     photoAsset.requestImageURL { (url) in

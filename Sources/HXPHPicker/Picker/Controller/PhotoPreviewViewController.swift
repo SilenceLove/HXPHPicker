@@ -196,10 +196,7 @@ extension PhotoPreviewViewController {
         }
         bottomView.updateFinishButtonTitle()
         if isMultipleSelect || isExternalPreview {
-            if !pickerController!.config.allowSelectedTogether && pickerController!.config.maximumSelectedVideoCount == 1 &&
-                pickerController!.config.selectType == .any {
-                videoLoadSingleCell = true
-            }
+            videoLoadSingleCell = pickerController!.singleVideo
             if !isExternalPreview {
                 navigationItem.rightBarButtonItem = UIBarButtonItem.init(customView: selectBoxControl)
             }else {
@@ -233,9 +230,9 @@ extension PhotoPreviewViewController {
                     #if HXPICKER_ENABLE_EDITOR
                     if let pickerController = pickerController, !config.bottomView.editButtonHidden {
                         if photoAsset.mediaType == .photo {
-                            bottomView.editBtn.isEnabled = pickerController.config.allowEditPhoto
+                            bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                         }else if photoAsset.mediaType == .video {
-                            bottomView.editBtn.isEnabled = pickerController.config.allowEditVideo
+                            bottomView.editBtn.isEnabled = pickerController.config.editorOptions.contains(.video)
                         }
                     }
                     #endif
@@ -249,9 +246,9 @@ extension PhotoPreviewViewController {
                     #if HXPICKER_ENABLE_EDITOR
                     if let pickerController = pickerController, !config.bottomView.editButtonHidden {
                         if photoAsset.mediaType == .photo {
-                            bottomView.editBtn.isEnabled = pickerController.config.allowEditPhoto
+                            bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                         }else if photoAsset.mediaType == .video {
-                            bottomView.editBtn.isEnabled = pickerController.config.allowEditVideo
+                            bottomView.editBtn.isEnabled = pickerController.config.editorOptions.contains(.video)
                         }
                     }
                     #endif
@@ -367,6 +364,13 @@ extension PhotoPreviewViewController {
         let beforeIsEmpty = pickerController!.selectedAssetArray.isEmpty
         if isSelected {
             // 选中
+            if photoAsset.mediaType == .video &&
+                pickerController!.videoDurationExceedsTheLimit(photoAsset: photoAsset) {
+                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                    openEditor(photoAsset)
+                }
+                return
+            }
             if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
                 canUpdate = true
                 if config.bottomView.showSelectedView && isMultipleSelect {
@@ -501,8 +505,10 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
             if !isExternalPreview {
                 if photoAsset.mediaType == .video && videoLoadSingleCell {
                     selectBoxControl.isHidden = true
+                    selectBoxControl.isEnabled = false
                 }else {
                     selectBoxControl.isHidden = false
+                    selectBoxControl.isEnabled = true
                     updateSelectBox(photoAsset.isSelected, photoAsset: photoAsset)
                     selectBoxControl.isSelected = photoAsset.isSelected
                 }
@@ -513,9 +519,9 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
             #if HXPICKER_ENABLE_EDITOR
             if let pickerController = pickerController, !config.bottomView.editButtonHidden {
                 if photoAsset.mediaType == .photo {
-                    bottomView.editBtn.isEnabled = pickerController.config.allowEditPhoto
+                    bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                 }else if photoAsset.mediaType == .video {
-                    bottomView.editBtn.isEnabled = pickerController.config.allowEditVideo
+                    bottomView.editBtn.isEnabled = pickerController.config.editorOptions.contains(.video)
                 }
             }
             #endif
@@ -594,6 +600,10 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
     
     func bottomView(didEditButtonClick bottomView: PhotoPickerBottomView) {
         let photoAsset = previewAssets[currentPreviewIndex]
+        openEditor(photoAsset)
+    }
+    
+    func openEditor(_ photoAsset: PhotoAsset) {
         if let shouldEditAsset = pickerController?.shouldEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex), !shouldEditAsset {
             return
         }
@@ -622,18 +632,28 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         #endif
     }
     func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView) {
+        if !pickerController!.selectedAssetArray.isEmpty {
+            pickerController?.finishCallback()
+            return
+        }
         if previewAssets.isEmpty {
-            ProgressHUD.showWarning(addedTo: self.view, text: "没有可选资源".localized, animated: true, delayHide: 2)
+            ProgressHUD.showWarning(addedTo: self.view, text: "没有可选资源".localized, animated: true, delayHide: 1.5)
             return
         }
         let photoAsset = previewAssets[currentPreviewIndex]
-        if pickerController!.config.selectMode == .multiple {
-            if pickerController!.selectedAssetArray.isEmpty {
-                _ = pickerController?.addedPhotoAsset(photoAsset: photoAsset)
+        if photoAsset.mediaType == .video &&
+            pickerController!.videoDurationExceedsTheLimit(photoAsset: photoAsset) {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                openEditor(photoAsset)
             }
-            pickerController?.finishCallback()
-        }else {
-            pickerController?.singleFinishCallback(for: photoAsset)
+            return
+        }
+        if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+            if !isMultipleSelect || videoLoadSingleCell {
+                pickerController?.singleFinishCallback(for: photoAsset)
+            }else {
+                pickerController?.finishCallback()
+            }
         }
     }
     func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool) {
@@ -674,7 +694,9 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
             replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
         }else {
             if videoLoadSingleCell || !isMultipleSelect {
-                pickerController?.singleFinishCallback(for: photoAsset)
+                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                    pickerController?.singleFinishCallback(for: photoAsset)
+                }
                 return
             }
             reloadCell(for: photoAsset)
@@ -688,7 +710,9 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
         let photoAsset = videoEditorViewController.photoAsset!
         if videoLoadSingleCell || !isMultipleSelect {
-            pickerController?.singleFinishCallback(for: photoAsset)
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController?.singleFinishCallback(for: photoAsset)
+            }
             return
         }
         if !photoAsset.isSelected {

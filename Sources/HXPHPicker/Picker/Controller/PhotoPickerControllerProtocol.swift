@@ -17,6 +17,10 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///     result.isOriginal   是否选中原图
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult)
     
+    /// 点击取消时调用
+    /// - Parameter pickerController: 对应的 PhotoPickerController
+    func pickerController(didCancel pickerController: PhotoPickerController)
+    
     /// 点击了原图按钮
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -100,10 +104,6 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     
     /// 视图控制器已经消失
     func pickerController(_ pickerController: PhotoPickerController, viewControllersDidDisappear viewController: UIViewController)
-    
-    /// 点击取消时调用
-    /// - Parameter pickerController: 对应的 PhotoPickerController
-    func pickerController(didCancel pickerController: PhotoPickerController)
     
     /// dismiss后调用
     /// - Parameters:

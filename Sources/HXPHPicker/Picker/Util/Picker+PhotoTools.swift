@@ -123,14 +123,23 @@ extension PhotoTools {
         return nil
     }
     /// 获取和微信主题一致的配置
-    public class func getWXPickerConfig() -> PickerConfiguration {
+    public class func getWXPickerConfig(isMoment: Bool = false) -> PickerConfiguration {
         let config = PickerConfiguration.init()
-        config.maximumSelectedCount = 9
-        config.maximumSelectedVideoCount = 0
-        config.allowSelectedTogether = true
+        if isMoment {
+            config.maximumSelectedCount = 9
+            config.maximumSelectedVideoCount = 1
+            config.videoSelectionTapAction = .openEditor
+            config.allowSelectedTogether = false
+            config.maximumSelectedVideoDuration = 15
+        }else {
+            config.maximumSelectedVideoDuration = 480
+            config.maximumSelectedCount = 9
+            config.maximumSelectedVideoCount = 0
+            config.allowSelectedTogether = true
+        }
+        config.selectOptions = [.gifPhoto, .video]
         config.albumShowMode = .popup
         config.appearanceStyle = .normal
-        config.showLivePhoto = true
         config.navigationViewBackgroundColor = "#2E2F30".color
         config.navigationTitleColor = .white
         config.navigationTintColor = .white
@@ -204,6 +213,7 @@ extension PhotoTools {
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white
+        config.videoEditor.cropping.maximumVideoCroppingTime = 15
         config.videoEditor.cropView.finishButtonBackgroundColor = "#07C160".color
         config.videoEditor.cropView.finishButtonDarkBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonBackgroundColor = "#07C160".color

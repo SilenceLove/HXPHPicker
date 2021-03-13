@@ -15,13 +15,35 @@
     - [x] GIF
     - [x] Live Photo
     - [x] Video
-- [x] 编辑视频
-    - [x] 裁剪
-- [x] 支持本地资源
-- [x] 在线下载iCloud上的资源
-- [x] 两种相册展现方式（单独列表、弹窗）
+- [x] 支持的本地资源类型：
+    - [x] Photo
+    - [x] Video
+    - [ ] GIF
+    - [ ] Live Photo
+- [x] 支持下载iCloud上的资源
 - [x] 支持手势返回
 - [x] 支持滑动选择
+- [x] 编辑视频
+    - [x] 裁剪
+- [x] 相册展现方式
+    - [x] 单独列表
+    - [x] 弹窗
+- [x] 多平台支持
+    - [x] iOS
+    - [x] iPadOS
+    - [ ] Mac Catalyst
+    - [ ] macOS
+    - [ ] tvOS
+- [x] 国际化支持
+    - [x] 英文 (en)
+    - [x] 简体中文 (zh-Hans)
+    - [x] 繁体中文 (zh-Hant)
+    - [x] 日语 (ja)
+    - [x] 韩语 (ko)
+    - [x] 泰语 (th)
+    - [x] 印尼语 (id)
+    - [x] 自定义语言 (custom)
+    - [ ] 更多支持... (欢迎PR)
 
 ## <a id="要求"></a> 要求
 
@@ -37,7 +59,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.4"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.5"))
 ]
 ```
 
@@ -81,7 +103,7 @@ class ViewController: UIViewController {
         // 设置与微信主题一致的配置
         let config = PhotoTools.getWXPickerConfig()
         let pickerController = PhotoPickerController.init(picker: config)
-        pickerController.pickerControllerDelegate = self
+        pickerController.pickerDelegate = self
         // 当前被选择的资源对应的 PhotoAsset 对象数组
         pickerController.selectedAssetArray = selectedAssets 
         // 是否选中原图
@@ -114,6 +136,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#105) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#104) | 2021-03-11 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#103) | 2021-01-20 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#102) | 2021-01-11 | 12.2 | 5.3 | 9.0+ |

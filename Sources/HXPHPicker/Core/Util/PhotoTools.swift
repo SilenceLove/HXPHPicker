@@ -163,6 +163,7 @@ public class PhotoTools {
                 }else {
                     exportSession.outputFileType = supportedTypeArray.first
                 }
+                exportSession.shouldOptimizeForNetworkUse = true
                 exportSession.timeRange = timeRang
                 exportSession.exportAsynchronously(completionHandler: {
                     DispatchQueue.main.async {

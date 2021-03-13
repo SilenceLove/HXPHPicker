@@ -17,13 +17,13 @@ public struct VideoEditResult {
     public let coverImage: UIImage?
 
     /// 编辑后的视频大小
-    public var editedFileSize: Int = 0
+    public let editedFileSize: Int
     
     /// 视频时长 格式：00:00
-    public var videoTime: String
+    public let videoTime: String
     
     /// 视频时长 秒
-    public var videoDuration: TimeInterval = 0
+    public let videoDuration: TimeInterval
     
     /// 裁剪数据
     public let cropData: VideoCropData
@@ -32,12 +32,14 @@ public struct VideoEditResult {
         do {
             let videofileSize = try editedURL.resourceValues(forKeys: [.fileSizeKey])
             editedFileSize = videofileSize.fileSize ?? 0
-        } catch {}
+        } catch {
+            editedFileSize = 0
+        }
         
         videoDuration = PhotoTools.getVideoDuration(videoURL: editedURL)
         videoTime = PhotoTools.transformVideoDurationToString(duration: videoDuration)
+        coverImage = PhotoTools.getVideoThumbnailImage(videoURL: editedURL, atTime: 0.1)
         self.editedURL = editedURL
-        self.coverImage = PhotoTools.getVideoThumbnailImage(videoURL: editedURL, atTime: 0.1)
         self.cropData = cropData
     }
 }
@@ -50,21 +52,24 @@ public struct VideoCropData {
     /// 编辑的结束时间
     public let endTime: TimeInterval
     
+    public let preferredTimescale: Int32
+    
     /// 已经确定的裁剪数据
     /// 0：offsetX ，CollectionView的offset.x
-    /// 1：validX ，裁剪框大小的x
+    /// 1：validX ，裁剪框的x
     /// 2：validWidth ，裁剪框的宽度
     public let cropingData: (CGFloat, CGFloat, CGFloat)
     
-    /// 裁剪框的位置大小
+    /// 裁剪框的位置大小比例
     /// 0：offsetX ，CollectionView的offset.x
-    /// 1：validX ，裁剪框大小的x
+    /// 1：validX ，裁剪框的x
     /// 2：validWidth ，裁剪框的宽度
     public let cropRectData: (CGFloat, CGFloat, CGFloat)
     
-    public init(startTime: TimeInterval, endTime: TimeInterval, cropingData: (CGFloat, CGFloat, CGFloat), cropRectData: (CGFloat, CGFloat, CGFloat)) {
+    public init(startTime: TimeInterval, endTime: TimeInterval, preferredTimescale: Int32, cropingData: (CGFloat, CGFloat, CGFloat), cropRectData: (CGFloat, CGFloat, CGFloat)) {
         self.startTime = startTime
         self.endTime = endTime
+        self.preferredTimescale = preferredTimescale
         self.cropingData = cropingData
         self.cropRectData = cropRectData
     }

@@ -48,7 +48,14 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         languageControl.selectedSegmentIndex = config.languageType.rawValue
-        selectTypeControl.selectedSegmentIndex = config.selectType.rawValue
+        if config.selectOptions.isPhoto && config.selectOptions.isVideo {
+            selectTypeControl.selectedSegmentIndex = 2
+        }else if config.selectOptions.isPhoto {
+            selectTypeControl.selectedSegmentIndex = 0
+        }else {
+            selectTypeControl.selectedSegmentIndex = 1
+        }
+        
         selectModeControl.selectedSegmentIndex = config.selectMode.rawValue
         albumShowModeControl.selectedSegmentIndex = config.albumShowMode.rawValue
         appearanceStyleControl.selectedSegmentIndex = config.appearanceStyle.rawValue
@@ -57,8 +64,8 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         createdDateSwitch.isOn = config.creationDate
         sortControl.selectedSegmentIndex = config.reverseOrder ? 1 : 0
         photoListAddCameraSwitch.isOn = config.photoList.allowAddCamera
-        showGifControl.isOn = config.showImageAnimated
-        showLivePhotoSwitch.isOn = config.showLivePhoto
+        showGifControl.isOn = config.selectOptions.contains(.gifPhoto)
+        showLivePhotoSwitch.isOn = config.selectOptions.contains(.livePhoto)
         photoMaxField.text = String(config.maximumSelectedPhotoCount)
         videoMaxField.text = String(config.maximumSelectedVideoCount)
         totalMaxField.text = String(config.maximumSelectedCount)
@@ -84,8 +91,19 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
     }
     @objc func didSaveButtonClick() {
         config.languageType = LanguageType.init(rawValue: languageControl.selectedSegmentIndex)!
-        config.selectType = SelectType.init(rawValue: selectTypeControl.selectedSegmentIndex)!
-        config.selectMode = SelectMode.init(rawValue: selectModeControl.selectedSegmentIndex)!
+        switch selectTypeControl.selectedSegmentIndex {
+        case 0:
+            config.selectOptions = .photo
+        case 1:
+            config.selectOptions = .video
+            showGifControl.isOn = false
+            showLivePhotoSwitch.isOn = false
+        case 2:
+            config.selectOptions = [.video, .photo]
+        default:
+            break
+        }
+        config.selectMode = PickerSelectMode.init(rawValue: selectModeControl.selectedSegmentIndex)!
         config.albumShowMode = AlbumShowMode.init(rawValue: albumShowModeControl.selectedSegmentIndex)!
         config.appearanceStyle = AppearanceStyle.init(rawValue: appearanceStyleControl.selectedSegmentIndex)!
         config.allowSelectedTogether = allowTogetherSelectedSwitch.isOn
@@ -93,8 +111,16 @@ class ConfigurationViewController: UIViewController, UIScrollViewDelegate {
         config.creationDate = createdDateSwitch.isOn
         config.reverseOrder = sortControl.selectedSegmentIndex == 1
         config.photoList.allowAddCamera = photoListAddCameraSwitch.isOn
-        config.showImageAnimated = showGifControl.isOn
-        config.showLivePhoto = showLivePhotoSwitch.isOn
+        if showGifControl.isOn {
+            config.selectOptions.insert(.gifPhoto)
+        }else {
+            config.selectOptions.remove(.gifPhoto)
+        }
+        if showLivePhotoSwitch.isOn {
+            config.selectOptions.insert(.livePhoto)
+        }else {
+            config.selectOptions.remove(.livePhoto)
+        }
         
         config.maximumSelectedPhotoCount = Int(photoMaxField.text ?? "0") ?? 0
         config.maximumSelectedVideoCount = Int(videoMaxField.text ?? "0") ?? 0
