@@ -10,10 +10,10 @@ import UIKit
 public class VideoCroppingConfiguration {
     
     /// 视频最大裁剪时长，最小1
-    public var maximumVideoCroppingTime: CGFloat = 10
+    public var maximumVideoCroppingTime: TimeInterval = 10
     
     /// 视频最小裁剪时长，最小1
-    public var minimumVideoCroppingTime: CGFloat = 1
+    public var minimumVideoCroppingTime: TimeInterval = 1
     
     public init() { }
 }

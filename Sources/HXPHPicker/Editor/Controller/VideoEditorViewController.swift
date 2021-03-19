@@ -555,8 +555,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     /// 裁剪视频
     /// - Parameter toolView: 底部工具视频
     func toolView(didFinishButtonClick toolView: EditorToolView) {
-        _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
         if let startTime = playerView.playStartTime, let endTime = playerView.playEndTime {
+            _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
             weak var weakSelf = self
             PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { (videoURL, error) in
                 if let videoURL = videoURL {
@@ -581,7 +581,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
         let editResult = VideoEditResult.init(editedURL: videoURL, cropData: cropData)
         delegate?.videoEditorViewController(self, didFinish: editResult)
     }
-    func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolModel) {
+    func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
         if model.type == .cropping {
             croppingAction()
         }

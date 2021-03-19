@@ -14,7 +14,7 @@ class EditorToolViewCell: UICollectionViewCell {
         return imageView
     }()
     
-    var model: EditorToolModel! {
+    var model: EditorToolOptions! {
         didSet {
             imageView.image = UIImage.image(for: model.imageName)
         }

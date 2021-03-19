@@ -76,6 +76,9 @@ class PickerCamerViewCell: UICollectionViewCell {
                     session.commitConfiguration()
                     session.startRunning()
                     self.previewLayer?.session = session
+                    DispatchQueue.main.async {
+                        self.imageView.image = UIImage.image(for: self.config?.cameraDarkImageName)
+                    }
                 }catch {}
             }
         }

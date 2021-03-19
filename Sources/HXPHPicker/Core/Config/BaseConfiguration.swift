@@ -21,7 +21,7 @@ open class BaseConfiguration {
     /// 隐藏状态栏
     public var prefersStatusBarHidden: Bool = false
     
-    /// 允许旋转
+    /// 允许旋转，全屏情况下才可以禁止旋转
     public var shouldAutorotate: Bool = true
     
     /// 支持的方向

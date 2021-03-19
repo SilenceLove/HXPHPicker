@@ -9,11 +9,11 @@ import UIKit
 
 public class EditorToolViewConfiguration {
     
-    /// 工具栏item数据
-    public lazy var toolModelArray: [EditorToolModel] = {
-        let cropModel = EditorToolModel.init(imageName: "hx_editor_video_crop", type: .cropping)
-        let models: [EditorToolModel] = [cropModel]
-        return models
+    /// 工具栏item选项
+    public lazy var toolOptions: [EditorToolOptions] = {
+        let cropOption = EditorToolOptions.init(imageName: "hx_editor_video_crop", type: .cropping)
+        let options: [EditorToolOptions] = [cropOption]
+        return options
     }()
     
     /// 完成按钮标题颜色

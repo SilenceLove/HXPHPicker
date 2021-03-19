@@ -138,7 +138,7 @@ class VideoEditorCropView: UIView {
         }
         let maxWidth = width - validRectX * 2 - imageWidth * 2
         var singleItemSecond: CGFloat
-        var videoMaximumCropDuration: CGFloat = config.maximumVideoCroppingTime
+        var videoMaximumCropDuration: CGFloat = CGFloat(config.maximumVideoCroppingTime)
         if videoMaximumCropDuration < 1 {
             videoMaximumCropDuration = 1
         }
@@ -160,7 +160,7 @@ class VideoEditorCropView: UIView {
         if round(videoSecond) <= 0 {
             frameMaskView.minWidth = contentWidth
         }else {
-            var videoMinimunCropDuration = config.minimumVideoCroppingTime
+            var videoMinimunCropDuration = CGFloat(config.minimumVideoCroppingTime)
             if videoMinimunCropDuration < 1 {
                 videoMinimunCropDuration = 1
             }

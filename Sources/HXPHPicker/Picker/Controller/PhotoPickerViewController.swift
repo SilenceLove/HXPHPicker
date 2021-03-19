@@ -699,13 +699,13 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                     pickerController?.singleFinishCallback(for: photoAsset)
                 }
             }else {
-                if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
-                    cell.didSelectControlClick(control: cell.selectControl)
+                if let cell = getCell(for: photoAsset) as? PhotoPickerViewCell {
+                    cell.selectedAction(false)
                 }
             }
         }else {
-            if let cell = getCell(for: photoAsset) as? PhotoPickerSelectableViewCell {
-                cell.didSelectControlClick(control: cell.selectControl)
+            if let cell = getCell(for: photoAsset) as? PhotoPickerViewCell {
+                cell.selectedAction(true)
             }
         }
     }

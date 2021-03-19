@@ -38,11 +38,6 @@ open class PhotoPickerSelectableViewCell : PhotoPickerViewCell {
         selectedAction(self.selectControl.isSelected)
     }
     
-    /// 触发选中回调
-    open func selectedAction(_ isSelected: Bool) {
-        delegate?.cell(self, didSelectControl: isSelected)
-    }
-    
     /// 更新选择状态
     open override func updateSelectedState(isSelected: Bool, animated: Bool) {
         super.updateSelectedState(isSelected: isSelected, animated: animated)

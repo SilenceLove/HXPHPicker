@@ -117,6 +117,11 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         contentView.layer.addSublayer(disableMaskLayer)
     }
     
+    /// 触发选中回调
+    open func selectedAction(_ isSelected: Bool) {
+        delegate?.cell(self, didSelectControl: isSelected)
+    }
+    
     /// 设置禁用遮罩
     open func setupDisableMask() {
         disableMaskLayer.isHidden = canSelect

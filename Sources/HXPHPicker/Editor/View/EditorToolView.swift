@@ -8,7 +8,7 @@
 import UIKit
 
 protocol EditorToolViewDelegate: NSObjectProtocol {
-    func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolModel)
+    func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions)
     func toolView(didFinishButtonClick toolView: EditorToolView)
 }
 
@@ -105,18 +105,18 @@ class EditorToolView: UIView {
 
 extension EditorToolView: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        config.toolModelArray.count
+        config.toolOptions.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorToolViewCellID", for: indexPath) as! EditorToolViewCell
-        cell.model = config.toolModelArray[indexPath.item]
+        cell.model = config.toolOptions[indexPath.item]
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.toolView(self, didSelectItemAt: config.toolModelArray[indexPath.item])
+        delegate?.toolView(self, didSelectItemAt: config.toolOptions[indexPath.item])
     }
     
 }

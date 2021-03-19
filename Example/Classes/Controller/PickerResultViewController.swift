@@ -1,5 +1,5 @@
 //
-//  BaseViewController.swift
+//  PickerResultViewController.swift
 //  HXPHPickerExample
 //
 //  Created by Silence on 2020/12/18.
@@ -11,7 +11,7 @@ import UIKit
 import Photos
 import HXPHPicker
 
-class BaseViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDragDelegate, UICollectionViewDropDelegate, BaseViewCellDelegate {
+class PickerResultViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDragDelegate, UICollectionViewDropDelegate, ResultViewCellDelegate {
      
     @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeightConstraint: NSLayoutConstraint!
@@ -19,9 +19,9 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     @IBOutlet weak var pickerStyleControl: UISegmentedControl!
     @IBOutlet weak var previewStyleControl: UISegmentedControl!
     
-    var addCell: BaseAddViewCell {
+    var addCell: ResultAddViewCell {
         get {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BaseAddViewCellID", for: IndexPath(item: selectedAssets.count, section: 0)) as! BaseAddViewCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ResultAddViewCellID", for: IndexPath(item: selectedAssets.count, section: 0)) as! ResultAddViewCell
             return cell
         }
     }
@@ -48,7 +48,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     weak var currentPickerController: PhotoPickerController?
     
     init() {
-        super.init(nibName:"BaseViewController",bundle: nil)
+        super.init(nibName:"PickerResultViewController",bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -57,13 +57,11 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         
-//        config.albumList.customCellClass = AlbumViewCustomCell.self
-//        config.photoList.cell.customSingleCellClass = HXPHPickerViewCustomCell.self
-//        config.photoList.cell.customSelectableCellClass = HXPHPickerMultiSelectViewCustomCell.self
         collectionViewTopConstraint.constant = 20
-        collectionView.register(BaseViewCell.self, forCellWithReuseIdentifier: "BaseViewCellID")
-        collectionView.register(BaseAddViewCell.self, forCellWithReuseIdentifier: "BaseAddViewCellID")
+        collectionView.register(ResultViewCell.self, forCellWithReuseIdentifier: "ResultViewCellID")
+        collectionView.register(ResultAddViewCell.self, forCellWithReuseIdentifier: "ResultAddViewCellID")
         if #available(iOS 11.0, *) {
             collectionView.dragDelegate = self
             collectionView.dropDelegate = self
@@ -142,7 +140,15 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         }
     }
     @objc func didSettingButtonClick() {
-        present(UINavigationController.init(rootViewController: ConfigurationViewController.init(config: config)), animated: true, completion: nil)
+        let pickerConfigVC: PickerConfigurationViewController
+        if #available(iOS 13.0, *) {
+            pickerConfigVC = PickerConfigurationViewController(style: .insetGrouped)
+        } else {
+            pickerConfigVC = PickerConfigurationViewController(style: .grouped)
+        }
+        pickerConfigVC.showOpenPickerButton = false
+        pickerConfigVC.config = config
+        present(UINavigationController.init(rootViewController: pickerConfigVC), animated: true, completion: nil)
     }
     
     /// 跳转选择资源界面
@@ -237,13 +243,13 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
         if canSetAddCell && indexPath.item == selectedAssets.count {
             return addCell
         }
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BaseViewCellID", for: indexPath) as! BaseViewCell
-        cell.baseDelegate = self
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ResultViewCellID", for: indexPath) as! ResultViewCell
+        cell.resultDelegate = self
         cell.photoAsset = selectedAssets[indexPath.item]
         return cell
     }
-    // MARK: BaseViewCellDelegate
-    func cell(didDeleteButton cell: BaseViewCell) {
+    // MARK: ResultViewCellDelegate
+    func cell(didDeleteButton cell: ResultViewCell) {
         if let indexPath = collectionView.indexPath(for: cell) {
             let isFull = selectedAssets.count == config.maximumSelectedCount
             selectedAssets.remove(at: indexPath.item)
@@ -379,7 +385,7 @@ class BaseViewController: UIViewController, UICollectionViewDataSource, UICollec
 }
 
 // MARK: PhotoPickerControllerDelegate
-extension BaseViewController: PhotoPickerControllerDelegate {
+extension PickerResultViewController: PhotoPickerControllerDelegate {
     
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
         selectedAssets = result.photoAssets
@@ -423,7 +429,7 @@ extension BaseViewController: PhotoPickerControllerDelegate {
         return cell
     }
     func pickerController(_ pickerController: PhotoPickerController, presentPreviewImageForIndexAt index: Int) -> UIImage? {
-        let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? BaseViewCell
+        let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? ResultViewCell
         return cell?.imageView.image
     }
     func pickerController(_ pickerController: PhotoPickerController, dismissPreviewViewForIndexAt index: Int) -> UIView? {
@@ -432,49 +438,7 @@ extension BaseViewController: PhotoPickerControllerDelegate {
     }
 }
 
-class AlbumViewCustomCell: AlbumViewCell {
-    override func layoutView() {
-        super.layoutView()
-        // 测试修改 x
-        photoCountLb.x += 100
-    }
-}
-class HXPHPickerViewCustomCell: PhotoPickerViewCell {
-    override func initView() {
-        super.initView()
-        isHidden = false
-    }
-    override func requestThumbnailImage() {
-        imageView.image = UIImage.image(for: "hx_picker_add_img")
-    }
-}
-class HXPHPickerMultiSelectViewCustomCell: PhotoPickerSelectableViewCell {
-    override func initView() {
-        super.initView()
-        isHidden = false
-    }
-    override func requestThumbnailImage() {
-        // 重写图片内容
-        imageView.image = UIImage.image(for: "hx_picker_add_img")
-    }
-    override func didSelectControlClick(control: PhotoPickerSelectBoxView) {
-        delegate?.cell(self, didSelectControl: control.isSelected)
-        // 重写选择框事件，也可以将选择框隐藏。自己新加一个选择框，然后触发代理回调
-    }
-    override func updateSelectedState(isSelected: Bool, animated: Bool) {
-        super.updateSelectedState(isSelected: isSelected, animated: animated)
-        // 重写更新选择的状态，如果是自定义的选择框需要在此设置选择框的选中状态
-    }
-    override func updateSelectControlSize(width: CGFloat, height: CGFloat) {
-        super.updateSelectControlSize(width: width, height: height)
-        // 重写更新选择框大小
-    }
-    override func layoutView() {
-        super.layoutView()
-        // 重写布局
-    }
-}
-class BaseAddViewCell: PhotoPickerBaseViewCell {
+class ResultAddViewCell: PhotoPickerBaseViewCell {
     override func initView() {
         super.initView()
         isHidden = false
@@ -482,12 +446,12 @@ class BaseAddViewCell: PhotoPickerBaseViewCell {
     }
 }
 
-@objc protocol BaseViewCellDelegate: NSObjectProtocol {
-    @objc optional func cell(didDeleteButton cell: BaseViewCell)
+@objc protocol ResultViewCellDelegate: NSObjectProtocol {
+    @objc optional func cell(didDeleteButton cell: ResultViewCell)
 }
 
-class BaseViewCell: PhotoPickerViewCell {
-    weak var baseDelegate: BaseViewCellDelegate?
+class ResultViewCell: PhotoPickerViewCell {
+    weak var resultDelegate: ResultViewCellDelegate?
     lazy var deleteButton: UIButton = {
         let deleteButton = UIButton.init(type: .custom)
         deleteButton.setImage(UIImage.init(named: "hx_compose_delete"), for: .normal)
@@ -500,7 +464,7 @@ class BaseViewCell: PhotoPickerViewCell {
         super.requestThumbnailImage(targetWidth: width * UIScreen.main.scale)
     }
     @objc func didDeleteButtonClick() {
-        baseDelegate?.cell?(didDeleteButton: self)
+        resultDelegate?.cell?(didDeleteButton: self)
     }
     override func initView() {
         super.initView()

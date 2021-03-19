@@ -247,7 +247,7 @@ open class PhotoPickerController: UINavigationController {
         config.shouldAutorotate
     }
     open override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        config.supportedInterfaceOrientations
+        return config.supportedInterfaceOrientations
     }
     public override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
         return topViewController?.preferredStatusBarUpdateAnimation ?? UIStatusBarAnimation.fade

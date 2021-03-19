@@ -23,7 +23,7 @@ public class PhotoListCameraCellConfiguration {
     /// 相机图标
     public var cameraImageName: String = "hx_picker_photoList_photograph"
     
-    /// 暗黑风格下的相机图标
+    /// 暗黑风格下的相机图标 / 相机预览成功之后的图标
     public var cameraDarkImageName: String = "hx_picker_photoList_photograph_white"
     
     public init() { }

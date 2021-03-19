@@ -1,5 +1,5 @@
 //
-//  EditorToolModel.swift
+//  EditorToolOptions.swift
 //  HXPHPicker
 //
 //  Created by Slience on 2021/1/9.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class EditorToolModel {
+public class EditorToolOptions {
     
     /// icon图标
     public let imageName: String

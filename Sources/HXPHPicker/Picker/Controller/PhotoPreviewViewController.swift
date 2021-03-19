@@ -648,7 +648,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             }
             return
         }
-        if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+        if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
             if !isMultipleSelect || videoLoadSingleCell {
                 pickerController?.singleFinishCallback(for: photoAsset)
             }else {
