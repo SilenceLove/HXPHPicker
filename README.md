@@ -31,9 +31,6 @@
 - [x] 多平台支持
     - [x] iOS
     - [x] iPadOS
-    - [ ] Mac Catalyst
-    - [ ] macOS
-    - [ ] tvOS
 - [x] 国际化支持
     - [x] 英文 (en)
     - [x] 简体中文 (zh-Hans)
@@ -59,7 +56,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.5"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.6"))
 ]
 ```
 
@@ -136,6 +133,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#106) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#105) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#104) | 2021-03-11 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#103) | 2021-01-20 | 12.2 | 5.3 | 9.0+ |

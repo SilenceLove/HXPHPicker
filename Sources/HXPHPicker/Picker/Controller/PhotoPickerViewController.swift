@@ -257,16 +257,15 @@ extension PhotoPickerViewController {
                 titleView.title = assetCollection.albumName
                 fetchPhotoAssets()
             }else {
-                weak var weakSelf = self
-                pickerController?.fetchCameraAssetCollectionCompletion = { (assetCollection) in
+                pickerController?.fetchCameraAssetCollectionCompletion = { [weak self] (assetCollection) in
                     var cameraAssetCollection = assetCollection
                     if cameraAssetCollection == nil {
-                        cameraAssetCollection = PhotoAssetCollection.init(albumName: self.pickerController!.config.albumList.emptyAlbumName.localized, coverImage: self.pickerController!.config.albumList.emptyCoverImageName.image)
+                        cameraAssetCollection = PhotoAssetCollection.init(albumName: self?.pickerController?.config.albumList.emptyAlbumName.localized, coverImage: self?.pickerController?.config.albumList.emptyCoverImageName.image)
                     }
-                    weakSelf?.assetCollection = cameraAssetCollection
-                    weakSelf?.assetCollection.isSelected = true
-                    weakSelf?.titleView.title = weakSelf?.assetCollection.albumName
-                    weakSelf?.fetchPhotoAssets()
+                    self?.assetCollection = cameraAssetCollection
+                    self?.assetCollection.isSelected = true
+                    self?.titleView.title = self?.assetCollection.albumName
+                    self?.fetchPhotoAssets()
                 }
             }
         }else {
@@ -291,26 +290,24 @@ extension PhotoPickerViewController {
         }
     }
     private func fetchAssetCollectionsClosure() {
-        weak var weakSelf = self
-        pickerController?.fetchAssetCollectionsCompletion = { (assetCollectionsArray) in
-            weakSelf?.albumView.assetCollectionsArray = assetCollectionsArray
-            weakSelf?.albumView.currentSelectedAssetCollection = weakSelf?.assetCollection
-            weakSelf?.configAlbumViewFrame()
+        pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
+            self?.albumView.assetCollectionsArray = assetCollectionsArray
+            self?.albumView.currentSelectedAssetCollection = self?.assetCollection
+            self?.configAlbumViewFrame()
         }
     }
     func fetchPhotoAssets() {
-        weak var weakSelf = self
-        pickerController!.fetchPhotoAssets(assetCollection: assetCollection) { (photoAssets, photoAsset) in
-            weakSelf?.canAddCamera = true
-            weakSelf?.assets = photoAssets
-            weakSelf?.setupEmptyView()
-            weakSelf?.collectionView.reloadData()
-            weakSelf?.scrollToAppropriatePlace(photoAsset: photoAsset)
-            if weakSelf != nil && weakSelf!.showLoading {
-                ProgressHUD.hide(forView: weakSelf?.view, animated: true)
-                weakSelf?.showLoading = false
+        pickerController!.fetchPhotoAssets(assetCollection: assetCollection) { [weak self] (photoAssets, photoAsset) in
+            self?.canAddCamera = true
+            self?.assets = photoAssets
+            self?.setupEmptyView()
+            self?.collectionView.reloadData()
+            self?.scrollToAppropriatePlace(photoAsset: photoAsset)
+            if self != nil && self!.showLoading {
+                ProgressHUD.hide(forView: self?.view, animated: true)
+                self?.showLoading = false
             }else {
-                ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: false)
+                ProgressHUD.hide(forView: self?.navigationController?.view, animated: false)
             }
         }
     }

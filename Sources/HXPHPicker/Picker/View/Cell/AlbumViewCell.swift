@@ -82,12 +82,11 @@ open class AlbumViewCell: UITableViewCell {
     
     /// 获取相册封面图片，重写此方法修改封面图片
     open func requestCoverImage() {
-        weak var weakSelf = self
-        requestID = assetCollection?.requestCoverImage(completion: { (image, assetCollection, info) in
-            if assetCollection == weakSelf?.assetCollection && image != nil {
-                weakSelf?.albumCoverView.image = image
+        requestID = assetCollection?.requestCoverImage(completion: { [weak self] (image, assetCollection, info) in
+            if assetCollection == self?.assetCollection && image != nil {
+                self?.albumCoverView.image = image
                 if !AssetManager.assetIsDegraded(for: info) {
-                    weakSelf?.requestID = nil
+                    self?.requestID = nil
                 }
             }
         })

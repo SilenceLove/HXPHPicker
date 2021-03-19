@@ -46,10 +46,9 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
     }
     /// 获取图片，重写此方法可以修改图片
     open func reqeustAssetImage() {
-        weak var weakSelf = self
-        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { (image, asset, info) in
-            if weakSelf?.photoAsset == asset {
-                weakSelf?.imageView.image = image
+        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in
+            if self?.photoAsset == asset {
+                self?.imageView.image = image
             }
         })
     }

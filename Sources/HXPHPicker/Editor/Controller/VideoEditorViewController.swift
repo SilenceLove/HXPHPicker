@@ -114,24 +114,23 @@ open class VideoEditorViewController: BaseViewController {
     }
     
     func requestAVAsset() {
-        weak var weakSelf = self
         let loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频加载中".localized, animated: true)
         view.bringSubviewToFront(topView)
-        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { (photoAsset, requestID) in
-            weakSelf?.assetRequestID = requestID
+        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { [weak self] (photoAsset, requestID) in
+            self?.assetRequestID = requestID
         } progressHandler: { (photoAsset, progress) in
             if progress > 0 {
                 loadingView?.updateText(text: "视频加载中".localized + "(" + String(Int(progress * 100)) + "%)")
             }
-        } success: { (photoAsset, avAsset, info) in
-            ProgressHUD.hide(forView: weakSelf?.view, animated: false)
-            weakSelf?.avAsset = avAsset
-            weakSelf?.reqeustAssetCompletion = true
-            weakSelf?.assetRequestComplete()
-        } failure: { (photoAsset, info) in
+        } success: { [weak self] (photoAsset, avAsset, info) in
+            ProgressHUD.hide(forView: self?.view, animated: false)
+            self?.avAsset = avAsset
+            self?.reqeustAssetCompletion = true
+            self?.assetRequestComplete()
+        } failure: { [weak self] (photoAsset, info) in
             if info?.isCancel != true {
-                ProgressHUD.hide(forView: weakSelf?.view, animated: false)
-                weakSelf?.backAction()
+                ProgressHUD.hide(forView: self?.view, animated: false)
+                self?.backAction()
             }
         }
     }
@@ -233,15 +232,20 @@ open class VideoEditorViewController: BaseViewController {
         cropConfirmView.delegate = self
         return cropConfirmView
     }()
-    lazy var topView: UIToolbar = {
-        let topView = UIToolbar.init()
-        topView.setShadowImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any)
-        topView.setBackgroundImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any, barMetrics: .default)
-        topView.backgroundColor = .clear
-        topView.tintColor = .white
-        let cancelItem = UIBarButtonItem.init(image: UIImage.image(for: "hx_editor_back"), style: .plain, target: self, action: #selector(didBackClick))
-        topView.items = [cancelItem]
-        return topView
+    lazy var topView: UIView = {
+        let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+        let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
+        cancelBtn.setImage(UIImage.image(for: "hx_editor_back"), for: .normal)
+        cancelBtn.addTarget(self, action: #selector(didBackClick), for: .touchUpInside)
+        view.addSubview(cancelBtn)
+//        let topView = UIToolbar.init()
+//        topView.setShadowImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any)
+//        topView.setBackgroundImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any, barMetrics: .default)
+//        topView.backgroundColor = .clear
+//        topView.tintColor = .white
+//        let cancelItem = UIBarButtonItem.init(image: UIImage.image(for: "hx_editor_back"), style: .plain, target: self, action: #selector(didBackClick))
+//        topView.items = [cancelItem]
+        return view
     }()
     
     lazy var topMaskLayer: CAGradientLayer = {
@@ -557,14 +561,13 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     func toolView(didFinishButtonClick toolView: EditorToolView) {
         if let startTime = playerView.playStartTime, let endTime = playerView.playEndTime {
             _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
-            weak var weakSelf = self
-            PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { (videoURL, error) in
+            PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { [weak self] (videoURL, error) in
                 if let videoURL = videoURL {
-                    weakSelf?.editFinishCallBack(videoURL)
-                    weakSelf?.backAction()
+                    self?.editFinishCallBack(videoURL)
+                    self?.backAction()
                 }else {
-                    ProgressHUD.hide(forView: weakSelf?.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: weakSelf?.view, text: "导出失败".localized, animated: true, delayHide: 1.5)
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: self?.view, text: "导出失败".localized, animated: true, delayHide: 1.5)
                 }
             }
         }else {

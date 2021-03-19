@@ -85,20 +85,20 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
             self.canFetchAssetCollections = true
             titleLabel.text = "相册".localized
         }else {
-            weak var weakSelf = self
-            pickerController?.fetchCameraAssetCollectionCompletion = { (assetCollection) in
+            pickerController?.fetchCameraAssetCollectionCompletion = { [weak self] (assetCollection) in
+                
                 var cameraAssetCollection = assetCollection
                 if cameraAssetCollection == nil {
-                    cameraAssetCollection = PhotoAssetCollection.init(albumName: weakSelf?.config?.emptyAlbumName.localized, coverImage: weakSelf?.config!.emptyCoverImageName.image)
+                    cameraAssetCollection = PhotoAssetCollection.init(albumName: self?.config?.emptyAlbumName.localized, coverImage: self?.config!.emptyCoverImageName.image)
                 }
-                weakSelf?.canFetchAssetCollections = true
-                weakSelf?.titleLabel.text = "相册".localized
-                if weakSelf?.navigationController?.topViewController is PhotoPickerViewController {
-                    let vc = weakSelf?.navigationController?.topViewController as! PhotoPickerViewController
+                self?.canFetchAssetCollections = true
+                self?.titleLabel.text = "相册".localized
+                if self?.navigationController?.topViewController is PhotoPickerViewController {
+                    let vc = self?.navigationController?.topViewController as! PhotoPickerViewController
                     vc.changedAssetCollection(collection: cameraAssetCollection)
                     return
                 }
-                weakSelf?.pushPhotoPickerController(assetCollection: cameraAssetCollection, animated: false)
+                self?.pushPhotoPickerController(assetCollection: cameraAssetCollection, animated: false)
             }
         }
     }
@@ -106,10 +106,9 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     func fetchAssetCollections() {
         _ = ProgressHUD.showLoading(addedTo: view, animated: true)
         pickerController?.fetchAssetCollections()
-        weak var weakSelf = self
-        pickerController?.fetchAssetCollectionsCompletion = { (assetCollectionsArray) in
-            weakSelf?.reloadTableView(assetCollectionsArray: assetCollectionsArray)
-            ProgressHUD.hide(forView: weakSelf?.view, animated: true)
+        pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
+            self?.reloadTableView(assetCollectionsArray: assetCollectionsArray)
+            ProgressHUD.hide(forView: self?.view, animated: true)
         }
     }
     func reloadTableView(assetCollectionsArray: [PhotoAssetCollection]) {

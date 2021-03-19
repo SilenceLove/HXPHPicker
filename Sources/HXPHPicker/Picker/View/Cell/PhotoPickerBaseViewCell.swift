@@ -71,16 +71,15 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
-        weak var weakSelf = self
-        requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { (image, photoAsset, info) in
-            if photoAsset == weakSelf?.photoAsset && image != nil {
-                if !(weakSelf?.firstLoadCompletion ?? true) {
-                    weakSelf?.isHidden = false
-                    weakSelf?.firstLoadCompletion = true
+        requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
+            if photoAsset == self?.photoAsset && image != nil {
+                if self?.firstLoadCompletion == false {
+                    self?.isHidden = false
+                    self?.firstLoadCompletion = true
                 }
-                weakSelf?.imageView.image = image
+                self?.imageView.image = image
                 if !AssetManager.assetIsDegraded(for: info) {
-                    weakSelf?.requestID = nil
+                    self?.requestID = nil
                 }
             }
         })

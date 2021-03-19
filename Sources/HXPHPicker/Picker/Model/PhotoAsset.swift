@@ -359,10 +359,9 @@ extension PhotoAsset {
             return
         }
         if mediaType == .video {
-            weak var weakSelf = self
-            _ = requestImageData(iCloudHandler: nil, progressHandler: nil) { (photoAsset, imageData, imageOrientation, info) in
+            _ = requestImageData(iCloudHandler: nil, progressHandler: nil) { [weak self] (photoAsset, imageData, imageOrientation, info) in
                 DispatchQueue.global().async {
-                    let imageURL = weakSelf?.write(imageData: imageData)
+                    let imageURL = self?.write(imageData: imageData)
                     DispatchQueue.main.async {
                         resultHandler(imageURL)
                     }

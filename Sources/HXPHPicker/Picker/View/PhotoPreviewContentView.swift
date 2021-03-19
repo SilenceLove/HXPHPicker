@@ -57,11 +57,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             if photoAsset.mediaSubType == .localImage {
                 requestCompletion = true
             }
-            weak var weakSelf = self
-            
-            requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { (image, asset, info) in
-                if asset == weakSelf?.photoAsset && image != nil {
-                    weakSelf?.imageView.image = image
+            requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { [weak self] (image, asset, info) in
+                if asset == self?.photoAsset && image != nil {
+                    self?.imageView.image = image
                 }
             })
         }
@@ -125,99 +123,96 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     
     func requestOriginalImage() {
-        weak var weakSelf = self
-        requestID = photoAsset.requestImageData(iCloudHandler: { (asset, iCloudRequestID) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
+        requestID = photoAsset.requestImageData(iCloudHandler: { [weak self] (asset, iCloudRequestID) in
+            if asset == self?.photoAsset {
+                self?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
             }
-        }, progressHandler: { (asset, progress) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestUpdateProgress(progress: progress)
+        }, progressHandler: { [weak self] (asset, progress) in
+            if asset == self?.photoAsset {
+                self?.requestUpdateProgress(progress: progress)
             }
-        }, success: { (asset, imageData, imageOrientation, info) in
+        }, success: { [weak self] (asset, imageData, imageOrientation, info) in
             if asset.mediaSubType == .imageAnimated {
-                if asset == weakSelf?.photoAsset {
-                    weakSelf?.requestSucceed()
+                if asset == self?.photoAsset {
+                    self?.requestSucceed()
                     let image = GIFImage.init(data: imageData)
-                    weakSelf?.imageView.gifImage = image
-                    weakSelf?.requestID = nil
-                    weakSelf?.requestCompletion = true
+                    self?.imageView.gifImage = image
+                    self?.requestID = nil
+                    self?.requestCompletion = true
                 }
             }else {
                 DispatchQueue.global().async {
                     var image = UIImage.init(data: imageData)
                     image = image?.scaleSuitableSize()
                     DispatchQueue.main.async {
-                        if asset == weakSelf?.photoAsset {
-                            weakSelf?.requestSucceed()
-                            weakSelf?.imageView.setImage(image, animated: true)
-                            weakSelf?.requestID = nil
-                            weakSelf?.requestCompletion = true
+                        if asset == self?.photoAsset {
+                            self?.requestSucceed()
+                            self?.imageView.setImage(image, animated: true)
+                            self?.requestID = nil
+                            self?.requestCompletion = true
                         }
                     }
                 }
             }
-        }, failure: { (asset, info) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestFailed(info: info)
+        }, failure: { [weak self] (asset, info) in
+            if asset == self?.photoAsset {
+                self?.requestFailed(info: info)
             }
         })
     }
     @available(iOS 9.1, *)
     func requestLivePhoto() {
         let targetSize : CGSize = size
-        weak var weakSelf = self
-        requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { (asset, requestID) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
+        requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { [weak self] (asset, requestID) in
+            if asset == self?.photoAsset {
+                self?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
-        }, progressHandler: { (asset, progress) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestUpdateProgress(progress: progress)
+        }, progressHandler: {  [weak self](asset, progress) in
+            if asset == self?.photoAsset {
+                self?.requestUpdateProgress(progress: progress)
             }
-        }, success: { (asset, livePhoto, info) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestSucceed()
-                weakSelf?.livePhotoView.livePhoto = livePhoto
+        }, success: { [weak self] (asset, livePhoto, info) in
+            if asset == self?.photoAsset {
+                self?.requestSucceed()
+                self?.livePhotoView.livePhoto = livePhoto
                 UIView.animate(withDuration: 0.25) {
-                    weakSelf?.livePhotoView.alpha = 1
+                    self?.livePhotoView.alpha = 1
                 }
-                weakSelf?.livePhotoView.startPlayback(with: PHLivePhotoViewPlaybackStyle.full)
-                weakSelf?.requestID = nil
-                weakSelf?.requestCompletion = true
+                self?.livePhotoView.startPlayback(with: PHLivePhotoViewPlaybackStyle.full)
+                self?.requestID = nil
+                self?.requestCompletion = true
             }
-        }, failure: { (asset, info) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestFailed(info: info)
+        }, failure: { [weak self] (asset, info) in
+            if asset == self?.photoAsset {
+                self?.requestFailed(info: info)
             }
         })
     }
     func requestAVAsset() {
-        weak var weakSelf = self
-        requestID = photoAsset.requestAVAsset(iCloudHandler: { (asset, requestID) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
+        requestID = photoAsset.requestAVAsset(iCloudHandler: { [weak self] (asset, requestID) in
+            if asset == self?.photoAsset {
+                self?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
-        }, progressHandler: { (asset, progress) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestUpdateProgress(progress: progress)
+        }, progressHandler: { [weak self] (asset, progress) in
+            if asset == self?.photoAsset {
+                self?.requestUpdateProgress(progress: progress)
             }
-        }, success: { (asset, avAsset, info) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestSucceed()
-                if weakSelf?.isBacking ?? true {
+        }, success: { [weak self] (asset, avAsset, info) in
+            if asset == self?.photoAsset {
+                self?.requestSucceed()
+                if self?.isBacking ?? true {
                     return
                 }
-                weakSelf?.videoView.avAsset = avAsset
+                self?.videoView.avAsset = avAsset
                 UIView.animate(withDuration: 0.25) {
-                    weakSelf?.videoView.alpha = 1
+                    self?.videoView.alpha = 1
                 }
-                weakSelf?.requestID = nil
-                weakSelf?.requestCompletion = true
+                self?.requestID = nil
+                self?.requestCompletion = true
             }
-        }, failure: { (asset, info) in
-            if asset == weakSelf?.photoAsset {
-                weakSelf?.requestFailed(info: info)
+        }, failure: { [weak self] (asset, info) in
+            if asset == self?.photoAsset {
+                self?.requestFailed(info: info)
             }
         })
     }
