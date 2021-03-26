@@ -13,21 +13,22 @@ extension String {
     
     var localized: String {
         get {
-            return Bundle.localizedString(for: self)
+            Bundle.localizedString(for: self)
         }
     }
     
     var color: UIColor {
         get {
-            return UIColor.init(hexString: self)
+            UIColor.init(hexString: self)
         }
     }
     
     var image: UIImage? {
         get {
-            return UIImage.image(for: self)
+            UIImage.image(for: self)
         }
     }
+    
     static func fileName(suffix: String) -> String {
         var uuid = UUID().uuidString
         uuid = uuid.replacingOccurrences(of: "-", with: "").lowercased()

@@ -22,7 +22,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     public lazy var cropping: VideoCroppingConfiguration = .init()
     
     /// 裁剪视图配置
-    public lazy var cropView: VideoCropConfirmViewConfiguration = .init()
+    public lazy var cropView: CropConfirmViewConfiguration = .init()
     
     /// 工具视图配置
     public lazy var toolView: EditorToolViewConfiguration = .init()

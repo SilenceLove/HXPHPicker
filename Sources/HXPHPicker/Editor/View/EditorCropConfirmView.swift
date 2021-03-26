@@ -1,5 +1,5 @@
 //
-//  VideoEditorCropConfirmView.swift
+//  EditorCropConfirmView.swift
 //  HXPHPicker
 //
 //  Created by Slience on 2021/1/9.
@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol VideoEditorCropConfirmViewDelegate: NSObjectProtocol {
-    func cropConfirmView(didFinishButtonClick cropConfirmView: VideoEditorCropConfirmView)
-    func cropConfirmView(didCancelButtonClick cropConfirmView: VideoEditorCropConfirmView)
+protocol EditorCropConfirmViewDelegate: NSObjectProtocol {
+    func cropConfirmView(didFinishButtonClick cropConfirmView: EditorCropConfirmView)
+    func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView)
 }
-class VideoEditorCropConfirmView: UIView {
-    weak var delegate: VideoEditorCropConfirmViewDelegate?
-    var config: VideoCropConfirmViewConfiguration
+class EditorCropConfirmView: UIView {
+    weak var delegate: EditorCropConfirmViewDelegate?
+    var config: CropConfirmViewConfiguration
     lazy var maskLayer: CAGradientLayer = {
         let layer = CAGradientLayer.init()
         layer.contentsScale = UIScreen.main.scale
@@ -53,7 +53,7 @@ class VideoEditorCropConfirmView: UIView {
     @objc func didCancelButtonClick(button: UIButton) {
         delegate?.cropConfirmView(didCancelButtonClick: self)
     }
-    init(config: VideoCropConfirmViewConfiguration) {
+    init(config: CropConfirmViewConfiguration) {
         self.config = config
         super.init(frame: .zero)
         layer.addSublayer(maskLayer)
@@ -70,6 +70,7 @@ class VideoEditorCropConfirmView: UIView {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
+        maskLayer.frame = CGRect(x: 0, y: -10, width: width, height: height + 10)
         cancelButton.x = UIDevice.leftMargin + 12
         var cancelWidth = (cancelButton.currentTitle?.width(ofFont: cancelButton.titleLabel!.font, maxHeight: 33) ?? 0) + 20
         if cancelWidth < 60 {

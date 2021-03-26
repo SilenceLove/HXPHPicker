@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import HXPHPicker
 
 class HomeViewController: UITableViewController {
     
@@ -40,6 +41,14 @@ class HomeViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let rowType = Section.allCases[indexPath.section].allRowCase[indexPath.row]
+        if let rowType = rowType as? ApplicationRowType  {
+            if rowType == .customCell {
+                let vc = rowType.controller as! PhotoPickerController
+                vc.pickerDelegate = self
+                present(vc, animated: true, completion: nil)
+                return
+            }
+        }
         navigationController?.pushViewController(rowType.controller, animated: true)
     }
 
@@ -120,12 +129,34 @@ extension HomeViewController {
             case .UICollectionView:
                 return PickerResultViewController()
             case .customCell:
-                return CustomPickerCellViewController()
+                let config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: false)
+                config.photoSelectionTapAction = .quickSelect
+                config.videoSelectionTapAction = .quickSelect
+                config.photoList.cell.customSingleCellClass = CustomPickerViewCell.self
+                config.photoList.cell.customSelectableCellClass = CustomPickerViewCell.self
+                let pickerController = PhotoPickerController.init(config: config)
+                pickerController.autoDismiss = false
+                return pickerController
             }
         }
     }
 }
 
+
+extension HomeViewController: PhotoPickerControllerDelegate {
+    func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
+        pickerController.dismiss(animated: true) {
+            let config = PhotoEditorConfiguration.init()
+            let vc = PhotoEditorViewController.init(image: result.photoAssets.first!.originalImage!, config: config)
+            self.present(vc, animated: true, completion: nil)
+//            let pickerResultVC = PickerResultViewController.init()
+//            pickerResultVC.config = pickerController.config
+//            pickerResultVC.selectedAssets = result.photoAssets
+//            pickerResultVC.isOriginal = result.isOriginal
+//            self.navigationController?.pushViewController(pickerResultVC, animated: true)
+        }
+    }
+}
 extension UITableViewCell {
     
     static var reuseIdentifier: String {

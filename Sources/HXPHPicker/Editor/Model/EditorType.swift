@@ -7,6 +7,13 @@
 
 import Foundation
 
+/// 照片编辑控制器的状态
+public extension PhotoEditorViewController {
+    enum State: Int {
+        case normal     //!< 正常状态
+        case cropping   //!< 裁剪状态
+    }
+}
 
 /// 视频编辑控制器的状态
 public extension VideoEditorViewController {

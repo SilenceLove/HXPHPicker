@@ -249,6 +249,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         self.config = config
         self.isMultipleSelect = isMultipleSelect
         super.init(frame: CGRect.zero)
+        layoutSubviews()
         if config.showPrompt && AssetManager.authorizationStatusIsLimited() && allowLoadPhotoLibrary && !isPreview && !isExternalPreview {
             addSubview(promptView)
         }

@@ -1,5 +1,5 @@
 //
-//  VideoCropConfirmViewConfiguration.swift
+//  CropConfirmViewConfiguration.swift
 //  HXPHPicker
 //
 //  Created by Slience on 2021/1/9.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class VideoCropConfirmViewConfiguration {
+public class CropConfirmViewConfiguration {
     
     /// 完成按钮标题颜色
     public lazy var finishButtonTitleColor: UIColor = {

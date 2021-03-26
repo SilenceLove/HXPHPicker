@@ -225,8 +225,8 @@ open class VideoEditorViewController: BaseViewController {
         toolView.delegate = self
         return toolView
     }()
-    lazy var cropConfirmView: VideoEditorCropConfirmView = {
-        let cropConfirmView = VideoEditorCropConfirmView.init(config: config.cropView)
+    lazy var cropConfirmView: EditorCropConfirmView = {
+        let cropConfirmView = EditorCropConfirmView.init(config: config.cropView)
         cropConfirmView.alpha = 0
         cropConfirmView.isHidden = true
         cropConfirmView.delegate = self
@@ -238,13 +238,6 @@ open class VideoEditorViewController: BaseViewController {
         cancelBtn.setImage(UIImage.image(for: "hx_editor_back"), for: .normal)
         cancelBtn.addTarget(self, action: #selector(didBackClick), for: .touchUpInside)
         view.addSubview(cancelBtn)
-//        let topView = UIToolbar.init()
-//        topView.setShadowImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any)
-//        topView.setBackgroundImage(UIImage.image(for: .clear, havingSize: .zero), forToolbarPosition: .any, barMetrics: .default)
-//        topView.backgroundColor = .clear
-//        topView.tintColor = .white
-//        let cancelItem = UIBarButtonItem.init(image: UIImage.image(for: "hx_editor_back"), style: .plain, target: self, action: #selector(didBackClick))
-//        topView.items = [cancelItem]
         return view
     }()
     
@@ -629,12 +622,12 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     }
 }
 
-// MARK: VideoEditorCropConfirmViewDelegate
-extension VideoEditorViewController: VideoEditorCropConfirmViewDelegate {
+// MARK: EditorCropConfirmViewDelegate
+extension VideoEditorViewController: EditorCropConfirmViewDelegate {
     
     /// 点击完成按钮
     /// - Parameter cropConfirmView: 裁剪视图
-    func cropConfirmView(didFinishButtonClick cropConfirmView: VideoEditorCropConfirmView) {
+    func cropConfirmView(didFinishButtonClick cropConfirmView: EditorCropConfirmView) {
         if onceState == .cropping {
             onceState = .normal
         }
@@ -651,7 +644,7 @@ extension VideoEditorViewController: VideoEditorCropConfirmViewDelegate {
     
     /// 点击取消按钮
     /// - Parameter cropConfirmView: 裁剪视图
-    func cropConfirmView(didCancelButtonClick cropConfirmView: VideoEditorCropConfirmView) {
+    func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView) {
         if onceState == .cropping {
             backAction()
             return
