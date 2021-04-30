@@ -14,7 +14,7 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     /// 编辑完成
     /// - Parameters:
     ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - videoURL: 编辑后的视频地址
+    ///   - result: 编辑后的数据
     func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult)
     
     /// 点击完成按钮，但是视频未编辑
@@ -83,6 +83,7 @@ open class VideoEditorViewController: BaseViewController {
     /// 请求获取AVAsset完成
     var reqeustAssetCompletion: Bool = false
     
+    /// 之前的编辑数据
     var editResult: VideoEditResult?
     var onceState: State = .normal
     var assetRequestID: PHImageRequestID?
@@ -130,7 +131,9 @@ open class VideoEditorViewController: BaseViewController {
         } failure: { [weak self] (photoAsset, info) in
             if info?.isCancel != true {
                 ProgressHUD.hide(forView: self?.view, animated: false)
-                self?.backAction()
+                PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "视频获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+                    self?.backAction()
+                }
             }
         }
     }

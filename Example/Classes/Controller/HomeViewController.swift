@@ -147,7 +147,7 @@ extension HomeViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
         pickerController.dismiss(animated: true) {
             let config = PhotoEditorConfiguration.init()
-            let vc = PhotoEditorViewController.init(image: result.photoAssets.first!.originalImage!, config: config)
+            let vc = EditorController.init(photoAsset: result.photoAssets.first!, editResult: nil, config: config)
             self.present(vc, animated: true, completion: nil)
 //            let pickerResultVC = PickerResultViewController.init()
 //            pickerResultVC.config = pickerController.config

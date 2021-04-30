@@ -95,7 +95,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }
                 var reqeustAsset = photoAsset.phAsset != nil
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.videoEdit != nil {
+                if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
                     reqeustAsset = false
                 }
                 #endif
@@ -254,7 +254,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 let photoAsset = pickerController.selectedAssetArray[currentPreviewIndex]
                 var reqeustAsset = photoAsset.phAsset != nil
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.videoEdit != nil {
+                if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
                     reqeustAsset = false
                 }
                 #endif

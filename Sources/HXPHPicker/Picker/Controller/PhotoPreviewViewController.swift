@@ -628,6 +628,15 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
                 videoEditorVC.delegate = self
                 navigationController?.pushViewController(videoEditorVC, animated: true)
             }
+        }else {
+            if let config = pickerController?.config {
+                let photoEditorConfig = config.photoEditor
+                photoEditorConfig.languageType = config.languageType
+                photoEditorConfig.appearanceStyle = config.appearanceStyle
+                let photoEditorVC = PhotoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.photoEdit, config: photoEditorConfig)
+                photoEditorVC.delegate = self
+                navigationController?.pushViewController(photoEditorVC, animated: true)
+            }
         }
         #endif
     }
@@ -685,6 +694,50 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
 }
 
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
+// MARK: PhotoEditorViewControllerDelegate
+extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
+    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {
+        let photoAsset = photoEditorViewController.photoAsset!
+        photoAsset.photoEdit = result
+        if isExternalPreview {
+            replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
+        }else {
+            if videoLoadSingleCell || !isMultipleSelect {
+                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                    pickerController?.singleFinishCallback(for: photoAsset)
+                }
+                return
+            }
+            reloadCell(for: photoAsset)
+            if !photoAsset.isSelected {
+                didSelectBoxControlClick()
+            }
+        }
+        delegate?.previewViewController(self, editAssetFinished: photoAsset)
+        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+    }
+    public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
+        let photoAsset = photoEditorViewController.photoAsset!
+        let beforeHasEdit = photoAsset.photoEdit != nil
+        photoAsset.photoEdit = nil;
+        if !isMultipleSelect {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController?.singleFinishCallback(for: photoAsset)
+            }
+            return
+        }
+        if !photoAsset.isSelected {
+            didSelectBoxControlClick()
+        }
+        if beforeHasEdit {
+            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+            reloadCell(for: photoAsset)
+        }
+    }
+    public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {
+        
+    }
+}
 // MARK: VideoEditorViewControllerDelegate
 extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {

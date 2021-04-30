@@ -42,6 +42,7 @@ open class PhotoAsset: Equatable {
         }
     }
     #if HXPICKER_ENABLE_EDITOR
+    public var photoEdit: PhotoEditResult?
     /// 视频编辑数据
     public var videoEdit: VideoEditResult?
     #endif
@@ -211,6 +212,9 @@ extension PhotoAsset {
     }
     func getLocalImageData() -> Data? {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            return PhotoTools.getImageData(for: photoEdit.editedImage)
+        }
         if let videoEdit = videoEdit {
             return PhotoTools.getImageData(for: videoEdit.coverImage)
         }
@@ -219,6 +223,12 @@ extension PhotoAsset {
     }
     func getFileSize() -> Int {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            if let imageData = PhotoTools.getImageData(for: photoEdit.editedImage) {
+                return imageData.count
+            }
+            return 0
+        }
         if let videoEdit = videoEdit {
             return videoEdit.editedFileSize
         }
@@ -270,6 +280,9 @@ extension PhotoAsset {
     }
     func getOriginalImage() -> UIImage? {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            return photoEdit.editedImage
+        }
         if let videoEdit = videoEdit {
             return videoEdit.coverImage
         }
@@ -298,6 +311,9 @@ extension PhotoAsset {
     }
     func getImageSize() -> CGSize {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            return photoEdit.editedImage.size
+        }
         if let videoEdit = videoEdit {
             return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
         }
@@ -339,8 +355,20 @@ extension PhotoAsset {
             return nil
         }
     }
-    func requestAssetImageURL(resultHandler: @escaping (URL?) -> Void) {
+    func requestAssetImageURL(filterEditor: Bool = false, resultHandler: @escaping (URL?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit, !filterEditor {
+            DispatchQueue.global().async {
+                var imageURL: URL?
+                if let imageData = PhotoTools.getImageData(for: photoEdit.editedImage) {
+                    imageURL = self.write(imageData: imageData)
+                }
+                DispatchQueue.main.async {
+                    resultHandler(imageURL)
+                }
+            }
+            return
+        }
         if let videoEdit = videoEdit {
             DispatchQueue.global().async {
                 var imageURL: URL?

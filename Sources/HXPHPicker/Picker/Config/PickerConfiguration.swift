@@ -64,13 +64,15 @@ open class PickerConfiguration: BaseConfiguration {
     /// 可编辑资源类型
     /// 视频允许编辑：当选择的视频时长超过限制将自动进入编辑界面
     /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden
-    public var editorOptions: PickerAssetOptions = .video
+    public var editorOptions: PickerAssetOptions = [.photo, .video]
     
     /// 视频最大编辑时长，为0则不限制，超过限制不可编辑（视频时长超出最大选择时长才生效）
     public var maximumVideoEditDuration: Int = 0
     
     /// 视频编辑配置
     public lazy var videoEditor: VideoEditorConfiguration = .init()
+    
+    public lazy var photoEditor: PhotoEditorConfiguration = .init()
     #endif
     
     /// 状态栏样式

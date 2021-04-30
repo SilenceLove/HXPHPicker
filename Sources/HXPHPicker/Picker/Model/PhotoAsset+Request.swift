@@ -26,6 +26,10 @@ public extension PhotoAsset {
     /// - Returns: 请求ID
     func requestThumbnailImage(targetWidth: CGFloat = 180, completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            completion?(photoEdit.editedImage, self, nil)
+            return nil
+        }
         if let videoEdit = videoEdit {
             completion?(videoEdit.coverImage, self, nil)
             return nil
@@ -47,6 +51,19 @@ public extension PhotoAsset {
     /// - Returns: 请求ID
     func requestImageData(iCloudHandler: PhotoAssetICloudHandlerHandler?, progressHandler: PhotoAssetProgressHandler?, success: ((PhotoAsset, Data, UIImage.Orientation, [AnyHashable : Any]?) -> Void)?, failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            DispatchQueue.global().async {
+                let imageData = PhotoTools.getImageData(for: photoEdit.editedImage)
+                DispatchQueue.main.async {
+                    if let imageData = imageData {
+                        success?(self, imageData, photoEdit.editedImage.imageOrientation, nil)
+                    }else {
+                        failure?(self, nil)
+                    }
+                }
+            }
+            return 0
+        }
         if let videoEdit = videoEdit {
             DispatchQueue.global().async {
                 let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
@@ -93,8 +110,6 @@ public extension PhotoAsset {
             }
         })
     }
-    
-    
 }
 
 // MARK: Request LivePhoto

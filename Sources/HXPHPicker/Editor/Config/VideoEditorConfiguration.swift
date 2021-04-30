@@ -25,7 +25,13 @@ open class VideoEditorConfiguration: EditorConfiguration {
     public lazy var cropView: CropConfirmViewConfiguration = .init()
     
     /// 工具视图配置
-    public lazy var toolView: EditorToolViewConfiguration = .init()
+    public lazy var toolView: EditorToolViewConfiguration = {
+        let config = EditorToolViewConfiguration.init()
+        let cropOption = EditorToolOptions.init(imageName: "hx_editor_video_crop", type: .cropping)
+        let options: [EditorToolOptions] = [cropOption]
+        config.toolOptions = options
+        return config
+    }()
     
     func mutableCopy() -> Any {
         let config = VideoEditorConfiguration.init()

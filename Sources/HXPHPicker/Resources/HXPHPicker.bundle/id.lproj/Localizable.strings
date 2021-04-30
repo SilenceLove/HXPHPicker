@@ -9,6 +9,7 @@
 "预览" = "Pratinjau";
 "编辑" = "edit";
 "返回" = "kembali";
+"还原" = "pengurangan"
 "没有可选资源" = "Tidak ada sumber daya opsional";
 "照片和视频不能同时选择" = "Foto dan video tidak dapat dipilih secara bersamaan";
 "最多只能选择%d张照片" = "Anda hanya dapat memilih maksimal %d foto";
@@ -36,6 +37,10 @@
 "视频加载中" = "Pemuatan video";
 "视频可编辑最大时长为%d秒，无法编辑" = "Panjang maksimal video yang dapat diedit adalah %d detik dan tidak dapat diedit";
 "相机不可用!" = "Kamera tidak tersedia!";
+"确定" = "menentukan";
+"提示" = "cepat";
+"图片获取失败!" = "Akuisisi gambar gagal!";
+"视频获取失败!" = "Akuisisi video gagal!";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

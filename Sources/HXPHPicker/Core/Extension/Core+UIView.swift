@@ -92,4 +92,15 @@ extension UIView {
         }
         return nil
     }
+    
+    /// UIView转UIImage
+    /// - Returns: UIImage
+    func convertedtoImage() -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
+        let context = UIGraphicsGetCurrentContext()
+        layer.render(in: context!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image!
+    }
 }

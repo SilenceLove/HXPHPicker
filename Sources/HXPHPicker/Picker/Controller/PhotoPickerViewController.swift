@@ -710,8 +710,28 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video {
             _ = openVideoEditor(photoAsset: photoAsset, coverImage: cell?.imageView.image)
+        }else {
+            _ = openPhotoEditor(photoAsset: photoAsset)
         }
         #endif
+    }
+    func openPhotoEditor(photoAsset: PhotoAsset) -> Bool {
+        #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
+        if let pickerController = pickerController, photoAsset.mediaType == .photo ,
+           pickerController.config.editorOptions.contains(.photo) {
+            if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
+                return false
+            }
+            let config = pickerController.config.photoEditor
+            config.languageType = pickerController.config.languageType
+            config.appearanceStyle = pickerController.config.appearanceStyle
+            let photoEditorVC = PhotoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.photoEdit, config: config)
+            photoEditorVC.delegate = self
+            navigationController?.pushViewController(photoEditorVC, animated: true)
+            return true
+        }
+        #endif
+        return false
     }
     func openVideoEditor(photoAsset: PhotoAsset, coverImage: UIImage? = nil) -> Bool {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
@@ -743,6 +763,55 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
 }
 
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
+// MARK: PhotoEditorViewControllerDelegate
+extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
+    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {
+        let photoAsset = photoEditorViewController.photoAsset!
+        photoAsset.photoEdit = result
+        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        if !isMultipleSelect {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController!.singleFinishCallback(for: photoAsset)
+            }
+            return
+        }
+        if !photoAsset.isSelected {
+            let cell = getCell(for: photoAsset)
+            cell?.photoAsset = photoAsset
+            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+                updateCellSelectedTitle()
+            }
+        }else {
+            reloadCell(for: photoAsset)
+        }
+        bottomView.updateFinishButtonTitle()
+    }
+    public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
+        let photoAsset = photoEditorViewController.photoAsset!
+        let beforeHasEdit = photoAsset.photoEdit != nil
+        photoAsset.photoEdit = nil;
+        if beforeHasEdit {
+            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        }
+        if !isMultipleSelect {
+            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
+                pickerController!.singleFinishCallback(for: photoAsset)
+            }
+            return
+        }
+        let cell = getCell(for: photoAsset)
+        cell?.requestThumbnailImage()
+        if !photoAsset.isSelected {
+            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+                updateCellSelectedTitle()
+            }
+            bottomView.updateFinishButtonTitle()
+        }
+    }
+    public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {
+        
+    }
+}
 // MARK: VideoEditorViewControllerDelegate
 extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
@@ -758,7 +827,7 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
         if !photoAsset.isSelected {
             let cell = getCell(for: photoAsset)
             cell?.photoAsset = photoAsset
-            if pickerController!.addedPhotoAsset(photoAsset: videoEditorViewController.photoAsset) {
+            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
                 updateCellSelectedTitle()
             }
         }else {
