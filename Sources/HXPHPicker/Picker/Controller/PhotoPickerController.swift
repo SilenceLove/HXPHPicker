@@ -200,6 +200,9 @@ open class PhotoPickerController: UINavigationController {
         }
     }
     private var interactiveTransition: PickerInteractiveTransition?
+    
+    private lazy var editedPhotoAssetArray: [PhotoAsset] = []
+    
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -488,18 +491,27 @@ extension PhotoPickerController {
         view.backgroundColor = PhotoManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
     }
     func finishCallback() {
+        removeAllEditedPhotoAsset()
         pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
     }
     func singleFinishCallback(for photoAsset: PhotoAsset) {
+        removeAllEditedPhotoAsset()
         pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
     }
     func cancelCallback() {
+        #if HXPICKER_ENABLE_EDITOR
+        for photoAsset in editedPhotoAssetArray {
+            photoAsset.photoEdit = photoAsset.initialPhotoEdit
+            photoAsset.videoEdit = photoAsset.initialVideoEdit
+        }
+        editedPhotoAssetArray.removeAll()
+        #endif
         pickerDelegate?.pickerController(didCancel: self)
         if autoDismiss {
             dismiss(animated: true, completion: nil)
@@ -789,6 +801,25 @@ extension PhotoPickerController {
         }
         return false
     }
+    
+    func addedEditedPhotoAsset(_ photoAsset: PhotoAsset) {
+        if editedPhotoAssetArray.contains(photoAsset) {
+            return
+        }
+        editedPhotoAssetArray.append(photoAsset)
+    }
+    func removeAllEditedPhotoAsset() {
+        #if HXPICKER_ENABLE_EDITOR
+        if editedPhotoAssetArray.isEmpty {
+            return
+        }
+        for photoAsset in editedPhotoAssetArray {
+            photoAsset.initialPhotoEdit = nil
+            photoAsset.initialVideoEdit = nil
+        }
+        editedPhotoAssetArray.removeAll()
+        #endif
+    }
 }
 
 // MARK: Private function
@@ -865,12 +896,24 @@ extension PhotoPickerController {
         for photoAsset in selectedAssetArray {
             if photoAsset.mediaType == .photo {
                 selectedPhotoAssetArray.append(photoAsset)
+                #if HXPICKER_ENABLE_EDITOR
+                if let photoEdit = photoAsset.photoEdit {
+                    photoAsset.initialPhotoEdit = photoEdit
+                }
+                addedEditedPhotoAsset(photoAsset)
+                #endif
             }else if photoAsset.mediaType == .video {
                 if singleVideo {
                     selectedAssetArray.remove(at: selectedAssetArray.firstIndex(of: photoAsset)!)
                 }else {
                     selectedVideoAssetArray.append(photoAsset)
                 }
+                #if HXPICKER_ENABLE_EDITOR
+                if let videoEdit = photoAsset.videoEdit {
+                    photoAsset.initialVideoEdit = videoEdit
+                }
+                addedEditedPhotoAsset(photoAsset)
+                #endif
             }
         }
     }
@@ -883,6 +926,7 @@ extension PhotoPickerController {
         return nil
     }
     private func didDismiss() {
+        removeAllEditedPhotoAsset()
         var cameraAssetArray: [PhotoAsset] = []
         for photoAsset in localCameraAssetArray {
             cameraAssetArray.append(photoAsset.copyCamera())

@@ -42,9 +42,14 @@ open class PhotoAsset: Equatable {
         }
     }
     #if HXPICKER_ENABLE_EDITOR
+    /// 图片编辑数据
     public var photoEdit: PhotoEditResult?
+    
     /// 视频编辑数据
     public var videoEdit: VideoEditResult?
+    
+    var initialPhotoEdit: PhotoEditResult?
+    var initialVideoEdit: VideoEditResult?
     #endif
     
     /// 视频时长 格式：00:00

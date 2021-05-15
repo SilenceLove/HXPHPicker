@@ -104,9 +104,9 @@ extension HomeViewController {
                 }
             case .editor:
                 if #available(iOS 13.0, *) {
-                    return VideoEditorConfigurationViewController(style: .insetGrouped)
+                    return EditorConfigurationViewController(style: .insetGrouped)
                 } else {
-                    return VideoEditorConfigurationViewController(style: .grouped)
+                    return EditorConfigurationViewController(style: .grouped)
                 }
             }
         }
@@ -146,14 +146,11 @@ extension HomeViewController {
 extension HomeViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
         pickerController.dismiss(animated: true) {
-            let config = PhotoEditorConfiguration.init()
-            let vc = EditorController.init(photoAsset: result.photoAssets.first!, editResult: nil, config: config)
-            self.present(vc, animated: true, completion: nil)
-//            let pickerResultVC = PickerResultViewController.init()
-//            pickerResultVC.config = pickerController.config
-//            pickerResultVC.selectedAssets = result.photoAssets
-//            pickerResultVC.isOriginal = result.isOriginal
-//            self.navigationController?.pushViewController(pickerResultVC, animated: true)
+            let pickerResultVC = PickerResultViewController.init()
+            pickerResultVC.config = pickerController.config
+            pickerResultVC.selectedAssets = result.photoAssets
+            pickerResultVC.isOriginal = result.isOriginal
+            self.navigationController?.pushViewController(pickerResultVC, animated: true)
         }
     }
 }

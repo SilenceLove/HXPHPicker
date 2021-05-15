@@ -129,13 +129,14 @@ extension PickerConfigurationViewController {
         present(UINavigationController.init(rootViewController: vc), animated: true, completion: nil)
     }
     func presentEditorConfig(_ indexPath: IndexPath) {
-        let vc: VideoEditorConfigurationViewController
+        let vc: EditorConfigurationViewController
         if #available(iOS 13.0, *) {
-            vc = VideoEditorConfigurationViewController.init(style: .insetGrouped)
+            vc = EditorConfigurationViewController.init(style: .insetGrouped)
         } else {
-            vc = VideoEditorConfigurationViewController.init(style: .grouped)
+            vc = EditorConfigurationViewController.init(style: .grouped)
         }
-        vc.config = config.videoEditor
+        vc.photoConfig = config.photoEditor
+        vc.videoConfig = config.videoEditor
         vc.showOpenEditorButton = false
         present(UINavigationController.init(rootViewController: vc), animated: true, completion: nil)
     }

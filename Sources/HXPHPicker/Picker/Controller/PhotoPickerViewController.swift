@@ -52,7 +52,7 @@ public class PhotoPickerViewController: BaseViewController {
             collectionView.contentInsetAdjustmentBehavior = .never
         } else {
             // Fallback on earlier versions
-            self.automaticallyAdjustsScrollViewInsets = false
+            automaticallyAdjustsScrollViewInsets = false
         }
         return collectionView
     }()
@@ -136,7 +136,7 @@ public class PhotoPickerViewController: BaseViewController {
         initView()
         configColor()
         fetchData()
-        if config.allowSwipeToSelect && pickerController!.config.selectMode == .multiple {
+        if config.allowSwipeToSelect && pickerController?.config.selectMode == .multiple {
             swipeSelectPanGR = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureRecognizer(panGR:)))
             view.addGestureRecognizer(swipeSelectPanGR!)
         }
@@ -162,7 +162,7 @@ public class PhotoPickerViewController: BaseViewController {
         if let pickerController = pickerController {
             if pickerController.config.albumShowMode == .popup {
                 albumBackgroudView.frame = view.bounds
-                configAlbumViewFrame()
+                updateAlbumViewFrame()
             }else {
                 var titleWidth = titleLabel.text?.width(ofFont: titleLabel.font, maxHeight: 30) ?? 0
                 if titleWidth > view.width * 0.6 {
@@ -282,7 +282,7 @@ extension PhotoPickerViewController {
         if !pickerController!.assetCollectionsArray.isEmpty {
             albumView.assetCollectionsArray = pickerController!.assetCollectionsArray
             albumView.currentSelectedAssetCollection = assetCollection
-            configAlbumViewFrame()
+            updateAlbumViewFrame()
         }
         fetchAssetCollectionsClosure()
         if !pickerController!.config.allowLoadPhotoLibrary {
@@ -293,7 +293,7 @@ extension PhotoPickerViewController {
         pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
             self?.albumView.assetCollectionsArray = assetCollectionsArray
             self?.albumView.currentSelectedAssetCollection = self?.assetCollection
-            self?.configAlbumViewFrame()
+            self?.updateAlbumViewFrame()
         }
     }
     func fetchPhotoAssets() {
@@ -360,7 +360,7 @@ extension PhotoPickerViewController {
         }
     }
     func updateTitle() {
-        if pickerController!.config.albumShowMode == .popup {
+        if pickerController?.config.albumShowMode == .popup {
             titleView.title = assetCollection?.albumName
         }else {
             titleLabel.text = assetCollection?.albumName
@@ -487,14 +487,11 @@ extension PhotoPickerViewController {
             albumView.updatePrompt()
         }
     }
-    
     func updateBottomPromptView() {
         if isMultipleSelect {
             bottomView.updatePromptView()
         }
     }
-    
-    
     func updateCellSelectedTitle() {
         for visibleCell in collectionView.visibleCells {
             if visibleCell is PhotoPickerBaseViewCell, let photoAsset = (visibleCell as? PhotoPickerBaseViewCell)?.photoAsset, let pickerController = pickerController {
@@ -540,7 +537,7 @@ extension PhotoPickerViewController {
         albumView.scrollToMiddle()
         UIView.animate(withDuration: 0.25) {
             self.albumBackgroudView.alpha = 1
-            self.configAlbumViewFrame()
+            self.updateAlbumViewFrame()
             self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: .pi)
         }
     }
@@ -549,7 +546,7 @@ extension PhotoPickerViewController {
         collectionView.scrollsToTop = true
         UIView.animate(withDuration: 0.25) {
             self.albumBackgroudView.alpha = 0
-            self.configAlbumViewFrame()
+            self.updateAlbumViewFrame()
             self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: 2 * .pi)
         } completion: { (isFinish) in
             if isFinish {
@@ -558,7 +555,7 @@ extension PhotoPickerViewController {
         }
     }
     
-    func configAlbumViewFrame() {
+    func updateAlbumViewFrame() {
         self.albumView.size = CGSize(width: view.width, height: getAlbumViewHeight())
         if titleView.isSelected {
             if self.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen && UIDevice.isPortrait {
@@ -595,8 +592,8 @@ extension PhotoPickerViewController: UICollectionViewDataSource {
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if config.allowAddCamera && canAddCamera && pickerController != nil {
-            if !pickerController!.config.reverseOrder {
+        if let pickerController = pickerController, config.allowAddCamera, canAddCamera {
+            if !pickerController.config.reverseOrder {
                 if indexPath.item == assets.count {
                     return self.cameraCell
                 }
@@ -624,8 +621,7 @@ extension PhotoPickerViewController: UICollectionViewDataSource {
 extension PhotoPickerViewController: UICollectionViewDelegate {
     
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let pickerController = pickerController, cell is PhotoPickerBaseViewCell {
-            let myCell: PhotoPickerBaseViewCell = cell as! PhotoPickerBaseViewCell
+        if let pickerController = pickerController, let myCell: PhotoPickerBaseViewCell = cell as? PhotoPickerBaseViewCell {
             let photoAsset = getPhotoAsset(for: indexPath.item)
             if !photoAsset.isSelected && config.cell.showDisableMask && pickerController.config.maximumSelectedVideoFileSize == 0  &&
                 pickerController.config.maximumSelectedPhotoFileSize == 0 {
@@ -963,7 +959,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             self.bottomView.updateFinishButtonTitle()
             self.setupEmptyView()
         }
-        if Thread.current.isMainThread {
+        if DispatchQueue.isMain {
             addPhotoAsset(photoAsset)
         }else {
             DispatchQueue.main.async {

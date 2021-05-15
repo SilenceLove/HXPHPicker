@@ -25,6 +25,11 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
     /// - Parameter photoEditorViewController: 对应的 PhotoEditorViewController
     func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController)
 }
+public extension PhotoEditorViewControllerDelegate {
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {}
+    func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {}
+    func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {}
+}
 open class PhotoEditorViewController: BaseViewController {
     
     public weak var delegate: PhotoEditorViewControllerDelegate?
@@ -227,7 +232,9 @@ open class PhotoEditorViewController: BaseViewController {
             orientationDidChange = false
         }
     }
-    
+    open override var prefersStatusBarHidden: Bool {
+        return config.prefersStatusBarHidden
+    }
     open override var prefersHomeIndicatorAutoHidden: Bool {
         false
     }
@@ -255,9 +262,11 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
      
     func toolView(didFinishButtonClick toolView: EditorToolView) {
         if imageView.canReset() {
+            _=ProgressHUD.showLoading(addedTo: view, animated: true)
             let image = imageView.imageView.convertedtoImage()
             let editResult = PhotoEditResult.init(editedImage: image, editedData: imageView.getEditedData())
             delegate?.photoEditorViewController(self, didFinish: editResult)
+            ProgressHUD.hide(forView: view, animated: true)
         }else {
             delegate?.photoEditorViewController(didFinishWithUnedited: self)
         }

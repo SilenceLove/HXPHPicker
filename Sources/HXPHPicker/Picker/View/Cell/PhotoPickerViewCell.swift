@@ -50,6 +50,13 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         return assetTypeIcon
     }()
     
+    /// 资源编辑标示
+    public lazy var assetEditMarkIcon: UIImageView = {
+        let assetEditMarkIcon = UIImageView.init(image: UIImage.image(for: "hx_picker_cell_photo_edit_icon"))
+        assetEditMarkIcon.isHidden = true
+        return assetEditMarkIcon
+    }()
+    
     /// 禁用遮罩
     public lazy var disableMaskLayer: CALayer = {
         let disableMaskLayer = CALayer.init()
@@ -86,6 +93,14 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
                 assetTypeLb.text = nil
                 assetTypeMaskView.isHidden = true
             }
+            assetEditMarkIcon.isHidden = true
+            if photoAsset.mediaType == .photo {
+                #if HXPICKER_ENABLE_EDITOR
+                if photoAsset.photoEdit != nil {
+                    assetEditMarkIcon.isHidden = false
+                }
+                #endif
+            }
             assetTypeIcon.isHidden = photoAsset.mediaType != .video
         }
     }
@@ -114,6 +129,7 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         imageView.layer.addSublayer(selectMaskLayer)
         contentView.addSubview(assetTypeLb)
         contentView.addSubview(assetTypeIcon)
+        contentView.addSubview(assetEditMarkIcon)
         contentView.layer.addSublayer(disableMaskLayer)
     }
     
@@ -138,6 +154,9 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         assetTypeIcon.x = 5
         assetTypeIcon.y = height - assetTypeIcon.height - 5
         assetTypeLb.centerY = assetTypeIcon.centerY
+        assetEditMarkIcon.size = assetEditMarkIcon.image?.size ?? CGSize.zero
+        assetEditMarkIcon.x = 5
+        assetEditMarkIcon.y = height - assetEditMarkIcon.height - 5
     }
     
     /// 设置高亮时的遮罩

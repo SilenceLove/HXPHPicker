@@ -22,36 +22,30 @@ public extension AssetManager {
     class func requestAVAsset(for asset: PHAsset, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
         return requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (avAsset, audioMix, info) in
-            if self.assetDownloadFinined(for: info) {
-                if avAsset?.isPlayable == false {
-                    _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
-                }else {
-                    DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                if self.assetDownloadFinined(for: info) {
+                    if avAsset?.isPlayable == false {
+                        _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                    }else {
                         resultHandler(avAsset, audioMix, info, true)
                     }
-                }
-            }else {
-                if self.assetIsInCloud(for: info) {
-                    let iCloudRequestID = self.requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: true, progressHandler: progressHandler) { (avAsset, audioMix, info) in
-                        DispatchQueue.main.async {
-                            if self.assetDownloadFinined(for: info) {
-                                if avAsset?.isPlayable == false {
-                                    _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
-                                }else {
-                                    DispatchQueue.main.async {
+                }else {
+                    if self.assetIsInCloud(for: info) {
+                        let iCloudRequestID = self.requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: true, progressHandler: progressHandler) { (avAsset, audioMix, info) in
+                            DispatchQueue.main.async {
+                                if self.assetDownloadFinined(for: info) {
+                                    if avAsset?.isPlayable == false {
+                                        _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                                    }else {
                                         resultHandler(avAsset, audioMix, info, true)
                                     }
+                                }else {
+                                    resultHandler(avAsset, audioMix, info, false)
                                 }
-                            }else {
-                                resultHandler(avAsset, audioMix, info, false)
                             }
                         }
-                    }
-                    DispatchQueue.main.async {
                         iCloudHandler(iCloudRequestID)
-                    }
-                }else {
-                    DispatchQueue.main.async {
+                    }else {
                         resultHandler(avAsset, audioMix, info, false)
                     }
                 }

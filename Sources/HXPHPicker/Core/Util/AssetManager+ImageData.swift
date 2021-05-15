@@ -22,22 +22,18 @@ public extension AssetManager {
     /// - Returns: 请求ID
     class func requestImageData(for asset: PHAsset, version: PHImageRequestOptionsVersion, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping ImageDataFetchCompletion) -> PHImageRequestID {
         return requestImageData(for: asset, version: version, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (data, dataUTI, imageOrientation, info) in
-            if self.assetDownloadFinined(for: info) {
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                if self.assetDownloadFinined(for: info) {
                     resultHandler(data, dataUTI, imageOrientation, info, true)
-                }
-            }else {
-                if self.assetIsInCloud(for: info) {
-                    let iCloudRequestID = self.requestImageData(for: asset, version: version, isNetworkAccessAllowed: true, progressHandler: progressHandler, resultHandler: { (data, dataUTI, imageOrientation, info) in
-                        DispatchQueue.main.async {
-                            resultHandler(data, dataUTI, imageOrientation, info, self.assetDownloadFinined(for: info))
-                        }
-                    })
-                    DispatchQueue.main.async {
-                        iCloudHandler(iCloudRequestID)
-                    }
                 }else {
-                    DispatchQueue.main.async {
+                    if self.assetIsInCloud(for: info) {
+                        let iCloudRequestID = self.requestImageData(for: asset, version: version, isNetworkAccessAllowed: true, progressHandler: progressHandler, resultHandler: { (data, dataUTI, imageOrientation, info) in
+                            DispatchQueue.main.async {
+                                resultHandler(data, dataUTI, imageOrientation, info, self.assetDownloadFinined(for: info))
+                            }
+                        })
+                        iCloudHandler(iCloudRequestID)
+                    }else {
                         resultHandler(data, dataUTI, imageOrientation, info, false)
                     }
                 }
@@ -79,7 +75,7 @@ public extension AssetManager {
                     sureOrientation = .up;
                 }
                 
-                if Thread.current.isMainThread {
+                if DispatchQueue.isMain {
                     resultHandler(imageData, dataUTI, sureOrientation, info)
                 }else {
                     DispatchQueue.main.async {
@@ -90,7 +86,7 @@ public extension AssetManager {
         } else {
             // Fallback on earlier versions
             return PHImageManager.default().requestImageData(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in
-                if Thread.current.isMainThread {
+                if DispatchQueue.isMain {
                     resultHandler(imageData, dataUTI, imageOrientation, info)
                 }else {
                     DispatchQueue.main.async {

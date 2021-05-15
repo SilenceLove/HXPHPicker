@@ -9,8 +9,10 @@ import UIKit
 
 public struct PhotoEditResult {
     
+    /// 编辑后的图片
     public let editedImage: UIImage
     
+    /// 编辑的状态数据
     public let editedData: PhotoEditData
     
     public init(editedImage: UIImage, editedData: PhotoEditData) {
@@ -20,15 +22,15 @@ public struct PhotoEditResult {
 }
 
 public struct PhotoEditData {
-    var cropSize: CGSize = .zero
-    var zoomScale: CGFloat = 0
-    var contentOffset: CGPoint = .zero
-    var contentInset: UIEdgeInsets = .zero
-    var minimumZoomScale: CGFloat = 0
-    var maximumZoomScale: CGFloat = 0
-    var maskRect: CGRect = .zero
-    var angle: CGFloat = 0
-    var transform: CGAffineTransform = .identity
-    var mirrorType: EditorImageResizerView.MirrorType = .none
+    public var cropSize: CGSize = .zero
+    public var zoomScale: CGFloat = 0
+    public var contentOffset: CGPoint = .zero
+    public var contentInset: UIEdgeInsets = .zero
+    public var minimumZoomScale: CGFloat = 0
+    public var maximumZoomScale: CGFloat = 0
+    public var maskRect: CGRect = .zero
+    public var angle: CGFloat = 0
+    public var transform: CGAffineTransform = .identity
+    public var mirrorType: EditorImageResizerView.MirrorType = .none
 }
 

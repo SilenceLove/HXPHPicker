@@ -572,7 +572,6 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
         let isHidden = navigationController!.navigationBar.isHidden
         statusBarShouldBeHidden = !isHidden
         if self.modalPresentationStyle == .fullScreen {
-            UIApplication.shared.setStatusBarHidden(statusBarShouldBeHidden, with: .fade)
             navigationController?.setNeedsStatusBarAppearanceUpdate()
         }
         navigationController!.setNavigationBarHidden(statusBarShouldBeHidden, animated: true)
@@ -733,6 +732,7 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
             pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
             reloadCell(for: photoAsset)
         }
+        delegate?.previewViewController(self, editAssetFinished: photoAsset)
     }
     public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {
         
@@ -771,6 +771,7 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         if !photoAsset.isSelected {
             didSelectBoxControlClick()
         }
+        delegate?.previewViewController(self, editAssetFinished: photoAsset)
     }
     public func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {
         
