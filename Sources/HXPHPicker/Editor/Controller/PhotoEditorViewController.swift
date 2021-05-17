@@ -185,9 +185,11 @@ open class PhotoEditorViewController: BaseViewController {
         view.addSubview(cropToolView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
+        #if HXPICKER_ENABLE_PICKER
         if isPicker {
             requestImage()
         }
+        #endif
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
         imageView.reset(false)
