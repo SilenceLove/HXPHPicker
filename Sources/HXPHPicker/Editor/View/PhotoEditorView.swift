@@ -77,6 +77,9 @@ class PhotoEditorView: UIScrollView {
         imageView.getEditedData()
     }
     func setEditedData(editedData: PhotoEditData) {
+        if editedData.isPortrait != UIDevice.isPortrait {
+            return
+        }
         cropSize = editedData.cropSize
         imageView.setEditedData(editedData: editedData)
         cancelCropping(canShowMask: false, false)

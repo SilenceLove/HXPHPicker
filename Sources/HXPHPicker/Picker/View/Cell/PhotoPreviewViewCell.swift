@@ -90,13 +90,20 @@ class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
     }
     func setupLandscapeContentSize() {
         let aspectRatio = height / photoAsset.imageSize.height
-        let contentWidth = photoAsset.imageSize.width * aspectRatio
-        let contentHeight = height
-        scrollView.maximumZoomScale = width / contentWidth + 0.5
-        
-        scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
+        var contentWidth = photoAsset.imageSize.width * aspectRatio
+        var contentHeight = height
+        if contentWidth > width {
+            contentHeight = width / contentWidth * contentHeight
+            contentWidth = width
+            scrollView.maximumZoomScale = height / contentHeight + 0.5
+            scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
+            scrollView.contentSize = scrollContentView.size
+        }else {
+            scrollView.maximumZoomScale = width / contentWidth + 0.5
+            scrollContentView.frame = CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight)
+            scrollView.contentSize = size
+        }
         scrollContentView.center = CGPoint(x: width * 0.5, y: height * 0.5)
-        scrollView.contentSize = size
     }
     func requestPreviewAsset() {
         scrollContentView.requestPreviewAsset()

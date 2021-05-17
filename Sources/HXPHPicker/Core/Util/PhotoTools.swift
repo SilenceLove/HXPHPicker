@@ -229,6 +229,10 @@ public class PhotoTools {
                 contentWidth = viewSize.width
             }
             let _size = CGSize(width: contentWidth, height: contentHeight)
+            if contentHeight < viewSize.height {
+                let center = CGPoint(x: viewSize.width * 0.5, y: viewSize.height * 0.5)
+                return (_size, center)
+            }
             return (_size, .zero)
         }
         
@@ -240,6 +244,9 @@ public class PhotoTools {
             }else {
                 let content = handleHorizontal(imageSize, viewSize)
                 size = content.0
+                if !content.1.equalTo(.zero) {
+                    center = content.1
+                }
             }
         }else if directions.contains(.horizontal) {
             size = handleHorizontal(imageSize, viewSize).0

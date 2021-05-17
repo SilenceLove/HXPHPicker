@@ -149,7 +149,7 @@ public class PhotoPreviewViewController: BaseViewController {
         let cell = getCell(for: currentPreviewIndex)
         cell?.requestPreviewAsset()
         pickerController?.viewControllersDidAppear(self)
-        if pickerController?.modalPresentationStyle == .fullScreen && interactiveTransition == nil {
+        if (pickerController?.modalPresentationStyle == .fullScreen && interactiveTransition == nil) || (!UIDevice.isPortrait && !UIDevice.isPad) {
             interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .pop)
         }
     }

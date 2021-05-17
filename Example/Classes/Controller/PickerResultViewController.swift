@@ -279,6 +279,8 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         // modalPresentationStyle = .custom 会使用框架自带的动画效果
         // 预览时可以重新初始化一个config设置单独的颜色或其他配置
         let previewConfig = PhotoTools.getWXPickerConfig()
+        // 编辑器配置保持一致
+        previewConfig.photoEditor = config.photoEditor
 //        previewConfig.prefersStatusBarHidden = true
 //        previewConfig.previewView.bottomView.showSelectedView = false
         var style: UIModalPresentationStyle = .custom

@@ -363,7 +363,7 @@ extension EditorConfigurationViewController {
         var title: String {
             return "编辑类型"
         }
-        var detailTile: String {
+        var detailTitle: String {
             return "." + self.rawValue
         }
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
@@ -393,7 +393,7 @@ extension EditorConfigurationViewController {
                 return "裁剪时遮罩类型"
             }
         }
-        var detailTile: String {
+        var detailTitle: String {
             return ".cropConfig." + self.rawValue
         }
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
@@ -432,7 +432,7 @@ extension EditorConfigurationViewController {
                 return "视频最小裁剪时长"
             }
         }
-        var detailTile: String {
+        var detailTitle: String {
             switch self {
             case .maximumVideoCroppingTime, .minimumVideoCroppingTime:
                 return ".cropping." + self.rawValue

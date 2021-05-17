@@ -146,6 +146,10 @@ open class EditorImageResizerView: UIView {
         editedData.angle = oldAngle
         editedData.mirrorType = oldMirrorType
         editedData.transform = oldTransform
+        editedData.isPortrait = UIDevice.isPortrait
+        let rect = maskBgView.convert(controlView.frame, to: imageView)
+        
+        editedData.offsetScale = CGPoint(x: rect.minX / baseImageSize.width, y: rect.minY / baseImageSize.height)
         return editedData
     }
     func setEditedData(editedData: PhotoEditData) {
@@ -159,54 +163,14 @@ open class EditorImageResizerView: UIView {
         oldContentInset = editedData.contentInset
         let rect = AVMakeRect(aspectRatio: editedData.maskRect.size, insideRect: getEditableArea())
         let widthScale = rect.width / editedData.maskRect.width
-        if rect.size.equalTo(editedData.maskRect.size) {
-            oldZoomScale = editedData.zoomScale * widthScale
-            oldMinimumZoomScale = editedData.minimumZoomScale * widthScale
-            oldMaximumZoomScale = editedData.maximumZoomScale * widthScale
-            let editedOffset = editedData.contentOffset
-            let marginX = rect.minX - editedData.maskRect.minX
-            let marginY = rect.minY - editedData.maskRect.minY
-            var offsetX = editedOffset.x
-            var offsetY = editedOffset.y
-            switch getImageOrientation(true) {
-            case .up:
-                if mirrorType == .horizontal {
-                    offsetX = offsetX + marginX
-                }else {
-                    offsetX = offsetX - marginX
-                }
-                offsetY = offsetY - marginY
-            case .left:
-                offsetX = offsetX - marginY
-                if mirrorType == .horizontal {
-                    offsetY = offsetY + marginX
-                }else {
-                    offsetY = offsetY - marginX
-                }
-            case .down:
-                if mirrorType == .horizontal {
-                    offsetX = offsetX - marginX
-                }else {
-                    offsetX = offsetX + marginX
-                }
-                offsetY = offsetY + marginY
-            case .right:
-                offsetX = offsetX + marginY
-                if mirrorType == .horizontal {
-                    offsetY = offsetY - marginX
-                }else {
-                    offsetY = offsetY + marginX
-                }
-            }
-            oldContentOffset = CGPoint(x: offsetX, y: offsetY)
-            oldMaskRect = rect
-        }else {
-            oldZoomScale = editedData.zoomScale
-            oldMinimumZoomScale = editedData.minimumZoomScale
-            oldMaximumZoomScale = editedData.maximumZoomScale
-            oldContentOffset = editedData.contentOffset
-            oldMaskRect = editedData.maskRect
-        }
+        oldZoomScale = editedData.zoomScale * widthScale
+        oldMinimumZoomScale = editedData.minimumZoomScale * widthScale
+        oldMaximumZoomScale = editedData.maximumZoomScale * widthScale
+        let scrollViewContentInset = getScrollViewContentInset(rect, true)
+        let offsetX = baseImageSize.width * editedData.offsetScale.x * oldZoomScale - scrollViewContentInset.left
+        let offsetY = baseImageSize.height * editedData.offsetScale.y * oldZoomScale - scrollViewContentInset.top
+        oldContentOffset = CGPoint(x: offsetX, y: offsetY)
+        oldMaskRect = rect
     }
     func getEditableArea() -> CGRect {
         let editWidth = containerView.width - contentInsets.left - contentInsets.right
@@ -947,14 +911,14 @@ extension EditorImageResizerView {
         scrollView.isUserInteractionEnabled = state == .cropping
     }
     /// 根据裁剪框位置大小获取ScrollView的ContentInset
-    func getScrollViewContentInset(_ rect: CGRect) -> UIEdgeInsets {
-        switch getImageOrientation() {
+    func getScrollViewContentInset(_ rect: CGRect, _ isOld: Bool = false) -> UIEdgeInsets {
+        switch getImageOrientation(isOld) {
         case .up:
             let top: CGFloat = rect.minY
             let bottom: CGFloat = containerView.height - rect.maxY
             var left: CGFloat
             var right: CGFloat
-            if mirrorType == .horizontal {
+            if isOld ? oldMirrorType == .horizontal : mirrorType == .horizontal {
                 left = containerView.width - rect.maxX
                 right = rect.minX
             }else {
@@ -967,7 +931,7 @@ extension EditorImageResizerView {
             var bottom = containerView.width - rect.maxX
             let left = containerView.height - rect.maxY
             let right = rect.minY
-            if mirrorType == .horizontal {
+            if isOld ? oldMirrorType == .horizontal : mirrorType == .horizontal {
                 top = containerView.width - rect.maxX
                 bottom = rect.minX
             }else {
@@ -980,7 +944,7 @@ extension EditorImageResizerView {
             let bottom = rect.minY
             var left = containerView.width - rect.maxX
             var right = rect.minX
-            if mirrorType == .horizontal {
+            if isOld ? oldMirrorType == .horizontal : mirrorType == .horizontal {
                 left = rect.minX
                 right = containerView.width - rect.maxX
             }else {
@@ -993,7 +957,7 @@ extension EditorImageResizerView {
             var bottom = rect.minX
             let left = rect.minY
             let right = containerView.height - rect.maxY
-            if mirrorType == .horizontal {
+            if isOld ? oldMirrorType == .horizontal : mirrorType == .horizontal {
                 top = rect.minX
                 bottom = containerView.width - rect.maxX
             }else {

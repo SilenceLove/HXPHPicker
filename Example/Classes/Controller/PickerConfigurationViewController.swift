@@ -465,7 +465,7 @@ extension PickerConfigurationViewController {
             "是否全屏"
         }
         
-        var detailTile: String {
+        var detailTitle: String {
             "modalPresentationStyle"
         }
         
@@ -481,7 +481,7 @@ extension PickerConfigurationViewController {
             "设置颜色"
         }
         
-        var detailTile: String {
+        var detailTitle: String {
             ".color"
         }
         
@@ -497,8 +497,8 @@ extension PickerConfigurationViewController {
             "编辑配置"
         }
         
-        var detailTile: String {
-            ".videoEditor"
+        var detailTitle: String {
+            ".photoEditor/.videoEditor"
         }
         
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
@@ -570,7 +570,7 @@ extension PickerConfigurationViewController {
                 return "视频播放类型"
             }
         }
-        var detailTile: String {
+        var detailTitle: String {
             if self == .photoRowNumber {
                 return ".photoList.rowNumber"
             }

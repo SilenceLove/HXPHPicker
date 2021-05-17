@@ -26,11 +26,13 @@ public struct PhotoEditData {
     public var zoomScale: CGFloat = 0
     public var contentOffset: CGPoint = .zero
     public var contentInset: UIEdgeInsets = .zero
+    public var offsetScale: CGPoint = .zero
     public var minimumZoomScale: CGFloat = 0
     public var maximumZoomScale: CGFloat = 0
     public var maskRect: CGRect = .zero
     public var angle: CGFloat = 0
     public var transform: CGAffineTransform = .identity
     public var mirrorType: EditorImageResizerView.MirrorType = .none
+    public var isPortrait: Bool = true
 }
 

@@ -23,6 +23,8 @@
 - [x] 支持下载iCloud上的资源
 - [x] 支持手势返回
 - [x] 支持滑动选择
+- [x] 编辑图片
+    - [x] 裁剪
 - [x] 编辑视频
     - [x] 裁剪
 - [x] 相册展现方式
@@ -56,7 +58,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.6"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.7"))
 ]
 ```
 
@@ -133,6 +135,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#106) | 2021-05-17 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#106) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#105) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#104) | 2021-03-11 | 12.2 | 5.3 | 9.0+ |
