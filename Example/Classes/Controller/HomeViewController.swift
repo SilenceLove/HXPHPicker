@@ -12,7 +12,7 @@ class HomeViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "PhotoKit"
+        navigationItem.title = "Photo Kit"
         
         tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
@@ -112,12 +112,15 @@ extension HomeViewController {
         }
     }
     enum ApplicationRowType: CaseIterable, HomeRowTypeRule {
-        case UICollectionView
+        case avatarPicker
+        case collectionView
         case customCell
         
         var title: String {
             switch self {
-            case .UICollectionView:
+            case .avatarPicker:
+                return "Avatar Picker"
+            case .collectionView:
                 return "Picker+UICollectionView"
             case .customCell:
                 return "Picker+CustomCell"
@@ -126,7 +129,13 @@ extension HomeViewController {
         
         var controller: UIViewController {
             switch self {
-            case .UICollectionView:
+            case .avatarPicker:
+                if #available(iOS 13.0, *) {
+                    return AvatarPickerConfigurationViewController(style: .insetGrouped)
+                } else {
+                    return AvatarPickerConfigurationViewController(style: .grouped)
+                }
+            case .collectionView:
                 return PickerResultViewController()
             case .customCell:
                 let config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: false)

@@ -15,11 +15,12 @@ public struct PickerResult {
     /// 是否选择的原图
     public let isOriginal: Bool
     
-    /// 获取已选资源的地址
+    /// 获取已选资源的地址（原图）
     /// - Parameters:
     ///   - options: 获取的类型
     ///         photo    视频获取的是封面图片地址，LivePhoto获取的URL为封面图片地址
     ///         video    LivePhoto获取的URL为内部视频地址，会过滤其他图片
+    ///                  LivePhoto如果编辑过，获取的只会是编辑后的图片URL
     ///   - completion: result
     public func getURLs(options: Options = .any, completion: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
@@ -35,6 +36,9 @@ public struct PickerResult {
                     mediatype = .video
                 }else {
                     mediatype = photoAsset.mediaType
+                }
+                if photoAsset.mediaSubType == .livePhoto && photoAsset.photoEdit != nil {
+                    mediatype = .photo
                 }
                 if mediatype == .photo {
                     photoAsset.requestImageURL { (url) in

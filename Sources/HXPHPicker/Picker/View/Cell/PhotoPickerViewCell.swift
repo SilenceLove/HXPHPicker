@@ -97,7 +97,9 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
             if photoAsset.mediaType == .photo {
                 #if HXPICKER_ENABLE_EDITOR
                 if photoAsset.photoEdit != nil {
+                    assetTypeLb.text = nil
                     assetEditMarkIcon.isHidden = false
+                    assetTypeMaskView.isHidden = false
                 }
                 #endif
             }

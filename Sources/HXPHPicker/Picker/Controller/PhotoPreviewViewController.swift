@@ -364,6 +364,7 @@ extension PhotoPreviewViewController {
         let beforeIsEmpty = pickerController!.selectedAssetArray.isEmpty
         if isSelected {
             // 选中
+            #if HXPICKER_ENABLE_EDITOR
             if photoAsset.mediaType == .video &&
                 pickerController!.videoDurationExceedsTheLimit(photoAsset: photoAsset) {
                 if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
@@ -371,6 +372,7 @@ extension PhotoPreviewViewController {
                 }
                 return
             }
+            #endif
             if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
                 canUpdate = true
                 if config.bottomView.showSelectedView && isMultipleSelect {
@@ -649,6 +651,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             return
         }
         let photoAsset = previewAssets[currentPreviewIndex]
+        #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video &&
             pickerController!.videoDurationExceedsTheLimit(photoAsset: photoAsset) {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
@@ -656,10 +659,11 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             }
             return
         }
-        if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
-            if !isMultipleSelect || videoLoadSingleCell {
-                pickerController?.singleFinishCallback(for: photoAsset)
-            }else {
+        #endif
+        if !isMultipleSelect {
+            pickerController?.singleFinishCallback(for: photoAsset)
+        }else {
+            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
                 pickerController?.finishCallback()
             }
         }

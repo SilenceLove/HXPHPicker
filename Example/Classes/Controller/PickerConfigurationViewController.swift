@@ -419,7 +419,7 @@ extension PickerConfigurationViewController {
             }
         }
         if rowType is ViewControllerOptionsRowType {
-            return presentStyle == .fullScreen ? "全屏" : "非全屏"
+            return presentStyle == .fullScreen ? "true" : "false"
         }
         return ""
     }
@@ -686,9 +686,9 @@ extension PickerAssetOptions {
         case .photo:
             return "photo"
         case .gifPhoto:
-            return "gifPhoto"
+            return "photo+gifPhoto"
         case .livePhoto:
-            return "livePhoto"
+            return "photo+livePhoto"
         case .video:
             return "video"
         default:

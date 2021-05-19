@@ -145,7 +145,7 @@ class PhotoEditorView: UIScrollView {
         imageView.reset(animated)
     }
     
-    func finishCropping(_ animated: Bool) {
+    func finishCropping(_ animated: Bool, completion: (() -> Void)? = nil) {
         editorDelegate?.editorView(willDisappearCrop: self)
         state = .normal
         isScrollEnabled = true
@@ -157,11 +157,29 @@ class PhotoEditorView: UIScrollView {
                     self?.imageView.layer.cornerRadius = self!.cropSize.width * 0.5
                 }
             }
+            completion?()
         }
         cropSize = imageView.cropSize
         updateImageViewFrame()
+    } 
+    func cropping(completion: @escaping (PhotoEditResult?) -> Void) {
+        let toRect = imageView.getCroppingRect()
+        let inputImage = imageView.imageView.image
+        let viewWidth = imageView.imageView.width
+        let viewHeight = imageView.imageView.height
+        DispatchQueue.global().async {
+            if let image = self.imageView.cropping(inputImage, toRect: toRect, viewWidth: viewWidth, viewHeight: viewHeight) {
+                DispatchQueue.main.async {
+                    let editResult = PhotoEditResult.init(editedImage: image, editedData: self.getEditedData())
+                    completion(editResult)
+                }
+            }else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+            }
+        }
     }
-    
     func changedAspectRatio(of aspectRatio: CGSize) {
         imageView.changedAspectRatio(of: aspectRatio)
     }

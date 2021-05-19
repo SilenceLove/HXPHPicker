@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ImageIO
 
 extension UIImage {
     
@@ -80,5 +81,100 @@ extension UIImage {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
+    }
+    func roundCropping() -> UIImage? {
+        UIGraphicsBeginImageContext(size)
+        let path = UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        path.addClip()
+        draw(at: .zero)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage
+    }
+    func cropImage(toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+        let imageViewScale = max(size.width / viewWidth,
+                                 size.height / viewHeight)
+
+        // Scale cropRect to handle images larger than shown-on-screen size
+        let cropZone = CGRect(x:cropRect.origin.x * imageViewScale,
+                              y:cropRect.origin.y * imageViewScale,
+                              width:cropRect.size.width * imageViewScale,
+                              height:cropRect.size.height * imageViewScale)
+
+        // Perform cropping in Core Graphics
+        guard let cutImageRef: CGImage = cgImage?.cropping(to:cropZone)
+        else {
+            return nil
+        }
+
+        // Return image to UIImage
+        let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
+        return croppedImage
+    }
+    func rotation(to orientation: UIImage.Orientation) -> UIImage? {
+        if let cgImage = cgImage {
+            func swapWidthAndHeight(_ toRect: CGRect) -> CGRect {
+                var rect = toRect
+                let swap = rect.width
+                rect.size.width = rect.height
+                rect.size.height = swap
+                return rect
+            }
+            var rect = CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height)
+            while rect.width * rect.height > 3 * 1000 * 1000 {
+                rect.size.width = rect.width * 0.5
+                rect.size.height = rect.height * 0.5
+            }
+            var trans: CGAffineTransform
+            var bnds = rect
+            switch orientation {
+            case .up:
+                return self
+            case .upMirrored:
+                trans = .init(translationX: rect.width, y: 0)
+                trans = trans.scaledBy(x: -1, y: 1)
+            case .down:
+                trans = .init(translationX: rect.width, y: rect.height)
+                trans = trans.rotated(by: CGFloat.pi)
+            case .downMirrored:
+                trans = .init(translationX: 0, y: rect.height)
+                trans = trans.scaledBy(x: 1, y: -1)
+            case .left:
+                bnds = swapWidthAndHeight(bnds)
+                trans = .init(translationX: 0, y: rect.width)
+                trans = trans.rotated(by: 3 * CGFloat.pi * 0.5)
+            case .leftMirrored:
+                bnds = swapWidthAndHeight(bnds)
+                trans = .init(translationX: rect.height, y: rect.width)
+                trans = trans.scaledBy(x: -1, y: 1)
+                trans = trans.rotated(by: 3 * CGFloat.pi * 0.5)
+            case .right:
+                bnds = swapWidthAndHeight(bnds)
+                trans = .init(translationX: rect.height, y: 0)
+                trans = trans.rotated(by: CGFloat.pi * 0.5)
+            case .rightMirrored:
+                bnds = swapWidthAndHeight(bnds)
+                trans = .init(scaleX: -1, y: 1)
+                trans = trans.rotated(by: CGFloat.pi * 0.5)
+            default:
+                return self
+            }
+            UIGraphicsBeginImageContext(bnds.size)
+            let context = UIGraphicsGetCurrentContext()
+            switch orientation {
+            case .left, .leftMirrored, .right, .rightMirrored:
+                context?.scaleBy(x: -1, y: 1)
+                context?.translateBy(x: -rect.height, y: 0)
+            default:
+                context?.scaleBy(x: 1, y: -1)
+                context?.translateBy(x: 0, y: -rect.height)
+            }
+            context?.concatenate(trans)
+            context?.draw(cgImage, in: rect)
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return newImage
+        }
+        return nil
     }
 }

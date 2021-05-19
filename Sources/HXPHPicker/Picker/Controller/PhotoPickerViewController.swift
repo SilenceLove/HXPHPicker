@@ -1053,6 +1053,7 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
             updateCellSelectedTitle()
         }else {
             // 选中
+            #if HXPICKER_ENABLE_EDITOR
             if cell.photoAsset.mediaType == .video &&
                 pickerController!.videoDurationExceedsTheLimit(photoAsset: cell.photoAsset){
                 if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
@@ -1060,6 +1061,7 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
                 }
                 return
             }
+            #endif
             if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
                 cell.updateSelectedState(isSelected: true, animated: true)
                 updateCellSelectedTitle()

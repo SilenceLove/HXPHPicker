@@ -31,6 +31,8 @@
 		7B824ACA2600600E00767331 /* RowTypeRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824AC92600600E00767331 /* RowTypeRule.swift */; };
 		7B824AD12600762C00767331 /* PickerConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824AD02600762C00767331 /* PickerConfigurationViewController.swift */; };
 		7B824AD826007BB000767331 /* ConfigurationViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824AD726007BB000767331 /* ConfigurationViewCell.swift */; };
+		7B842B1D2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B842B1C2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift */; };
+		7B842B202654C00900F11CAD /* AvatarPickerResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B842B1F2654C00900F11CAD /* AvatarPickerResultViewController.swift */; };
 		7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8BFC4F25B096A0002DF0E8 /* EditorType.swift */; };
 		7B9369B92631121800B7C531 /* PhotoEditResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9369B82631121800B7C531 /* PhotoEditResult.swift */; };
 		7B9876EE26253F08003854FD /* PhotoCroppingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9876ED26253F08003854FD /* PhotoCroppingConfiguration.swift */; };
@@ -132,7 +134,7 @@
 		7BBBD5C525AEFE9200301DCC /* EditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056525A93FBF00B39BE5 /* EditorController.swift */; };
 		7BBBD5C625AEFE9200301DCC /* PhotoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057625A94FD600B39BE5 /* PhotoEditorViewController.swift */; };
 		7BBBD5C725AEFE9200301DCC /* VideoEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057B25A9504F00B39BE5 /* VideoEditorViewController.swift */; };
-		7BBBD5C825AEFE9200301DCC /* EditorToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056D25A9428B00B39BE5 /* EditorToolModel.swift */; };
+		7BBBD5C825AEFE9200301DCC /* EditorToolOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056D25A9428B00B39BE5 /* EditorToolOptions.swift */; };
 		7BBBD5C925AEFE9200301DCC /* VideoEditorPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB285B925A9FD4A00DBCF2B /* VideoEditorPlayerView.swift */; };
 		7BBBD5CA25AEFE9200301DCC /* VideoEditorCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059725A998E400B39BE5 /* VideoEditorCropView.swift */; };
 		7BBBD5CB25AEFE9200301DCC /* VideoEditorCropViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059A25A99A7800B39BE5 /* VideoEditorCropViewCell.swift */; };
@@ -273,6 +275,8 @@
 		7B824AC92600600E00767331 /* RowTypeRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowTypeRule.swift; sourceTree = "<group>"; };
 		7B824AD02600762C00767331 /* PickerConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerConfigurationViewController.swift; sourceTree = "<group>"; };
 		7B824AD726007BB000767331 /* ConfigurationViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationViewCell.swift; sourceTree = "<group>"; };
+		7B842B1C2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarPickerConfigurationViewController.swift; sourceTree = "<group>"; };
+		7B842B1F2654C00900F11CAD /* AvatarPickerResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarPickerResultViewController.swift; sourceTree = "<group>"; };
 		7B87B86C25A7EEEA009327C4 /* ProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
 		7B87B87F25A7FBA4009327C4 /* AssetManager+Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetManager+Image.swift"; sourceTree = "<group>"; };
 		7B87B88325A7FBB6009327C4 /* AssetManager+ImageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetManager+ImageData.swift"; sourceTree = "<group>"; };
@@ -310,7 +314,7 @@
 		7BCD9E49262A87A400D87E54 /* PhotoEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorView.swift; sourceTree = "<group>"; };
 		7BEB056525A93FBF00B39BE5 /* EditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorController.swift; sourceTree = "<group>"; };
 		7BEB056925A9417000B39BE5 /* EditorToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolView.swift; sourceTree = "<group>"; };
-		7BEB056D25A9428B00B39BE5 /* EditorToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolModel.swift; sourceTree = "<group>"; };
+		7BEB056D25A9428B00B39BE5 /* EditorToolOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolOptions.swift; sourceTree = "<group>"; };
 		7BEB057125A942EA00B39BE5 /* EditorToolViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolViewCell.swift; sourceTree = "<group>"; };
 		7BEB057625A94FD600B39BE5 /* PhotoEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorViewController.swift; sourceTree = "<group>"; };
 		7BEB057B25A9504F00B39BE5 /* VideoEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorViewController.swift; sourceTree = "<group>"; };
@@ -624,6 +628,8 @@
 				7B49EDB5259D67F800A3D91A /* PickerResultViewController.xib */,
 				7B824ABD2600544300767331 /* CustomPickerCellViewController.swift */,
 				7B4338D0260200840074C723 /* EditorConfigurationViewController.swift */,
+				7B842B1C2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift */,
+				7B842B1F2654C00900F11CAD /* AvatarPickerResultViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -719,7 +725,7 @@
 		7BEB056C25A9427A00B39BE5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				7BEB056D25A9428B00B39BE5 /* EditorToolModel.swift */,
+				7BEB056D25A9428B00B39BE5 /* EditorToolOptions.swift */,
 				7B8BFC4F25B096A0002DF0E8 /* EditorType.swift */,
 				7B5D5B6F2627DF7200F94E01 /* PhotoEditorCropToolModel.swift */,
 			);
@@ -873,9 +879,11 @@
 				7BC230E025B174A800434BBB /* String+Extension.swift in Sources */,
 				7B4338D1260200840074C723 /* EditorConfigurationViewController.swift in Sources */,
 				7B824AD826007BB000767331 /* ConfigurationViewCell.swift in Sources */,
+				7B842B1D2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift in Sources */,
 				7BBBD5DE25AF17B500301DCC /* UIDevice+Extension.swift in Sources */,
 				7BBBD55A25AEFD6E00301DCC /* PickerResultViewController.swift in Sources */,
 				7BBBD5F125AF1D0F00301DCC /* UIImage+Extension.swift in Sources */,
+				7B842B202654C00900F11CAD /* AvatarPickerResultViewController.swift in Sources */,
 				7B62465F25F9E6EE00090025 /* HomeViewController.swift in Sources */,
 				7BBBD55B25AEFD6E00301DCC /* PickerResultViewController.xib in Sources */,
 				7B824ACA2600600E00767331 /* RowTypeRule.swift in Sources */,
@@ -1000,7 +1008,7 @@
 				7BBBD5C625AEFE9200301DCC /* PhotoEditorViewController.swift in Sources */,
 				7BBBD5C725AEFE9200301DCC /* VideoEditorViewController.swift in Sources */,
 				7B4D86BC25F776E7008B923A /* PhotoPickerControllerProtocol.swift in Sources */,
-				7BBBD5C825AEFE9200301DCC /* EditorToolModel.swift in Sources */,
+				7BBBD5C825AEFE9200301DCC /* EditorToolOptions.swift in Sources */,
 				7BBBD5C925AEFE9200301DCC /* VideoEditorPlayerView.swift in Sources */,
 				7BBBD5CA25AEFE9200301DCC /* VideoEditorCropView.swift in Sources */,
 				7BBBD5CB25AEFE9200301DCC /* VideoEditorCropViewCell.swift in Sources */,

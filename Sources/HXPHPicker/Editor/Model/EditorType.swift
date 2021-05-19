@@ -80,7 +80,7 @@ extension PhotoEditorView {
     }
 }
 
-public extension EditorImageResizerView {
+extension EditorImageResizerView {
     enum MirrorType {
         case none
         case horizontal

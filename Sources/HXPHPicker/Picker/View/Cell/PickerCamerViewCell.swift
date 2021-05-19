@@ -39,7 +39,11 @@ class PickerCamerViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     func configProperty() {
-        imageView.image = UIImage.image(for: PhotoManager.isDark ? config?.cameraDarkImageName : config?.cameraImageName)
+        if previewLayer?.session != nil {
+            imageView.image = UIImage.image(for: config?.cameraDarkImageName)
+        }else {
+            imageView.image = UIImage.image(for: PhotoManager.isDark ? config?.cameraDarkImageName : config?.cameraImageName)
+        }
         backgroundColor = PhotoManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
         imageView.size = imageView.image?.size ?? .zero
         if let allowPreview = config?.allowPreview, allowPreview == true {

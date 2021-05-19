@@ -89,6 +89,10 @@ open class PhotoEditorViewController: BaseViewController {
             if let editedData = editResult?.editedData {
                 imageView.setEditedData(editedData: editedData)
             }
+            if state == .cropping {
+                imageView.startCropping(true)
+                croppingAction()
+            }
         }
         self.image = image
     }
@@ -178,13 +182,24 @@ open class PhotoEditorViewController: BaseViewController {
     
     open override func viewDidLoad() {
         super.viewDidLoad()
+        if config.fixedCropState {
+            state = .cropping
+            toolView.alpha = 0
+            toolView.isHidden = true
+            topView.alpha = 0
+            topView.isHidden = true
+        }else {
+            state = config.state
+        }
         view.backgroundColor = .black
+        view.clipsToBounds = true
         view.addSubview(imageView)
         view.addSubview(toolView)
         view.addSubview(cropConfirmView)
         view.addSubview(cropToolView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
+        
         #if HXPICKER_ENABLE_PICKER
         if isPicker {
             requestImage()
@@ -194,6 +209,9 @@ open class PhotoEditorViewController: BaseViewController {
     open override func deviceOrientationWillChanged(notify: Notification) {
         imageView.reset(false)
         imageView.finishCropping(false)
+        if config.fixedCropState {
+            return
+        }
         state = .normal
         croppingAction()
     }
@@ -226,11 +244,18 @@ open class PhotoEditorViewController: BaseViewController {
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
                 }
+                if state == .cropping {
+                    imageView.startCropping(true)
+                    croppingAction()
+                }
             }
             imageInitializeCompletion = true
         }
         if orientationDidChange {
             imageView.orientationDidChange()
+            if config.fixedCropState {
+                imageView.startCropping(false)
+            }
             orientationDidChange = false
         }
     }
@@ -263,18 +288,25 @@ open class PhotoEditorViewController: BaseViewController {
 extension PhotoEditorViewController: EditorToolViewDelegate {
      
     func toolView(didFinishButtonClick toolView: EditorToolView) {
-        if imageView.canReset() {
+        editResources()
+    }
+    func editResources() {
+        if imageView.canReset() || imageView.imageView.hasCropping {
             _=ProgressHUD.showLoading(addedTo: view, animated: true)
-            let image = imageView.imageView.convertedtoImage()
-            let editResult = PhotoEditResult.init(editedImage: image, editedData: imageView.getEditedData())
-            delegate?.photoEditorViewController(self, didFinish: editResult)
-            ProgressHUD.hide(forView: view, animated: true)
+            imageView.cropping { [weak self] (result) in
+                if let result = result, let self = self {
+                    self.delegate?.photoEditorViewController(self, didFinish: result)
+                    self.didBackClick()
+                }else {
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: self?.view, text: "图片获取失败!".localized, animated: true, delayHide: 1.5)
+                }
+            }
         }else {
             delegate?.photoEditorViewController(didFinishWithUnedited: self)
+            didBackClick()
         }
-        didBackClick()
     }
-    
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
         if model.type == .cropping {
             state = .cropping
@@ -329,6 +361,11 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     /// 点击完成按钮
     /// - Parameter cropConfirmView: 裁剪视图
     func cropConfirmView(didFinishButtonClick cropConfirmView: EditorCropConfirmView) {
+        if config.fixedCropState {
+            imageView.imageView.finishCropping(false, completion: nil, updateCrop: false)
+            editResources()
+            return
+        }
         state = .normal
         imageView.finishCropping(true)
         croppingAction()
@@ -345,6 +382,10 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     /// 点击取消按钮
     /// - Parameter cropConfirmView: 裁剪视图
     func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView) {
+        if config.fixedCropState {
+            didBackClick()
+            return
+        }
         state = .normal
         imageView.cancelCropping(true)
         croppingAction()
@@ -393,6 +434,4 @@ extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
     func cropToolView(didChangedAspectRatio cropToolView: PhotoEditorCropToolView, at model: PhotoEditorCropToolModel) {
         imageView.changedAspectRatio(of: CGSize(width: model.widthRatio, height: model.heightRatio))
     }
-    
-    
 }

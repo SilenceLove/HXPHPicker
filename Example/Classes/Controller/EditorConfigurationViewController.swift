@@ -147,20 +147,16 @@ extension EditorConfigurationViewController {
         }
         if let rowType = rowType as? photoEditorRow {
             switch rowType {
+            case .state:
+                return photoConfig.state.title
+            case .fixedCropState:
+                return photoConfig.fixedCropState ? "true" : "false"
             case .isRoundCrop:
                 return photoConfig.cropConfig.isRoundCrop ? "true" : "false"
             case .fixedRatio:
                 return photoConfig.cropConfig.fixedRatio ? "true" : "false"
             case .aspectRatioType:
-                switch photoConfig.cropConfig.aspectRatioType {
-                case .custom(let ratio):
-                    if ratio.width == 0 || ratio.height == 0 {
-                        return "free"
-                    }
-                    return String(format: "%.0f:%.0f", ratio.width, ratio.height)
-                default:
-                    return "free"
-                }
+                return photoConfig.cropConfig.aspectRatioType.title
             case .maskType:
                 switch photoConfig.cropConfig.maskType {
                 case .blackColor:
@@ -197,6 +193,30 @@ extension EditorConfigurationViewController {
     }
     func editorTypeAction(_ indexPath: IndexPath) {
         editorType = editorType == 0 ? 1 : 0
+        tableView.reloadRows(at: [indexPath], with: .fade)
+    }
+    func stateAction(_ indexPath: IndexPath) {
+        let alert = UIAlertController.init(title: "state", message: nil, preferredStyle: .alert)
+        let titles = ["normal", "cropping"]
+        for title in titles {
+            alert.addAction(UIAlertAction.init(title: title, style: .default, handler: { (action) in
+                let index = titles.firstIndex(of: action.title!)!
+                switch index {
+                case 0:
+                    self.photoConfig.state = .normal
+                case 1:
+                    self.photoConfig.state = .cropping
+                default:
+                    break
+                }
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+            }))
+        }
+        alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    func fixedCropStateAction(_ indexPath: IndexPath) {
+        photoConfig.fixedCropState = !photoConfig.fixedCropState
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func isRoundCropAction(_ indexPath: IndexPath) {
@@ -377,12 +397,18 @@ extension EditorConfigurationViewController {
         }
     }
     enum photoEditorRow: String, CaseIterable, ConfigRowTypeRule {
+        case state
+        case fixedCropState
         case isRoundCrop
         case fixedRatio
         case aspectRatioType
         case maskType
         var title: String {
             switch self {
+            case .state:
+                return "初始状态"
+            case .fixedCropState:
+                return "固定裁剪状态"
             case .isRoundCrop:
                 return "圆形裁剪框"
             case .fixedRatio:
@@ -401,6 +427,10 @@ extension EditorConfigurationViewController {
                 return { _ in }
             }
             switch self {
+            case .state:
+                return controller.stateAction(_:)
+            case .fixedCropState:
+                return controller.fixedCropStateAction(_:)
             case .isRoundCrop:
                 return controller.isRoundCropAction(_:)
             case .fixedRatio:
@@ -463,6 +493,15 @@ extension EditorConfigurationViewController {
 }
 
 extension VideoEditorViewController.State {
+    var title: String {
+        if self == .cropping {
+            return "裁剪"
+        }
+        return "正常"
+    }
+}
+
+extension PhotoEditorViewController.State {
     var title: String {
         if self == .cropping {
             return "裁剪"

@@ -123,6 +123,13 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     
     func requestOriginalImage() {
+        #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoAsset.photoEdit {
+            imageView.setImage(photoEdit.editedImage, animated: true)
+            requestCompletion = true
+            return
+        }
+        #endif
         requestID = photoAsset.requestImageData(iCloudHandler: { [weak self] (asset, iCloudRequestID) in
             if asset == self?.photoAsset {
                 self?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
@@ -162,6 +169,13 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     @available(iOS 9.1, *)
     func requestLivePhoto() {
+        #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoAsset.photoEdit {
+            imageView.setImage(photoEdit.editedImage, animated: true)
+            requestCompletion = true
+            return
+        }
+        #endif
         let targetSize : CGSize = size
         requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { [weak self] (asset, requestID) in
             if asset == self?.photoAsset {

@@ -49,7 +49,7 @@ public enum SelectionTapAction: Equatable {
     case quickSelect
     
     /// 打开编辑器
-    /// - 点击资源时会进入编辑界面（照片编辑器未完成）
+    /// - 点击资源时会进入编辑界面
     case openEditor
 }
 
