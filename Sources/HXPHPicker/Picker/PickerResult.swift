@@ -37,9 +37,11 @@ public struct PickerResult {
                 }else {
                     mediatype = photoAsset.mediaType
                 }
+                #if HXPICKER_ENABLE_EDITOR
                 if photoAsset.mediaSubType == .livePhoto && photoAsset.photoEdit != nil {
                     mediatype = .photo
                 }
+                #endif
                 if mediatype == .photo {
                     photoAsset.requestImageURL { (url) in
                         if let url = url {
