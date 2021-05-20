@@ -27,6 +27,16 @@ public extension AssetManager {
     ///   - suffix: 后缀格式
     ///   - resultHandler: 获取结果
     class func requestImageURL(for asset: PHAsset, suffix: String, resultHandler: @escaping ImageURLResultHandler) {
+        let imageURL = PhotoTools.getTmpURL(for: suffix)
+        requestImageURL(for: asset, toFile: imageURL, resultHandler: resultHandler)
+    }
+    
+    /// 请求获取图片地址
+    /// - Parameters:
+    ///   - asset: 对应的 PHAsset 数据
+    ///   - fileURL: 指定本地地址
+    ///   - resultHandler: 获取结果
+    class func requestImageURL(for asset: PHAsset, toFile fileURL:URL, resultHandler: @escaping ImageURLResultHandler) {
         var imageResource: PHAssetResource?
         for resource in PHAssetResource.assetResources(for: asset) {
             if resource.type == .photo {
@@ -38,7 +48,14 @@ public extension AssetManager {
             resultHandler(nil)
             return
         }
-        let imageURL = PhotoTools.getTmpURL(for: suffix)
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+            }catch {
+                resultHandler(nil)
+            }
+        }
+        let imageURL = fileURL
         let options = PHAssetResourceRequestOptions.init()
         options.isNetworkAccessAllowed = true
         PHAssetResourceManager.default().writeData(for: imageResource!, toFile: imageURL, options: options) { (error) in

@@ -420,7 +420,12 @@ extension EditorConfigurationViewController {
             }
         }
         var detailTitle: String {
-            return ".cropConfig." + self.rawValue
+            switch self {
+            case .state, .fixedCropState:
+                return "." + rawValue
+            default: break
+            }
+            return ".cropConfig." + rawValue
         }
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
             guard let controller = controller as? EditorConfigurationViewController else {

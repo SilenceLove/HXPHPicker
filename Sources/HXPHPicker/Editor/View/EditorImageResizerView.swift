@@ -526,10 +526,10 @@ class EditorImageResizerView: UIView {
                 offset = CGPoint(x: -scrollViewContentInset.left + (baseImageSize.width * zoomScale * 0.5 - maskViewFrame.width * 0.5), y: -scrollViewContentInset.top + (baseImageSize.height * zoomScale * 0.5 - maskViewFrame.height * 0.5))
             }
             let currentOffset = scrollView.contentOffset
-            // 允许0.15以内的误差
+            // 允许0.18以内的误差
             let difference = max(fabsf(Float(currentOffset.x - offset.x)), fabsf(Float(currentOffset.y - offset.y)))
             let zoomScaleDifference = fabsf(Float(scrollView.zoomScale - zoomScale))
-            if zoomScaleDifference > 0.0000001 || !controlView.frame.equalTo(maskViewFrame) || difference > 0.15 {
+            if zoomScaleDifference > 0.0000001 || !controlView.frame.equalTo(maskViewFrame) || difference > 0.18 {
                 /// 缩放大小不一致、裁剪框位置大小不一致、不在中心点位置、角度不为0都可以还原
                 return true
             }

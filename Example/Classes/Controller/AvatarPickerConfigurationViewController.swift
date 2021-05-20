@@ -287,7 +287,10 @@ extension AvatarPickerConfigurationViewController {
             }
         }
         var detailTitle: String {
-            return ".cropConfig." + self.rawValue
+            if self == .fixedCropState {
+                return "." + rawValue
+            }
+            return ".cropConfig." + rawValue
         }
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
             guard let controller = controller as? AvatarPickerConfigurationViewController else {

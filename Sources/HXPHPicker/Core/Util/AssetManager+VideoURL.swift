@@ -37,6 +37,16 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
     class func requestVideoURL(mp4Format asset: PHAsset, resultHandler: @escaping VideoURLResultHandler) {
+        let videoURL = PhotoTools.getVideoTmpURL()
+        requestVideoURL(for: asset, toFile: videoURL, resultHandler: resultHandler)
+    }
+    
+    /// 获取视频地址
+    /// - Parameters:
+    ///   - asset: 对应的 PHAsset 数据
+    ///   - fileURL: 指定视频地址
+    ///   - resultHandler: 获取结果
+    class func requestVideoURL(for asset: PHAsset, toFile fileURL:URL, resultHandler: @escaping VideoURLResultHandler) {
         var videoResource: PHAssetResource?
         for resource in PHAssetResource.assetResources(for: asset) {
             if resource.type == .video {
@@ -47,7 +57,14 @@ public extension AssetManager {
             resultHandler(nil)
             return
         }
-        let videoURL = PhotoTools.getVideoTmpURL()
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+            }catch {
+                resultHandler(nil)
+            }
+        }
+        let videoURL = fileURL
         let options = PHAssetResourceRequestOptions.init()
         options.isNetworkAccessAllowed = true
         PHAssetResourceManager.default().writeData(for: videoResource!, toFile: videoURL, options: options) { (error) in

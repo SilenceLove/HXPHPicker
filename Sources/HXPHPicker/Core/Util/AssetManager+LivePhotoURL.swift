@@ -81,6 +81,55 @@ public extension AssetManager {
             completionHandler(.allError(PhotoError.error(message: "系统版本低于9.1"), PhotoError.error(message: "系统版本低于9.1")))
         }
     }
+    
+    /// 获取LivePhoto里的视频地址
+    /// - Parameters:
+    ///   - forAsset: 对应的 PHAsset 对象
+    ///   - fileURL: 指定视频地址
+    ///   - completionHandler: 获取完成
+    class func requestLivePhoto(videoURL forAsset: PHAsset, toFile fileURL:URL, completionHandler: @escaping (URL?, LivePhotoError?) -> Void) {
+        if #available(iOS 9.1, *) {
+            _ = requestLivePhoto(for: forAsset, targetSize: PHImageManagerMaximumSize) { (ID) in
+            } progressHandler: { (progress, error, stop, info) in
+            } resultHandler: { (livePhoto, info, downloadSuccess) in
+                if livePhoto == nil {
+                    completionHandler(nil, .allError(PhotoError.error(message: "livePhoto为nil，获取失败"), PhotoError.error(message: "livePhoto为nil，获取失败")))
+                    return
+                }
+                let assetResources: [PHAssetResource] = PHAssetResource.assetResources(for: livePhoto!)
+                if assetResources.isEmpty {
+                    completionHandler(nil, .allError(PhotoError.error(message: "assetResources为nil，获取失败"), PhotoError.error(message: "assetResources为nil，获取失败")))
+                    return
+                }
+                if FileManager.default.fileExists(atPath: fileURL.path) {
+                    do {
+                        try FileManager.default.removeItem(at: fileURL)
+                    }catch {
+                        completionHandler(nil, .allError(PhotoError.error(message: "指定的地址已存在"), PhotoError.error(message: "指定的地址已存在")))
+                    }
+                }
+                let videoURL = fileURL
+                let options = PHAssetResourceRequestOptions.init()
+                options.isNetworkAccessAllowed = true
+                for assetResource in assetResources {
+                    if assetResource.type == .pairedVideo {
+                        PHAssetResourceManager.default().writeData(for: assetResource, toFile: videoURL, options: options) { (error) in
+                            DispatchQueue.main.async {
+                                if error == nil {
+                                    completionHandler(videoURL, nil)
+                                }else {
+                                    completionHandler(nil, .videoError(error))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            completionHandler(nil, .allError(PhotoError.error(message: "系统版本低于9.1"), PhotoError.error(message: "系统版本低于9.1")))
+        }
+    }
     // MARK: 获取LivePhoto里的图片地址和视频地址
     class func requestLivePhoto(contentURL asset: PHAsset, imageURLHandler: @escaping (URL?) -> Void, videoHandler: @escaping (URL?) -> Void, completionHandler: @escaping (LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {

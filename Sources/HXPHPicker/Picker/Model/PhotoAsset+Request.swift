@@ -13,12 +13,15 @@ import Photos
 public extension PhotoAsset {
     
     /// 获取原始图片地址
-    func requestImageURL(resultHandler: @escaping (URL?) -> Void) {
+    /// - Parameters:
+    ///   - fileURL: 指定图片的本地地址
+    ///   - resultHandler: 获取结果
+    func requestImageURL(toFile fileURL:URL? = nil, resultHandler: @escaping (URL?) -> Void) {
         if phAsset == nil {
-            requestLocalImageURL(resultHandler: resultHandler)
+            requestLocalImageURL(toFile: fileURL, resultHandler: resultHandler)
             return
         }
-        requestAssetImageURL(resultHandler: resultHandler)
+        requestAssetImageURL(toFile: fileURL, resultHandler: resultHandler)
     }
     
     /// 请求获取缩略图
@@ -158,10 +161,29 @@ public extension PhotoAsset {
 public extension PhotoAsset {
     
     /// 获取原始视频地址
-    func requestVideoURL(resultHandler: @escaping (URL?) -> Void) {
+    /// - Parameters:
+    ///   - fileURL: 指定视频地址
+    ///   - resultHandler: 获取结果
+    func requestVideoURL(toFile fileURL:URL? = nil, resultHandler: @escaping (URL?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
-            resultHandler(videoEdit.editedURL)
+            if let fileURL = fileURL {
+                if fileURL.path == videoEdit.editedURL.path {
+                    resultHandler(fileURL)
+                    return
+                }
+                do {
+                    if FileManager.default.fileExists(atPath: fileURL.path) {
+                        try FileManager.default.removeItem(at: fileURL)
+                    }
+                    try FileManager.default.copyItem(at: videoEdit.editedURL, to: fileURL)
+                    resultHandler(fileURL)
+                } catch  {
+                    resultHandler(nil)
+                }
+            }else {
+                resultHandler(videoEdit.editedURL)
+            }
             return
         }
         #endif
@@ -169,11 +191,27 @@ public extension PhotoAsset {
             if mediaType == .photo {
                 resultHandler(nil)
             }else {
-                resultHandler(localVideoURL)
+                if let fileURL = fileURL, let localVideoURL = localVideoURL {
+                    if fileURL.path == localVideoURL.path {
+                        resultHandler(fileURL)
+                        return
+                    }
+                    do {
+                        if FileManager.default.fileExists(atPath: fileURL.path) {
+                            try FileManager.default.removeItem(at: fileURL)
+                        }
+                        try FileManager.default.copyItem(at: localVideoURL, to: fileURL)
+                        resultHandler(fileURL)
+                    } catch  {
+                        resultHandler(nil)
+                    }
+                }else {
+                    resultHandler(localVideoURL)
+                }
             }
             return
         }
-        requestAssetVideoURL(resultHandler: resultHandler)
+        requestAssetVideoURL(toFile: fileURL, resultHandler: resultHandler)
     }
     
     /// 请求AVAsset，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset
