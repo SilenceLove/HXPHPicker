@@ -7,6 +7,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public protocol PhotoEditorViewControllerDelegate: AnyObject {
     
@@ -60,10 +63,29 @@ open class PhotoEditorViewController: BaseViewController {
         super.init(nibName: nil, bundle: nil)
     }
     func requestImage() {
-        if photoAsset.mediaSubType == .localImage {
-            requestAssetCompletion(image: photoAsset.localImage!)
-        }else {
-            _=ProgressHUD.showLoading(addedTo: view, animated: true)
+        if photoAsset.mediaSubType.isLocal {
+            if photoAsset.mediaType == .photo {
+                requestAssetCompletion(image: photoAsset.localImageAsset!.image!)
+            }else {
+                requestAssetCompletion(image: photoAsset.localVideoAsset!.image!)
+            }
+        }else if photoAsset.isNetworkAsset {
+            #if canImport(Kingfisher)
+            ProgressHUD.showLoading(addedTo: view, animated: true)
+            photoAsset.getNetworkImage(filterEditor: true) { [weak self] (image) in
+                if let image = image {
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    self?.requestAssetCompletion(image: image)
+                }else {
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+                        self?.didBackClick()
+                    }
+                }
+            }
+            #endif
+        } else {
+            ProgressHUD.showLoading(addedTo: view, animated: true)
             photoAsset.requestAssetImageURL(filterEditor: true) { [weak self] (imageUrl) in
                 DispatchQueue.global().async {
                     if let imageUrl = imageUrl, let image = UIImage.init(contentsOfFile: imageUrl.path)?.scaleSuitableSize() {
@@ -292,7 +314,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
     }
     func editResources() {
         if imageView.canReset() || imageView.imageView.hasCropping {
-            _=ProgressHUD.showLoading(addedTo: view, animated: true)
+            ProgressHUD.showLoading(addedTo: view, animated: true)
             imageView.cropping { [weak self] (result) in
                 if let result = result, let self = self {
                     self.delegate?.photoEditorViewController(self, didFinish: result)

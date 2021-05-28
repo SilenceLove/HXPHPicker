@@ -8,6 +8,10 @@
 import UIKit
 import Photos
 
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
+
 public protocol PhotoPickerViewCellDelegate: AnyObject {
     func cell(_ cell: PhotoPickerBaseViewCell, didSelectControl isSelected: Bool)
 }
@@ -41,6 +45,9 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     /// 请求ID
     public var requestID: PHImageRequestID?
     
+    /// 网络图片下载状态
+    public var downloadStatus: PhotoAsset.DownloadStatus = .unknow
+    
     open var photoAsset: PhotoAsset! {
         didSet {
             updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
@@ -71,18 +78,40 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
-        requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
-            if photoAsset == self?.photoAsset && image != nil {
-                if self?.firstLoadCompletion == false {
-                    self?.isHidden = false
-                    self?.firstLoadCompletion = true
+        if photoAsset.isNetworkAsset {
+            #if canImport(Kingfisher)
+            downloadStatus = .downloading
+            imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error) in
+                if let image = image {
+                    self?.photoAsset.networkImageAsset?.imageSize = image.size
+                    self?.downloadStatus = .succeed
+                }else {
+                    if error!.isTaskCancelled {
+                        self?.downloadStatus = .canceled
+                    }else {
+                        self?.downloadStatus = .failed
+                    }
                 }
-                self?.imageView.image = image
-                if !AssetManager.assetIsDegraded(for: info) {
-                    self?.requestID = nil
-                }
+            })
+            if !firstLoadCompletion {
+                isHidden = false
+                firstLoadCompletion = true
             }
-        })
+            #endif
+        }else {
+            requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
+                if photoAsset == self?.photoAsset && image != nil {
+                    if self?.firstLoadCompletion == false {
+                        self?.isHidden = false
+                        self?.firstLoadCompletion = true
+                    }
+                    self?.imageView.image = image
+                    if !AssetManager.assetIsDegraded(for: info) {
+                        self?.requestID = nil
+                    }
+                }
+            })
+        }
     }
     
     /// 更新已选状态

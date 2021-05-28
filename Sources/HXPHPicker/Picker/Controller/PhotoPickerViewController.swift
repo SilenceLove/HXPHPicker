@@ -272,7 +272,7 @@ extension PhotoPickerViewController {
             title = ""
             navigationItem.titleView = titleLabel
             if showLoading {
-                _ = ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
+                ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
             }
             fetchPhotoAssets()
         }
@@ -465,7 +465,7 @@ extension PhotoPickerViewController {
         collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
     }
     func changedAssetCollection(collection: PhotoAssetCollection?) {
-        _ = ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
+        ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
         if collection == nil {
             updateTitle()
             fetchPhotoAssets()
@@ -705,12 +705,13 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
     func openEditor(_ photoAsset: PhotoAsset, _ cell: PhotoPickerBaseViewCell?) {
         #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video {
-            _ = openVideoEditor(photoAsset: photoAsset, coverImage: cell?.imageView.image)
+            openVideoEditor(photoAsset: photoAsset, coverImage: cell?.imageView.image)
         }else {
-            _ = openPhotoEditor(photoAsset: photoAsset)
+            openPhotoEditor(photoAsset: photoAsset)
         }
         #endif
     }
+    @discardableResult
     func openPhotoEditor(photoAsset: PhotoAsset) -> Bool {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if let pickerController = pickerController, photoAsset.mediaType == .photo ,
@@ -729,6 +730,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         #endif
         return false
     }
+    @discardableResult
     func openVideoEditor(photoAsset: PhotoAsset, coverImage: UIImage? = nil) -> Bool {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if let pickerController = pickerController, photoAsset.mediaType == .video ,
@@ -884,7 +886,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
     }
     
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        _ = ProgressHUD.showLoading(addedTo: self.navigationController?.view, animated: true)
+        ProgressHUD.showLoading(addedTo: self.navigationController?.view, animated: true)
         picker.dismiss(animated: true, completion: nil)
         DispatchQueue.global().async {
             let mediaType = info[.mediaType] as! String
@@ -892,11 +894,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             if mediaType == kUTTypeImage as String {
                 var image: UIImage? = (info[.editedImage] ?? info[.originalImage]) as? UIImage
                 image = image?.scaleSuitableSize()
-                if let image = image, self.config.saveSystemAlbum {
-                    self.saveSystemAlbum(for: image, mediaType: .image)
+                if let image = image {
+                    if self.config.saveSystemAlbum {
+                        self.saveSystemAlbum(for: image, mediaType: .image)
+                        return
+                    }
+                    photoAsset = PhotoAsset.init(localImageAsset: .init(image: image))
+                }else {
                     return
                 }
-                photoAsset = PhotoAsset.init(image: image, localIdentifier: String(Date.init().timeIntervalSince1970))
             }else {
                 let startTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingStart")] as? TimeInterval
                 let endTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingEnd")] as? TimeInterval
@@ -909,7 +915,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                                 self.saveSystemAlbum(for: url, mediaType: .video)
                                 return
                             }
-                            let phAsset: PhotoAsset = PhotoAsset.init(videoURL: url, localIdentifier: String(Date.init().timeIntervalSince1970))
+                            let phAsset: PhotoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: url))
                             self.addedCameraPhotoAsset(phAsset)
                         }else {
                             ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
@@ -918,11 +924,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                     }
                     return
                 }else {
-                    if let videoURL = videoURL, self.config.saveSystemAlbum {
-                        self.saveSystemAlbum(for: videoURL, mediaType: .video)
+                    if let videoURL = videoURL {
+                        if self.config.saveSystemAlbum {
+                            self.saveSystemAlbum(for: videoURL, mediaType: .video)
+                            return
+                        }
+                        photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: videoURL))
+                    }else {
                         return
                     }
-                    photoAsset = PhotoAsset.init(videoURL: videoURL, localIdentifier: String(Date.init().timeIntervalSince1970))
                 }
             }
             self.addedCameraPhotoAsset(photoAsset)
@@ -949,7 +959,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                 }
             }
             self.pickerController?.updateAlbums(coverImage: photoAsset.originalImage, count: 1)
-            if photoAsset.mediaSubType == .localImage || photoAsset.mediaSubType == .localVideo {
+            if photoAsset.mediaSubType.isLocal {
                 self.pickerController?.addedLocalCameraAsset(photoAsset: photoAsset)
             }
             if self.pickerController!.config.albumShowMode == .popup {
@@ -998,6 +1008,15 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
         updateCellSelectedTitle()
         bottomView.updateFinishButtonTitle()
     }
+    
+    func previewViewController(_ previewController: PhotoPreviewViewController, networkImagedownloadSuccess photoAsset: PhotoAsset) {
+        if let cell = getCell(for: photoAsset), cell.downloadStatus == .failed {
+            cell.requestThumbnailImage()
+        }
+        if photoAsset.isSelected {
+            bottomView.updateFinishButtonTitle()
+        }
+    }
 }
 
 // MARK: AlbumViewDelegate
@@ -1012,7 +1031,7 @@ extension PhotoPickerViewController: AlbumViewDelegate {
         assetCollection.isSelected = true
         self.assetCollection.isSelected = false
         self.assetCollection = assetCollection
-        _ = ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
+        ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
         fetchPhotoAssets()
     }
 }
@@ -1038,7 +1057,7 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
         if isSelected {
             // 取消选中
             let photoAsset = cell.photoAsset!
-            _ = pickerController?.removePhotoAsset(photoAsset: photoAsset)
+            pickerController?.removePhotoAsset(photoAsset: photoAsset)
             // 清空视频编辑的数据
             #if HXPICKER_ENABLE_EDITOR
             if photoAsset.videoEdit != nil {
@@ -1057,7 +1076,7 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
             if cell.photoAsset.mediaType == .video &&
                 pickerController!.videoDurationExceedsTheLimit(photoAsset: cell.photoAsset){
                 if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
-                    _ = openVideoEditor(photoAsset: cell.photoAsset, coverImage: cell.imageView.image)
+                    openVideoEditor(photoAsset: cell.photoAsset, coverImage: cell.imageView.image)
                 }
                 return
             }

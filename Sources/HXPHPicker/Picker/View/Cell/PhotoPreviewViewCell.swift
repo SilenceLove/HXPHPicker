@@ -13,6 +13,8 @@ import ImageIO
 
 protocol PhotoPreviewViewCellDelegate: NSObjectProtocol {
     func cell(singleTap cell: PhotoPreviewViewCell)
+    func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell)
+    func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell)
 }
 
 class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {

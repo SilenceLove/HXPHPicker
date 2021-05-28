@@ -20,6 +20,7 @@ public extension AssetManager {
     ///   - progressHandler: iCloud下载进度
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
+    @discardableResult
     class func requestImageData(for asset: PHAsset, version: PHImageRequestOptionsVersion, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping ImageDataFetchCompletion) -> PHImageRequestID {
         return requestImageData(for: asset, version: version, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (data, dataUTI, imageOrientation, info) in
             DispatchQueue.main.async {
@@ -42,6 +43,7 @@ public extension AssetManager {
     }
     
     /// 请求imageData，注意处理 HEIC格式
+    @discardableResult
     class func requestImageData(for asset: PHAsset, version: PHImageRequestOptionsVersion, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
         let options = PHImageRequestOptions.init()
         options.version = version
@@ -51,6 +53,7 @@ public extension AssetManager {
         return requestImageData(for: asset, options: options, resultHandler: resultHandler)
     }
     /// 请求imageData，注意处理 HEIC格式
+    @discardableResult
     class func requestImageData(for asset: PHAsset, options: PHImageRequestOptions, resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
         if #available(iOS 13, *) {
             return PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in

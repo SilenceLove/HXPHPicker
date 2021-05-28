@@ -13,9 +13,10 @@ extension PhotoManager {
     /// 创建语言Bundle
     /// - Parameter languageType: 对应的语言类型
     /// - Returns: 语言Bundle
+    @discardableResult
     public func createLanguageBundle(languageType: LanguageType) -> Bundle? {
         if bundle == nil {
-            _ = createBundle()
+            createBundle()
         }
         if self.languageType != languageType || isCustomLanguage {
             // 与上次语言不一致，重新创建

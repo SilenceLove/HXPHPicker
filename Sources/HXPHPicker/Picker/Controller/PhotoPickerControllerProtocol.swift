@@ -90,6 +90,14 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - atIndex: 资源对应的位置索引
     func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int)
     
+    #if canImport(Kingfisher)
+    /// 预览界面网络图片下载成功
+    func pickerController(_ pickerController: PhotoPickerController, previewNetworkImageDownloadSuccess photoAsset: PhotoAsset, atIndex: Int)
+    
+    /// 预览界面网络图片下载失败
+    func pickerController(_ pickerController: PhotoPickerController, previewNetworkImageDownloadFailed photoAsset: PhotoAsset, atIndex: Int)
+    #endif
+    
     /// 视图控制器即将显示
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -168,6 +176,12 @@ public extension PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, previewShouldDeleteAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool { true }
     
     func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int) { }
+    
+    #if canImport(Kingfisher)
+    func pickerController(_ pickerController: PhotoPickerController, previewNetworkImageDownloadSuccess photoAsset: PhotoAsset, atIndex: Int) { }
+    
+    func pickerController(_ pickerController: PhotoPickerController, previewNetworkImageDownloadFailed photoAsset: PhotoAsset, atIndex: Int) { }
+    #endif
     
     func pickerController(_ pickerController: PhotoPickerController, viewControllersWillAppear viewController: UIViewController) { }
     

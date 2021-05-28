@@ -69,7 +69,7 @@ class PhotoEditorView: UIScrollView {
     }
     
     func setImage(_ image: UIImage) {
-        imageScale = image.size.width / image.size.height
+        imageScale = image.width / image.height
         updateImageViewFrame()
         imageView.setImage(image)
     }

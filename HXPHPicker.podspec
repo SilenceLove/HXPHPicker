@@ -1,12 +1,12 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker"
-    spec.version                = "1.0.8"
+    spec.version                = "1.0.9"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
     spec.author                 = { "SilenceLove" => "294005139@qq.com" }
     spec.swift_versions         = ['5.3']
-    spec.ios.deployment_target  = "9.0"
+    spec.ios.deployment_target  = "10.0"
     spec.source                 = { :git => "https://github.com/SilenceLove/HXPHPicker.git", :tag => "#{spec.version}" }
     spec.framework              = 'UIKit','Photos','PhotosUI'
     spec.requires_arc           = true
@@ -28,5 +28,12 @@ Pod::Spec.new do |spec|
         editor.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
         editor.dependency 'HXPHPicker/Core'
         editor.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
+    end
+    
+    spec.subspec 'Full' do |full|
+        full.dependency 'HXPHPicker/Core'
+        full.dependency 'HXPHPicker/Picker'
+        full.dependency 'HXPHPicker/Editor'
+        full.dependency 'Kingfisher', '~> 6.0'
     end
 end

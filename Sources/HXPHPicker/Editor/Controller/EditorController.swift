@@ -33,7 +33,7 @@ open class EditorController: UINavigationController {
     ///   - config: 编辑配置
     public init(image: UIImage, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -57,7 +57,7 @@ open class EditorController: UINavigationController {
     ///   - config: 编辑配置
     public init(avAsset: AVAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -73,7 +73,7 @@ open class EditorController: UINavigationController {
     ///   - config: 编辑配置
     public init(photoAsset: PhotoAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -88,7 +88,7 @@ open class EditorController: UINavigationController {
     ///   - config: 编辑配置
     public init(photoAsset: PhotoAsset, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)

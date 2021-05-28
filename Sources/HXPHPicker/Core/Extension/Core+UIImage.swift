@@ -10,6 +10,16 @@ import UIKit
 import ImageIO
 
 extension UIImage {
+    var width : CGFloat {
+        get {
+            return size.width
+        }
+    }
+    var height : CGFloat {
+        get {
+            return size.height
+        }
+    }
     
     class func image(for named: String?) -> UIImage? {
         if named == nil {

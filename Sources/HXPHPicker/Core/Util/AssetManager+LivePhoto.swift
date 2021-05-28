@@ -21,6 +21,7 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
     @available(iOS 9.1, *)
+    @discardableResult
     class func requestLivePhoto(for asset: PHAsset, targetSize: CGSize, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (PHLivePhoto?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         return requestLivePhoto(for: asset, targetSize: targetSize, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (livePhoto, info) in
             if self.assetDownloadFinined(for: info) {
@@ -51,6 +52,7 @@ public extension AssetManager {
     }
     
     @available(iOS 9.1, *)
+    @discardableResult
     class func requestLivePhoto(for asset: PHAsset, targetSize: CGSize, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping LivePhotoResultHandler) -> PHImageRequestID {
         let options = PHLivePhotoRequestOptions.init()
         options.deliveryMode = .highQualityFormat
@@ -60,6 +62,7 @@ public extension AssetManager {
     }
     
     @available(iOS 9.1, *)
+    @discardableResult
     class func requestLivePhoto(for asset: PHAsset, targetSize: CGSize, options: PHLivePhotoRequestOptions, resultHandler: @escaping LivePhotoResultHandler) -> PHImageRequestID {
         return PHImageManager.default().requestLivePhoto(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options, resultHandler: resultHandler)
     }

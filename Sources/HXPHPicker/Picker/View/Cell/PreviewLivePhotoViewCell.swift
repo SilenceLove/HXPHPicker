@@ -11,7 +11,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        scrollContentView = PhotoPreviewContentView.init(type: PhotoPreviewContentViewType.livePhoto)
+        scrollContentView = PhotoPreviewContentView.init(type: .livePhoto)
         initView()
     }
     

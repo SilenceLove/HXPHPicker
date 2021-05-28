@@ -104,7 +104,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     }
     
     func fetchAssetCollections() {
-        _ = ProgressHUD.showLoading(addedTo: view, animated: true)
+        ProgressHUD.showLoading(addedTo: view, animated: true)
         pickerController?.fetchAssetCollections()
         pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
             self?.reloadTableView(assetCollectionsArray: assetCollectionsArray)

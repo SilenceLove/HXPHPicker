@@ -18,6 +18,7 @@ public extension AssetManager {
     ///   - targetWidth: 获取的图片大小
     ///   - completion: 完成
     /// - Returns: 请求ID
+    @discardableResult
     class func requestThumbnailImage(for asset: PHAsset, targetWidth: CGFloat, completion: ImageResultHandler?) -> PHImageRequestID {
         let options = PHImageRequestOptions.init()
         options.resizeMode = .fast
@@ -37,6 +38,7 @@ public extension AssetManager {
     ///   - options: 可选项
     ///   - resultHandler: 回调
     /// - Returns: 请求ID
+    @discardableResult
     class func requestImage(for asset: PHAsset, targetSize: CGSize, options: PHImageRequestOptions, resultHandler: @escaping ImageResultHandler) -> PHImageRequestID {
         return PHImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options, resultHandler: resultHandler)
     }

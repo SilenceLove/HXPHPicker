@@ -109,7 +109,7 @@ open class PhotoPickerController: UINavigationController {
     /// - Parameter config: 相关配置
     public init(config: PickerConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
         if config.selectMode == .multiple &&
             !config.allowSelectedTogether &&
@@ -141,7 +141,7 @@ open class PhotoPickerController: UINavigationController {
     ///   - modalPresentationStyle: 设置 custom 样式，框架自带动画效果
     public init(preview config: PickerConfiguration, currentIndex: Int, modalPresentationStyle: UIModalPresentationStyle) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
         isPreviewAsset = true
         super.init(nibName: nil, bundle: nil)
@@ -389,6 +389,12 @@ extension PhotoPickerController {
     ///   - completion: 完成回调
     func fetchPhotoAssets(assetCollection: PhotoAssetCollection?, completion: @escaping ([PhotoAsset], PhotoAsset?) -> Void) {
         DispatchQueue.global().async {
+            for photoAsset in self.localAssetArray {
+                photoAsset.isSelected = false
+            }
+            for photoAsset in self.localCameraAssetArray {
+                photoAsset.isSelected = false
+            }
             var selectedAssets = [PHAsset]()
             var selectedPhotoAssets:[PhotoAsset] = []
             var localAssets: [PhotoAsset] = []
@@ -637,6 +643,7 @@ extension PhotoPickerController {
     /// 添加PhotoAsset对象到已选数组
     /// - Parameter photoAsset: 对应的PhotoAsset对象
     /// - Returns: 添加结果
+    @discardableResult
     func addedPhotoAsset(photoAsset: PhotoAsset) -> Bool {
         if singleVideo && photoAsset.mediaType == .video {
             return false
@@ -669,6 +676,7 @@ extension PhotoPickerController {
     /// 移除已选的PhotoAsset对象
     /// - Parameter photoAsset: 对应PhotoAsset对象
     /// - Returns: 移除结果
+    @discardableResult
     func removePhotoAsset(photoAsset: PhotoAsset) -> Bool {
         if selectedAssetArray.isEmpty || !selectedAssetArray.contains(photoAsset) {
             return false
@@ -760,7 +768,7 @@ extension PhotoPickerController {
             }
             if config.maximumSelectedVideoCount > 0 {
                 if selectedVideoAssetArray.count >= config.maximumSelectedVideoCount {
-                    text = String.init(format: "最多只能选择%d个视频".localized, arguments: [config.maximumSelectedPhotoCount])
+                    text = String.init(format: "最多只能选择%d个视频".localized, arguments: [config.maximumSelectedVideoCount])
                     canSelect = false
                 }
             }else {
@@ -874,7 +882,7 @@ extension PhotoPickerController {
         if status.rawValue >= 3 {
             PHPhotoLibrary.shared().register(self)
             // 有权限
-            _ = ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
+            ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
             fetchCameraAssetCollection()
         }else if status.rawValue >= 1 {
             // 无权限
@@ -883,6 +891,9 @@ extension PhotoPickerController {
     }
     private func configSelectedArray() {
         if isPreviewAsset {
+            for photoAsset in selectedAssetArray {
+                photoAsset.isSelected = true
+            }
             previewViewController()?.previewAssets = selectedAssetArray
             return
         }

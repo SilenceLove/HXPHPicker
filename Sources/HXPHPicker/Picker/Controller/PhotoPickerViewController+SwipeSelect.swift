@@ -242,7 +242,7 @@ extension PhotoPickerViewController {
             if photoAsset.isSelected != isSelected {
                 if isSelected {
                     if pickerController.canSelectAsset(for: photoAsset, showHUD: false) {
-                        _ = pickerController.addedPhotoAsset(photoAsset: photoAsset)
+                        pickerController.addedPhotoAsset(photoAsset: photoAsset)
                         if let cell = getCell(for: item) {
                             cell.updateSelectedState(isSelected: isSelected, animated: false)
                         }
@@ -250,7 +250,7 @@ extension PhotoPickerViewController {
                         showHUD = true
                     }
                 }else {
-                    _ = pickerController.removePhotoAsset(photoAsset: photoAsset)
+                    pickerController.removePhotoAsset(photoAsset: photoAsset)
                     if let cell = getCell(for: item) {
                         cell.updateSelectedState(isSelected: isSelected, animated: false)
                     }

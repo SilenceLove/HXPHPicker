@@ -44,6 +44,10 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     /// 相关配置
     var config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: true)
     
+    var localAssetArray: [PhotoAsset] = []
+    
+    var preselect: Bool = false
+    
     weak var previewTitleLabel: UILabel?
     weak var currentPickerController: PhotoPickerController?
     
@@ -57,7 +61,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         
         collectionViewTopConstraint.constant = 20
         collectionView.register(ResultViewCell.self, forCellWithReuseIdentifier: "ResultViewCellID")
@@ -72,6 +75,23 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         }
         view.backgroundColor = UIColor.white
         navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "设置", style:    .done, target: self, action: #selector(didSettingButtonClick))
+        
+        if preselect {
+            if let filePath = Bundle.main.path(forResource: "picker_example_gif_image", ofType: "GIF") {
+                let gifAsset = PhotoAsset.init(localImageAsset: .init(imageURL: URL.init(fileURLWithPath: filePath)))
+                selectedAssets.append(gifAsset)
+                localAssetArray.append(gifAsset)
+            }
+            if let filePath = Bundle.main.path(forResource: "videoeditormatter", ofType: "MP4") {
+                let videoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: URL.init(fileURLWithPath: filePath)))
+                selectedAssets.append(videoAsset)
+                localAssetArray.append(videoAsset)
+            }
+            
+            let networkAsset = PhotoAsset.init(networkImageAsset: NetworkImageAsset.init(thumbnailURL: URL.init(string: "https://user-images.githubusercontent.com/9622345/82725518-0bba0780-9d10-11ea-81fb-c5b29a0f7394.gif")!, originalURL: URL.init(string: "https://user-images.githubusercontent.com/9622345/82725518-0bba0780-9d10-11ea-81fb-c5b29a0f7394.gif")!))
+            selectedAssets.append(networkAsset)
+            localAssetArray.append(networkAsset)
+        }
     }
     @objc func longGestureRecognizerClick(longGestureRecognizer: UILongPressGestureRecognizer) {
         let touchPoint = longGestureRecognizer.location(in: collectionView)
@@ -164,6 +184,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         if pickerStyleControl.selectedSegmentIndex == 0 {
             pickerController.modalPresentationStyle = .fullScreen
         }
+        pickerController.localAssetArray = localAssetArray
         pickerController.autoDismiss = false
         present(pickerController, animated: true, completion: nil)
     }
@@ -177,6 +198,12 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         var count = 0
         for photoAsset in selectedAssets {
             if photoAsset.mediaType == .photo {
+                if photoAsset.isNetworkAsset {
+                    photoAsset.getNetworkImageURL { (url, isNetwork) in
+                        print(isNetwork ? "网络图片：" : "编辑后的网络图片", url!)
+                    }
+                    continue
+                }
                 if photoAsset.mediaSubType == .livePhoto {
                     var imageURL: URL?
                     var videoURL: URL?
@@ -393,9 +420,11 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
-//        result.getURLs { (urls) in
-//            print(urls)
+//        result.getURL { (url, isNetwork, index) in
+//            print(url! , "index:" , index)
+//        } completionHandler: { (urls) in
 //        }
+
         pickerController.dismiss(animated: true, completion: nil)
     }
     
@@ -436,6 +465,15 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, dismissPreviewViewForIndexAt index: Int) -> UIView? {
         let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0))
         return cell
+    }
+    
+    func pickerController(_ pickerController: PhotoPickerController, previewNetworkImageDownloadSuccess photoAsset: PhotoAsset, atIndex: Int) {
+        if pickerController.isPreviewAsset {
+            let cell = collectionView.cellForItem(at: IndexPath(item: atIndex, section: 0)) as! ResultViewCell
+            if cell.downloadStatus == .failed {
+                cell.requestThumbnailImage()
+            }
+        }
     }
 }
 

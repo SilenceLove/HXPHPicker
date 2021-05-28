@@ -18,7 +18,7 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
     class func requestVideoURL(for asset: PHAsset, resultHandler: @escaping VideoURLResultHandler) {
-        _ = requestAVAsset(for: asset) { (reqeustID) in
+        requestAVAsset(for: asset) { (reqeustID) in
         } progressHandler: { (progress, error, stop, info) in
         } resultHandler: { (avAsset, audioMix, info, downloadSuccess) in
             DispatchQueue.main.async {

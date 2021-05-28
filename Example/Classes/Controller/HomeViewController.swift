@@ -113,6 +113,7 @@ extension HomeViewController {
     }
     enum ApplicationRowType: CaseIterable, HomeRowTypeRule {
         case avatarPicker
+        case preselectAsset
         case collectionView
         case customCell
         
@@ -120,6 +121,8 @@ extension HomeViewController {
             switch self {
             case .avatarPicker:
                 return "Avatar Picker"
+            case .preselectAsset:
+                return "Preselect Asset"
             case .collectionView:
                 return "Picker+UICollectionView"
             case .customCell:
@@ -135,6 +138,11 @@ extension HomeViewController {
                 } else {
                     return AvatarPickerConfigurationViewController(style: .grouped)
                 }
+            case .preselectAsset:
+                let vc = PickerResultViewController()
+                vc.config.allowSelectedTogether = true
+                vc.preselect = true
+                return vc
             case .collectionView:
                 return PickerResultViewController()
             case .customCell:

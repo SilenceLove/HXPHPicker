@@ -53,8 +53,9 @@ public class PhotoManager {
     
     
     private init() {
-        _ = createBundle()
+        createBundle()
     }
+    @discardableResult
     func createBundle() -> Bundle? {
         if self.bundle == nil {
             #if HXPICKER_ENABLE_SPM

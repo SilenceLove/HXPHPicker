@@ -8,6 +8,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
     
@@ -46,11 +49,17 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
     }
     /// 获取图片，重写此方法可以修改图片
     open func reqeustAssetImage() {
-        requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in
-            if self?.photoAsset == asset {
-                self?.imageView.image = image
-            }
-        })
+        if photoAsset.isNetworkAsset {
+            #if canImport(Kingfisher)
+            imageView.setImage(for: photoAsset, urlType: .thumbnail)
+            #endif
+        }else {
+            requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in
+                if self?.photoAsset == asset {
+                    self?.imageView.image = image
+                }
+            })
+        }
     }
     
     open override var isSelected: Bool {

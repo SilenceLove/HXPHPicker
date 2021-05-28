@@ -65,7 +65,7 @@ open class VideoEditorViewController: BaseViewController {
     ///   - config: 编辑配置
     public init(avAsset: AVAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
             onceState = config.defaultState
         }
@@ -99,7 +99,7 @@ open class VideoEditorViewController: BaseViewController {
     ///   - config: 编辑配置
     public init(photoAsset: PhotoAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        _ = PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
             onceState = config.defaultState
         }
@@ -556,7 +556,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     /// - Parameter toolView: 底部工具视频
     func toolView(didFinishButtonClick toolView: EditorToolView) {
         if let startTime = playerView.playStartTime, let endTime = playerView.playEndTime {
-            _ = ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
+            ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
             PhotoTools.exportEditVideo(for: avAsset, timeRang: CMTimeRange(start: startTime, end: endTime), presentName: config.exportPresetName) { [weak self] (videoURL, error) in
                 if let videoURL = videoURL {
                     self?.editFinishCallBack(videoURL)

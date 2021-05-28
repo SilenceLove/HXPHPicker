@@ -1,0 +1,31 @@
+PODS:
+  - HXPHPicker/Core (1.0.9)
+  - HXPHPicker/Editor (1.0.9):
+    - HXPHPicker/Core
+  - HXPHPicker/Kingfisher (1.0.9):
+    - HXPHPicker/Core
+    - HXPHPicker/Editor
+    - HXPHPicker/Picker
+    - Kingfisher (~> 6.0)
+  - HXPHPicker/Picker (1.0.9):
+    - HXPHPicker/Core
+  - Kingfisher (6.3.0)
+
+DEPENDENCIES:
+  - HXPHPicker/Kingfisher (from `./`)
+
+SPEC REPOS:
+  trunk:
+    - Kingfisher
+
+EXTERNAL SOURCES:
+  HXPHPicker:
+    :path: "./"
+
+SPEC CHECKSUMS:
+  HXPHPicker: c3b3b29fd9316ba4561e8cfbd878ecf302d07343
+  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
+
+PODFILE CHECKSUM: aeea42dba6b97b79d91fd079d073b7186c3c4ddb
+
+COCOAPODS: 1.10.0

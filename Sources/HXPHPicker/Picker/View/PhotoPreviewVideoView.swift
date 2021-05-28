@@ -147,7 +147,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             }else if keyPath == "playbackLikelyToKeepUp" {
                 if !player.currentItem!.isPlaybackLikelyToKeepUp {
                     // 缓冲完成
-                    _ = ProgressHUD.showLoading(addedTo: self, animated: true)
+                    ProgressHUD.showLoading(addedTo: self, animated: true)
                 }else {
                     // 缓冲中
                     ProgressHUD.hide(forView: self, animated: true)
@@ -165,7 +165,8 @@ class PhotoPreviewVideoView: VideoPlayerView {
     
     @objc func playerItemDidPlayToEndTimeNotification(notifi: Notification) {
         stopPlay()
-        player.currentItem?.seek(to: CMTime.init(value: 0, timescale: 1))
+        player.currentItem?.seek(to: CMTime.init(value: 0, timescale: 1), completionHandler: { (_) in
+        })
         
         if videoPlayType == .auto {
             startPlay()

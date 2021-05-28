@@ -9,15 +9,32 @@
 import UIKit
 import PhotosUI
 
-enum PhotoPreviewContentViewType: Int {
-    case photo
-    case livePhoto
-    case video
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
+
+protocol PhotoPreviewContentViewDelete: AnyObject {
+    func contentView(networkImagedownloadSuccess contentView: PhotoPreviewContentView)
+    func contentView(networkImagedownloadFailed contentView: PhotoPreviewContentView)
+    func contentView(updateContentSize contentView: PhotoPreviewContentView)
 }
+
 class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     
-    lazy var imageView: GIFImageView = {
-        let imageView = GIFImageView.init()
+    enum `Type`: Int {
+        case photo
+        case livePhoto
+        case video
+    }
+    weak var delegate: PhotoPreviewContentViewDelete?
+    
+    lazy var imageView: UIImageView = {
+        var imageView: UIImageView
+        #if canImport(Kingfisher)
+        imageView = AnimatedImageView.init()
+        #else
+        imageView = GIFImageView.init()
+        #endif
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
@@ -36,9 +53,10 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     
     var isBacking: Bool = false
     
-    var type: PhotoPreviewContentViewType = .photo
+    var type: Type = .photo
     var requestID: PHImageRequestID?
     var requestCompletion: Bool = false
+    var requestNetworkCompletion: Bool = false
     var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
         didSet {
             if type == .video {
@@ -49,14 +67,22 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var currentLoadAssetLocalIdentifier: String?
     var photoAsset: PhotoAsset! {
         didSet {
-            if type == .livePhoto {
+            setAnimatedImageCompletion = false
+            switch photoAsset.mediaSubType {
+            case .livePhoto:
                 if #available(iOS 9.1, *) {
                     livePhotoView.livePhoto = nil
                 }
-            }
-            if photoAsset.mediaSubType == .localImage {
+            case .localImage:
                 requestCompletion = true
+            case .networkImage(_):
+                requestNetworkCompletion = false
+                requestNetworkImage()
+                return
+            default:
+                break
             }
+            requestNetworkCompletion = true
             requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { [weak self] (image, asset, info) in
                 if asset == self?.photoAsset && image != nil {
                     self?.imageView.image = image
@@ -64,9 +90,38 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             })
         }
     }
+    
+    func requestNetworkImage() {
+        #if canImport(Kingfisher)
+        requestCompletion = true
+        showLoadingView()
+        imageView.setImage(for: photoAsset, urlType: .original) { [weak self] (receivedData, totolData) in
+            let percentage = Double(receivedData) / Double(totolData)
+            self?.requestUpdateProgress(progress: percentage)
+        } completionHandler: { [weak self] (image, error) in
+            if let self = self {
+                self.requestNetworkCompletion = true
+                if let image = image {
+                    self.requestSucceed()
+                    let needUpdate = self.width / self.height != image.width / image.height
+                    self.photoAsset.networkImageAsset?.imageSize = image.size
+                    if needUpdate {
+                        self.delegate?.contentView(updateContentSize: self)
+                    }
+                    self.delegate?.contentView(networkImagedownloadSuccess: self)
+                }else {
+                    self.requestFailed(info: nil)
+                }
+            }
+        }
+        #endif
+    }
+    
     var loadingView: ProgressHUD?
     
-    init(type: PhotoPreviewContentViewType) {
+    var setAnimatedImageCompletion: Bool = false
+    
+    init(type: Type) {
         super.init(frame: CGRect.zero)
         self.type = type
         addSubview(imageView)
@@ -83,8 +138,11 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         if requestCompletion {
             return
         }
-        if photoAsset.mediaSubType == .localImage {
+        switch photoAsset.mediaSubType {
+        case .localImage, .networkImage(_):
             return
+        default:
+            break
         }
         var canRequest = true
         if let localIdentifier = currentLoadAssetLocalIdentifier, localIdentifier == photoAsset.phAsset?.localIdentifier {
@@ -101,21 +159,31 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
         }
         if type == .photo {
-            if photoAsset.mediaSubType == .imageAnimated &&
-                imageView.gifImage != nil {
-                imageView.startAnimating()
+            #if canImport(Kingfisher)
+            if photoAsset.mediaSubType.isGif && setAnimatedImageCompletion {
+                startAnimatedImage()
             }else {
                 if canRequest {
                     requestOriginalImage()
                 }
             }
+            #else
+            let gifImageView = imageView as! GIFImageView
+            if photoAsset.mediaSubType.isGif && gifImageView.gifImage != nil {
+                gifImageView.startAnimating()
+            }else {
+                if canRequest {
+                    requestOriginalImage()
+                }
+            }
+            #endif
         }else if type == .livePhoto {
             if #available(iOS 9.1, *) {
                 if canRequest {
                     requestLivePhoto()
                 }
             }
-        }else if type == PhotoPreviewContentViewType.video {
+        }else if type == .video {
             if videoView.player.currentItem == nil && canRequest {
                 requestAVAsset()
             }
@@ -139,13 +207,13 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 self?.requestUpdateProgress(progress: progress)
             }
         }, success: { [weak self] (asset, imageData, imageOrientation, info) in
-            if asset.mediaSubType == .imageAnimated {
-                if asset == self?.photoAsset {
-                    self?.requestSucceed()
-                    let image = GIFImage.init(data: imageData)
-                    self?.imageView.gifImage = image
-                    self?.requestID = nil
-                    self?.requestCompletion = true
+            if asset.mediaSubType.isGif {
+                if let self = self, asset == self.photoAsset {
+                    self.requestSucceed()
+                    self.imageView.setImageData(imageData)
+                    self.setAnimatedImageCompletion = true
+                    self.requestID = nil
+                    self.requestCompletion = true
                 }
             }else {
                 DispatchQueue.global().async {
@@ -234,10 +302,13 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         requestID = iCloudRequestID
         currentLoadAssetLocalIdentifier = photoAsset.phAsset?.localIdentifier
-        loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized, animated: true)
+        showLoadingView()
     }
     func requestUpdateProgress(progress: Double) {
         loadingView?.updateText(text: "正在下载".localized + "(" + String(Int(progress * 100)) + "%)")
+    }
+    func showLoadingView() {
+        loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized, animated: true)
     }
     func requestSucceed() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -256,9 +327,12 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
     }
     func cancelRequest() {
-        if photoAsset.mediaSubType == .localImage {
+        switch photoAsset.mediaSubType {
+        case .localImage, .networkImage(_):
             requestCompletion = false
             return
+        default:
+            break
         }
         currentLoadAssetLocalIdentifier = nil
         if requestID != nil {
@@ -287,34 +361,40 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         if photoAsset.mediaType == .video {
             videoView.showPlayButton()
         }
+        if !requestNetworkCompletion {
+            loadingView?.isHidden = false
+        }
     }
     func hiddenOtherSubview() {
         if photoAsset.mediaType == .video {
             videoView.hiddenPlayButton()
         }
-        loadingView = nil
-        ProgressHUD.hide(forView: self, animated: false)
+        if requestNetworkCompletion {
+            loadingView = nil
+            ProgressHUD.hide(forView: self, animated: false)
+        }else {
+            loadingView?.isHidden = true
+        }
     }
     func startAnimatedImage() {
-        if photoAsset.mediaSubType == .imageAnimated {
-            imageView.setupDisplayLink()
+        if photoAsset.mediaSubType.isGif {
+            imageView.startAnimatedImage()
         }
     }
     func stopAnimatedImage() {
-        if photoAsset.mediaSubType == .imageAnimated {
-            imageView.displayLink?.invalidate()
-            imageView.gifImage = nil
+        if photoAsset.mediaSubType.isGif {
+            imageView.stopAnimatedImage()
         }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         imageView.frame = bounds
-        if type == PhotoPreviewContentViewType.livePhoto {
+        if type == .livePhoto {
             if #available(iOS 9.1, *) {
                 livePhotoView.frame = bounds
             }
-        }else if type == PhotoPreviewContentViewType.video {
+        }else if type == .video {
             videoView.frame = bounds
         }
     }
@@ -325,4 +405,43 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+
+fileprivate extension UIImageView {
+    #if canImport(Kingfisher)
+    var my: AnimatedImageView {
+        self as! AnimatedImageView
+    }
+    #else
+    var my: GIFImageView {
+        self as! GIFImageView
+    }
+    #endif
+    
+    func setImageData(_ imageData: Data) {
+        #if canImport(Kingfisher)
+        let image = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))
+        my.image = image
+        #else
+        let image = GIFImage.init(data: imageData)
+        my.gifImage = image
+        #endif
+    }
+    
+    func startAnimatedImage() {
+        #if canImport(Kingfisher)
+        my.startAnimating()
+        #else
+        my.setupDisplayLink()
+        #endif
+    }
+    func stopAnimatedImage() {
+        #if canImport(Kingfisher)
+        my.stopAnimating()
+        #else
+        my.displayLink?.invalidate()
+        my.gifImage = nil
+        #endif
+    }
 }

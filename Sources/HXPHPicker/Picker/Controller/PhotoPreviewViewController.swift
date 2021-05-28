@@ -13,6 +13,7 @@ protocol PhotoPreviewViewControllerDelegate: NSObjectProtocol {
     func previewViewController(_ previewController: PhotoPreviewViewController, didOriginalButton isOriginal: Bool)
     func previewViewController(_ previewController: PhotoPreviewViewController, didSelectBox photoAsset: PhotoAsset, isSelected: Bool, updateCell: Bool)
     func previewViewController(_ previewController: PhotoPreviewViewController, editAssetFinished photoAsset: PhotoAsset)
+    func previewViewController(_ previewController: PhotoPreviewViewController, networkImagedownloadSuccess photoAsset: PhotoAsset)
 }
 
 public class PhotoPreviewViewController: BaseViewController {
@@ -302,7 +303,7 @@ extension PhotoPreviewViewController {
     func setCurrentCellImage(image: UIImage?) {
         if image != nil {
             if let cell = getCell(for: currentPreviewIndex) {
-                if cell.photoAsset.mediaSubType != .imageAnimated {
+                if !cell.photoAsset.mediaSubType.isGif {
                     cell.cancelRequest()
                     cell.scrollContentView.imageView.image = image
                 }
@@ -384,7 +385,7 @@ extension PhotoPreviewViewController {
             }
         }else {
             // 取消选中
-            _ = pickerController?.removePhotoAsset(photoAsset: photoAsset)
+            pickerController?.removePhotoAsset(photoAsset: photoAsset)
             if !beforeIsEmpty && pickerController!.selectedAssetArray.isEmpty {
                 bottomNeedAnimated = true
             }
@@ -472,8 +473,8 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
             let videoCell = cell as! PreviewVideoViewCell
             videoCell.videoPlayType = config.videoPlayType
         }
-        cell.photoAsset = photoAsset
         cell.delegate = self
+        cell.photoAsset = photoAsset
         return cell
     }
 }
@@ -542,7 +543,7 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
 }
 
 // MARK: UINavigationControllerDelegate
-extension PhotoPreviewViewController: UINavigationControllerDelegate{
+extension PhotoPreviewViewController: UINavigationControllerDelegate {
     
     public func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if operation == .push {
@@ -594,8 +595,25 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             self.bottomView.isHidden = self.statusBarShouldBeHidden
         }
     }
+    
+    func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
+        #if canImport(Kingfisher)
+        if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+            pickerController.pickerDelegate?.pickerController(pickerController, previewNetworkImageDownloadSuccess: photoCell.photoAsset, atIndex: index)
+        }
+        delegate?.previewViewController(self, networkImagedownloadSuccess: photoCell.photoAsset)
+        bottomView.requestAssetBytes()
+        #endif
+    }
+    
+    func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell) {
+        #if canImport(Kingfisher)
+        if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+            pickerController.pickerDelegate?.pickerController(pickerController, previewNetworkImageDownloadFailed: photoCell.photoAsset, atIndex: index)
+        }
+        #endif
+    }
 }
-
 // MARK: PhotoPickerBottomViewDelegate
 extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
     
@@ -705,7 +723,7 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
         if isExternalPreview {
             replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
         }else {
-            if videoLoadSingleCell || !isMultipleSelect {
+            if (videoLoadSingleCell && photoAsset.mediaType == .video) || !isMultipleSelect {
                 if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
                     pickerController?.singleFinishCallback(for: photoAsset)
                 }

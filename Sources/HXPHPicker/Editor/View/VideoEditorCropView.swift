@@ -369,6 +369,9 @@ extension VideoEditorCropView: UICollectionViewDataSource, UICollectionViewDeleg
         return time
     }
     func getVideoFrame() {
+        if videoFrameCount < 0 {
+            return
+        }
         imageGenerator = AVAssetImageGenerator.init(asset: avAsset)
         imageGenerator?.maximumSize = CGSize(width: itemWidth * 2, height: itemHeight * 2)
         imageGenerator?.appliesPreferredTrackTransform = true

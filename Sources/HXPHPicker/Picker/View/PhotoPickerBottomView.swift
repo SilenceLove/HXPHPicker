@@ -168,13 +168,17 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             let timer = Timer.init(timeInterval: 0.1, target: self, selector: #selector(showOriginalLoading(timer:)), userInfo: nil, repeats: false)
             RunLoop.main.add(timer, forMode: .common)
             originalLoadingDelayTimer = timer
-            pickerController.requestSelectedAssetFileSize(isPreview: isPreview) { (bytes, bytesString) in
-                self.originalLoadingDelayTimer?.invalidate()
-                self.originalLoadingDelayTimer = nil
-                self.originalLoadingView.stopAnimating()
-                self.showOriginalLoadingView = false
-                self.originalTitleLb.text = "原图".localized + " (" + bytesString + ")"
-                self.updateOriginalButtonFrame()
+            pickerController.requestSelectedAssetFileSize(isPreview: isPreview) { [weak self] (bytes, bytesString) in
+                self?.originalLoadingDelayTimer?.invalidate()
+                self?.originalLoadingDelayTimer = nil
+                self?.originalLoadingView.stopAnimating()
+                self?.showOriginalLoadingView = false
+                if bytes > 0 {
+                    self?.originalTitleLb.text = "原图".localized + " (" + bytesString + ")"
+                }else {
+                    self?.originalTitleLb.text = "原图".localized
+                }
+                self?.updateOriginalButtonFrame()
             }
         }
     }

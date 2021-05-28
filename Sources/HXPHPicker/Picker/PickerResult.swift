@@ -16,6 +16,7 @@ public struct PickerResult {
     public let isOriginal: Bool
     
     /// 获取已选资源的地址（原图）
+    /// 不包括网络图片
     /// - Parameters:
     ///   - options: 获取的类型
     ///         photo    视频获取的是封面图片地址，LivePhoto获取的URL为封面图片地址
@@ -23,19 +24,36 @@ public struct PickerResult {
     ///                  LivePhoto如果编辑过，获取的只会是编辑后的图片URL
     ///   - completion: result
     public func getURLs(options: Options = .any, completion: @escaping ([URL]) -> Void) {
+        var urls: [URL] = []
+        getURL(options: options) { (url, isNetwork, index) in
+            if let url = url, !isNetwork {
+                urls.append(url)
+            }
+        } completionHandler: { (_) in
+            completion(urls)
+        }
+    }
+    
+    /// 获取已选资源的地址（原图）
+    /// 包括网络图片
+    /// - Parameters:
+    ///   - options: 获取的类型
+    ///   - handler: 获取到url的回调 (地址，是否网络资源，对应的位置下标)
+    ///   - completionHandler: 全部获取完成
+    public func getURL(options: Options = .any, urlReceivedHandler handler: @escaping (URL?, Bool, Int) -> Void, completionHandler: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.request.urls")
         var urls: [URL] = []
-        for photoAsset in photoAssets {
+        for (index, photoAsset) in photoAssets.enumerated() {
             queue.async(group: group, execute: DispatchWorkItem.init(block: {
                 let semaphore = DispatchSemaphore.init(value: 0)
-                var mediatype: PhotoAsset.MediaType
-                if options.contains([.photo]) {
+                var mediatype: PhotoAsset.MediaType = .photo
+                if options.contains([.photo, .video]) {
+                    mediatype = photoAsset.mediaType
+                }else if options.contains([.photo]) {
                     mediatype = .photo
                 }else if options.contains([.video]){
                     mediatype = .video
-                }else {
-                    mediatype = photoAsset.mediaType
                 }
                 #if HXPICKER_ENABLE_EDITOR
                 if photoAsset.mediaSubType == .livePhoto && photoAsset.photoEdit != nil {
@@ -43,10 +61,23 @@ public struct PickerResult {
                 }
                 #endif
                 if mediatype == .photo {
+                    #if canImport(Kingfisher)
+                    if photoAsset.isNetworkAsset {
+                        photoAsset.getNetworkImageURL { (url, isNetwork) in
+                            if let url = url {
+                                urls.append(url)
+                            }
+                            handler(url, isNetwork, index)
+                            semaphore.signal()
+                        }
+                        return
+                    }
+                    #endif
                     photoAsset.requestImageURL { (url) in
                         if let url = url {
                             urls.append(url)
                         }
+                        handler(url, false, index)
                         semaphore.signal()
                     }
                 }else {
@@ -54,6 +85,7 @@ public struct PickerResult {
                         if let url = url {
                             urls.append(url)
                         }
+                        handler(url, false, index)
                         semaphore.signal()
                     }
                 }
@@ -61,7 +93,7 @@ public struct PickerResult {
             }))
         }
         group.notify(queue: .main) {
-            completion(urls)
+            completionHandler(urls)
         }
     }
     

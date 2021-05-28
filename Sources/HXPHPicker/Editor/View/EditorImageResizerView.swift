@@ -180,7 +180,7 @@ class EditorImageResizerView: UIView {
     }
     func setImage(_ image: UIImage) {
         updateContentInsets()
-        imageScale = image.size.width / image.size.height
+        imageScale = image.width / image.height
         imageView.setImage(image)
         configAspectRatio()
         updateScrollView()

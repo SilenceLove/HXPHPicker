@@ -70,14 +70,15 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     open override var photoAsset: PhotoAsset! {
         didSet {
             switch photoAsset.mediaSubType {
-            case .imageAnimated:
+            case .imageAnimated, .localGifImage:
                 assetTypeLb.text = "GIF"
                 assetTypeMaskView.isHidden = false
-                break
+            case .networkImage(let isGif):
+                assetTypeLb.text = isGif ? "GIF" : nil
+                assetTypeMaskView.isHidden = !isGif
             case .livePhoto:
                 assetTypeLb.text = "Live"
                 assetTypeMaskView.isHidden = false
-                break
             case .video, .localVideo:
                 assetTypeLb.text = photoAsset.videoTime
                 assetTypeMaskView.isHidden = false
@@ -88,7 +89,6 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
 //                    assetTypeIcon.image = UIImage.image(for: "hx_picker_cell_video_edit_icon")
 //                }
 //                #endif
-                break
             default:
                 assetTypeLb.text = nil
                 assetTypeMaskView.isHidden = true

@@ -74,6 +74,7 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
+    @discardableResult
     class func requestImageURL(for asset: PHAsset, resultHandler: @escaping (URL?, UIImage?) -> Void) -> PHContentEditingInputRequestID {
         let options = PHContentEditingInputRequestOptions.init()
         options.isNetworkAccessAllowed = true

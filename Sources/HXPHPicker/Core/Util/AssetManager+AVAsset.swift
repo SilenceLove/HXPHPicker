@@ -19,13 +19,14 @@ public extension AssetManager {
     ///   - progressHandler: iCloud下载进度
     ///   - resultHandler: AVAsset，AVAudioMix，info，downloadSuccess
     /// - Returns: 请求ID
+    @discardableResult
     class func requestAVAsset(for asset: PHAsset, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
         return requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (avAsset, audioMix, info) in
             DispatchQueue.main.async {
                 if self.assetDownloadFinined(for: info) {
                     if avAsset?.isPlayable == false {
-                        _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                        self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
                     }else {
                         resultHandler(avAsset, audioMix, info, true)
                     }
@@ -35,7 +36,7 @@ public extension AssetManager {
                             DispatchQueue.main.async {
                                 if self.assetDownloadFinined(for: info) {
                                     if avAsset?.isPlayable == false {
-                                        _ = self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
+                                        self.requestAVAsset(for: asset, deliveryMode: .highQualityFormat, iCloudHandler: iCloudHandler, progressHandler: progressHandler, resultHandler: resultHandler)
                                     }else {
                                         resultHandler(avAsset, audioMix, info, true)
                                     }
@@ -59,6 +60,7 @@ public extension AssetManager {
     ///   - progressHandler: iCloud下载进度
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
+    @discardableResult
     class func requestAVAsset(for asset: PHAsset, version: PHVideoRequestOptionsVersion, deliveryMode: PHVideoRequestOptionsDeliveryMode, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         let options = PHVideoRequestOptions.init()
         options.isNetworkAccessAllowed = isNetworkAccessAllowed
@@ -74,6 +76,7 @@ public extension AssetManager {
     ///   - options: 可选项
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
+    @discardableResult
     class func requestAVAsset(for asset: PHAsset, options: PHVideoRequestOptions, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         return PHImageManager.default().requestAVAsset(forVideo: asset, options: options, resultHandler: resultHandler)
     }

@@ -1,5 +1,26 @@
 # 更新日志
 
+## 1.0.9
+
+### 新增
+
+- Picker
+  - `PhotoAsset`新增`public init(localImageAsset: LocalImageAsset)`、`public init(localVideoAsset: LocalVideoAsset)`初始化方法，支持本地gif图片
+  - `PhotoAsset`新增`public init(networkImageAsset: NetworkImageAsset)`初始化方法，支持网络图片
+  
+### 修改
+- 最低系统版本升为`iOS 10`
+
+### 修复
+
+- Picker
+  - 使用微信朋友圈主题在编辑图片完成后直接退出选择器控制器
+  - 预览时进行编辑后底部视图可能会多添加一次资源
+  - `PickerResult.getURLs()`获取视频地址出错问题
+  
+- Editor
+ - 编辑视频时可能会崩溃问题
+
 ## 1.0.8
 
 ### 新增

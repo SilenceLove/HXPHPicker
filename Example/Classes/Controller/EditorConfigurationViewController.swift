@@ -101,7 +101,7 @@ extension EditorConfigurationViewController: PhotoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.photoEditor = photoConfig
         pickerResultVC.config = pickerConfig
-        let photoAsset = PhotoAsset.init(image: photoEditorViewController.image)
+        let photoAsset = PhotoAsset.init(localImageAsset: .init(image: photoEditorViewController.image))
         photoAsset.photoEdit = result
         pickerResultVC.selectedAssets = [photoAsset]
         self.navigationController?.pushViewController(pickerResultVC, animated: true)
@@ -111,7 +111,7 @@ extension EditorConfigurationViewController: PhotoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.photoEditor = photoConfig
         pickerResultVC.config = pickerConfig
-        let photoAsset = PhotoAsset.init(image: photoEditorViewController.image)
+        let photoAsset = PhotoAsset.init(localImageAsset: .init(image: photoEditorViewController.image))
         pickerResultVC.selectedAssets = [photoAsset]
         self.navigationController?.pushViewController(pickerResultVC, animated: true)
     }
@@ -122,7 +122,7 @@ extension EditorConfigurationViewController: VideoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.videoEditor = videoConfig
         pickerResultVC.config = pickerConfig
-        let photoAsset = PhotoAsset.init(videoURL: videoURL)
+        let photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: result.editedURL))
         photoAsset.videoEdit = result
         pickerResultVC.selectedAssets = [photoAsset]
         self.navigationController?.pushViewController(pickerResultVC, animated: true)
@@ -132,7 +132,7 @@ extension EditorConfigurationViewController: VideoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.videoEditor = videoConfig
         pickerResultVC.config = pickerConfig
-        let photoAsset = PhotoAsset.init(videoURL: videoURL)
+        let photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: videoURL))
         pickerResultVC.selectedAssets = [photoAsset]
         self.navigationController?.pushViewController(pickerResultVC, animated: true)
     }

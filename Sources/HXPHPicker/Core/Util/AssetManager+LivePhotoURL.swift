@@ -13,7 +13,7 @@ public extension AssetManager {
     // MARK: 获取LivePhoto里的图片Data和视频地址
     class func requestLivePhoto(content asset: PHAsset, imageDataHandler: @escaping (Data?) -> Void, videoHandler: @escaping (URL?) -> Void, completionHandler: @escaping (LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
-            _ = requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
+            requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in
             } resultHandler: { (livePhoto, info, downloadSuccess) in
                 if livePhoto == nil {
@@ -89,7 +89,7 @@ public extension AssetManager {
     ///   - completionHandler: 获取完成
     class func requestLivePhoto(videoURL forAsset: PHAsset, toFile fileURL:URL, completionHandler: @escaping (URL?, LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
-            _ = requestLivePhoto(for: forAsset, targetSize: PHImageManagerMaximumSize) { (ID) in
+            requestLivePhoto(for: forAsset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in
             } resultHandler: { (livePhoto, info, downloadSuccess) in
                 if livePhoto == nil {
@@ -133,7 +133,7 @@ public extension AssetManager {
     // MARK: 获取LivePhoto里的图片地址和视频地址
     class func requestLivePhoto(contentURL asset: PHAsset, imageURLHandler: @escaping (URL?) -> Void, videoHandler: @escaping (URL?) -> Void, completionHandler: @escaping (LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
-            _ = requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
+            requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in
             } resultHandler: { (livePhoto, info, downloadSuccess) in
                 if livePhoto == nil {

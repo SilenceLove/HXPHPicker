@@ -44,7 +44,7 @@ import Photos
             options.isSynchronous = true
             options.deliveryMode = .fastFormat
             options.resizeMode = .fast
-            _ = AssetManager.requestImageData(for: self, options: options) { (imageData, dataUTI, orientation, info) in
+            AssetManager.requestImageData(for: self, options: options) { (imageData, dataUTI, orientation, info) in
                 if imageData == nil && AssetManager.assetIsInCloud(for: info) {
                     isICloud = true
                 }

@@ -75,8 +75,19 @@ public class PhotoTools {
         return tmpURL
     }
     /// 获取图片临时路径
-    public class func getImageTmpURL() -> URL {
-        return getTmpURL(for: "jpeg")
+    public class func getImageTmpURL(_ imageContentType: ImageContentType = .jpg) -> URL {
+        var suffix: String
+        switch imageContentType {
+        case .jpg:
+            suffix = "jpeg"
+        case .png:
+            suffix = "png"
+        case .gif:
+            suffix = "gif"
+        default:
+            suffix = "jpeg"
+        }
+        return getTmpURL(for: suffix)
     }
     /// 获取视频临时路径
     public class func getVideoTmpURL() -> URL {

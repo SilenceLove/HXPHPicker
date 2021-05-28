@@ -38,7 +38,7 @@ class PreviewVideoViewCell: PhotoPreviewViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        scrollContentView = PhotoPreviewContentView.init(type: PhotoPreviewContentViewType.video)
+        scrollContentView = PhotoPreviewContentView.init(type: .video)
         scrollContentView.videoView.delegate = self
         initView()
         addSubview(playButton)

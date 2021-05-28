@@ -68,17 +68,76 @@ public extension PickerResult {
 
 public extension PhotoAsset {
     enum MediaType: Int {
-        case photo = 0      //!< 照片
-        case video = 1      //!< 视频
+        /// 照片
+        case photo = 0
+        /// 视频
+        case video = 1
     }
 
-    enum MediaSubType: Int {
-        case image = 0          //!< 手机相册里的图片
-        case imageAnimated = 1  //!< 手机相册里的动图
-        case livePhoto = 2      //!< 手机相册里的LivePhoto
-        case localImage = 3     //!< 本地图片
-        case video = 4          //!< 手机相册里的视频
-        case localVideo = 5     //!< 本地视频
+    enum MediaSubType: Equatable {
+        /// 手机相册里的图片
+        case image
+        /// 手机相册里的动图
+        case imageAnimated
+        /// 手机相册里的LivePhoto
+        case livePhoto
+        /// 本地图片
+        case localImage
+        /// 手机相册里的视频
+        case video
+        /// 本地视频
+        case localVideo
+        /// 本地动图
+        case localGifImage
+        /// 网络图片
+        case networkImage(Bool)
+        
+        public var isLocal: Bool {
+            switch self {
+            case .localImage, .localGifImage, .localVideo:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        public var isPhoto: Bool {
+            switch self {
+            case .image, .imageAnimated, .livePhoto, .localImage, .localGifImage, .networkImage(_):
+                return true
+            default:
+                return false
+            }
+        }
+        
+        public var isVideo: Bool {
+            switch self {
+            case .video, .localVideo:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        public var isGif: Bool {
+            switch self {
+            case .imageAnimated, .localGifImage:
+                return true
+            case .networkImage(let isGif):
+                return isGif
+            default:
+                return false
+            }
+        }
+        
+        public var isNetwork: Bool {
+            switch self {
+            case .networkImage(_):
+                return true
+            default:
+                return false
+            }
+        }
     }
     enum DownloadStatus: Int {
         case unknow         //!< 未知，不用下载或还未开始下载

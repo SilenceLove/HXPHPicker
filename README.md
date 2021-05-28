@@ -18,7 +18,7 @@
 - [x] 支持的本地资源类型：
     - [x] Photo
     - [x] Video
-    - [ ] GIF
+    - [x] GIF
     - [ ] Live Photo
 - [x] 支持下载iCloud上的资源
 - [x] 支持手势返回
