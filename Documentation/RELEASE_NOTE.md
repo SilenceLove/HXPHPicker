@@ -8,16 +8,16 @@
   - `PhotoAsset`新增`public init(localImageAsset: LocalImageAsset)`、`public init(localVideoAsset: LocalVideoAsset)`初始化方法，支持本地gif图片、视频
   - `PhotoAsset`新增`public init(networkImageAsset: NetworkImageAsset)`、`public init(networkVideoAsset: NetworkVideoAsset)`初始化方法，支持网络图片、视频
 - Editor
- - `PhotoEditResult`新增`editedImageURL`字段
- - 支持编辑gif（需要`Kingfisher`）
- - 支持编辑网络图片（需要`Kingfisher`）
- - 支持编辑网络视频
+  - `PhotoEditResult`新增`editedImageURL`字段
+  - 支持编辑gif（需要`Kingfisher`）
+  - 支持编辑网络图片（需要`Kingfisher`）
+  - 支持编辑网络视频
   
 ### 修改
 
 - 最低系统版本升为`iOS 10`
 - picker
- - `PhotoAsset`添加本地资源初始化方法修改
+  - `PhotoAsset`添加本地资源初始化方法修改
 
 ### 修复
 
@@ -26,7 +26,7 @@
   - 预览时进行编辑后底部视图可能会多添加一次资源
   - `PickerResult.getURLs()`获取视频地址出错问题
 - Editor
- - 编辑视频时小几率会崩溃问题
+  - 编辑视频时小几率会崩溃问题
 
 ## 1.0.8
 
