@@ -168,9 +168,9 @@ class PhotoEditorView: UIScrollView {
         let viewWidth = imageView.imageView.width
         let viewHeight = imageView.imageView.height
         DispatchQueue.global().async {
-            if let image = self.imageView.cropping(inputImage, toRect: toRect, viewWidth: viewWidth, viewHeight: viewHeight) {
+            if let imageOptions = self.imageView.cropping(inputImage, toRect: toRect, viewWidth: viewWidth, viewHeight: viewHeight) {
                 DispatchQueue.main.async {
-                    let editResult = PhotoEditResult.init(editedImage: image, editedData: self.getEditedData())
+                    let editResult = PhotoEditResult.init(editedImage: imageOptions.0, editedImageURL: imageOptions.1, imageType: imageOptions.2, editedData: self.getEditedData())
                     completion(editResult)
                 }
             }else {

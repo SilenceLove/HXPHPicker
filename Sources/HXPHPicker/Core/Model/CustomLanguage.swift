@@ -14,7 +14,8 @@ public class CustomLanguage {
     /// 语言文件路径
     public let path: String
     
-    public init(language: String, path: String) {
+    public init(language: String,
+                path: String) {
         self.language = language
         self.path = path
     }

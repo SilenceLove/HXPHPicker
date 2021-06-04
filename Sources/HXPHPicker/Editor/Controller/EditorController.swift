@@ -8,6 +8,10 @@
 import UIKit
 import AVKit
 
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
+
 open class EditorController: UINavigationController {
     
     public weak var videoEditorDelegate: VideoEditorViewControllerDelegate? {
@@ -24,6 +28,7 @@ open class EditorController: UINavigationController {
         }
     }
     
+    /// 当前编辑类型
     public var editorType: EditorType
     
     /// 根据UIImage初始化
@@ -31,9 +36,9 @@ open class EditorController: UINavigationController {
     ///   - image: 对应的UIImage
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public init(image: UIImage, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
-        PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+    public init(image: UIImage,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -41,27 +46,79 @@ open class EditorController: UINavigationController {
         self.viewControllers = [photoEditorVC]
     }
     
-    /// 根据视频地址初始化
+    /// 根据Data初始化
+    /// - Parameters:
+    ///   - imageData: 对应图片的Data
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(imageData: Data,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
+        editorType = .photo
+        self.config = config
+        super.init(nibName: nil, bundle: nil)
+        
+        let image: UIImage
+        #if canImport(Kingfisher)
+        image = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))!
+        #else
+        image = UIImage.init(data: imageData)!
+        #endif
+        let photoEditorVC = PhotoEditorViewController.init(image: image, editResult: editResult, config: config)
+        self.viewControllers = [photoEditorVC]
+    }
+    
+    #if canImport(Kingfisher)
+    /// 编辑网络图片
+    public init(networkImageURL: URL,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
+        editorType = .photo
+        self.config = config
+        super.init(nibName: nil, bundle: nil)
+        let photoEditorVC = PhotoEditorViewController.init(networkImageURL: networkImageURL, editResult: editResult, config: config)
+        self.viewControllers = [photoEditorVC]
+    }
+    #endif
+    
+    /// 编辑 Video
     /// - Parameters:
     ///   - videoURL: 本地视频地址
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public convenience init(videoURL: URL, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+    public convenience init(videoURL: URL,
+                            editResult: VideoEditResult? = nil,
+                            config: VideoEditorConfiguration) {
         self.init(avAsset: AVAsset.init(url: videoURL), editResult: editResult, config: config)
     }
     
-    /// 根据AVAsset初始化
+    /// 编辑 AVAsset
     /// - Parameters:
     ///   - avAsset: 视频对应的AVAsset对象
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public init(avAsset: AVAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
-        PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+    public init(avAsset: AVAsset,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
         let videoEditorVC = VideoEditorViewController.init(avAsset: avAsset, editResult: editResult, config: config)
+        self.viewControllers = [videoEditorVC]
+    }
+    
+    /// 编辑网络视频
+    /// - Parameters:
+    ///   - networkVideoURL: 对应的网络视频地址
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(networkVideoURL: URL,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
+        editorType = .video
+        self.config = config
+        super.init(nibName: nil, bundle: nil)
+        let videoEditorVC = VideoEditorViewController.init(networkVideoURL: networkVideoURL, editResult: editResult, config: config)
         self.viewControllers = [videoEditorVC]
     }
     
@@ -71,9 +128,9 @@ open class EditorController: UINavigationController {
     ///   - photoAsset: 视频对应的PhotoAsset对象
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public init(photoAsset: PhotoAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
-        PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+    public init(photoAsset: PhotoAsset,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -86,9 +143,9 @@ open class EditorController: UINavigationController {
     ///   - photoAsset: 照片对应的PhotoAsset对象
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public init(photoAsset: PhotoAsset, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
-        PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+    public init(photoAsset: PhotoAsset,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)

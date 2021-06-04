@@ -12,28 +12,42 @@ public extension EditorController {
         case photo
         case video
     }
+    
+    enum AssetType {
+        /// 本地
+        case local
+        /// 网络
+        case network
+        /// 通过picker跳转过来的
+        case picker
+    }
 }
 
 /// 照片编辑控制器的状态
 public extension PhotoEditorViewController {
     enum State: Int {
-        case normal     //!< 正常状态
-        case cropping   //!< 裁剪状态
+        /// 正常状态
+        case normal
+        /// 裁剪状态
+        case cropping
     }
 }
 
 /// 视频编辑控制器的状态
 public extension VideoEditorViewController {
     enum State: Int {
-        case normal     //!< 正常状态
-        case cropping   //!< 裁剪状态
+        /// 正常状态
+        case normal
+        /// 裁剪状态
+        case cropping
     }
 }
 
 /// 编辑工具模型
 public extension EditorToolOptions {
     enum `Type` {
-        case cropping   //!< 裁剪
+        /// 裁剪
+        case cropping
     }
 }
 

@@ -10,7 +10,7 @@ import UIKit
 import Photos
 import PhotosUI
 
-public class PhotoManager {
+public class PhotoManager: NSObject {
     
     public static let shared = PhotoManager()
     
@@ -51,9 +51,60 @@ public class PhotoManager {
     /// 是否使用了自定义的语言
     var isCustomLanguage: Bool = false
     
+    private lazy var downloadSession: URLSession = {
+        let session = URLSession.init(configuration: .default, delegate: self, delegateQueue: nil)
+        
+        return session
+    }()
     
-    private init() {
-        createBundle()
+    var downloadTasks: [String : URLSessionDownloadTask] = [:]
+    
+    var downloadCompletions: [String : (URL?, Error?) -> Void] = [:]
+    
+    var downloadProgresss: [String : (Double, URLSessionDownloadTask) -> Void] = [:]
+    
+    @discardableResult
+    public func downloadTask(with url: URL,
+                      progress: @escaping (Double, URLSessionDownloadTask) -> Void,
+                      completionHandler: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask {
+        let key = url.absoluteString
+        downloadProgresss[key] = progress
+        downloadCompletions[key] = completionHandler
+        if let task = downloadTasks[key] {
+            if task.state == .suspended {
+                task.resume()
+                return task
+            }
+        } 
+        let task = downloadSession.downloadTask(with: url)
+        downloadTasks[key] = task
+        task.resume()
+        return task
+    }
+    
+    public func suspendTask(_ url: URL) {
+        let key = url.absoluteString
+        let task = downloadTasks[key]
+        if task?.state.rawValue == 1 {
+            return
+        }
+        task?.suspend()
+        downloadCompletions.removeValue(forKey: key)
+        downloadProgresss.removeValue(forKey: key)
+    }
+    
+    public func removeTask(_ url: URL) {
+        let key = url.absoluteString
+        let task = downloadTasks[key]
+        task?.cancel()
+        downloadCompletions.removeValue(forKey: key)
+        downloadProgresss.removeValue(forKey: key)
+        downloadTasks.removeValue(forKey: key)
+    }
+    
+    private override init() {
+        super.init()
+        self.createBundle()
     }
     @discardableResult
     func createBundle() -> Bundle? {

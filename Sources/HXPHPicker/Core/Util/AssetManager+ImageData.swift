@@ -21,7 +21,11 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
     @discardableResult
-    class func requestImageData(for asset: PHAsset, version: PHImageRequestOptionsVersion, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping ImageDataFetchCompletion) -> PHImageRequestID {
+    class func requestImageData(for asset: PHAsset,
+                                version: PHImageRequestOptionsVersion,
+                                iCloudHandler: @escaping (PHImageRequestID) -> Void,
+                                progressHandler: @escaping PHAssetImageProgressHandler,
+                                resultHandler: @escaping ImageDataFetchCompletion) -> PHImageRequestID {
         return requestImageData(for: asset, version: version, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (data, dataUTI, imageOrientation, info) in
             DispatchQueue.main.async {
                 if self.assetDownloadFinined(for: info) {
@@ -44,7 +48,11 @@ public extension AssetManager {
     
     /// 请求imageData，注意处理 HEIC格式
     @discardableResult
-    class func requestImageData(for asset: PHAsset, version: PHImageRequestOptionsVersion, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
+    class func requestImageData(for asset: PHAsset,
+                                version: PHImageRequestOptionsVersion,
+                                isNetworkAccessAllowed: Bool,
+                                progressHandler: @escaping PHAssetImageProgressHandler,
+                                resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
         let options = PHImageRequestOptions.init()
         options.version = version
         options.resizeMode = .fast
@@ -54,7 +62,9 @@ public extension AssetManager {
     }
     /// 请求imageData，注意处理 HEIC格式
     @discardableResult
-    class func requestImageData(for asset: PHAsset, options: PHImageRequestOptions, resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
+    class func requestImageData(for asset: PHAsset,
+                                options: PHImageRequestOptions,
+                                resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
         if #available(iOS 13, *) {
             return PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in
                 var sureOrientation : UIImage.Orientation;

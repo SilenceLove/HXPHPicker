@@ -8,6 +8,11 @@
 
 import UIKit
 import ImageIO
+import CoreGraphics
+import MobileCoreServices
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 extension UIImage {
     var width : CGFloat {
@@ -121,6 +126,7 @@ extension UIImage {
         let croppedImage: UIImage = UIImage(cgImage: cutImageRef)
         return croppedImage
     }
+    
     func rotation(to orientation: UIImage.Orientation) -> UIImage? {
         if let cgImage = cgImage {
             func swapWidthAndHeight(_ toRect: CGRect) -> CGRect {
@@ -185,6 +191,73 @@ extension UIImage {
             UIGraphicsEndImageContext()
             return newImage
         }
+        return nil
+    }
+    func rotation(angle: Int, isHorizontal: Bool) -> UIImage? {
+        switch angle {
+        case 0, 360:
+            if isHorizontal {
+                return rotation(to: .upMirrored)
+            }
+        case 90:
+            if !isHorizontal {
+                return rotation(to: .left)
+            }else {
+                return rotation(to: .rightMirrored)
+            }
+        case 180:
+            if !isHorizontal {
+                return rotation(to: .down)
+            }else {
+                return rotation(to: .downMirrored)
+            }
+        case 270:
+            if !isHorizontal {
+                return rotation(to: .right)
+            }else {
+                return rotation(to: .leftMirrored)
+            }
+        default:
+            break
+        }
+        return self
+    }
+    func animateImageFrame() -> ([UIImage], [Double], Double)? {
+        #if canImport(Kingfisher)
+        if let imageData = kf.gifRepresentation() {
+//            let info: [String: Any] = [
+//                kCGImageSourceShouldCache as String: true,
+//                kCGImageSourceTypeIdentifierHint as String: kUTTypeGIF
+//            ]
+            guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil) else {
+                return nil
+            }
+            let frameCount = CGImageSourceGetCount(imageSource)
+            
+            var images = [UIImage]()
+            var delays = [Double]()
+            var gifDuration = 0.0
+            
+            for i in 0 ..< frameCount {
+                guard let imageRef = CGImageSourceCreateImageAtIndex(imageSource, i, nil) else {
+                    return nil
+                }
+                var delay: Double
+                if frameCount == 1 {
+                    delay = .infinity
+                    gifDuration = .infinity
+                } else {
+                    // Get current animated GIF frame duration
+                    delay = PhotoTools.getFrameDuration(from: imageSource, at: i)
+                    gifDuration += delay
+                }
+                let image = UIImage.init(cgImage: imageRef, scale: 1, orientation: .up)
+                images.append(image)
+                delays.append(delay)
+            }
+            return (images, delays, gifDuration)
+        }
+        #endif
         return nil
     }
 }

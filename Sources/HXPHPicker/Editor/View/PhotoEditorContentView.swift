@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 protocol PhotoEditorContentViewDelegate: AnyObject {
     
@@ -14,7 +17,12 @@ protocol PhotoEditorContentViewDelegate: AnyObject {
 class PhotoEditorContentView: UIView {
     
     lazy var imageView: UIImageView = {
-        let imageView = UIImageView.init()
+        var imageView: UIImageView
+        #if canImport(Kingfisher)
+        imageView = AnimatedImageView.init()
+        #else
+        imageView = UIImageView.init()
+        #endif
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
@@ -33,7 +41,12 @@ class PhotoEditorContentView: UIView {
     
     
     func setImage(_ image: UIImage) {
+        #if canImport(Kingfisher)
+        let view = imageView as! AnimatedImageView
+        view.image = image
+        #else
         imageView.image = image
+        #endif
     }
     
     override func layoutSubviews() {

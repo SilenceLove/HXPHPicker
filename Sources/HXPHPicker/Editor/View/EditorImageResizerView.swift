@@ -7,6 +7,9 @@
 
 import UIKit
 import AVFoundation
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 protocol EditorImageResizerViewDelegate: AnyObject {
     func imageResizerView(willChangedMaskRect imageResizerView: EditorImageResizerView)
@@ -791,7 +794,27 @@ class EditorImageResizerView: UIView {
         rect = CGRect(x: rect.minX * scrollView.zoomScale, y: rect.minY * scrollView.zoomScale, width: rect.width * scrollView.zoomScale, height: rect.height * scrollView.zoomScale)
         return rect
     }
-    func cropping(_ inputImage: UIImage?, toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+    func cropping(_ inputImage: UIImage?, toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> (UIImage, URL, PhotoEditResult.ImageType)? {
+        if let option = inputImage?.animateImageFrame() {
+            var images = [UIImage]()
+            var delays = [Double]()
+            for (index, image) in option.0.enumerated() {
+                if let newImage = cropImage(image, toRect: cropRect, viewWidth: viewWidth, viewHeight: viewHeight) {
+                    images.append(newImage)
+                    delays.append(option.1[index])
+                }
+            }
+            if let image = images.first, let imageURL = PhotoTools.createAnimatedImageURL(images: images, delays: delays) {
+                return (image, imageURL, .gif)
+            }
+            return nil
+        }
+        if let image = cropImage(inputImage, toRect: cropRect, viewWidth: viewWidth, viewHeight: viewHeight), let imageURL = PhotoTools.write(image: image) {
+            return (image, imageURL, .normal)
+        }
+        return nil
+    }
+    func cropImage(_ inputImage: UIImage?, toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage?  {
         var image = inputImage?.cropImage(toRect: cropRect, viewWidth: viewWidth, viewHeight: viewHeight)
         if cropConfig.isRoundCrop {
             image = image?.roundCropping()
@@ -803,32 +826,7 @@ class EditorImageResizerView: UIView {
         let isHorizontal = mirrorType == .horizontal
         if rotate > 0 || isHorizontal {
             let angle = labs(Int(currentAngle))
-            switch angle {
-            case 0, 360:
-                if isHorizontal {
-                    image = image?.rotation(to: .upMirrored)
-                }
-            case 90:
-                if !isHorizontal {
-                    image = image?.rotation(to: .left)
-                }else {
-                    image = image?.rotation(to: .rightMirrored)
-                }
-            case 180:
-                if !isHorizontal {
-                    image = image?.rotation(to: .down)
-                }else {
-                    image = image?.rotation(to: .downMirrored)
-                }
-            case 270:
-                if !isHorizontal {
-                    image = image?.rotation(to: .right)
-                }else {
-                    image = image?.rotation(to: .leftMirrored)
-                }
-            default:
-                break
-            }
+            image = image?.rotation(angle: angle, isHorizontal: isHorizontal)
         }
         return image
     }

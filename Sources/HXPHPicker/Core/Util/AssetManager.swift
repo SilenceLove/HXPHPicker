@@ -19,7 +19,12 @@ public class AssetManager {
     ///   - creationDate: 创建时间，默认当前时间
     ///   - location: 位置信息
     ///   - completion: PHAsset为空则保存失败
-    public class func saveSystemAlbum(forAsset asset: Any, mediaType: PHAssetMediaType, customAlbumName: String?, creationDate: Date?, location: CLLocation?, completion: @escaping (PHAsset?) -> Void) {
+    public class func saveSystemAlbum(forAsset asset: Any,
+                                      mediaType: PHAssetMediaType,
+                                      customAlbumName: String?,
+                                      creationDate: Date?,
+                                      location: CLLocation?,
+                                      completion: @escaping (PHAsset?) -> Void) {
         var albumName: String?
         if let customAlbumName = customAlbumName, customAlbumName.count > 0 {
             albumName = customAlbumName
@@ -71,12 +76,16 @@ public class AssetManager {
     }
     
     /// 保存图片到系统相册
-    public class func saveSystemAlbum(forImage image: UIImage, customAlbumName: String? = nil, completion: @escaping (PHAsset?) -> Void) {
+    public class func saveSystemAlbum(forImage image: UIImage,
+                                      customAlbumName: String? = nil,
+                                      completion: @escaping (PHAsset?) -> Void) {
         saveSystemAlbum(forAsset: image, mediaType: .image, customAlbumName: customAlbumName, creationDate: nil, location: nil, completion: completion)
     }
     
     /// 保存视频到系统相册
-    public class func saveSystemAlbum(forVideoURL videoURL: URL, customAlbumName: String? = nil, completion: @escaping (PHAsset?) -> Void) {
+    public class func saveSystemAlbum(forVideoURL videoURL: URL,
+                                      customAlbumName: String? = nil,
+                                      completion: @escaping (PHAsset?) -> Void) {
         saveSystemAlbum(forAsset: videoURL, mediaType: .video, customAlbumName: customAlbumName, creationDate: nil, location: nil, completion: completion)
     }
     

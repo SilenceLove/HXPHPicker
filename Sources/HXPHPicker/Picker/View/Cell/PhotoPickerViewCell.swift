@@ -79,8 +79,17 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
             case .livePhoto:
                 assetTypeLb.text = "Live"
                 assetTypeMaskView.isHidden = false
-            case .video, .localVideo:
-                assetTypeLb.text = photoAsset.videoTime
+            case .video, .localVideo, .networkVideo:
+                if let videoTime = photoAsset.videoTime {
+                    assetTypeLb.text = videoTime
+                }else {
+                    assetTypeLb.text = nil
+                    PhotoTools.getVideoDuration(for: photoAsset) { [weak self] (asset, duration) in
+                        if let self = self, self.photoAsset == asset {
+                            self.assetTypeLb.text = asset.videoTime
+                        }
+                    }
+                }
                 assetTypeMaskView.isHidden = false
 //                #if HXPICKER_ENABLE_EDITOR
 //                if photoAsset.videoEdit == nil {
@@ -96,8 +105,10 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
             assetEditMarkIcon.isHidden = true
             if photoAsset.mediaType == .photo {
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.photoEdit != nil {
-                    assetTypeLb.text = nil
+                if let photoEdit = photoAsset.photoEdit {
+                    if photoEdit.imageType == .normal {
+                        assetTypeLb.text = nil
+                    }
                     assetEditMarkIcon.isHidden = false
                     assetTypeMaskView.isHidden = false
                 }

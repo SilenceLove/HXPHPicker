@@ -8,6 +8,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public typealias statusHandler = (PHAuthorizationStatus) -> ()
 
@@ -25,7 +28,13 @@ public class PhotoTools {
     }
     
     /// 显示UIAlertController
-    public class func showAlert(viewController: UIViewController? , title: String? , message: String? , leftActionTitle: String? ,  leftHandler: ((UIAlertAction) -> Void)?, rightActionTitle: String? , rightHandler: ((UIAlertAction) -> Void)?) {
+    public class func showAlert(viewController: UIViewController? ,
+                                title: String? ,
+                                message: String? ,
+                                leftActionTitle: String? ,
+                                leftHandler: ((UIAlertAction) -> Void)?,
+                                rightActionTitle: String? ,
+                                rightHandler: ((UIAlertAction) -> Void)?) {
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
         if let leftActionTitle = leftActionTitle {
             let leftAction = UIAlertAction.init(title: leftActionTitle, style: UIAlertAction.Style.cancel, handler: leftHandler)
@@ -38,7 +47,11 @@ public class PhotoTools {
         viewController?.present(alertController, animated: true, completion: nil)
     }
     
-    public class func showConfirm(viewController: UIViewController? , title: String? , message: String?, actionTitle: String?, actionHandler: ((UIAlertAction) -> Void)?) {
+    public class func showConfirm(viewController: UIViewController? ,
+                                  title: String? ,
+                                  message: String?,
+                                  actionTitle: String?,
+                                  actionHandler: ((UIAlertAction) -> Void)?) {
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
         if let actionTitle = actionTitle {
             let action = UIAlertAction.init(title: actionTitle, style: UIAlertAction.Style.cancel, handler: actionHandler)
@@ -48,7 +61,8 @@ public class PhotoTools {
     }
     
     /// 根据PHAsset资源获取对应的目标大小
-    public class func transformTargetWidthToSize(targetWidth: CGFloat, asset: PHAsset) -> CGSize {
+    public class func transformTargetWidthToSize(targetWidth: CGFloat,
+                                                 asset: PHAsset) -> CGSize {
         let scale:CGFloat = 0.8
         let aspectRatio = CGFloat(asset.pixelWidth) / CGFloat(asset.pixelHeight)
         var width = targetWidth
@@ -66,32 +80,6 @@ public class PhotoTools {
             height = targetWidth * scale
         }
         return CGSize.init(width: width, height: height)
-    }
-    /// 获取对应后缀的临时路径
-    public class func getTmpURL(for suffix: String) -> URL {
-        var tmpPath = NSTemporaryDirectory()
-        tmpPath.append(contentsOf: String.fileName(suffix: suffix))
-        let tmpURL = URL.init(fileURLWithPath: tmpPath)
-        return tmpURL
-    }
-    /// 获取图片临时路径
-    public class func getImageTmpURL(_ imageContentType: ImageContentType = .jpg) -> URL {
-        var suffix: String
-        switch imageContentType {
-        case .jpg:
-            suffix = "jpeg"
-        case .png:
-            suffix = "png"
-        case .gif:
-            suffix = "gif"
-        default:
-            suffix = "jpeg"
-        }
-        return getTmpURL(for: suffix)
-    }
-    /// 获取视频临时路径
-    public class func getVideoTmpURL() -> URL {
-        return getTmpURL(for: "mp4")
     }
     
     /// 转换视频时长为 mm:ss 格式的字符串
@@ -124,7 +112,8 @@ public class PhotoTools {
     }
     
     /// 根据视频地址获取视频封面
-    public class func getVideoThumbnailImage(videoURL: URL?, atTime: TimeInterval) -> UIImage? {
+    public class func getVideoThumbnailImage(videoURL: URL?,
+                                             atTime: TimeInterval) -> UIImage? {
         if videoURL == nil {
             return nil
         }
@@ -133,20 +122,39 @@ public class PhotoTools {
     }
     
     /// 根据视频地址获取视频封面
-    public class func getVideoThumbnailImage(avAsset: AVAsset?, atTime: TimeInterval) -> UIImage? {
-        if avAsset == nil {
-            return nil
+    public class func getVideoThumbnailImage(avAsset: AVAsset?,
+                                             atTime: TimeInterval) -> UIImage? {
+        if let avAsset = avAsset {
+            let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset)
+            assetImageGenerator.appliesPreferredTrackTransform = true
+            assetImageGenerator.apertureMode = .encodedPixels
+            do {
+                let thumbnailImageRef = try assetImageGenerator.copyCGImage(at: CMTime(value: CMTimeValue(atTime), timescale: avAsset.duration.timescale), actualTime: nil)
+                let image = UIImage.init(cgImage: thumbnailImageRef)
+                return image
+            } catch { }
         }
-        let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset!)
-        assetImageGenerator.appliesPreferredTrackTransform = true
-        assetImageGenerator.apertureMode = .encodedPixels
-        let thumbnailImageTime: CFTimeInterval = atTime
-        do {
-            let thumbnailImageRef = try assetImageGenerator.copyCGImage(at: CMTime(value: CMTimeValue(thumbnailImageTime), timescale: avAsset!.duration.timescale), actualTime: nil)
-            let image = UIImage.init(cgImage: thumbnailImageRef)
-            return image
-        } catch {
-            return nil
+        return nil
+    }
+    
+    /// 获视频缩略图
+    public class  func getVideoThumbnailImage(url: URL, atTime: TimeInterval, completion: @escaping (URL, UIImage) -> Void) {
+        let asset = AVAsset(url: url)
+        asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+            let generator = AVAssetImageGenerator(asset: asset)
+            generator.appliesPreferredTrackTransform = true
+            generator.requestedTimeToleranceAfter = .zero
+            generator.requestedTimeToleranceBefore = .zero
+            let seconds = asset.duration.seconds
+            let time = CMTime(value: CMTimeValue(atTime), timescale: asset.duration.timescale)
+            let array = [NSValue(time: time)]
+            generator.generateCGImagesAsynchronously(forTimes: array) { (requestedTime, cgImage, actualTime, result, error) in
+                if let image = cgImage, result == .succeeded {
+                    DispatchQueue.main.async {
+                        completion(url, UIImage(cgImage: image))
+                    }
+                }
+            }
         }
     }
     
@@ -158,7 +166,12 @@ public class PhotoTools {
     ///   - endTime: 需要裁剪的结束时间
     ///   - presentName: 导出的质量
     ///   - completion: 导出完成
-    public class func exportEditVideo(for avAsset: AVAsset, outputURL: URL? = nil, startTime: TimeInterval, endTime: TimeInterval, presentName: String, completion:@escaping (URL?, Error?) -> Void) {
+    public class func exportEditVideo(for avAsset: AVAsset,
+                                      outputURL: URL? = nil,
+                                      startTime: TimeInterval,
+                                      endTime: TimeInterval,
+                                      presentName: String,
+                                      completion:@escaping (URL?, Error?) -> Void) {
         let timescale = avAsset.duration.timescale
         let start = CMTime(value: CMTimeValue(startTime * TimeInterval(timescale)), timescale: timescale)
         let end = CMTime(value: CMTimeValue(endTime * TimeInterval(timescale)), timescale: timescale)
@@ -173,7 +186,11 @@ public class PhotoTools {
     ///   - timeRang: 需要裁剪的时间区域
     ///   - presentName: 导出的质量
     ///   - completion: 导出完成
-    public class func exportEditVideo(for avAsset: AVAsset, outputURL: URL? = nil, timeRang: CMTimeRange, presentName: String, completion:@escaping (URL?, Error?) -> Void) {
+    public class func exportEditVideo(for avAsset: AVAsset,
+                                      outputURL: URL? = nil,
+                                      timeRang: CMTimeRange,
+                                      presentName: String,
+                                      completion:@escaping (URL?, Error?) -> Void) {
         if AVAssetExportSession.allExportPresets().contains(presentName) {
             let videoURL = outputURL == nil ? PhotoTools.getVideoTmpURL() : outputURL
             if let exportSession = AVAssetExportSession.init(asset: avAsset, presetName: presentName) {
@@ -211,6 +228,40 @@ public class PhotoTools {
             return
         }
     }
+    
+    #if canImport(Kingfisher)
+    public class func downloadNetworkImage(with url: URL,
+                                           options: KingfisherOptionsInfo,
+                                           progressBlock: DownloadProgressBlock? = nil,
+                                           completionHandler: ((UIImage?) -> Void)? = nil) {
+        let key = url.cacheKey
+        if ImageCache.default.isCached(forKey: key) {
+            ImageCache.default.retrieveImage(forKey: key) { (result) in
+                switch result {
+                case .success(let value):
+                    completionHandler?(value.image)
+                case .failure(_):
+                    completionHandler?(nil)
+                }
+            }
+            return
+        }
+        ImageDownloader.default.downloadImage(with: url, options: options, progressBlock: progressBlock) { (result) in
+            switch result {
+            case .success(let value):
+                if let gifImage = DefaultImageProcessor.default.process(item: .data(value.originalData), options: .init([]))  {
+                    ImageCache.default.store(gifImage, original: value.originalData, forKey: key)
+                    completionHandler?(gifImage)
+                    return
+                }
+                ImageCache.default.store(value.image, original: value.originalData, forKey: key)
+                completionHandler?(value.image)
+            case .failure(_):
+                completionHandler?(nil)
+            }
+        }
+    }
+    #endif
     
     class func transformImageSize(_ imageSize: CGSize, to view: UIView) -> CGRect {
         return transformImageSize(imageSize, toViewSize: view.size)

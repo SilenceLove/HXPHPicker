@@ -57,6 +57,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var requestID: PHImageRequestID?
     var requestCompletion: Bool = false
     var requestNetworkCompletion: Bool = false
+    var networkVideoLoading: Bool = false
+    
     var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
         didSet {
             if type == .video {
@@ -67,6 +69,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var currentLoadAssetLocalIdentifier: String?
     var photoAsset: PhotoAsset! {
         didSet {
+            requestFailed(info: [PHImageCancelledKey : 1])
             setAnimatedImageCompletion = false
             switch photoAsset.mediaSubType {
             case .livePhoto:
@@ -75,7 +78,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 }
             case .localImage:
                 requestCompletion = true
-            case .networkImage(_):
+            case .networkImage(_), .networkVideo:
+                networkVideoLoading = false
                 requestNetworkCompletion = false
                 requestNetworkImage()
                 return
@@ -92,29 +96,116 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     
     func requestNetworkImage() {
-        #if canImport(Kingfisher)
         requestCompletion = true
-        showLoadingView()
+        #if canImport(Kingfisher)
+        if photoAsset.mediaSubType != .networkVideo {
+            showLoadingView()
+        }
         imageView.setImage(for: photoAsset, urlType: .original) { [weak self] (receivedData, totolData) in
-            let percentage = Double(receivedData) / Double(totolData)
-            self?.requestUpdateProgress(progress: percentage)
-        } completionHandler: { [weak self] (image, error) in
+            if let mediaSubType = self?.photoAsset.mediaSubType, mediaSubType != .networkVideo {
+                let percentage = Double(receivedData) / Double(totolData)
+                self?.requestUpdateProgress(progress: percentage)
+            }
+        } completionHandler: { [weak self] (image, error, photoAsset) in
             if let self = self {
-                self.requestNetworkCompletion = true
-                if let image = image {
-                    self.requestSucceed()
-                    let needUpdate = self.width / self.height != image.width / image.height
-                    self.photoAsset.networkImageAsset?.imageSize = image.size
-                    if needUpdate {
-                        self.delegate?.contentView(updateContentSize: self)
+                if self.photoAsset.mediaSubType != .networkVideo {
+                    self.requestNetworkCompletion = true
+                    if let image = image {
+                        self.requestSucceed()
+                        let needUpdate = self.width / self.height != image.width / image.height
+                        self.photoAsset.networkImageAsset?.imageSize = image.size
+                        if needUpdate {
+                            self.delegate?.contentView(updateContentSize: self)
+                        }
+                        self.delegate?.contentView(networkImagedownloadSuccess: self)
+                    }else {
+                        self.requestFailed(info: nil)
                     }
-                    self.delegate?.contentView(networkImagedownloadSuccess: self)
                 }else {
-                    self.requestFailed(info: nil)
+                    if let image = image {
+                        let needUpdate = self.width / self.height != image.width / image.height
+                        if needUpdate {
+                            self.delegate?.contentView(updateContentSize: self)
+                        }
+                    }
+                }
+            }
+        }
+        #else
+        imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
+            if let self = self, let image = image, self.photoAsset == photoAsset {
+                self.imageView.image = image
+                let needUpdate = self.width / self.height != image.width / image.height
+                if needUpdate {
+                    self.delegate?.contentView(updateContentSize: self)
                 }
             }
         }
         #endif
+    }
+    func checkNetworkVideoFileSize(_ url: URL) {
+        if let fileSize = photoAsset.networkVideoAsset?.fileSize,
+           fileSize == 0 {
+            photoAsset.networkVideoAsset?.fileSize = url.fileSize
+        }
+    }
+    func requestNetworkVideo() {
+        if requestNetworkCompletion || networkVideoLoading {
+            return
+        }
+        #if HXPICKER_ENABLE_EDITOR
+        if let videoEdit = photoAsset.videoEdit {
+            networkVideoRequestCompletion(videoEdit.editedURL)
+            return
+        }
+        #endif
+        if let videoURL = photoAsset.networkVideoAsset?.videoURL {
+            let key = videoURL.absoluteString
+            if PhotoTools.isCached(forVideo: key) {
+                let url = PhotoTools.getVideoCacheURL(for: key)
+                checkNetworkVideoFileSize(url)
+                networkVideoRequestCompletion(url)
+                return
+            }
+            if loadingView == nil {
+                ProgressHUD.hide(forView: superview?.superview, animated: false)
+                showLoadingView()
+            }else {
+                loadingView?.isHidden = false
+            }
+            networkVideoLoading = true
+            PhotoManager.shared.downloadTask(with: videoURL) { [weak self] (progress, task) in
+                self?.requestUpdateProgress(progress: progress)
+            } completionHandler: { [weak self] (url, error) in
+                self?.networkVideoLoading = false
+                if let url = url {
+                    self?.checkNetworkVideoFileSize(url)
+                    self?.requestSucceed()
+                    self?.networkVideoRequestCompletion(url)
+                }else {
+                    if let error = error as? NSError, error.code == NSURLErrorCancelled {
+                        self?.requestFailed(info: [PHImageCancelledKey : 1])
+                    }else {
+                        self?.requestFailed(info: nil)
+                    }
+                }
+            }
+        }
+    }
+    
+    func cancelRequestNetworkVideo() {
+        if let videoURL = photoAsset.networkVideoAsset?.videoURL {
+            PhotoManager.shared.suspendTask(videoURL)
+            networkVideoLoading = false
+        }
+    }
+    
+    func networkVideoRequestCompletion(_ videoURL: URL) {
+        requestNetworkCompletion = true
+        videoView.avAsset = AVAsset.init(url: videoURL)
+        UIView.animate(withDuration: 0.25) {
+            self.videoView.alpha = 1
+        }
     }
     
     var loadingView: ProgressHUD?
@@ -135,21 +226,24 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     
     func requestPreviewAsset() {
-        if requestCompletion {
-            return
-        }
         switch photoAsset.mediaSubType {
         case .localImage, .networkImage(_):
             return
+        case .networkVideo:
+            requestNetworkVideo()
+            return
         default:
             break
+        }
+        if requestCompletion {
+            return
         }
         var canRequest = true
         if let localIdentifier = currentLoadAssetLocalIdentifier, localIdentifier == photoAsset.phAsset?.localIdentifier {
             canRequest = false
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             if loadingView == nil {
-                loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
+                loadingView = ProgressHUD.showLoading(addedTo: superview?.superview, text: "正在下载".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
             }
         }else {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -193,7 +287,12 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     func requestOriginalImage() {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoAsset.photoEdit {
-            imageView.setImage(photoEdit.editedImage, animated: true)
+            do {
+                let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
+                imageView.setImageData(imageData)
+            }catch {
+                imageView.setImage(photoEdit.editedImage, animated: true)
+            }
             requestCompletion = true
             return
         }
@@ -308,28 +407,37 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         loadingView?.updateText(text: "正在下载".localized + "(" + String(Int(progress * 100)) + "%)")
     }
     func showLoadingView() {
-        loadingView = ProgressHUD.showLoading(addedTo: self, text: "正在下载".localized, animated: true)
+        loadingView = ProgressHUD.showLoading(addedTo: superview?.superview, text: "正在下载".localized, animated: true)
+    }
+    func resetLoadingState() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        currentLoadAssetLocalIdentifier = nil
+        loadingView = nil
     }
     func requestSucceed() {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        currentLoadAssetLocalIdentifier = nil
-        loadingView = nil
-        ProgressHUD.hide(forView: self, animated: true)
+        resetLoadingState()
+        ProgressHUD.hide(forView: superview?.superview, animated: true)
     }
-    func requestFailed(info: [AnyHashable : Any]?) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    func requestFailed(info: [AnyHashable : Any]?, isCancel: Bool = false) {
         loadingView?.removeFromSuperview()
-        loadingView = nil
-        currentLoadAssetLocalIdentifier = nil
+        resetLoadingState()
         if !AssetManager.assetCancelDownload(for: info) {
-            ProgressHUD.hide(forView: self, animated: true)
-            ProgressHUD.showWarning(addedTo: self, text: "下载失败".localized, animated: true, delayHide: 2)
+            ProgressHUD.hide(forView: superview?.superview, animated: true)
+            ProgressHUD.showWarning(addedTo: superview?.superview, text: "下载失败".localized, animated: true, delayHide: 2)
         }
     }
     func cancelRequest() {
         switch photoAsset.mediaSubType {
         case .localImage, .networkImage(_):
             requestCompletion = false
+            requestNetworkCompletion = false
+            return
+        case .networkVideo:
+            cancelRequestNetworkVideo()
+            requestCompletion = false
+            requestNetworkCompletion = false
+            videoView.cancelPlayer()
+            videoView.alpha = 0
             return
         default:
             break
@@ -340,7 +448,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             requestID = nil
         }
         stopAnimatedImage()
-        ProgressHUD.hide(forView: self, animated: false)
+        ProgressHUD.hide(forView: superview?.superview, animated: false)
         if type == .livePhoto {
             if #available(iOS 9.1, *) {
                 livePhotoView.stopPlayback()
@@ -354,12 +462,23 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     func stopVideo() {
         if photoAsset.mediaType == .video {
-            videoView.stopPlay()
+            if photoAsset.isNetworkAsset && !requestNetworkCompletion {
+                cancelRequest()
+                requestFailed(info: [PHImageCancelledKey : 1])
+            }else {
+                videoView.stopPlay()
+            }
         }
     }
     func showOtherSubview() {
         if photoAsset.mediaType == .video {
-            videoView.showPlayButton()
+            if photoAsset.isNetworkAsset {
+                if requestNetworkCompletion {
+                    videoView.showPlayButton()
+                }
+            }else {
+                videoView.showPlayButton()
+            }
         }
         if !requestNetworkCompletion {
             loadingView?.isHidden = false
@@ -367,11 +486,17 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     func hiddenOtherSubview() {
         if photoAsset.mediaType == .video {
-            videoView.hiddenPlayButton()
+            if photoAsset.isNetworkAsset {
+                if requestNetworkCompletion {
+                    videoView.hiddenPlayButton()
+                }
+            }else {
+                videoView.hiddenPlayButton()
+            }
         }
         if requestNetworkCompletion {
             loadingView = nil
-            ProgressHUD.hide(forView: self, animated: false)
+            ProgressHUD.hide(forView: superview?.superview, animated: false)
         }else {
             loadingView?.isHidden = true
         }
@@ -400,6 +525,10 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     deinit {
         cancelRequest()
+        
+//        if photoAsset.isNetworkAsset && photoAsset.mediaType == .video {
+//            print("deinit \(self)")
+//        }
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -418,6 +547,15 @@ fileprivate extension UIImageView {
         self as! GIFImageView
     }
     #endif
+    
+    func setImage(_ img: UIImage) {
+        #if canImport(Kingfisher)
+        let image = DefaultImageProcessor.default.process(item: .image(img), options: .init([]))
+        my.image = image
+        #else
+        my.image = img
+        #endif
+    }
     
     func setImageData(_ imageData: Data) {
         #if canImport(Kingfisher)

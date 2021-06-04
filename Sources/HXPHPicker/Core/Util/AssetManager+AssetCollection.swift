@@ -31,7 +31,9 @@ public extension AssetManager {
     ///   - filterInvalid: 过滤无效的相册
     ///   - options: 可选项
     ///   - usingBlock: 枚举每一个相册集合
-    class func enumerateAllAlbums(filterInvalid: Bool, options : PHFetchOptions?, usingBlock :@escaping (PHAssetCollection)->()) {
+    class func enumerateAllAlbums(filterInvalid: Bool,
+                                  options : PHFetchOptions?,
+                                  usingBlock :@escaping (PHAssetCollection)->()) {
         let smartAlbums = fetchSmartAlbums(options: nil)
         let userAlbums = fetchUserAlbums(options: nil)
         let albums = [smartAlbums, userAlbums]

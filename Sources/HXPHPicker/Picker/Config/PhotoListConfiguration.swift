@@ -40,7 +40,7 @@ public class PhotoListConfiguration {
     public var cancelDarkImageName: String = "hx_picker_photolist_cancel"
     
     /// 每行显示数量
-    public var rowNumber : Int = 4
+    public var rowNumber : Int = UIDevice.isPad ? 5 : 4
     
     /// 横屏时每行显示数量
     public var landscapeRowNumber : Int = 7

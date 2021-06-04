@@ -6,7 +6,6 @@ inhibit_all_warnings!
 use_frameworks!
 
 target 'Example' do
-  
   # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 6.0'
   pod 'HXPHPicker/Full', :path => './'
   

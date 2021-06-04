@@ -1,6 +1,6 @@
 # HXPHPicker
 <p align="left">
-<a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%209.0%2B?color=cyan&icon=apple&label"></a>
+<a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%2010.0%2B?color=cyan&icon=apple&label"></a>
 <a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
 <a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
 <a href="http://mit-license.org"><img src="http://img.shields.io/badge/license-MIT-333333.svg?logo=letterboxd&logoColor=ffffff"></a>
@@ -20,16 +20,19 @@
     - [x] Video
     - [x] GIF
     - [ ] Live Photo
+- [x] 支持的网络资源类型：
+    - [x] Photo
+    - [x] Video
 - [x] 支持下载iCloud上的资源
 - [x] 支持手势返回
 - [x] 支持滑动选择
-- [x] 编辑图片
+- [x] 编辑图片（支持动图、网络资源）
     - [ ] 涂鸦
     - [ ] 贴纸
     - [ ] 文字
     - [x] 裁剪
     - [ ] 马赛克
-- [x] 编辑视频
+- [x] 编辑视频（支持网络资源）
     - [x] 裁剪
 - [x] 相册展现方式
     - [x] 单独列表
@@ -62,7 +65,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.8"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.0.9"))
 ]
 ```
 
@@ -139,6 +142,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.0.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#109) | 2021-06-04 | 12.2 | 5.3 | 10.0+ |
 | [v1.0.8](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#108) | 2021-05-20 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#107) | 2021-05-17 | 12.2 | 5.3 | 9.0+ |
 | [v1.0.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#106) | 2021-03-13 | 12.2 | 5.3 | 9.0+ |

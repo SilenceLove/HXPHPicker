@@ -41,6 +41,8 @@
 "提示" = "cepat";
 "图片获取失败!" = "Akuisisi gambar gagal!";
 "视频获取失败!" = "Akuisisi video gagal!";
+"图片下载中" = "Pengunduhan gambar";
+"视频下载中" = "Pengunduhan video";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

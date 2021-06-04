@@ -131,7 +131,8 @@ open class PhotoPickerController: UINavigationController {
     /// - Parameters:
     ///   - config: 相关配置
     ///   - currentIndex: 当前预览的下标
-    public convenience init(preview config: PickerConfiguration, currentIndex: Int) {
+    public convenience init(preview config: PickerConfiguration,
+                            currentIndex: Int) {
         self.init(preview: config, currentIndex: currentIndex, modalPresentationStyle: .custom)
     }
     
@@ -139,7 +140,9 @@ open class PhotoPickerController: UINavigationController {
     /// - Parameters:
     ///   - config: 相关配置
     ///   - modalPresentationStyle: 设置 custom 样式，框架自带动画效果
-    public init(preview config: PickerConfiguration, currentIndex: Int, modalPresentationStyle: UIModalPresentationStyle) {
+    public init(preview config: PickerConfiguration,
+                currentIndex: Int,
+                modalPresentationStyle: UIModalPresentationStyle) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config

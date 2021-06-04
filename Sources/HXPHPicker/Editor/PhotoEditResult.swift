@@ -9,10 +9,23 @@ import UIKit
 
 public struct PhotoEditResult {
     
-    /// 编辑后的图片
+    public enum ImageType {
+        /// 静态图
+        case normal
+        /// 动图
+        case gif
+    }
+    
+    /// 编辑后的图片，如果为gif则为封面图片
     public let editedImage: UIImage
     
-    /// 编辑的状态数据
+    /// 编辑后的图片本地地址
+    public let editedImageURL: URL
+    
+    /// 图片类型
+    public let imageType: ImageType
+    
+    /// 编辑状态数据
     let editedData: PhotoEditData
 }
 

@@ -28,33 +28,43 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
 }
 
 public extension VideoEditorViewControllerDelegate {
-    
     func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {}
-    
     func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {}
-    
     func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {}
 }
 
 open class VideoEditorViewController: BaseViewController {
     public weak var delegate: VideoEditorViewControllerDelegate?
-    public var avAsset: AVAsset!
+    
+    /// 当前编辑的AVAsset
+    public private(set) var avAsset: AVAsset!
     
     /// 编辑配置
     public let config: VideoEditorConfiguration
     
     /// 当前编辑状态
-    public var state: State
+    public private(set) var state: State
+    
+    /// 资源类型
+    public let assetType: EditorController.AssetType
     
     /// 在视频未获取成功之前展示的视频封面
     public var coverImage: UIImage?
+    
+    /// 当前编辑的网络视频地址
+    public private(set) var networkVideoURL: URL?
+    
+    /// 上一次的编辑数据
+    public private(set) var editResult: VideoEditResult?
     
     /// 根据视频地址初始化
     /// - Parameters:
     ///   - videoURL: 本地视频地址
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public convenience init(videoURL: URL, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+    public convenience init(videoURL: URL,
+                            editResult: VideoEditResult? = nil,
+                            config: VideoEditorConfiguration) {
         self.init(avAsset: AVAsset.init(url: videoURL), editResult: editResult, config: config)
     }
     
@@ -63,41 +73,9 @@ open class VideoEditorViewController: BaseViewController {
     ///   - avAsset: 视频对应的AVAsset对象
     ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
     ///   - config: 编辑配置
-    public init(avAsset: AVAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
-        PhotoManager.shared.appearanceStyle = config.appearanceStyle
-        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
-        if config.mustBeTailored {
-            onceState = config.defaultState
-        }
-        self.editResult = editResult
-        self.state = config.defaultState
-        self.config = config
-        self.avAsset = avAsset
-        videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    /// 是否是从picker界面跳转过来的
-    var isPicker: Bool = false
-    
-    /// 请求获取AVAsset完成
-    var reqeustAssetCompletion: Bool = false
-    
-    /// 之前的编辑数据
-    var editResult: VideoEditResult?
-    var onceState: State = .normal
-    var assetRequestID: PHImageRequestID?
-    var didEdited: Bool = false
-    #if HXPICKER_ENABLE_PICKER
-    /// 视频对应的资源
-    public var photoAsset: PhotoAsset!
-    
-    /// 根据PhotoAsset初始化
-    /// - Parameters:
-    ///   - photoAsset: 视频对应的PhotoAsset对象
-    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
-    ///   - config: 编辑配置
-    public init(photoAsset: PhotoAsset, editResult: VideoEditResult? = nil, config: VideoEditorConfiguration) {
+    public init(avAsset: AVAsset,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
@@ -106,56 +84,82 @@ open class VideoEditorViewController: BaseViewController {
         if config.defaultState == .cropping {
             firstPlay = true
         }
+        needRequest = true
+        requestType = 3
+        self.assetType = .local
+        self.editResult = editResult
+        self.state = config.defaultState
+        self.config = config
+        self.avAsset = avAsset
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    /// 编辑网络视频
+    /// - Parameters:
+    ///   - networkVideoURL: 对应的网络视频地址
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(networkVideoURL: URL,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        if config.mustBeTailored {
+            onceState = config.defaultState
+        }
+        if config.defaultState == .cropping {
+            firstPlay = true
+        }
+        requestType = 2
+        needRequest = true
+        self.assetType = .network
+        self.editResult = editResult
+        self.state = config.defaultState
+        self.config = config
+        self.networkVideoURL = networkVideoURL
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    #if HXPICKER_ENABLE_PICKER
+    /// 视频对应的 PhotoAsset
+    public private(set) var photoAsset: PhotoAsset!
+    
+    /// 根据PhotoAsset初始化
+    /// - Parameters:
+    ///   - photoAsset: 视频对应的PhotoAsset对象
+    ///   - editResult: 上一次编辑的结果，传入可在基础上进行编辑
+    ///   - config: 编辑配置
+    public init(photoAsset: PhotoAsset,
+                editResult: VideoEditResult? = nil,
+                config: VideoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        if config.mustBeTailored {
+            onceState = config.defaultState
+        }
+        if config.defaultState == .cropping {
+            firstPlay = true
+        }
+        requestType = 1
+        needRequest = true
+        self.assetType = .picker
         self.editResult = editResult
         self.state = config.defaultState
         self.config = config
         self.photoAsset = photoAsset
-        isPicker = true
         super.init(nibName: nil, bundle: nil)
     }
-    
-    func requestAVAsset() {
-        let loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频加载中".localized, animated: true)
-        view.bringSubviewToFront(topView)
-        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { [weak self] (photoAsset, requestID) in
-            self?.assetRequestID = requestID
-        } progressHandler: { (photoAsset, progress) in
-            if progress > 0 {
-                loadingView?.updateText(text: "视频加载中".localized + "(" + String(Int(progress * 100)) + "%)")
-            }
-        } success: { [weak self] (photoAsset, avAsset, info) in
-            ProgressHUD.hide(forView: self?.view, animated: false)
-            self?.avAsset = avAsset
-            self?.reqeustAssetCompletion = true
-            self?.assetRequestComplete()
-        } failure: { [weak self] (photoAsset, info) in
-            if info?.isCancel != true {
-                ProgressHUD.hide(forView: self?.view, animated: false)
-                PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "视频获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
-                    self?.backAction()
-                }
-            }
-        }
-    }
-    func assetRequestComplete() {
-        videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? .zero
-        playerView.avAsset = avAsset
-        playerView.configAsset()
-        cropView.avAsset = avAsset
-        if orientationDidChange {
-            setCropViewFrame()
-        }
-        if state == .cropping {
-            state = .normal
-            if playerView.playerLayer.isReadyForDisplay {
-                firstPlay = false
-                croppingAction()
-            }
-        }else {
-            setPlayerViewFrame()
-        }
-    }
     #endif
+    
+    /// 请求获取AVAsset完成
+    var reqeustAssetCompletion: Bool = false
+    var needRequest: Bool = false
+    var requestType: Int = 0
+    var loadingView: ProgressHUD?
+    
+    var onceState: State = .normal
+    var assetRequestID: PHImageRequestID?
+    var didEdited: Bool = false
     var firstPlay: Bool = false
     var firstLayoutSubviews: Bool = true
     var videoSize: CGSize = .zero
@@ -202,7 +206,7 @@ open class VideoEditorViewController: BaseViewController {
     }
     lazy var playerView: VideoEditorPlayerView = {
         let playerView: VideoEditorPlayerView
-        if isPicker {
+        if needRequest {
             playerView = VideoEditorPlayerView.init()
         }else {
             playerView = VideoEditorPlayerView.init(avAsset: avAsset)
@@ -213,7 +217,7 @@ open class VideoEditorViewController: BaseViewController {
     }()
     lazy var cropView: VideoEditorCropView = {
         let cropView : VideoEditorCropView
-        if isPicker {
+        if needRequest {
             cropView = VideoEditorCropView.init(config: config.cropping)
         }else {
             cropView = VideoEditorCropView.init(avAsset: avAsset, config: config.cropping)
@@ -286,11 +290,17 @@ open class VideoEditorViewController: BaseViewController {
         view.addSubview(toolView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
-        #if HXPICKER_ENABLE_PICKER
-        if isPicker {
-            requestAVAsset()
+        if needRequest {
+            if requestType == 1 {
+                #if HXPICKER_ENABLE_PICKER
+                requestAVAsset()
+                #endif
+            }else if requestType == 2 {
+                downloadNetworkVideo()
+            }else if requestType == 3 {
+                avassetLoadValuesAsynchronously()
+            }
         }
-        #endif
         if let editResult = editResult {
             didEdited = true
             playerView.playStartTime = CMTimeMakeWithSeconds(editResult.cropData.startTime, preferredTimescale: editResult.cropData.preferredTimescale)
@@ -300,10 +310,11 @@ open class VideoEditorViewController: BaseViewController {
         }
     }
     @objc func didBackClick() {
-        delegate?.videoEditorViewController(didCancel: self)
         backAction()
+        delegate?.videoEditorViewController(didCancel: self)
     }
     func backAction() {
+        stopAllOperations()
         if let requestID = assetRequestID {
             PHImageManager.default().cancelImageRequest(requestID)
         }
@@ -341,7 +352,7 @@ open class VideoEditorViewController: BaseViewController {
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
         cropConfirmView.frame = toolView.frame
         scrollView.frame = view.bounds
-        if isPicker {
+        if needRequest {
             firstLayoutSubviews = false
             if reqeustAssetCompletion {
                 setCropViewFrame()
@@ -439,7 +450,14 @@ open class VideoEditorViewController: BaseViewController {
     }
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        stopAllOperations()
+    }
+    func stopAllOperations() {
         stopPlayTimer()
+        if let url = networkVideoURL {
+            PhotoManager.shared.suspendTask(url)
+            networkVideoURL = nil
+        }
     }
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -453,6 +471,116 @@ open class VideoEditorViewController: BaseViewController {
     }
     deinit {
 //        print("deinit \(self)")
+    }
+}
+
+// MARK: PhotoAsset Request AVAsset
+extension VideoEditorViewController {
+    #if HXPICKER_ENABLE_PICKER
+    func requestAVAsset() {
+        if photoAsset.isNetworkAsset {
+            networkVideoURL = photoAsset.networkVideoAsset?.videoURL
+            downloadNetworkVideo()
+            return
+        }
+        let loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频加载中".localized, animated: true)
+        view.bringSubviewToFront(topView)
+        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { [weak self] (photoAsset, requestID) in
+            self?.assetRequestID = requestID
+        } progressHandler: { (photoAsset, progress) in
+            if progress > 0 {
+                loadingView?.updateText(text: "视频加载中".localized + "(" + String(Int(progress * 100)) + "%)")
+            }
+        } success: { [weak self] (photoAsset, avAsset, info) in
+            ProgressHUD.hide(forView: self?.view, animated: false)
+            self?.avAsset = avAsset
+            self?.reqeustAssetCompletion = true
+            self?.assetRequestComplete()
+        } failure: { [weak self] (photoAsset, info) in
+            if info?.isCancel != true {
+                ProgressHUD.hide(forView: self?.view, animated: false)
+                self?.assetRequestFailure()
+            }
+        }
+    }
+    #endif
+    
+    func assetRequestFailure() {
+        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "视频获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+            self.backAction()
+        }
+    }
+    
+    func assetRequestComplete() {
+        videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? view.size
+        playerView.avAsset = avAsset
+        playerView.configAsset()
+        cropView.avAsset = avAsset
+        if orientationDidChange {
+            setCropViewFrame()
+        }
+        if state == .cropping {
+            state = .normal
+            if playerView.playerLayer.isReadyForDisplay {
+                firstPlay = false
+                croppingAction()
+            }
+        }else {
+            setPlayerViewFrame()
+        }
+    }
+}
+
+// MARK: DownloadNetworkVideo
+extension VideoEditorViewController {
+    func downloadNetworkVideo() {
+        if let videoURL = networkVideoURL {
+            let key = videoURL.absoluteString
+            if PhotoTools.isCached(forVideo: key) {
+                let localURL = PhotoTools.getVideoCacheURL(for: key)
+                avAsset = AVAsset.init(url: localURL)
+                avassetLoadValuesAsynchronously()
+                return
+            }
+            loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频下载中".localized, animated: true)
+            view.bringSubviewToFront(topView)
+            PhotoManager.shared.downloadTask(with: videoURL) { [weak self] (progress, task) in
+                if progress > 0 {
+                    self?.loadingView?.updateText(text: "视频下载中".localized + "(" + String(Int(progress * 100)) + "%)")
+                }
+            } completionHandler: { [weak self] (url, error) in
+                if let url = url {
+                    #if HXPICKER_ENABLE_PICKER
+                    if let photoAsset = self?.photoAsset {
+                        do {
+                            let fileSize = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+                            photoAsset.networkVideoAsset?.fileSize = fileSize
+                        } catch {}
+                    }
+                    #endif
+                    self?.loadingView = nil
+                    ProgressHUD.hide(forView: self?.view, animated: false)
+                    self?.avAsset = AVAsset.init(url: url)
+                    self?.avassetLoadValuesAsynchronously()
+                }else {
+                    if let error = error as? NSError, error.code == NSURLErrorCancelled {
+                        return
+                    }
+                    self?.loadingView = nil
+                    ProgressHUD.hide(forView: self?.view, animated: false)
+                    self?.assetRequestFailure()
+                }
+            }
+        }
+    }
+    
+    func avassetLoadValuesAsynchronously() {
+        avAsset.loadValuesAsynchronously(forKeys: ["duration"]) { [weak self] in
+            DispatchQueue.main.async {
+                self?.reqeustAssetCompletion = true
+                self?.assetRequestComplete()
+            }
+        }
     }
 }
 

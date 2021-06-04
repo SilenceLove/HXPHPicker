@@ -49,9 +49,16 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
     }
     /// 获取图片，重写此方法可以修改图片
     open func reqeustAssetImage() {
-        if photoAsset.isNetworkAsset {
+        if photoAsset.isNetworkAsset ||
+            photoAsset.mediaSubType == .localVideo {
             #if canImport(Kingfisher)
             imageView.setImage(for: photoAsset, urlType: .thumbnail)
+            #else
+            imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
+                if self?.photoAsset == photoAsset {
+                    self?.imageView.image = image
+                }
+            }
             #endif
         }else {
             requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in

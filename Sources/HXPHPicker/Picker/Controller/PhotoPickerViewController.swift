@@ -959,7 +959,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                 }
             }
             self.pickerController?.updateAlbums(coverImage: photoAsset.originalImage, count: 1)
-            if photoAsset.mediaSubType.isLocal {
+            if photoAsset.isLocalAsset {
                 self.pickerController?.addedLocalCameraAsset(photoAsset: photoAsset)
             }
             if self.pickerController!.config.albumShowMode == .popup {

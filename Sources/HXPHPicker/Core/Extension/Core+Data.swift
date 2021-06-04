@@ -17,7 +17,7 @@ extension Data {
             return .jpg
         case 0x89:
             return .png
-        case 0x47:
+        case 0x47, 0x49, 0x46:
             return .gif
         default:
             return .unknown

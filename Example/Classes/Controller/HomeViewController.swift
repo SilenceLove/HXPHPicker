@@ -170,6 +170,9 @@ extension HomeViewController: PhotoPickerControllerDelegate {
             self.navigationController?.pushViewController(pickerResultVC, animated: true)
         }
     }
+    func pickerController(didCancel pickerController: PhotoPickerController) {
+        pickerController.dismiss(animated: true, completion: nil)
+    }
 }
 extension UITableViewCell {
     

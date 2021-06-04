@@ -331,8 +331,8 @@ extension PhotoPreviewViewController {
     }
     func replacePhotoAsset(at index: Int, with photoAsset: PhotoAsset) {
         previewAssets[index] = photoAsset
-        collectionView.reloadItems(at: [IndexPath.init(item: index, section: 0)])
-        
+        reloadCell(for: photoAsset)
+//        collectionView.reloadItems(at: [IndexPath.init(item: index, section: 0)])
     }
     func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
         if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {

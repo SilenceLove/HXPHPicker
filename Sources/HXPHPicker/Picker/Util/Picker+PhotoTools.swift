@@ -14,7 +14,8 @@ extension PhotoTools {
     /// - Parameters:
     ///   - viewController: 需要弹窗的viewController
     ///   - status: 权限类型
-    public class func showNotAuthorizedAlert(viewController : UIViewController? , status : PHAuthorizationStatus) {
+    public class func showNotAuthorizedAlert(viewController : UIViewController? ,
+                                             status : PHAuthorizationStatus) {
         if viewController == nil {
             return
         }
@@ -102,6 +103,83 @@ extension PhotoTools {
         return albumName
     }
     
+    public class func getVideoCoverImage(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
+        if photoAsset.mediaType == .video {
+            var url: URL?
+            if let videoAsset = photoAsset.localVideoAsset,
+               photoAsset.isLocalAsset {
+                if let coverImage = videoAsset.image {
+                    completionHandler(photoAsset, coverImage)
+                    return
+                }
+                url = videoAsset.videoURL
+            }else if let videoAsset = photoAsset.networkVideoAsset,
+                     photoAsset.isNetworkAsset {
+                if let coverImage = videoAsset.coverImage {
+                    completionHandler(photoAsset, coverImage)
+                    return
+                }
+                let key = videoAsset.videoURL.absoluteString
+                if isCached(forVideo: key) {
+                    url = getVideoCacheURL(for: key)
+                }else {
+                    url = videoAsset.videoURL
+                }
+            }
+            if let url = url {
+                getVideoThumbnailImage(url: url, atTime: 0.1) { (videoURL, coverImage) in
+                    if photoAsset.isNetworkAsset {
+                        photoAsset.networkVideoAsset?.coverImage = coverImage
+                    }else {
+                        photoAsset.localVideoAsset?.image = coverImage
+                    }
+                    completionHandler(photoAsset, coverImage)
+                }
+            }
+        }
+    }
+    
+    public class func getVideoDuration(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, TimeInterval) -> Void) {
+        if photoAsset.mediaType == .video {
+            var url: URL?
+            if let videoAsset = photoAsset.localVideoAsset,
+               photoAsset.isLocalAsset {
+                if videoAsset.duration > 0 {
+                    completionHandler(photoAsset, videoAsset.duration)
+                    return
+                }
+                url = videoAsset.videoURL
+            }else if let videoAsset = photoAsset.networkVideoAsset,
+                     photoAsset.mediaSubType.isNetwork {
+                if videoAsset.duration > 0 {
+                    completionHandler(photoAsset, videoAsset.duration)
+                    return
+                }
+                let key = videoAsset.videoURL.absoluteString
+                if isCached(forVideo: key) {
+                    url = getVideoCacheURL(for: key)
+                }else {
+                    url = videoAsset.videoURL
+                }
+            }
+            if let url = url {
+                let avAsset = AVAsset.init(url: url)
+                avAsset.loadValuesAsynchronously(forKeys: ["duration"]) {
+                    let duration = avAsset.duration.seconds
+                    if photoAsset.isNetworkAsset {
+                        photoAsset.networkVideoAsset?.duration = duration
+                    }else {
+                        photoAsset.localVideoAsset?.duration = duration
+                    }
+                    photoAsset.updateVideoDuration(duration)
+                    DispatchQueue.main.async {
+                        completionHandler(photoAsset, duration)
+                    }
+                }
+            }
+        }
+    }
+    
     /// 将字节转换成字符串
     public class func transformBytesToString(bytes: Int) -> String {
         if CGFloat(bytes) >= 0.5 * 1000 * 1000 {
@@ -111,16 +189,6 @@ extension PhotoTools {
         }else {
             return String.init(format: "%dB", arguments: [bytes])
         }
-    }
-    
-    /// 将UIImage转换成Data
-    public class func getImageData(for image: UIImage?) -> Data? {
-        if let pngData = image?.pngData() {
-            return pngData
-        }else if let jpegData = image?.jpegData(compressionQuality: 1) {
-            return jpegData
-        }
-        return nil
     }
     /// 获取和微信主题一致的配置
     public class func getWXPickerConfig(isMoment: Bool = false) -> PickerConfiguration {

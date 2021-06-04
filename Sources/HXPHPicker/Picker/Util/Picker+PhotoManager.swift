@@ -31,7 +31,9 @@ extension PhotoManager {
     /// - Parameters:
     ///   - showEmptyCollection: 显示空集合
     ///   - completion: 完成回调
-    public func fetchAssetCollections(for options: PHFetchOptions, showEmptyCollection: Bool, completion :@escaping ([PhotoAssetCollection])->()) {
+    public func fetchAssetCollections(for options: PHFetchOptions,
+                                      showEmptyCollection: Bool,
+                                      completion :@escaping ([PhotoAssetCollection])->()) {
         DispatchQueue.global().async {
             var assetCollectionsArray = [PhotoAssetCollection]()
             AssetManager.enumerateAllAlbums(filterInvalid: true, options: nil) { (collection) in
@@ -55,7 +57,9 @@ extension PhotoManager {
     /// - Parameters:
     ///   - showEmptyCollection: 显示空集合
     ///   - usingBlock: PhotoAssetCollection 为nil则代表结束，Bool 是否为相机胶卷
-    public func fetchAssetCollections(for options: PHFetchOptions, showEmptyCollection: Bool, usingBlock :@escaping (PhotoAssetCollection?, Bool)->()) {
+    public func fetchAssetCollections(for options: PHFetchOptions,
+                                      showEmptyCollection: Bool,
+                                      usingBlock :@escaping (PhotoAssetCollection?, Bool)->()) {
         AssetManager.enumerateAllAlbums(filterInvalid: true, options: nil) { (collection) in
             let assetCollection = PhotoAssetCollection.init(collection: collection, options: options)
             if showEmptyCollection == false && assetCollection.count == 0 {
@@ -67,7 +71,9 @@ extension PhotoManager {
     }
     
     /// 获取相机胶卷资源集合
-    public func fetchCameraAssetCollection(for selectOptions: PickerAssetOptions, options: PHFetchOptions, completion :@escaping (PhotoAssetCollection)->()) {
+    public func fetchCameraAssetCollection(for selectOptions: PickerAssetOptions,
+                                           options: PHFetchOptions,
+                                           completion :@escaping (PhotoAssetCollection)->()) {
         DispatchQueue.global().async {
             var useLocalIdentifier = false
             let language = Locale.preferredLanguages.first

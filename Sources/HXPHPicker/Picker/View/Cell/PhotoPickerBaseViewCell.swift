@@ -78,26 +78,38 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
-        if photoAsset.isNetworkAsset {
-            #if canImport(Kingfisher)
+        if photoAsset.isNetworkAsset || photoAsset.mediaSubType == .localVideo {
             downloadStatus = .downloading
-            imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error) in
-                if let image = image {
-                    self?.photoAsset.networkImageAsset?.imageSize = image.size
-                    self?.downloadStatus = .succeed
-                }else {
-                    if error!.isTaskCancelled {
-                        self?.downloadStatus = .canceled
+            #if canImport(Kingfisher)
+            imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error, photoAsset) in
+                if self?.photoAsset == photoAsset {
+                    if let image = image {
+                        self?.downloadStatus = .succeed
+                    }else {
+                        if error!.isTaskCancelled {
+                            self?.downloadStatus = .canceled
+                        }else {
+                            self?.downloadStatus = .failed
+                        }
+                    }
+                }
+            })
+            #else
+            imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
+                if self?.photoAsset == photoAsset {
+                    self?.imageView.image = image
+                    if let image = image {
+                        self?.downloadStatus = .succeed
                     }else {
                         self?.downloadStatus = .failed
                     }
                 }
-            })
+            }
+            #endif
             if !firstLoadCompletion {
                 isHidden = false
                 firstLoadCompletion = true
             }
-            #endif
         }else {
             requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
                 if photoAsset == self?.photoAsset && image != nil {

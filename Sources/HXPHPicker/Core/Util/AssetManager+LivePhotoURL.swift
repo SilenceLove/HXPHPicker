@@ -11,7 +11,10 @@ import Photos
 public extension AssetManager {
     
     // MARK: 获取LivePhoto里的图片Data和视频地址
-    class func requestLivePhoto(content asset: PHAsset, imageDataHandler: @escaping (Data?) -> Void, videoHandler: @escaping (URL?) -> Void, completionHandler: @escaping (LivePhotoError?) -> Void) {
+    class func requestLivePhoto(content asset: PHAsset,
+                                imageDataHandler: @escaping (Data?) -> Void,
+                                videoHandler: @escaping (URL?) -> Void,
+                                completionHandler: @escaping (LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
             requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in
@@ -87,7 +90,9 @@ public extension AssetManager {
     ///   - forAsset: 对应的 PHAsset 对象
     ///   - fileURL: 指定视频地址
     ///   - completionHandler: 获取完成
-    class func requestLivePhoto(videoURL forAsset: PHAsset, toFile fileURL:URL, completionHandler: @escaping (URL?, LivePhotoError?) -> Void) {
+    class func requestLivePhoto(videoURL forAsset: PHAsset,
+                                toFile fileURL:URL,
+                                completionHandler: @escaping (URL?, LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
             requestLivePhoto(for: forAsset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in
@@ -101,12 +106,9 @@ public extension AssetManager {
                     completionHandler(nil, .allError(PhotoError.error(message: "assetResources为nil，获取失败"), PhotoError.error(message: "assetResources为nil，获取失败")))
                     return
                 }
-                if FileManager.default.fileExists(atPath: fileURL.path) {
-                    do {
-                        try FileManager.default.removeItem(at: fileURL)
-                    }catch {
-                        completionHandler(nil, .allError(PhotoError.error(message: "指定的地址已存在"), PhotoError.error(message: "指定的地址已存在")))
-                    }
+                if !PhotoTools.removeFile(fileURL: fileURL) {
+                    completionHandler(nil, .allError(PhotoError.error(message: "指定的地址已存在"), PhotoError.error(message: "指定的地址已存在")))
+                    return
                 }
                 let videoURL = fileURL
                 let options = PHAssetResourceRequestOptions.init()
@@ -131,7 +133,10 @@ public extension AssetManager {
         }
     }
     // MARK: 获取LivePhoto里的图片地址和视频地址
-    class func requestLivePhoto(contentURL asset: PHAsset, imageURLHandler: @escaping (URL?) -> Void, videoHandler: @escaping (URL?) -> Void, completionHandler: @escaping (LivePhotoError?) -> Void) {
+    class func requestLivePhoto(contentURL asset: PHAsset,
+                                imageURLHandler: @escaping (URL?) -> Void,
+                                videoHandler: @escaping (URL?) -> Void,
+                                completionHandler: @escaping (LivePhotoError?) -> Void) {
         if #available(iOS 9.1, *) {
             requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize) { (ID) in
             } progressHandler: { (progress, error, stop, info) in

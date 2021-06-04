@@ -28,7 +28,8 @@ public struct VideoEditResult {
     /// 裁剪数据
     public let cropData: VideoCropData
     
-    public init(editedURL: URL, cropData: VideoCropData) {
+    public init(editedURL: URL,
+                cropData: VideoCropData) {
         do {
             let videofileSize = try editedURL.resourceValues(forKeys: [.fileSizeKey])
             editedFileSize = videofileSize.fileSize ?? 0

@@ -5,25 +5,25 @@
 //  Created by Slience on 2021/5/24.
 //
 
-#if canImport(Kingfisher)
 import UIKit
+#if canImport(Kingfisher)
 import Kingfisher
 
 public enum DonwloadURLType {
     case thumbnail
     case original
 }
+#endif
 
 public extension PhotoAsset {
     
+    #if canImport(Kingfisher)
     /// 获取网络图片的地址，编辑过就是本地地址，未编辑就是网络地址
     /// - Parameter resultHandler: 地址、是否为网络地址
     func getNetworkImageURL(resultHandler: @escaping (URL?, Bool) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
-            requestLocalImageURL { (url) in
-                resultHandler(url, false)
-            }
+        if let photoEdit = photoEdit {
+            resultHandler(photoEdit.editedImageURL, false) 
             return
         }
         #endif
@@ -34,36 +34,44 @@ public extension PhotoAsset {
     /// - Parameters:
     ///   - filterEditor: 过滤编辑的数据
     ///   - resultHandler: 获取结果
-    func getNetworkImage(urlType: DonwloadURLType = .original, filterEditor: Bool = false, resultHandler: @escaping (UIImage?) -> Void) {
+    func getNetworkImage(urlType: DonwloadURLType = .original,
+                         filterEditor: Bool = false,
+                         progressBlock: DownloadProgressBlock? = nil,
+                         resultHandler: @escaping (UIImage?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil && !filterEditor {
-            let image = getOriginalImage()
-            resultHandler(image)
-            return
-        }
-        #endif
-        let url = networkImageAsset!.originalURL
-        let key = url.cacheKey
-        if ImageCache.default.isCached(forKey: key) {
-            ImageCache.default.retrieveImage(forKey: key) { (result) in
-                switch result {
-                case .success(let value):
-                    resultHandler(value.image)
-                case .failure(_):
-                    resultHandler(nil)
-                }
+        if let photoEdit = photoEdit, !filterEditor {
+            if urlType == .thumbnail {
+                resultHandler(photoEdit.editedImage)
+            }else {
+                let image = UIImage.init(contentsOfFile: photoEdit.editedImageURL.path)
+                resultHandler(image)
             }
             return
         }
-        ImageDownloader.default.downloadImage(with: url, options: [.backgroundDecode, .onlyLoadFirstFrame, .cacheOriginalImage]) { (result) in
-            switch result {
-            case .success(let value):
-                ImageCache.default.store(value.image, forKey: key)
-                resultHandler(value.image)
-            case .failure(_):
+        #endif
+        let isThumbnail = urlType == .thumbnail
+        let url = isThumbnail ? networkImageAsset!.thumbnailURL : networkImageAsset!.originalURL
+        let options: KingfisherOptionsInfo = isThumbnail ? .init([.onlyLoadFirstFrame, .cacheOriginalImage]) : .init([.backgroundDecode])
+        
+        PhotoTools.downloadNetworkImage(with: url, options: options, progressBlock: progressBlock) { (image) in
+            if let image = image {
+                resultHandler(image)
+            }else {
                 resultHandler(nil)
             }
         }
     }
+    #endif
+    
+    /// 获取网络视频的地址，编辑过就是本地地址，未编辑就是网络地址
+    /// - Parameter resultHandler: 地址、是否为网络地址
+    func getNetworkVideoURL(resultHandler: @escaping (URL?, Bool) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
+        if let videoEdit = videoEdit {
+            resultHandler(videoEdit.editedURL, false)
+            return
+        }
+        #endif
+        resultHandler(networkVideoAsset?.videoURL, true)
+    }
 }
-#endif

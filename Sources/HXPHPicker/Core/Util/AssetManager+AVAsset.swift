@@ -20,7 +20,11 @@ public extension AssetManager {
     ///   - resultHandler: AVAsset，AVAudioMix，info，downloadSuccess
     /// - Returns: 请求ID
     @discardableResult
-    class func requestAVAsset(for asset: PHAsset, deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic, iCloudHandler: @escaping (PHImageRequestID) -> Void, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset,
+                              deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic,
+                              iCloudHandler: @escaping (PHImageRequestID) -> Void,
+                              progressHandler: @escaping PHAssetImageProgressHandler,
+                              resultHandler: @escaping (AVAsset?, AVAudioMix?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
         return requestAVAsset(for: asset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (avAsset, audioMix, info) in
             DispatchQueue.main.async {
@@ -61,7 +65,12 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
     @discardableResult
-    class func requestAVAsset(for asset: PHAsset, version: PHVideoRequestOptionsVersion, deliveryMode: PHVideoRequestOptionsDeliveryMode, isNetworkAccessAllowed: Bool, progressHandler: @escaping PHAssetImageProgressHandler, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset,
+                              version: PHVideoRequestOptionsVersion,
+                              deliveryMode: PHVideoRequestOptionsDeliveryMode,
+                              isNetworkAccessAllowed: Bool,
+                              progressHandler: @escaping PHAssetImageProgressHandler,
+                              resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         let options = PHVideoRequestOptions.init()
         options.isNetworkAccessAllowed = isNetworkAccessAllowed
         options.progressHandler = progressHandler
@@ -77,7 +86,9 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
     @discardableResult
-    class func requestAVAsset(for asset: PHAsset, options: PHVideoRequestOptions, resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
+    class func requestAVAsset(for asset: PHAsset,
+                              options: PHVideoRequestOptions,
+                              resultHandler: @escaping AVAssetResultHandler) -> PHImageRequestID {
         return PHImageManager.default().requestAVAsset(forVideo: asset, options: options, resultHandler: resultHandler)
     }
 }

@@ -91,6 +91,8 @@ public extension PhotoAsset {
         case localGifImage
         /// 网络图片
         case networkImage(Bool)
+        /// 网络视频
+        case networkVideo
         
         public var isLocal: Bool {
             switch self {
@@ -112,7 +114,7 @@ public extension PhotoAsset {
         
         public var isVideo: Bool {
             switch self {
-            case .video, .localVideo:
+            case .video, .localVideo, .networkVideo:
                 return true
             default:
                 return false
@@ -132,7 +134,7 @@ public extension PhotoAsset {
         
         public var isNetwork: Bool {
             switch self {
-            case .networkImage(_):
+            case .networkImage(_), .networkVideo:
                 return true
             default:
                 return false

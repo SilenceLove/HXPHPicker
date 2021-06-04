@@ -33,92 +33,94 @@ public extension PhotoEditorViewControllerDelegate {
     func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {}
     func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {}
 }
+
 open class PhotoEditorViewController: BaseViewController {
     
+    /// 代理
     public weak var delegate: PhotoEditorViewControllerDelegate?
     
+    /// 配置
     public let config: PhotoEditorConfiguration
     
-    public var state: State = .normal
+    /// 当前编辑的图片
+    public private(set) var image: UIImage!
     
-    public var image: UIImage!
+    /// 资源类型
+    public let assetType: EditorController.AssetType
     
-    public var editResult: PhotoEditResult?
+    /// 当前编辑状态
+    public private(set) var state: State = .normal
     
-    public init(image: UIImage, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
+    /// 上一次的编辑结果
+    public private(set) var editResult: PhotoEditResult?
+    
+    /// 编辑image
+    /// - Parameters:
+    ///   - image: 对应的 UIImage
+    ///   - editResult: 上一次编辑结果
+    ///   - config: 编辑配置
+    public init(image: UIImage,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        assetType = .local
         self.image = image
         self.config = config
         self.editResult = editResult
         super.init(nibName: nil, bundle: nil)
     }
-    public var isPicker: Bool = false
     
     #if HXPICKER_ENABLE_PICKER
-    public var photoAsset: PhotoAsset!
-    public init(photoAsset: PhotoAsset, editResult: PhotoEditResult? = nil, config: PhotoEditorConfiguration) {
-        isPicker = true
+    /// 当前编辑的PhotoAsset对象
+    public private(set) var photoAsset: PhotoAsset!
+    
+    /// 编辑 PhotoAsset
+    /// - Parameters:
+    ///   - photoAsset: 对应数据的 PhotoAsset
+    ///   - editResult: 上一次编辑结果
+    ///   - config: 编辑配置
+    public init(photoAsset: PhotoAsset,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        assetType = .picker
+        requestType = 1
+        needRequest = true
         self.config = config
         self.editResult = editResult
         self.photoAsset = photoAsset
         super.init(nibName: nil, bundle: nil)
     }
-    func requestImage() {
-        if photoAsset.mediaSubType.isLocal {
-            if photoAsset.mediaType == .photo {
-                requestAssetCompletion(image: photoAsset.localImageAsset!.image!)
-            }else {
-                requestAssetCompletion(image: photoAsset.localVideoAsset!.image!)
-            }
-        }else if photoAsset.isNetworkAsset {
-            #if canImport(Kingfisher)
-            ProgressHUD.showLoading(addedTo: view, animated: true)
-            photoAsset.getNetworkImage(filterEditor: true) { [weak self] (image) in
-                if let image = image {
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    self?.requestAssetCompletion(image: image)
-                }else {
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
-                        self?.didBackClick()
-                    }
-                }
-            }
-            #endif
-        } else {
-            ProgressHUD.showLoading(addedTo: view, animated: true)
-            photoAsset.requestAssetImageURL(filterEditor: true) { [weak self] (imageUrl) in
-                DispatchQueue.global().async {
-                    if let imageUrl = imageUrl, let image = UIImage.init(contentsOfFile: imageUrl.path)?.scaleSuitableSize() {
-                        DispatchQueue.main.async {
-                            ProgressHUD.hide(forView: self?.view, animated: true)
-                            self?.requestAssetCompletion(image: image)
-                        }
-                    }else {
-                        DispatchQueue.main.async {
-                            ProgressHUD.hide(forView: self?.view, animated: true)
-                            PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
-                                self?.didBackClick()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    func requestAssetCompletion(image: UIImage) {
-        if imageInitializeCompletion == true {
-            imageView.setImage(image)
-            if let editedData = editResult?.editedData {
-                imageView.setEditedData(editedData: editedData)
-            }
-            if state == .cropping {
-                imageView.startCropping(true)
-                croppingAction()
-            }
-        }
-        self.image = image
+    #endif
+    
+    #if canImport(Kingfisher)
+    /// 当前编辑的网络图片地址
+    public var networkImageURL: URL?
+    
+    /// 编辑网络图片
+    /// - Parameters:
+    ///   - networkImageURL: 对应的网络地址
+    ///   - editResult: 上一次编辑结果
+    ///   - config: 编辑配置
+    public init(networkImageURL: URL,
+                editResult: PhotoEditResult? = nil,
+                config: PhotoEditorConfiguration) {
+        PhotoManager.shared.appearanceStyle = config.appearanceStyle
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
+        assetType = .network
+        requestType = 2
+        needRequest = true
+        self.networkImageURL = networkImageURL
+        self.config = config
+        self.editResult = editResult
+        super.init(nibName: nil, bundle: nil)
     }
     #endif
+    
+    var needRequest: Bool = false
+    var requestType: Int = 0
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -222,11 +224,17 @@ open class PhotoEditorViewController: BaseViewController {
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
         
-        #if HXPICKER_ENABLE_PICKER
-        if isPicker {
-            requestImage()
+        if needRequest {
+            if requestType == 1 {
+                #if HXPICKER_ENABLE_PICKER
+                requestImage()
+                #endif
+            }else if requestType == 2 {
+                #if canImport(Kingfisher)
+                requestNetworkImage()
+                #endif
+            }
         }
-        #endif
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
         imageView.reset(false)
@@ -261,7 +269,7 @@ open class PhotoEditorViewController: BaseViewController {
         cropToolView.updateContentInset()
         imageView.frame = view.bounds
         if !imageInitializeCompletion {
-            if !isPicker || image != nil {
+            if !needRequest || image != nil {
                 imageView.setImage(image)
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
@@ -305,7 +313,130 @@ open class PhotoEditorViewController: BaseViewController {
         }
     }
 }
-
+extension PhotoEditorViewController {
+    #if HXPICKER_ENABLE_PICKER
+    func requestImage() {
+        if photoAsset.isLocalAsset {
+            if photoAsset.mediaType == .photo {
+                var image = photoAsset.localImageAsset!.image!
+                if photoAsset.mediaSubType.isGif {
+                    if let imageData = photoAsset.localImageAsset?.imageData {
+                        #if canImport(Kingfisher)
+                        if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
+                            image = gifImage
+                        }
+                        #endif
+                    }else if let imageURL = photoAsset.localImageAsset?.imageURL {
+                        do {
+                            let imageData = try Data.init(contentsOf: imageURL)
+                            #if canImport(Kingfisher)
+                            if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
+                                image = gifImage
+                            }
+                            #endif
+                        }catch {}
+                    }
+                }
+                requestAssetCompletion(image: image)
+            }else {
+                requestAssetCompletion(image: photoAsset.localVideoAsset!.image!)
+            }
+        }else if photoAsset.isNetworkAsset {
+            #if canImport(Kingfisher)
+            let loadingView = ProgressHUD.showLoading(addedTo: view, animated: true)
+            photoAsset.getNetworkImage(urlType: .original, filterEditor: true) { (receiveSize, totalSize) in
+                let progress = Double(receiveSize) / Double(totalSize)
+                if progress > 0 {
+                    loadingView?.updateText(text: "图片下载中".localized + "(" + String(Int(progress * 100)) + "%)")
+                }
+            } resultHandler: { [weak self] (image) in
+                if let image = image {
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    self?.requestAssetCompletion(image: image)
+                }else {
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+                        self?.didBackClick()
+                    }
+                }
+            }
+            #endif
+        } else {
+            ProgressHUD.showLoading(addedTo: view, animated: true)
+            photoAsset.requestAssetImageURL(filterEditor: true) { [weak self] (imageUrl) in
+                DispatchQueue.global().async {
+                    if let imageUrl = imageUrl {
+                        #if canImport(Kingfisher)
+                        if self?.photoAsset.isGifAsset == true {
+                            do {
+                                let imageData = try Data.init(contentsOf: imageUrl)
+                                if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
+                                    DispatchQueue.main.async {
+                                        ProgressHUD.hide(forView: self?.view, animated: true)
+                                        self?.requestAssetCompletion(image: gifImage)
+                                    }
+                                    return
+                                }
+                            }catch {}
+                        }
+                        #endif
+                        if let image = UIImage.init(contentsOfFile: imageUrl.path)?.scaleSuitableSize() {
+                            DispatchQueue.main.async {
+                                ProgressHUD.hide(forView: self?.view, animated: true)
+                                self?.requestAssetCompletion(image: image)
+                            }
+                            return
+                        }
+                    }
+                    DispatchQueue.main.async {
+                        self?.requestAssetFailure()
+                    }
+                }
+            }
+        }
+    }
+    #endif
+    
+    #if canImport(Kingfisher)
+    func requestNetworkImage() {
+        let url = networkImageURL!
+        let loadingView = ProgressHUD.showLoading(addedTo: view, animated: true)
+        PhotoTools.downloadNetworkImage(with: url, options: [.backgroundDecode]) { (receiveSize, totalSize) in
+            let progress = Double(receiveSize) / Double(totalSize)
+            if progress > 0 {
+                loadingView?.updateText(text: "图片下载中".localized + "(" + String(Int(progress * 100)) + "%)")
+            }
+        } completionHandler: { [weak self] (image) in
+            ProgressHUD.hide(forView: self?.view, animated: true)
+            if let image = image {
+                self?.requestAssetCompletion(image: image)
+            }else {
+                self?.requestAssetFailure()
+            }
+        }
+    }
+    #endif
+    
+    func requestAssetCompletion(image: UIImage) {
+        if imageInitializeCompletion == true {
+            imageView.setImage(image)
+            if let editedData = editResult?.editedData {
+                imageView.setEditedData(editedData: editedData)
+            }
+            if state == .cropping {
+                imageView.startCropping(true)
+                croppingAction()
+            }
+        }
+        self.image = image
+    }
+    func requestAssetFailure() {
+        ProgressHUD.hide(forView: view, animated: true)
+        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+            self.didBackClick()
+        }
+    }
+}
 // MARK: EditorToolViewDelegate
 extension PhotoEditorViewController: EditorToolViewDelegate {
      

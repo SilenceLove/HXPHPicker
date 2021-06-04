@@ -17,7 +17,8 @@ public extension AssetManager {
     /// - Parameters:
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
-    class func requestVideoURL(for asset: PHAsset, resultHandler: @escaping VideoURLResultHandler) {
+    class func requestVideoURL(for asset: PHAsset,
+                               resultHandler: @escaping VideoURLResultHandler) {
         requestAVAsset(for: asset) { (reqeustID) in
         } progressHandler: { (progress, error, stop, info) in
         } resultHandler: { (avAsset, audioMix, info, downloadSuccess) in
@@ -36,7 +37,8 @@ public extension AssetManager {
     /// - Parameters:
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
-    class func requestVideoURL(mp4Format asset: PHAsset, resultHandler: @escaping VideoURLResultHandler) {
+    class func requestVideoURL(mp4Format asset: PHAsset,
+                               resultHandler: @escaping VideoURLResultHandler) {
         let videoURL = PhotoTools.getVideoTmpURL()
         requestVideoURL(for: asset, toFile: videoURL, resultHandler: resultHandler)
     }
@@ -46,7 +48,9 @@ public extension AssetManager {
     ///   - asset: 对应的 PHAsset 数据
     ///   - fileURL: 指定视频地址
     ///   - resultHandler: 获取结果
-    class func requestVideoURL(for asset: PHAsset, toFile fileURL:URL, resultHandler: @escaping VideoURLResultHandler) {
+    class func requestVideoURL(for asset: PHAsset,
+                               toFile fileURL:URL,
+                               resultHandler: @escaping VideoURLResultHandler) {
         var videoResource: PHAssetResource?
         for resource in PHAssetResource.assetResources(for: asset) {
             if resource.type == .video {
@@ -57,12 +61,9 @@ public extension AssetManager {
             resultHandler(nil)
             return
         }
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            do {
-                try FileManager.default.removeItem(at: fileURL)
-            }catch {
-                resultHandler(nil)
-            }
+        if !PhotoTools.removeFile(fileURL: fileURL) {
+            resultHandler(nil)
+            return
         }
         let videoURL = fileURL
         let options = PHAssetResourceRequestOptions.init()
