@@ -563,7 +563,7 @@ extension VideoEditorViewController {
                     self?.avAsset = AVAsset.init(url: url)
                     self?.avassetLoadValuesAsynchronously()
                 }else {
-                    if let error = error as? NSError, error.code == NSURLErrorCancelled {
+                    if let error = error as NSError?, error.code == NSURLErrorCancelled {
                         return
                     }
                     self?.loadingView = nil

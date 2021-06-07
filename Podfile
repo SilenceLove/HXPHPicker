@@ -1,7 +1,7 @@
 platform :ios, '10.0'
 
 install! 'cocoapods', disable_input_output_paths: true
-inhibit_all_warnings!
+#inhibit_all_warnings!
 
 use_frameworks!
 

@@ -83,7 +83,7 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             #if canImport(Kingfisher)
             imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error, photoAsset) in
                 if self?.photoAsset == photoAsset {
-                    if let image = image {
+                    if image != nil {
                         self?.downloadStatus = .succeed
                     }else {
                         if error!.isTaskCancelled {

@@ -14,6 +14,7 @@ import Kingfisher
 extension UIImageView {
     
     #if canImport(Kingfisher)
+    @discardableResult
     func setImage(
         for asset: PhotoAsset,
         urlType: DonwloadURLType,

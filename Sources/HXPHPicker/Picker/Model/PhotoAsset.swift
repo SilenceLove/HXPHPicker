@@ -110,6 +110,8 @@ open class PhotoAsset: Equatable {
         }else if let imageURL = localImageAsset.imageURL {
             let suffix = imageURL.lastPathComponent
             mediaSubType = (suffix.hasSuffix("gif") || suffix.hasSuffix("GIF")) ? .localGifImage : .localImage
+        }else {
+            mediaSubType = .localImage
         }
     }
     
@@ -134,6 +136,8 @@ open class PhotoAsset: Equatable {
     public private(set) lazy var localAssetIdentifier: String = UUID().uuidString
     
     #if canImport(Kingfisher)
+    /// 初始化网络图片
+    /// - Parameter networkImageAsset: 对应网络图片的 NetworkImageAsset
     public init(networkImageAsset: NetworkImageAsset) {
         self.networkImageAsset = networkImageAsset
         mediaType = .photo
@@ -308,7 +312,7 @@ extension PhotoAsset {
             return fileSize
         }
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
+        if photoEdit != nil {
             if let imageData = getLocalImageData() {
                 pFileSize = imageData.count
                 return imageData.count
@@ -449,8 +453,20 @@ extension PhotoAsset {
                 size = image.size
             }else if let localImage = localVideoAsset?.image {
                 size = localImage.size
-            }else if let networkVideoCoverimage = networkVideoAsset?.coverImage {
-                size = networkVideoCoverimage.size
+            }else if let networkVideo = networkVideoAsset {
+                if let image = networkVideo.coverImage {
+                    size = image.size
+                }else {
+                    let key = networkVideo.videoURL.absoluteString
+                    if PhotoTools.isCached(forVideo: key) {
+                        let videoURL = PhotoTools.getVideoCacheURL(for: key)
+                        if let image = PhotoTools.getVideoThumbnailImage(videoURL: videoURL, atTime: 0.1) {
+                            networkVideoAsset?.coverImage = image
+                            return image.size
+                        }
+                    }
+                    size = CGSize(width: 200, height: 200)
+                }
             }else {
                 #if canImport(Kingfisher)
                 if let networkImageSize = networkImageAsset?.imageSize, !networkImageSize.equalTo(.zero) {
@@ -550,7 +566,7 @@ extension PhotoAsset {
             return
         }
         if mediaType == .video {
-            requestImageData(iCloudHandler: nil, progressHandler: nil) { [weak self] (photoAsset, imageData, imageOrientation, info) in
+            requestImageData(iCloudHandler: nil, progressHandler: nil) { (photoAsset, imageData, imageOrientation, info) in
                 DispatchQueue.global().async {
                     let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData)
                     DispatchQueue.main.async {
