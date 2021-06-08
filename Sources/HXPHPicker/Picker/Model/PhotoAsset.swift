@@ -247,6 +247,13 @@ extension PhotoAsset {
         pVideoTime = PhotoTools.transformVideoDurationToString(duration: duration)
     }
     
+    func getPFileSize() -> Int? {
+        pFileSize
+    }
+    func updateFileSize(_ fileSize: Int) {
+        pFileSize = fileSize
+    }
+    
     func setMediaType() {
         if phAsset?.mediaType.rawValue == 1 {
             mediaType = .photo

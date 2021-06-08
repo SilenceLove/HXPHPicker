@@ -1,7 +1,6 @@
 platform :ios, '10.0'
 
 install! 'cocoapods', disable_input_output_paths: true
-#inhibit_all_warnings!
 
 use_frameworks!
 
@@ -19,13 +18,13 @@ target 'Example' do
   # pod 'HXPHPicker/Editor', :path => './'
 end
 
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    if target.name == 'Pods-Example'
-#      Pod::UI.puts "'target':#{target}"
-      target.build_configurations.each do |config|
-        config.build_settings['MACH_O_TYPE'] = 'mh_dylib'
-      end
-    end
-  end
-end
+#post_install do |installer|
+#  installer.pods_project.targets.each do |target|
+#    if target.name == 'Pods-Example'
+##      Pod::UI.puts "'target':#{target}"
+#      target.build_configurations.each do |config|
+#        config.build_settings['MACH_O_TYPE'] = 'mh_dylib'
+#      end
+#    end
+#  end
+#end

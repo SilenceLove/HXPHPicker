@@ -58,4 +58,17 @@ import Photos
         }
         return isICloud
     }
+    
+    func checkAdjustmentStatus(completion: @escaping (Bool) -> Void) {
+        self.requestContentEditingInput(with: nil) { (input, info) in
+            let avAsset = input?.audiovisualAsset
+            var isAdjusted: Bool = false
+            if let path = avAsset != nil ? avAsset?.description : input?.fullSizeImageURL?.path {
+                if path.contains("/Mutations/") {
+                    isAdjusted = true
+                }
+            }
+            completion(isAdjusted)
+        }
+    }
 }

@@ -583,26 +583,79 @@ extension PhotoPickerController {
         cancelRequestAssetFileSize(isPreview: isPreview)
         let operation = BlockOperation.init {
             var totalFileSize = 0
+            var total: Int = 0
+             
+            func calculationCompletion(_ totalSize: Int) {
+                if isPreview {
+                    if let operation =
+                        self.previewRequestAssetBytesQueue.operations.first {
+                        if operation.isCancelled {
+                            return
+                        }
+                    }
+                }else {
+                    if let operation =
+                        self.requestAssetBytesQueue.operations.first {
+                        if operation.isCancelled {
+                            return
+                        }
+                    }
+                }
+                DispatchQueue.main.async {
+                    completion(totalSize, PhotoTools.transformBytesToString(bytes: totalSize))
+                }
+            }
+            
             for photoAsset in self.selectedAssetArray {
-                totalFileSize += photoAsset.fileSize
-            }
-            if isPreview {
-                if let operation =
-                    self.previewRequestAssetBytesQueue.operations.first {
-                    if operation.isCancelled {
+                if let fileSize = photoAsset.getPFileSize() {
+                    totalFileSize += fileSize
+                    total += 1
+                    if total == self.selectedAssetArray.count {
+                        calculationCompletion(totalFileSize)
+                    }
+                    continue
+                }
+                photoAsset.checkAdjustmentStatus { (isAdjusted, asset) in
+                    if isAdjusted {
+                        if asset.mediaType == .photo {
+                            asset.requestImageData(iCloudHandler: nil, progressHandler: nil) { (sAsset, imageData, imageOrientation, info) in
+                                sAsset.updateFileSize(imageData.count)
+                                totalFileSize += sAsset.fileSize
+                                total += 1
+                                if total == self.selectedAssetArray.count {
+                                    calculationCompletion(totalFileSize)
+                                }
+                            } failure: { (sAsset, info) in
+                                total += 1
+                                if total == self.selectedAssetArray.count {
+                                    calculationCompletion(totalFileSize)
+                                }
+                            }
+                        }else {
+                            asset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (sAsset, avAsset, info) in
+                                if let urlAsset = avAsset as? AVURLAsset {
+                                    totalFileSize += urlAsset.url.fileSize
+                                }
+                                total += 1
+                                if total == self.selectedAssetArray.count {
+                                    calculationCompletion(totalFileSize)
+                                }
+                            } failure: { (sAsset, info) in
+                                total += 1
+                                if total == self.selectedAssetArray.count {
+                                    calculationCompletion(totalFileSize)
+                                }
+                            }
+                        }
                         return
+                    }else {
+                        totalFileSize += asset.fileSize
+                    }
+                    total += 1
+                    if total == self.selectedAssetArray.count {
+                        calculationCompletion(totalFileSize)
                     }
                 }
-            }else {
-                if let operation =
-                    self.requestAssetBytesQueue.operations.first {
-                    if operation.isCancelled {
-                        return
-                    }
-                }
-            }
-            DispatchQueue.main.async {
-                completion(totalFileSize, PhotoTools.transformBytesToString(bytes: totalFileSize))
             }
         }
         if isPreview {

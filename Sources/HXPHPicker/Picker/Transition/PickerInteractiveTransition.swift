@@ -39,6 +39,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
     weak var transitionContext: UIViewControllerContextTransitioning?
     var slidingGap: CGPoint = .zero
     var navigationBarAlpha: CGFloat = 1
+    var canTransition: Bool = false
     
     init(panGestureRecognizerFor previewViewController: PhotoPreviewViewController, type: `Type`) {
         self.type = type
@@ -87,9 +88,6 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         switch panGR.state {
         case .began:
             beginInteration(panGR: panGR)
-            if canInteration {
-                
-            }
             break
         case .changed:
             if !canInteration || !beganInterPercent {
@@ -143,6 +141,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             }
             break
         case .ended, .cancelled, .failed:
+            canTransition = false
             if !canInteration {
                 return
             }
@@ -173,6 +172,9 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         }
     }
     func beginInteration(panGR: UIPanGestureRecognizer) {
+        if canInteration {
+            return
+        }
         if type == .pop, let previewViewController = previewViewController {
             let velocity = panGR.velocity(in: previewViewController.view)
             let isVerticalGesture = (abs(velocity.y) > abs(velocity.x) && velocity.y > 0)
@@ -181,6 +183,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             }
             beganPoint = panGR.location(in: panGR.view)
             canInteration = true
+            canTransition = true
             previewViewController.navigationController?.popViewController(animated: true)
         }else if type == .dismiss, let pickerController = pickerController {
             let velocity = panGR.velocity(in: pickerController.view)
@@ -190,6 +193,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             }
             beganPoint = panGR.location(in: panGR.view)
             canInteration = true
+            canTransition = true
             pickerController.dismiss(animated: true, completion: nil)
         }
     }
@@ -337,6 +341,24 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         let containerView = transitionContext.containerView
         containerView.addSubview(pickerViewController.view)
         containerView.addSubview(previewViewController.view)
+        if !canTransition {
+            self.previewViewController?.view.removeGestureRecognizer(panGestureRecognizer)
+            canInteration = false
+            beganInterPercent = false
+            self.cancel()
+            UIView.animate(withDuration: 0.25) {
+                if !previewViewController.statusBarShouldBeHidden {
+                    previewViewController.bottomView.alpha = 1
+                    if AssetManager.authorizationStatusIsLimited() && pickerViewController.config.bottomView.showPrompt {
+                        pickerViewController.bottomView.alpha = 0
+                    }
+                }
+            } completion: { (_) in
+                transitionContext.completeTransition(false)
+                self.previewViewController?.view.addGestureRecognizer(self.panGestureRecognizer)
+            }
+            return
+        }
         backgroundView.frame = pickerViewController.view.bounds
         backgroundView.backgroundColor = previewBackgroundColor
         pickerViewController.view.insertSubview(backgroundView, at: 1)
