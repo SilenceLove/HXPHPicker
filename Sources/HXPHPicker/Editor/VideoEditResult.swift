@@ -30,12 +30,7 @@ public struct VideoEditResult {
     
     public init(editedURL: URL,
                 cropData: VideoCropData) {
-        do {
-            let videofileSize = try editedURL.resourceValues(forKeys: [.fileSizeKey])
-            editedFileSize = videofileSize.fileSize ?? 0
-        } catch {
-            editedFileSize = 0
-        }
+        editedFileSize = editedURL.fileSize
         
         videoDuration = PhotoTools.getVideoDuration(videoURL: editedURL)
         videoTime = PhotoTools.transformVideoDurationToString(duration: videoDuration)

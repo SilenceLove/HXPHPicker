@@ -10,8 +10,8 @@ import ImageIO
 import CoreServices
 
 extension PhotoTools {
-    class func createAnimatedImageURL(images: [UIImage],
-                                      delays: [Double]) -> URL? {
+    class func createAnimatedImage(images: [UIImage],
+                                   delays: [Double]) -> URL? {
         if images.isEmpty || delays.isEmpty {
             return nil
         }

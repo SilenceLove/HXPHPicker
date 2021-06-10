@@ -804,7 +804,7 @@ class EditorImageResizerView: UIView {
                     delays.append(option.1[index])
                 }
             }
-            if let image = images.first, let imageURL = PhotoTools.createAnimatedImageURL(images: images, delays: delays) {
+            if let image = images.first, let imageURL = PhotoTools.createAnimatedImage(images: images, delays: delays) {
                 return (image, imageURL, .gif)
             }
             return nil

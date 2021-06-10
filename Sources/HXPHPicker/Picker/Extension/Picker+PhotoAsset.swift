@@ -17,6 +17,10 @@ extension PhotoAsset {
         }
         #endif
         if let asset = self.phAsset {
+            if mediaSubType == .livePhoto {
+                completion(false, self)
+                return
+            }
             asset.checkAdjustmentStatus { (isAdjusted) in
                 completion(isAdjusted, self)
             }

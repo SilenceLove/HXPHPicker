@@ -1,13 +1,14 @@
 //
-//  Picker+PHAsset.swift
+//  Core+PHAsset.swift
 //  HXPHPicker
 //
-//  Created by Slience on 2021/1/7.
+//  Created by Slience on 2021/6/9.
 //
+
 
 import Photos
 
- public extension PHAsset {
+public extension PHAsset {
     
     var isImageAnimated: Bool {
         var isAnimated : Bool = false

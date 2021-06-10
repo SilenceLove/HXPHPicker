@@ -249,7 +249,7 @@ public extension PhotoAsset {
 // MARK: Request Video
 public extension PhotoAsset {
     
-    /// 获取原始视频地址
+    /// 获取原始视频地址，系统相册里的视频需要自行压缩
     /// 网络视频如果在本地有缓存则会返回本地地址，如果没有缓存则为ni
     /// - Parameters:
     ///   - fileURL: 指定视频地址

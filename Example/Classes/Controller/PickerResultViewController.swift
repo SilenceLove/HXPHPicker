@@ -455,11 +455,11 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
-        result.getURLs { (url, isNetwork, index, type) in
-            print(type == .photo ? isNetwork ? "网络图片：" : "图片：" : isNetwork ? "网络视频" : "视频：", url! , "index:" , index)
-        } completionHandler: { (urls) in
-            
-        }
+//        result.getURLs { (url, isNetwork, index, type) in
+//            print(type == .photo ? isNetwork ? "网络图片：" : "图片：" : isNetwork ? "网络视频" : "视频：", url! , "index:" , index)
+//        } completionHandler: { (urls) in
+//
+//        }
         pickerController.dismiss(animated: true, completion: nil)
     }
     

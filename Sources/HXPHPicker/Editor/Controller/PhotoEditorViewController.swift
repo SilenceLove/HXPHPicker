@@ -363,6 +363,17 @@ extension PhotoEditorViewController {
             #endif
         } else {
             ProgressHUD.showLoading(addedTo: view, animated: true)
+            if photoAsset.phAsset != nil && !photoAsset.isGifAsset {
+                photoAsset.requestImageData(iCloudHandler: nil, progressHandler: nil) { [weak self] (asset, imageData, imageOrientation, info) in
+                    let image = UIImage.init(data: imageData)?.scaleSuitableSize()
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    self?.requestAssetCompletion(image: image!)
+                } failure: { [weak self] (asset, info) in
+                    ProgressHUD.hide(forView: self?.view, animated: true)
+                    self?.requestAssetFailure()
+                }
+                return
+            }
             photoAsset.requestAssetImageURL(filterEditor: true) { [weak self] (imageUrl) in
                 DispatchQueue.global().async {
                     if let imageUrl = imageUrl {
@@ -389,6 +400,7 @@ extension PhotoEditorViewController {
                         }
                     }
                     DispatchQueue.main.async {
+                        ProgressHUD.hide(forView: self?.view, animated: true)
                         self?.requestAssetFailure()
                     }
                 }

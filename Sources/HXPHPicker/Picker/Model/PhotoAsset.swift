@@ -335,11 +335,31 @@ extension PhotoAsset {
         if let photoAsset = phAsset {
             let assetResources = PHAssetResource.assetResources(for: photoAsset)
             let assetIsLivePhoto = photoAsset.isLivePhoto
+            var livePhotoType: PHAssetResourceType = .photo
+            var liveVideoType: PHAssetResourceType = .pairedVideo
             for assetResource in assetResources {
-                if assetIsLivePhoto && mediaSubType != .livePhoto {
-                    if assetResource.type == .photo {
-                        if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
-                            fileSize += photoFileSize
+                if assetResource.type == .adjustmentData {
+                    livePhotoType = .fullSizePhoto
+                    liveVideoType = .fullSizePairedVideo
+                    break
+                }
+            }
+            for assetResource in assetResources {
+                if assetIsLivePhoto {
+                    if mediaSubType != .livePhoto {
+                        if assetResource.type == .photo {
+                            if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
+                                fileSize += photoFileSize
+                            }
+                        }
+                    }else {
+                        switch assetResource.type {
+                        case livePhotoType, liveVideoType:
+                            if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
+                                fileSize += photoFileSize
+                            }
+                        default:
+                            break
                         }
                     }
                 }else {
@@ -364,10 +384,7 @@ extension PhotoAsset {
                 }
             }else {
                 if let videoURL = localVideoAsset?.videoURL {
-                    do {
-                        let videofileSize = try videoURL.resourceValues(forKeys: [.fileSizeKey])
-                        fileSize = videofileSize.fileSize ?? 0
-                    } catch {}
+                    fileSize = videoURL.fileSize
                 }else if let networkVideoAsset = networkVideoAsset {
                     if networkVideoAsset.fileSize > 0 {
                         fileSize = networkVideoAsset.fileSize
