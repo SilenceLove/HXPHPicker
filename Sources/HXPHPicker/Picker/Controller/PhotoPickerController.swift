@@ -18,20 +18,13 @@ open class PhotoPickerController: UINavigationController {
     
     /// 当前被选择的资源对应的 PhotoAsset 对象数组
     /// 外部预览时的资源数据
-    public var selectedAssetArray: [PhotoAsset] = [] {
-        didSet {
-            configSelectedArray()
-        }
-    }
+    public var selectedAssetArray: [PhotoAsset] = [] { didSet { configSelectedArray() } }
     
     /// 是否选中了原图
     public var isOriginal: Bool = false
     
     /// fetch Assets 时的选项配置
-    public lazy var options : PHFetchOptions = {
-        let options = PHFetchOptions.init()
-        return options
-    }()
+    public lazy var options : PHFetchOptions = .init()
     
     /// 完成/取消时自动 dismiss ,为false需要自己在代理回调里手动 dismiss
     public var autoDismiss: Bool = true

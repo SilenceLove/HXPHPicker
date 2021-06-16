@@ -289,11 +289,19 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     func requestOriginalImage() {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoAsset.photoEdit {
-            do {
-                let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
-                imageView.setImageData(imageData)
-            }catch {
-                imageView.setImage(photoEdit.editedImage, animated: true)
+            if photoEdit.imageType == .gif {
+                do {
+                    let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
+                    imageView.setImageData(imageData)
+                }catch {
+                    imageView.setImage(photoEdit.editedImage, animated: true)
+                }
+            }else {
+                if let image = UIImage.init(contentsOfFile: photoEdit.editedImageURL.path) {
+                    imageView.setImage(image)
+                }else {
+                    imageView.setImage(photoEdit.editedImage, animated: true)
+                }
             }
             requestCompletion = true
             return

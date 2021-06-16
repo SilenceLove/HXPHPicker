@@ -81,4 +81,49 @@ public extension AssetManager {
                                                              exportPreset: exportPreset, resultHandler:
                                                                 resultHandler)
     }
+    
+    class func exportVideoURL(forVideo asset: PHAsset,
+                              toFile fileURL:URL,
+                              exportPreset: String,
+                              completionHandler: @escaping (URL?, Error?) -> Void) {
+        requestAVAsset(for: asset, iCloudHandler: nil, progressHandler: nil) { (avAsset, avAudioMix, info, success) in
+            if let avAsset = avAsset {
+                self.exportVideoURL(forVideo: avAsset, toFile: fileURL, exportPreset: exportPreset, completionHandler: completionHandler)
+            }else {
+                completionHandler(nil, info?[PHImageErrorKey] as? Error)
+            }
+        }
+    }
+    
+    class func exportVideoURL(forVideo avAsset: AVAsset,
+                              toFile fileURL:URL,
+                              exportPreset: String,
+                              completionHandler: @escaping (URL?, Error?) -> Void) {
+        var presetName = exportPreset
+        let presets = AVAssetExportSession.exportPresets(compatibleWith: avAsset)
+        if !presets.contains(exportPreset) {
+            if presets.contains(AVAssetExportPresetHighestQuality) {
+                presetName = AVAssetExportPresetHighestQuality
+            }else if presets.contains(AVAssetExportPreset1280x720) {
+                presetName = AVAssetExportPreset1280x720
+            }else {
+                presetName = AVAssetExportPresetMediumQuality
+            }
+        }
+        let exportSession = AVAssetExportSession.init(asset: avAsset, presetName: presetName)
+        exportSession?.outputURL = fileURL
+        exportSession?.shouldOptimizeForNetworkUse = true
+        exportSession?.outputFileType = .mp4
+        exportSession?.exportAsynchronously(completionHandler: {
+            DispatchQueue.main.async {
+                switch exportSession?.status {
+                case .completed:
+                    completionHandler(fileURL, nil)
+                case .failed, .cancelled:
+                    completionHandler(nil, exportSession?.error)
+                default: break
+                }
+            }
+        })
+    }
 }

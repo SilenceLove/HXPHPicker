@@ -62,7 +62,11 @@ public struct VideoCropData {
     /// 2：validWidth ，裁剪框的宽度
     public let cropRectData: (CGFloat, CGFloat, CGFloat)
     
-    public init(startTime: TimeInterval, endTime: TimeInterval, preferredTimescale: Int32, cropingData: (CGFloat, CGFloat, CGFloat), cropRectData: (CGFloat, CGFloat, CGFloat)) {
+    public init(startTime: TimeInterval,
+                endTime: TimeInterval,
+                preferredTimescale: Int32,
+                cropingData: (CGFloat, CGFloat, CGFloat),
+                cropRectData: (CGFloat, CGFloat, CGFloat)) {
         self.startTime = startTime
         self.endTime = endTime
         self.preferredTimescale = preferredTimescale

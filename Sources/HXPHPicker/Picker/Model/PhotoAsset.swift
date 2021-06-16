@@ -505,7 +505,63 @@ extension PhotoAsset {
         }
         return size
     }
-    
+    func requestlocalImageData(resultHandler: @escaping (Data?, PhotoAsset) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            do {
+                let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
+                resultHandler(imageData, self)
+            }catch {
+                resultHandler(nil, self)
+            }
+            return
+        }
+        if let videoEdit = videoEdit {
+            resultHandler(PhotoTools.getImageData(for: videoEdit.coverImage), self)
+            return
+        }
+        #endif
+        if phAsset == nil {
+            DispatchQueue.global().async {
+                if let imageData = self.localImageAsset?.imageData {
+                    resultHandler(imageData, self)
+                }else if let imageURL = self.localImageAsset?.imageURL {
+                    do {
+                        let imageData = try Data.init(contentsOf: imageURL)
+                        DispatchQueue.main.async {
+                            resultHandler(imageData, self)
+                        }
+                    }catch { }
+                }else if let localImage = self.localImageAsset?.image {
+                        let imageData = PhotoTools.getImageData(for: localImage)
+                        DispatchQueue.main.async {
+                            resultHandler(imageData, self)
+                        }
+                }else {
+                    if self.isNetworkAsset {
+                        #if canImport(Kingfisher)
+                        self.getNetworkImage {  (image) in
+                            if let imageData = image?.kf.gifRepresentation() {
+                                DispatchQueue.main.async {
+                                    resultHandler(imageData, self)
+                                }
+                                return
+                            }
+                            let imageData = PhotoTools.getImageData(for: image)
+                            DispatchQueue.main.async {
+                                resultHandler(imageData, self)
+                            }
+                        }
+                        return
+                        #endif
+                    }
+                }
+                DispatchQueue.main.async {
+                    resultHandler(nil, self)
+                }
+            }
+        }
+    }
     /// 获取本地图片地址
     func requestLocalImageURL(toFile fileURL:URL? = nil, resultHandler: @escaping (URL?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
@@ -547,6 +603,52 @@ extension PhotoAsset {
             }
         }
     }
+    
+    /// 获取本地/网络图片
+    /// - Parameters:
+    ///   - urlType: 网络图片的url类型
+    ///   - resultHandler: 获取结果
+    func requestLocalImage(urlType: DonwloadURLType = .original, resultHandler: @escaping (UIImage?, PhotoAsset) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            resultHandler(photoEdit.editedImage, self)
+            return
+        }
+        if let videoEdit = videoEdit {
+            resultHandler(videoEdit.coverImage, self)
+            return
+        }
+        #endif
+        if phAsset == nil {
+            if mediaType == .photo {
+                if let image = localImageAsset?.image {
+                    resultHandler(image, self)
+                    return
+                }
+                if isNetworkAsset {
+                    #if canImport(Kingfisher)
+                    getNetworkImage(urlType: urlType) { (image) in
+                        resultHandler(image, self)
+                    }
+                    #endif
+                    return
+                }
+                DispatchQueue.global().async {
+                    if let imageURL = self.localImageAsset?.imageURL, let image = UIImage.init(contentsOfFile: imageURL.path) {
+                        self.localImageAsset?.image = image
+                        DispatchQueue.main.async {
+                            resultHandler(image, self)
+                        }
+                    }
+                }
+            }else {
+                PhotoTools.getVideoCoverImage(for: self) { (photoAsset, image) in
+                    resultHandler(image, photoAsset)
+                }
+            }
+        }
+    }
+    
     private func getLocalImageAssetURL() -> URL? {
         #if HXPICKER_ENABLE_EDITOR
         if photoEdit == nil {
@@ -557,6 +659,49 @@ extension PhotoAsset {
         #else
         return localImageAsset?.imageURL
         #endif
+    }
+    
+    /// 获取本地/网络视频地址
+    func requestLocalVideoURL(toFile fileURL:URL? = nil,
+                              resultHandler: @escaping (URL?, PhotoAsset) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
+        if let videoEdit = videoEdit {
+            if let fileURL = fileURL {
+                if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
+                    resultHandler(fileURL, self)
+                }else {
+                    resultHandler(nil, self)
+                }
+                return
+            }
+            resultHandler(videoEdit.editedURL, self)
+            return
+        }
+        #endif
+        if phAsset == nil {
+            if mediaType == .photo {
+                resultHandler(nil, self)
+            }else {
+                var videoURL: URL? = nil
+                if isNetworkAsset {
+                    let key = networkVideoAsset!.videoURL.absoluteString
+                    if PhotoTools.isCached(forVideo: key) {
+                        videoURL = PhotoTools.getVideoCacheURL(for: key)
+                    }
+                }else {
+                    videoURL = localVideoAsset?.videoURL
+                }
+                if let fileURL = fileURL, let videoURL = videoURL {
+                    if PhotoTools.copyFile(at: videoURL, to: fileURL) {
+                        resultHandler(fileURL, self)
+                    }else {
+                        resultHandler(nil, self)
+                    }
+                }else {
+                    resultHandler(videoURL, self)
+                }
+            }
+        }
     }
     func requestAssetImageURL(toFile fileURL:URL? = nil, filterEditor: Bool = false, resultHandler: @escaping (URL?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
@@ -633,30 +778,31 @@ extension PhotoAsset {
             }
         }
     }
-    func requestAssetVideoURL(toFile fileURL:URL? = nil, resultHandler: @escaping (URL?) -> Void) {
+    
+    func requestAssetVideoURL(toFile fileURL:URL? = nil,
+                              exportPreset: String? = nil,
+                              resultHandler: @escaping (URL?) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             if let fileURL = fileURL {
-                if fileURL.path == videoEdit.editedURL.path {
+                if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
                     resultHandler(fileURL)
-                    return
-                }
-                do {
-                    if FileManager.default.fileExists(atPath: fileURL.path) {
-                        try FileManager.default.removeItem(at: fileURL)
-                    }
-                    try FileManager.default.copyItem(at: videoEdit.editedURL, to: fileURL)
-                    resultHandler(fileURL)
-                } catch  {
+                }else {
                     resultHandler(nil)
                 }
-            }else {
-                resultHandler(videoEdit.editedURL)
+                return
             }
+            resultHandler(videoEdit.editedURL)
             return
         }
         #endif
         let toFile = fileURL == nil ? PhotoTools.getVideoTmpURL() : fileURL!
+        if let exportPreset = exportPreset {
+            AssetManager.exportVideoURL(forVideo: phAsset!, toFile: toFile, exportPreset: exportPreset) { (videoURL, error) in
+                resultHandler(nil)
+            }
+            return
+        }
         if mediaSubType == .livePhoto {
             AssetManager.requestLivePhoto(videoURL: phAsset!, toFile: toFile) { (videoURL, error) in
                 resultHandler(videoURL)
