@@ -98,7 +98,7 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
                 if self?.photoAsset == photoAsset {
                     self?.imageView.image = image
-                    if let image = image {
+                    if image != nil {
                         self?.downloadStatus = .succeed
                     }else {
                         self?.downloadStatus = .failed

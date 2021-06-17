@@ -1,8 +1,24 @@
 # 更新日志
 
+## 1.1.1
+
+### 新增
+
+- Picker
+  - `PickerResult`新增获取压缩后的图片和压缩后的视频地址方法
+
+- Editor
+  - 新增涂鸦功能（支持gif）
+
+### 修改
+
+- Editor
+  - `PhotoEditResult`的`editedImage`修改为缩略图
+
 ## 1.1.0
 
 ### 修复
+
 - Picker
   - UIImage初始化本地图片时`mediaSubType`错误
   - 第一次预览本地视频时可能布局错误

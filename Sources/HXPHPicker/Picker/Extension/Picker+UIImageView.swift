@@ -164,7 +164,7 @@ extension UIImageView {
             completionHandler?(nil, asset)
             return
         }
-        PhotoTools.getVideoThumbnailImage(url: videoURL!, atTime: 0.1) { [weak self] (videoURL, image) in
+        PhotoTools.getVideoThumbnailImage(url: videoURL!, atTime: 0.1) { (videoURL, image) in
             if asset.isNetworkAsset {
                 asset.networkVideoAsset?.coverImage = image
             }else {

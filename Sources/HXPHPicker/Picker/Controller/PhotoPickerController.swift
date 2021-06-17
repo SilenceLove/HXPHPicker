@@ -120,22 +120,14 @@ open class PhotoPickerController: UINavigationController {
         self.viewControllers = [photoVC]
     }
     
-    /// 外部预览资源初始化，默认自带动画效果
-    /// - Parameters:
-    ///   - config: 相关配置
-    ///   - currentIndex: 当前预览的下标
-    public convenience init(preview config: PickerConfiguration,
-                            currentIndex: Int) {
-        self.init(preview: config, currentIndex: currentIndex, modalPresentationStyle: .custom)
-    }
-    
     /// 外部预览资源初始化
     /// - Parameters:
     ///   - config: 相关配置
-    ///   - modalPresentationStyle: 设置 custom 样式，框架自带动画效果
+    ///   - currentIndex: 当前预览的下标
+    ///   - modalPresentationStyle: 默认 custom 样式，框架自带动画效果
     public init(preview config: PickerConfiguration,
                 currentIndex: Int,
-                modalPresentationStyle: UIModalPresentationStyle) {
+                modalPresentationStyle: UIModalPresentationStyle = .custom) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -197,7 +189,9 @@ open class PhotoPickerController: UINavigationController {
     }
     private var interactiveTransition: PickerInteractiveTransition?
     
+    #if HXPICKER_ENABLE_EDITOR
     private lazy var editedPhotoAssetArray: [PhotoAsset] = []
+    #endif
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -493,14 +487,18 @@ extension PhotoPickerController {
         view.backgroundColor = PhotoManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
     }
     func finishCallback() {
+        #if HXPICKER_ENABLE_EDITOR
         removeAllEditedPhotoAsset()
+        #endif
         pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
     }
     func singleFinishCallback(for photoAsset: PhotoAsset) {
+        #if HXPICKER_ENABLE_EDITOR
         removeAllEditedPhotoAsset()
+        #endif
         pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
         if autoDismiss {
             dismiss(animated: true, completion: nil)
@@ -859,6 +857,7 @@ extension PhotoPickerController {
         return false
     }
     
+    #if HXPICKER_ENABLE_EDITOR
     func addedEditedPhotoAsset(_ photoAsset: PhotoAsset) {
         if editedPhotoAssetArray.contains(photoAsset) {
             return
@@ -866,7 +865,6 @@ extension PhotoPickerController {
         editedPhotoAssetArray.append(photoAsset)
     }
     func removeAllEditedPhotoAsset() {
-        #if HXPICKER_ENABLE_EDITOR
         if editedPhotoAssetArray.isEmpty {
             return
         }
@@ -875,8 +873,8 @@ extension PhotoPickerController {
             photoAsset.initialVideoEdit = nil
         }
         editedPhotoAssetArray.removeAll()
-        #endif
     }
+    #endif
 }
 
 // MARK: Private function
@@ -986,7 +984,9 @@ extension PhotoPickerController {
         return nil
     }
     private func didDismiss() {
+        #if HXPICKER_ENABLE_EDITOR
         removeAllEditedPhotoAsset()
+        #endif
         var cameraAssetArray: [PhotoAsset] = []
         for photoAsset in localCameraAssetArray {
             cameraAssetArray.append(photoAsset.copyCamera())
