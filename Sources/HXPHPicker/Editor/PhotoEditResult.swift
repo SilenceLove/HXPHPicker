@@ -34,6 +34,8 @@ struct PhotoEditData {
     let isPortrait: Bool
     let cropData: PhotoEditCropData?
     let brushData: [PhotoEditorBrushData]
+    let filter: PhotoEditorFilter?
+    let filterValue: Float
 }
 
 struct PhotoEditCropData {

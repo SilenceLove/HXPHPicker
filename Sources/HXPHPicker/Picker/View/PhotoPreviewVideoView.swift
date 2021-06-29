@@ -20,6 +20,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
     weak var delegate: PhotoPreviewVideoViewDelegate?
     override var avAsset: AVAsset? {
         didSet {
+            do { try AVAudioSession.sharedInstance().setCategory(.playback) } catch {}
             delegate?.videoView(showPlayButton: self)
             let playerItem = AVPlayerItem.init(asset: avAsset!)
             player.replaceCurrentItem(with: playerItem)

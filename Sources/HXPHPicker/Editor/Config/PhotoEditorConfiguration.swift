@@ -21,8 +21,8 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         let config = EditorToolViewConfiguration.init()
         let graffitiOption = EditorToolOptions.init(imageName: "hx_editor_tools_graffiti", type: .graffiti)
         let cropOption = EditorToolOptions.init(imageName: "hx_editor_photo_crop", type: .cropping)
-        let options: [EditorToolOptions] = [graffitiOption, cropOption]
-        config.toolOptions = options
+        let filterOption = EditorToolOptions.init(imageName: "hx_editor_tools_filter", type: .filter)
+        config.toolOptions = [graffitiOption, cropOption, filterOption]
         return config
     }()
     
@@ -40,5 +40,19 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     
     /// 裁剪确认视图配置
     public lazy var cropConfimView: CropConfirmViewConfiguration = .init()
-     
+    
+    /// 滤镜配置
+    public lazy var filterConfig: FilterConfig = .init(infos: PhotoTools.defaultFilters())
+    
+    public struct FilterConfig {
+        /// 滤镜信息
+        public let infos: [PhotoEditorFilterInfo]
+        /// 滤镜选中颜色
+        public let selectedColor: UIColor
+        public init(infos: [PhotoEditorFilterInfo],
+                    selectedColor: UIColor = .systemTintColor) {
+            self.infos = infos
+            self.selectedColor = selectedColor
+        }
+    }
 }

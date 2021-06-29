@@ -26,10 +26,18 @@ public struct VideoEditResult {
     public let videoDuration: TimeInterval
     
     /// 裁剪数据
-    public let cropData: VideoCropData
+    public let cropData: VideoCropData?
+    
+    /// 背景音乐地址
+    public let backgroundMusicURL: URL?
+    
+    /// 隐藏视频原声
+    public let hideVideoSoundTrack: Bool
     
     public init(editedURL: URL,
-                cropData: VideoCropData) {
+                cropData: VideoCropData?,
+                backgroundMusicURL: URL?,
+                hideVideoSoundTrack: Bool) {
         editedFileSize = editedURL.fileSize
         
         videoDuration = PhotoTools.getVideoDuration(videoURL: editedURL)
@@ -37,6 +45,8 @@ public struct VideoEditResult {
         coverImage = PhotoTools.getVideoThumbnailImage(videoURL: editedURL, atTime: 0.1)
         self.editedURL = editedURL
         self.cropData = cropData
+        self.backgroundMusicURL = backgroundMusicURL
+        self.hideVideoSoundTrack = hideVideoSoundTrack
     }
 }
 

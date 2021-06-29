@@ -151,6 +151,9 @@ class EditorImageResizerView: UIView {
         }
     }
     
+    var filter: PhotoEditorFilter? = nil
+    var filterValue: Float = 0
+    
     init(cropConfig: PhotoCroppingConfiguration) {
         self.cropConfig = cropConfig
         super.init(frame: .zero)
@@ -176,7 +179,9 @@ class EditorImageResizerView: UIView {
         }
         let editedData = PhotoEditData.init(isPortrait: UIDevice.isPortrait,
                                             cropData: cropData,
-                                            brushData: brushData)
+                                            brushData: brushData,
+                                            filter: filter,
+                                            filterValue: filterValue)
         return editedData
     }
     func setCropData(cropData: PhotoEditCropData) {
@@ -221,6 +226,9 @@ class EditorImageResizerView: UIView {
         /// 手势最大范围
         let maxControlRect = CGRect(x: contentInsets.left, y: contentInsets.top, width: containerView.width - contentInsets.left - contentInsets.right, height: containerView.height - contentInsets.top - contentInsets.bottom)
         controlView.maxImageresizerFrame = maxControlRect
+    }
+    func updateImage(_ image: UIImage) {
+        imageView.setImage(image)
     }
     /// 配置宽高比数据
     func configAspectRatio() {

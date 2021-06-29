@@ -42,6 +42,7 @@ class VideoEditorPlayerView: VideoPlayerView {
     }
     func configAsset() {
         if let avAsset = avAsset {
+            do { try AVAudioSession.sharedInstance().setCategory(.playback) } catch {}
             let playerItem = AVPlayerItem.init(asset: avAsset)
             player.replaceCurrentItem(with: playerItem)
             playerLayer.player = player

@@ -118,6 +118,7 @@ open class PhotoEditorViewController: BaseViewController {
     }
     #endif
     
+    var thumbnailImage: UIImage!
     var needRequest: Bool = false
     var requestType: Int = 0
     
@@ -135,6 +136,17 @@ open class PhotoEditorViewController: BaseViewController {
     var topViewIsHidden: Bool = false
     @objc func singleTap(tap: UITapGestureRecognizer) {
         if state == .cropping {
+            return
+        }
+        if isFilter {
+            isFilter = false
+            if let option = currentToolOption {
+                if option.type == .graffiti {
+                    imageView.drawEnabled = true
+                }
+            }
+            showTopView()
+            hiddenFilterView()
             return
         }
         if topViewIsHidden {
@@ -210,6 +222,17 @@ open class PhotoEditorViewController: BaseViewController {
         view.isHidden = true
         return view
     }()
+    var isFilter = false
+    var filterImage: UIImage? = nil
+    lazy var filterView: PhotoEditorFilterView = {
+        let filter = editResult?.editedData.filter
+        let value = editResult?.editedData.filterValue
+        let view = PhotoEditorFilterView.init(filterConfig: config.filterConfig,
+                                              sourceIndex: filter?.sourceIndex ?? -1,
+                                              value: value ?? 0)
+        view.delegate = self
+        return view
+    }()
     
     var imageInitializeCompletion = false
     var orientationDidChange: Bool = false
@@ -234,9 +257,9 @@ open class PhotoEditorViewController: BaseViewController {
         view.addSubview(brushColorView)
         view.addSubview(cropConfirmView)
         view.addSubview(cropToolView)
+        view.addSubview(filterView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
-        
         if needRequest {
             if requestType == 1 {
                 #if HXPICKER_ENABLE_PICKER
@@ -284,6 +307,7 @@ open class PhotoEditorViewController: BaseViewController {
         cropToolView.frame = CGRect(x: 0, y: cropConfirmView.y - 60, width: view.width, height: 60)
         brushColorView.frame = cropToolView.frame
         cropToolView.updateContentInset()
+        setFilterViewFrame()
         if !imageView.frame.equalTo(view.bounds) && !imageView.frame.isEmpty && !imageViewDidChange {
             imageView.frame = view.bounds
             imageView.reset(false)
@@ -295,6 +319,7 @@ open class PhotoEditorViewController: BaseViewController {
         if !imageInitializeCompletion {
             if !needRequest || image != nil {
                 imageView.setImage(image)
+                setFilterImage(image: image)
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
                     brushColorView.canUndo = imageView.canUndoDraw
@@ -313,6 +338,13 @@ open class PhotoEditorViewController: BaseViewController {
             }
             orientationDidChange = false
             imageViewDidChange = true
+        }
+    }
+    func setFilterViewFrame() {
+        if isFilter {
+            filterView.frame = CGRect(x: 0, y: view.height - 150 - UIDevice.bottomMargin, width: view.width, height: 150 + UIDevice.bottomMargin)
+        }else {
+            filterView.frame = CGRect(x: 0, y: view.height + 10, width: view.width, height: 150 + UIDevice.bottomMargin)
         }
     }
     open override var prefersStatusBarHidden: Bool {
@@ -462,6 +494,7 @@ extension PhotoEditorViewController {
     func requestAssetCompletion(image: UIImage) {
         if imageInitializeCompletion == true {
             imageView.setImage(image)
+            filterView.image = filterImage
             if let editedData = editResult?.editedData {
                 imageView.setEditedData(editedData: editedData)
                 brushColorView.canUndo = imageView.canUndoDraw
@@ -471,12 +504,42 @@ extension PhotoEditorViewController {
                 croppingAction()
             }
         }
+        setFilterImage(image: image)
         self.image = image
     }
     func requestAssetFailure() {
         ProgressHUD.hide(forView: view, animated: true)
         PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
             self.didBackClick()
+        }
+    }
+    func setFilterImage(image: UIImage) {
+        let value = filterView.sliderView.value
+        let minSize = min(view.width, view.height) * 2
+        DispatchQueue.global().async {
+            if image.width > minSize {
+                let thumbnailScale = minSize / image.width
+                self.thumbnailImage = image.scaleImage(toScale: thumbnailScale)
+            }
+            if self.thumbnailImage == nil {
+                self.thumbnailImage = image
+            }
+            if let filter = self.editResult?.editedData.filter {
+                var newImage: UIImage?
+                if !self.config.filterConfig.infos.isEmpty {
+                    let info = self.config.filterConfig.infos[filter.sourceIndex]
+                    newImage = info.filterHandler(self.thumbnailImage, image, value, .touchUpInside)
+                }
+                if let newImage = newImage {
+                    DispatchQueue.main.sync {
+                        self.imageView.updateImage(newImage)
+                    }
+                }
+            }
+            self.filterImage = image.scaleToFillSize(size: CGSize(width: 80, height: 80), equalRatio: true)
+            DispatchQueue.main.async {
+                self.filterView.image = self.filterImage
+            }
         }
     }
 }
@@ -489,7 +552,8 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
     func editResources() {
         if imageView.canReset() ||
             imageView.imageResizerView.hasCropping ||
-            imageView.canUndoDraw {
+            imageView.canUndoDraw ||
+            imageView.hasFilter {
             
             ProgressHUD.showLoading(addedTo: view, animated: true)
             imageView.cropping { [weak self] (result) in
@@ -523,6 +587,22 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             state = .cropping
             imageView.startCropping(true)
             croppingAction()
+        }else if model.type == .filter {
+            imageView.drawEnabled = false
+            isFilter = true
+            hidenTopView()
+            showFilterView()
+        }
+    }
+    
+    func showFilterView() {
+        UIView.animate(withDuration: 0.25) {
+            self.setFilterViewFrame()
+        }
+    }
+    func hiddenFilterView() {
+        UIView.animate(withDuration: 0.25) {
+            self.setFilterViewFrame()
         }
     }
     
@@ -711,5 +791,54 @@ extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
     
     func cropToolView(didChangedAspectRatio cropToolView: PhotoEditorCropToolView, at model: PhotoEditorCropToolModel) {
         imageView.changedAspectRatio(of: CGSize(width: model.widthRatio, height: model.heightRatio))
+    }
+}
+
+extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
+    func filterView(shouldSelectFilter filterView: PhotoEditorFilterView) -> Bool {
+        true
+    }
+    
+    func filterView(_ filterView: PhotoEditorFilterView,
+                    didSelected filter: PhotoEditorFilter,
+                    atItem: Int) {
+        if filter.isOriginal {
+            imageView.imageResizerView.filter = nil
+            imageView.updateImage(image)
+            return
+        }
+        imageView.imageResizerView.filter = filter
+        ProgressHUD.showLoading(addedTo: view, animated: true)
+        let value = filterView.sliderView.value
+        let lastImage = imageView.image
+        DispatchQueue.global().async {
+            let filterInfo = self.config.filterConfig.infos[atItem]
+            if let newImage = filterInfo.filterHandler(self.thumbnailImage, lastImage, value, .touchUpInside) {
+                DispatchQueue.main.sync {
+                    ProgressHUD.hide(forView: self.view, animated: true)
+                    self.imageView.updateImage(newImage)
+                }
+            }else {
+                DispatchQueue.main.sync {
+                    ProgressHUD.hide(forView: self.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: self.view, text: "设置失败!".localized, animated: true, delayHide: 1.5)
+                }
+            }
+        }
+    }
+    func filterView(_ filterView: PhotoEditorFilterView,
+                    didChanged value: Float) {
+        let filterInfo = config.filterConfig.infos[filterView.currentSelectedIndex - 1]
+        if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .valueChanged) {
+            imageView.updateImage(newImage)
+            imageView.imageResizerView.filterValue = value
+        }
+    }
+    func filterView(_ filterView: PhotoEditorFilterView, touchUpInside value: Float) {
+        let filterInfo = config.filterConfig.infos[filterView.currentSelectedIndex - 1]
+        if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .touchUpInside) {
+            imageView.updateImage(newImage)
+            imageView.imageResizerView.filterValue = value
+        }
     }
 }

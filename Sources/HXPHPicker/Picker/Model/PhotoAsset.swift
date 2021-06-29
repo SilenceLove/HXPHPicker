@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-public typealias PhotoAssetICloudHandlerHandler = (PhotoAsset, PHImageRequestID) -> Void
+public typealias PhotoAssetICloudHandler = (PhotoAsset, PHImageRequestID) -> Void
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
 public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?) -> Void
 

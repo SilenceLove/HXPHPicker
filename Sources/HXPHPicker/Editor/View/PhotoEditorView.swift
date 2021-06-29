@@ -44,6 +44,10 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     var canZoom = true
     var cropSize: CGSize = .zero
     
+    var image: UIImage? {
+        imageResizerView.imageView.image
+    }
+    
     var drawEnabled: Bool {
         get {
             imageResizerView.drawEnabled
@@ -61,6 +65,10 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     
     var canUndoDraw: Bool {
         imageResizerView.imageView.drawView.canUndo
+    }
+    
+    var hasFilter: Bool {
+        imageResizerView.filter != nil
     }
     
     init(config: PhotoEditorConfiguration) {
@@ -104,10 +112,14 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         updateImageViewFrame()
         imageResizerView.setImage(image)
     }
+    func updateImage(_ image: UIImage) {
+        imageResizerView.updateImage(image)
+    }
     func getEditedData() -> PhotoEditData {
         imageResizerView.getEditedData()
     }
     func setEditedData(editedData: PhotoEditData) {
+        imageResizerView.filter = editedData.filter
         if editedData.isPortrait != UIDevice.isPortrait {
             return
         }
