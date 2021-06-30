@@ -564,7 +564,7 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
                                                lrcPath: lyricUrl8.path)
         musics.append(music8)
         completionHandler(musics)
-        return true
+        return false
     }
 }
 

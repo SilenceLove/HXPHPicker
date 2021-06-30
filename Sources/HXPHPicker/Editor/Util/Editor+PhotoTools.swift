@@ -104,7 +104,9 @@ extension PhotoTools {
                 (image, lastImage, value, event) in
                 if event == .touchUpInside {
                     return image.filter(name: "CIGaussianBlur",
-                                 parameters: [kCIInputRadiusKey: NSNumber(value: 10 * value)])
+                                        parameters: [
+                                            kCIInputRadiusKey: NSNumber(value: 10 * value)
+                                        ])
                 }
                 return lastImage
             },
@@ -216,7 +218,7 @@ extension PhotoTools {
                             try newAudioTrack?.insertTimeRange(audioTimeRange, of: audioTrack, at: atTime)
                             atTime = CMTimeMakeWithSeconds(Double(index + 1) * audioDuration, preferredTimescale: audioAsset.duration.timescale)
                         }
-                        let remainder = Int(videoDuration.truncatingRemainder(dividingBy: audioDuration))
+                        let remainder = videoDuration.truncatingRemainder(dividingBy: audioDuration)
                         if remainder > 0 {
                             let seconds = videoDuration - audioDuration * Double(divisor)
                             try newAudioTrack?.insertTimeRange(CMTimeRange(start: .zero, duration: CMTimeMakeWithSeconds(seconds, preferredTimescale: audioAsset.duration.timescale)), of: audioTrack, at: atTime)

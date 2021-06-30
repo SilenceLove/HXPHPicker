@@ -286,12 +286,15 @@ extension PhotoTools {
         config.videoEditor.cropView.finishButtonDarkBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
+        config.videoEditor.toolView.musicSelectedColor = "#07C160".color
         
         config.photoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
         config.photoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
         config.photoEditor.cropConfimView.finishButtonBackgroundColor = "#07C160".color
         config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = "#07C160".color
         config.photoEditor.cropConfig.aspectRatioSelectedColor = "#07C160".color
+        config.photoEditor.filterConfig = .init(infos: defaultFilters(),
+                                                selectedColor: "#07C160".color)
         #endif
         
         config.notAuthorized.closeButtonImageName = "hx_picker_notAuthorized_close_dark"

@@ -25,14 +25,14 @@ public struct VideoEditResult {
     /// 视频时长 秒
     public let videoDuration: TimeInterval
     
-    /// 裁剪数据
-    public let cropData: VideoCropData?
-    
     /// 背景音乐地址
     public let backgroundMusicURL: URL?
     
     /// 隐藏视频原声
     public let hideVideoSoundTrack: Bool
+    
+    /// 裁剪数据
+    public let cropData: VideoCropData?
     
     public init(editedURL: URL,
                 cropData: VideoCropData?,

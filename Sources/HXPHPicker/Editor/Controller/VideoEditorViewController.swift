@@ -68,7 +68,11 @@ open class VideoEditorViewController: BaseViewController {
     public private(set) var networkVideoURL: URL?
     
     /// 当前配乐的音频路径
-    public var backgroundMusicPath: String?
+    public var backgroundMusicPath: String? {
+        didSet {
+            toolView.reloadMusic(isSelected: backgroundMusicPath != nil)
+        }
+    }
     
     /// 上一次的编辑数据
     public private(set) var editResult: VideoEditResult?

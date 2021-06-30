@@ -32,7 +32,7 @@ class VideoEditorMusicView: UIView {
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
         flowLayout.scrollDirection = .horizontal
-        flowLayout.minimumLineSpacing = 20
+        flowLayout.minimumLineSpacing = 15
         flowLayout.minimumInteritemSpacing = 0
         return flowLayout
     }()
@@ -61,6 +61,8 @@ class VideoEditorMusicView: UIView {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: 0)
         button.tintColor = .white
         button.addTarget(self, action: #selector(didButtonClick(button:)), for: .touchUpInside)
+        button.isHidden = musics.isEmpty
+        button.alpha = musics.isEmpty ? 0 : 1
         return button
     }()
     
@@ -108,6 +110,16 @@ class VideoEditorMusicView: UIView {
         addSubview(collectionView)
         addSubview(backgroundButton)
         addSubview(originalSoundButton)
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+    @objc func appDidEnterBackground() {
+        stopMusic()
+    }
+    @objc func appDidEnterPlayGround() {
+        if backgroundButton.isSelected {
+            playMusic()
+        }
     }
     func setMusics(infos: [VideoEditorMusicInfo]) {
         var musicArray: [VideoEditorMusic] = []
@@ -131,6 +143,19 @@ class VideoEditorMusicView: UIView {
         setMusics(infos: infos)
         collectionView.reloadData()
         isloading = false
+        backgroundButton.isHidden = infos.isEmpty
+        if !infos.isEmpty {
+            backgroundButton.isHidden = false
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.backgroundButton.alpha = infos.isEmpty ? 0 : 1
+            self.setBottomButtonFrame()
+        } completion: { _ in
+            if infos.isEmpty {
+                self.backgroundButton.isHidden = true
+            }
+        }
+
     }
     func showLoading() {
         if !musics.isEmpty {
@@ -151,10 +176,14 @@ class VideoEditorMusicView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         bgMaskLayer.frame = bounds
-        pageWidth = width - 40 - UIDevice.leftMargin - UIDevice.rightMargin
+        let margin: CGFloat = 30
+        pageWidth = width - margin * 2 - UIDevice.leftMargin - UIDevice.rightMargin + flowLayout.minimumLineSpacing
         collectionView.frame = CGRect(x: 0, y: 0, width: width, height: 140)
-        flowLayout.sectionInset = UIEdgeInsets(top: 15, left: 30 + UIDevice.leftMargin, bottom: 5, right: 30 + UIDevice.rightMargin)
-        flowLayout.itemSize = CGSize(width: pageWidth - 20, height: collectionView.height - 50)
+        flowLayout.sectionInset = UIEdgeInsets(top: 15, left: margin + UIDevice.leftMargin, bottom: 5, right: margin + UIDevice.rightMargin)
+        flowLayout.itemSize = CGSize(width: pageWidth - flowLayout.minimumLineSpacing, height: collectionView.height - 50)
+        setBottomButtonFrame()
+    }
+    func setBottomButtonFrame() {
         
         let buttonHeight: CGFloat = 25
         let imageWidth = backgroundButton.currentImage?.width ?? 0
@@ -167,6 +196,13 @@ class VideoEditorMusicView: UIView {
         backgroundButton.frame = CGRect(x: width * 0.5 - margin - bgButtonWidth, y: collectionView.frame.maxY, width: bgButtonWidth, height: buttonHeight)
         
         originalSoundButton.frame = CGRect(x: width * 0.5 + margin, y: collectionView.frame.maxY, width: originalButtonWidth, height: buttonHeight)
+        
+        if musics.isEmpty {
+            originalSoundButton.centerX = width * 0.5
+        }
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -275,11 +311,17 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         return view
     }()
     
+    lazy var animationView: VideoEditorMusicAnimationView = {
+        let view = VideoEditorMusicAnimationView()
+        view.isHidden = true
+        return view
+    }()
+    
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
         flowLayout.scrollDirection = .horizontal
         flowLayout.minimumLineSpacing = 0
-        flowLayout.minimumInteritemSpacing = 10
+        flowLayout.minimumInteritemSpacing = 20
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         return flowLayout
     }()
@@ -348,6 +390,8 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         let visualEffect = UIBlurEffect.init(style: .extraLight)
         bgView.effect = visualEffect
         musicIconView.tintColor = "#333333".color
+        animationView.startAnimation()
+        animationView.isHidden = false
         collectionView.reloadData()
         let startPoint = -(width - 15)
         if PhotoManager.shared.playMusic(filePath: music.audioPath, finished: { [weak self] in
@@ -401,6 +445,8 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         let visualEffect = UIBlurEffect.init(style: .light)
         bgView.effect = visualEffect
         musicIconView.tintColor = .white
+        animationView.isHidden = true
+        animationView.stopAnimation()
         collectionView.reloadData()
         playTimer?.cancel()
         collectionView.setContentOffset(.zero, animated: false)
@@ -410,6 +456,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         contentView.addSubview(bgView)
         contentView.addSubview(shadeView)
         contentView.addSubview(loadingView)
+        contentView.addSubview(animationView)
     }
     
     required init?(coder: NSCoder) {
@@ -419,9 +466,9 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         bgView.frame = bounds
-        
         musicIconView.x = 15
         musicIconView.y = 15
+        animationView.frame = CGRect(x: width - 60, y: 20, width: 20, height: 15)
         shadeView.frame = CGRect(x: 0, y: musicIconView.frame.maxY + 10, width: width, height: height - musicIconView.frame.maxY - 20)
         collectionView.frame = shadeView.bounds
         maskLayer.frame = CGRect(x: 10, y: 0, width: shadeView.width - 20, height: shadeView.height)

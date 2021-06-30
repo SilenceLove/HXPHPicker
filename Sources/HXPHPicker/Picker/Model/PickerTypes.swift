@@ -166,13 +166,6 @@ public extension PhotoPickerViewController {
     }
 }
 
-public extension PhotoPickerSelectBoxView {
-    enum Style: Int {
-        case number //!< 数字
-        case tick   //!< √
-    }
-}
-
 public extension PhotoPreviewViewController {
     enum VideoPlayType {
         case normal     //!< 正常状态，不自动播放

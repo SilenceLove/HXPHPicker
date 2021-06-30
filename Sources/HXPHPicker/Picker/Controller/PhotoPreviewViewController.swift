@@ -28,8 +28,8 @@ public class PhotoPreviewViewController: BaseViewController {
     var viewDidAppear: Bool = false
     var firstLayoutSubviews: Bool = true
     var interactiveTransition: PickerInteractiveTransition?
-    lazy var selectBoxControl: PhotoPickerSelectBoxView = {
-        let boxControl = PhotoPickerSelectBoxView.init(frame: CGRect(x: 0, y: 0, width: config.selectBox.size.width, height: config.selectBox.size.height))
+    lazy var selectBoxControl: SelectBoxView = {
+        let boxControl = SelectBoxView.init(frame: CGRect(x: 0, y: 0, width: config.selectBox.size.width, height: config.selectBox.size.height))
         boxControl.backgroundColor = .clear
         boxControl.config = config.selectBox
         boxControl.addTarget(self, action: #selector(didSelectBoxControlClick), for: UIControl.Event.touchUpInside)

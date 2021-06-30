@@ -72,6 +72,7 @@ class EditorToolView: UIView {
     }
     var stretchMask: Bool = false
     var currentSelectedIndexPath: IndexPath?
+    var musicCellShowBox: Bool = false
     
     init(config: EditorToolViewConfiguration) {
         self.config = config
@@ -96,6 +97,16 @@ class EditorToolView: UIView {
     func selected(indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? EditorToolViewCell
         cell?.isSelectedImageView = true
+    }
+    
+    func reloadMusic(isSelected: Bool) {
+        musicCellShowBox = isSelected
+        for (index, option) in config.toolOptions.enumerated() {
+            if option.type == .music {
+                collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                return
+            }
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -124,8 +135,15 @@ extension EditorToolView: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorToolViewCellID", for: indexPath) as! EditorToolViewCell
+        let model = config.toolOptions[indexPath.item]
+        cell.boxColor = config.musicSelectedColor
+        if model.type == .music {
+            cell.showBox = musicCellShowBox
+        }else {
+            cell.showBox = false
+        }
         cell.selectedColor = config.toolSelectedColor
-        cell.model = config.toolOptions[indexPath.item]
+        cell.model = model
         return cell
     }
     
