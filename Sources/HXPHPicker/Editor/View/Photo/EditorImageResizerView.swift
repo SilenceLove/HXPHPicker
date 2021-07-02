@@ -266,7 +266,11 @@ class EditorImageResizerView: UIView {
         case .ratio_16x9:
             controlView.aspectRatio = CGSize(width: 16, height: 9)
         case .custom(let aspectRatio):
-            controlView.aspectRatio = aspectRatio
+            if aspectRatio.equalTo(.zero) && cropConfig.fixedRatio {
+                controlView.aspectRatio = imageView.image!.size
+            }else {
+                controlView.aspectRatio = aspectRatio
+            }
         }
     }
     /// 检测是否原始宽高比

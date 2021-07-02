@@ -166,10 +166,9 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         isScrollEnabled = false
         resetZoomScale(animated)
         imageResizerView.startCorpping(animated) { [weak self] () in
-            if let self = self {
-                self.imageResizerView.zoomScale = self.zoomScale
-                self.editorDelegate?.editorView(didAppear: self)
-            }
+            guard let self = self else { return }
+            self.imageResizerView.zoomScale = self.zoomScale
+            self.editorDelegate?.editorView(didAppear: self)
         }
     }
     
@@ -179,10 +178,9 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         isScrollEnabled = true
         resetZoomScale(animated)
         imageResizerView.cancelCropping(canShowMask: canShowMask, animated) { [weak self] () in
-            if let self = self {
-                self.imageResizerView.zoomScale = self.zoomScale
-                self.editorDelegate?.editorView(didDisappearCrop: self)
-            }
+            guard let self = self else { return }
+            self.imageResizerView.zoomScale = self.zoomScale
+            self.editorDelegate?.editorView(didDisappearCrop: self)
         }
     }
     func canReset() -> Bool {
@@ -199,12 +197,11 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         isScrollEnabled = true
         resetZoomScale(animated)
         imageResizerView.finishCropping(animated) { [weak self] () in
-            if let self = self {
-                self.imageResizerView.zoomScale = self.zoomScale
-                self.editorDelegate?.editorView(didDisappearCrop: self)
-                if self.config.cropConfig.isRoundCrop {
-                    self.imageResizerView.layer.cornerRadius = self.cropSize.width * 0.5
-                }
+            guard let self = self else { return }
+            self.imageResizerView.zoomScale = self.zoomScale
+            self.editorDelegate?.editorView(didDisappearCrop: self)
+            if self.config.cropConfig.isRoundCrop {
+                self.imageResizerView.layer.cornerRadius = self.cropSize.width * 0.5
             }
             completion?()
         }

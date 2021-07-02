@@ -83,7 +83,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     /// 视频编辑器，将要点击工具栏音乐按钮
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
-    ///   - videoEditorViewController: 对应的 PhotoPickerController
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditorShouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool
     
@@ -91,7 +91,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     /// 返回 true 内部会显示加载状态，调用 completionHandler 后恢复
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
-    ///   - videoEditorViewController: 对应的 PhotoPickerController
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
     ///   - completionHandler: 传入配乐信息
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditor videoEditorViewController: VideoEditorViewController,
@@ -109,11 +109,20 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     
     /// 预览界面更新当前显示的资源，collectionView滑动了就会调用
     /// - Parameters:
-    ///   - pikcerController: 对应的 PhotoPickerController
+    ///   - pickerController: 对应的 PhotoPickerController
     ///   - photoAsset: 对应显示的 PhotoAsset 数据
     ///   - index: 对应显示的位置
-    func pickerController(_ pikcerController: PhotoPickerController,
+    func pickerController(_ pickerController: PhotoPickerController,
                           previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset,
+                          atIndex: Int)
+    
+    /// 预览界面单击操作
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应显示的 PhotoAsset 数据
+    ///   - atIndex: 对应显示的位置
+    func pickerController(_ pickerController: PhotoPickerController,
+                          previewSingleClick photoAsset: PhotoAsset,
                           atIndex: Int)
     
     /// 预览界面将要删除 Asset
@@ -239,7 +248,11 @@ public extension PhotoPickerControllerDelegate {
     
     func pickerController(_ pickerController: PhotoPickerController, didEditAsset photoAsset: PhotoAsset, atIndex: Int) { }
     
-    func pickerController(_ pikcerController: PhotoPickerController, previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset, atIndex: Int) { }
+    func pickerController(_ pickerController: PhotoPickerController, previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset, atIndex: Int) { }
+    
+    func pickerController(_ pickerController: PhotoPickerController,
+                          previewSingleClick photoAsset: PhotoAsset,
+                          atIndex: Int) { }
     
     func pickerController(_ pickerController: PhotoPickerController, previewShouldDeleteAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool { true }
     

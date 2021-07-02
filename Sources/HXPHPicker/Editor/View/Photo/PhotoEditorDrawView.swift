@@ -45,7 +45,7 @@ class PhotoEditorDrawView: UIView {
         super.init(frame: frame)
         clipsToBounds = true
         isUserInteractionEnabled = false
-        let pan = PhotoEditorBrushPan.init(target: self, action: #selector(panGesureRecognizerClick(panGR:)))
+        let pan = PhotoPanGestureRecognizer.init(target: self, action: #selector(panGesureRecognizerClick(panGR:)))
         addGestureRecognizer(pan)
     }
     
@@ -172,11 +172,4 @@ struct PhotoEditorBrushData {
 class PhotoEditorBrushPath: UIBezierPath {
     var color: UIColor?
     var points: [CGPoint] = []
-}
-
-class PhotoEditorBrushPan: UIPanGestureRecognizer {
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
-        super.touchesBegan(touches, with: event)
-        state = .began
-    }
 }

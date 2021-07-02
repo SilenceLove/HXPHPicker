@@ -34,8 +34,10 @@ public struct PickerAssetOptions: OptionSet {
 }
 
 public enum PickerSelectMode: Int {
-    case single = 0         //!< 单选模式
-    case multiple = 1       //!< 多选模式
+    /// 单选模式
+    case single = 0
+    /// 多选模式
+    case multiple = 1
 }
 
 /// 资源列表Cell点击动作
