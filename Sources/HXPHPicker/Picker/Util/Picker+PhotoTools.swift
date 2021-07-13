@@ -287,8 +287,10 @@ extension PhotoTools {
         config.videoEditor.cropView.finishButtonDarkBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
         config.videoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
+        config.videoEditor.toolView.toolSelectedColor = "#07C160".color
         config.videoEditor.toolView.musicSelectedColor = "#07C160".color
         
+        config.photoEditor.toolView.toolSelectedColor = "#07C160".color
         config.photoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
         config.photoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
         config.photoEditor.cropConfimView.finishButtonBackgroundColor = "#07C160".color

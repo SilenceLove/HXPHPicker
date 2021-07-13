@@ -166,9 +166,10 @@ extension PhotoEditorFilterView: UICollectionViewDataSource, UICollectionViewDel
         if currentSelectedIndex == indexPath.item {
             return
         }
+        let currentFilter = filters[currentSelectedIndex]
+        currentFilter.sourceIndex = 0
+        currentFilter.isSelected = false
         if let currentCell = collectionView.cellForItem(at: IndexPath(item: currentSelectedIndex, section: 0)) as? PhotoEditorFilterViewCell {
-            currentCell.filter.sourceIndex = 0
-            currentCell.filter.isSelected = false
             currentCell.updateSelectedView(true)
         }
         if let cell = collectionView.cellForItem(at: indexPath) as? PhotoEditorFilterViewCell {
@@ -226,7 +227,6 @@ class PhotoEditorFilterViewCell: UICollectionViewCell {
         view.layer.borderWidth = 2
         view.layer.borderColor = UIColor.red.cgColor
         view.layer.cornerRadius = 4
-        
         return view
     }()
     

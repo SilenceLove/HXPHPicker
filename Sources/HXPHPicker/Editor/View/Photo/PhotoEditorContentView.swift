@@ -30,28 +30,32 @@ class PhotoEditorContentView: UIView {
         imageView.clipsToBounds = true
         return imageView
     }()
-    
     var image: UIImage? { imageView.image }
     var zoomScale: CGFloat = 1 {
         didSet {
             drawView.scale = zoomScale
+            mosaicView.scale = zoomScale
         }
     }
-    
     lazy var drawView: PhotoEditorDrawView = {
         let drawView = PhotoEditorDrawView.init(frame: .zero)
         drawView.delegate = self
         return drawView
     }()
+    lazy var mosaicView: PhotoEditorMosaicView = {
+        let view = PhotoEditorMosaicView()
+        view.delegate = self
+        return view
+    }()
     
     init() {
         super.init(frame: .zero)
         addSubview(imageView)
+        addSubview(mosaicView)
         addSubview(drawView)
     }
-    
-    
     func setImage(_ image: UIImage) {
+        mosaicView.originalImage = image
         #if canImport(Kingfisher)
         let view = imageView as! AnimatedImageView
         view.image = image
@@ -64,6 +68,7 @@ class PhotoEditorContentView: UIView {
         super.layoutSubviews()
         imageView.frame = bounds
         drawView.frame = bounds
+        mosaicView.frame = bounds
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -75,6 +80,19 @@ extension PhotoEditorContentView: PhotoEditorDrawViewDelegate {
         delegate?.contentView(drawViewBeganDraw: self)
     }
     func drawView(endDraw drawView: PhotoEditorDrawView) {
+        delegate?.contentView(drawViewEndDraw: self)
+    }
+}
+extension PhotoEditorContentView: PhotoEditorMosaicViewDelegate {
+    func mosaicView(_ mosaicView: PhotoEditorMosaicView, splashColor atPoint: CGPoint) -> UIColor? {
+        imageView.color(for: atPoint)
+    }
+    
+    func mosaicView(beganDraw mosaicView: PhotoEditorMosaicView) {
+        delegate?.contentView(drawViewBeganDraw: self)
+    }
+    
+    func mosaicView(endDraw mosaicView: PhotoEditorMosaicView) {
         delegate?.contentView(drawViewEndDraw: self)
     }
 }

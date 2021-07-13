@@ -19,10 +19,15 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     /// 工具视图配置
     public lazy var toolView: EditorToolViewConfiguration = {
         let config = EditorToolViewConfiguration.init()
-        let graffitiOption = EditorToolOptions.init(imageName: "hx_editor_tools_graffiti", type: .graffiti)
-        let cropOption = EditorToolOptions.init(imageName: "hx_editor_photo_crop", type: .cropping)
-        let filterOption = EditorToolOptions.init(imageName: "hx_editor_tools_filter", type: .filter)
-        config.toolOptions = [graffitiOption, cropOption, filterOption]
+        let graffiti = EditorToolOptions(imageName: "hx_editor_tools_graffiti",
+                                               type: .graffiti)
+        let crop = EditorToolOptions(imageName: "hx_editor_photo_crop",
+                                           type: .cropping)
+        let mosaic = EditorToolOptions(imageName: "hx_editor_tools_mosaic",
+                                             type: .mosaic)
+        let filter = EditorToolOptions(imageName: "hx_editor_tools_filter",
+                                             type: .filter)
+        config.toolOptions = [graffiti, crop, mosaic, filter]
         return config
     }()
     
@@ -55,4 +60,7 @@ open class PhotoEditorConfiguration: EditorConfiguration {
             self.selectedColor = selectedColor
         }
     }
+    
+    /// 马赛克线宽
+    public var mosaicLineWidth: CGFloat = 15
 }

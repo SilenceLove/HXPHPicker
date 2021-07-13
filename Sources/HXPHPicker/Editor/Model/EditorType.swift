@@ -49,6 +49,9 @@ public extension EditorToolOptions {
         /// photo - 涂鸦
         case graffiti
         
+        /// photo - 马赛克
+        case mosaic
+        
         /// photo - 滤镜
         case filter
         

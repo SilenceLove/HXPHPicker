@@ -334,6 +334,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         collectionView.isScrollEnabled = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isUserInteractionEnabled = false
         if #available(iOS 11.0, *) {
             collectionView.contentInsetAdjustmentBehavior = .never
         }

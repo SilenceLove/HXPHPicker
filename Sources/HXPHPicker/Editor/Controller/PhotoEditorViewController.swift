@@ -143,6 +143,8 @@ open class PhotoEditorViewController: BaseViewController {
             if let option = currentToolOption {
                 if option.type == .graffiti {
                     imageView.drawEnabled = true
+                }else if option.type == .mosaic {
+                    imageView.mosaicEnabled = true
                 }
             }
             showTopView()
@@ -223,6 +225,13 @@ open class PhotoEditorViewController: BaseViewController {
         view.isHidden = true
         return view
     }()
+    lazy var mosaicToolView: PhotoEditorMosaicToolView = {
+        let view = PhotoEditorMosaicToolView(selectedColor: config.toolView.toolSelectedColor)
+        view.delegate = self
+        view.alpha = 0
+        view.isHidden = true
+        return view
+    }()
     var isFilter = false
     var filterImage: UIImage? = nil
     lazy var filterView: PhotoEditorFilterView = {
@@ -258,6 +267,7 @@ open class PhotoEditorViewController: BaseViewController {
         view.addSubview(brushColorView)
         view.addSubview(cropConfirmView)
         view.addSubview(cropToolView)
+        view.addSubview(mosaicToolView)
         view.addSubview(filterView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
@@ -275,7 +285,9 @@ open class PhotoEditorViewController: BaseViewController {
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
         imageView.undoAllDraw()
+        imageView.undoAllMosaic()
         brushColorView.canUndo = imageView.canUndoDraw
+        mosaicToolView.canUndo = imageView.canUndoMosaic
         imageView.reset(false)
         imageView.finishCropping(false)
         if config.fixedCropState {
@@ -307,6 +319,7 @@ open class PhotoEditorViewController: BaseViewController {
         cropConfirmView.frame = toolView.frame
         cropToolView.frame = CGRect(x: 0, y: cropConfirmView.y - 60, width: view.width, height: 60)
         brushColorView.frame = cropToolView.frame
+        mosaicToolView.frame = brushColorView.frame
         cropToolView.updateContentInset()
         setFilterViewFrame()
         if !imageView.frame.equalTo(view.bounds) && !imageView.frame.isEmpty && !imageViewDidChange {
@@ -324,6 +337,7 @@ open class PhotoEditorViewController: BaseViewController {
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
                     brushColorView.canUndo = imageView.canUndoDraw
+                    mosaicToolView.canUndo = imageView.canUndoMosaic
                 }
                 if state == .cropping {
                     imageView.startCropping(true)
@@ -499,6 +513,7 @@ extension PhotoEditorViewController {
             if let editedData = editResult?.editedData {
                 imageView.setEditedData(editedData: editedData)
                 brushColorView.canUndo = imageView.canUndoDraw
+                mosaicToolView.canUndo = imageView.canUndoMosaic
             }
             if state == .cropping {
                 imageView.startCropping(true)
@@ -554,6 +569,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
         if imageView.canReset() ||
             imageView.imageResizerView.hasCropping ||
             imageView.canUndoDraw ||
+            imageView.canUndoMosaic ||
             imageView.hasFilter {
             
             ProgressHUD.showLoading(addedTo: view, animated: true)
@@ -573,6 +589,9 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
     }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
         if model.type == .graffiti {
+            currentToolOption = nil
+            imageView.mosaicEnabled = false
+            hiddenMosaicToolView()
             imageView.drawEnabled = !imageView.drawEnabled
             toolView.stretchMask = imageView.drawEnabled
             toolView.layoutSubviews()
@@ -581,15 +600,28 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
                 currentToolOption = model
             }else {
                 hiddenBrushColorView()
-                currentToolOption = nil
             }
         }else if model.type == .cropping {
             imageView.drawEnabled = false
             state = .cropping
             imageView.startCropping(true)
             croppingAction()
+        }else if model.type == .mosaic {
+            currentToolOption = nil
+            imageView.drawEnabled = false
+            hiddenBrushColorView()
+            imageView.mosaicEnabled = !imageView.mosaicEnabled
+            toolView.stretchMask = imageView.mosaicEnabled
+            toolView.layoutSubviews()
+            if imageView.mosaicEnabled {
+                showMosaicToolView()
+                currentToolOption = model
+            }else {
+                hiddenMosaicToolView()
+            }
         }else if model.type == .filter {
             imageView.drawEnabled = false
+            imageView.mosaicEnabled = false
             isFilter = true
             hidenTopView()
             showFilterView()
@@ -628,6 +660,25 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
         }
     }
     
+    func showMosaicToolView() {
+        mosaicToolView.isHidden = false
+        UIView.animate(withDuration: 0.25) {
+            self.mosaicToolView.alpha = 1
+        }
+    }
+    func hiddenMosaicToolView() {
+        if mosaicToolView.isHidden {
+            return
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.mosaicToolView.alpha = 0
+        } completion: { (_) in
+            guard let option = self.currentToolOption, option.type == .mosaic else {
+                return
+            }
+            self.mosaicToolView.isHidden = true
+        }
+    }
     func croppingAction() {
         if state == .cropping {
             cropConfirmView.isHidden = false
@@ -637,6 +688,8 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             if let option = currentToolOption {
                 if option.type == .graffiti {
                     imageView.drawEnabled = true
+                }else if option.type == .mosaic {
+                    imageView.mosaicEnabled = true
                 }
             }
             showTopView()
@@ -656,42 +709,45 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
         topViewIsHidden = false
         toolView.isHidden = false
         topView.isHidden = false
-        var showBrush = false
         if let option = currentToolOption {
             if option.type == .graffiti {
-                showBrush = true
                 brushColorView.isHidden = false
+            }else if option.type == .mosaic {
+                mosaicToolView.isHidden = false
             }
         }
         UIView.animate(withDuration: 0.25) {
             self.toolView.alpha = 1
             self.topView.alpha = 1
             self.topMaskLayer.isHidden = false
-            if showBrush {
-                self.brushColorView.alpha = 1
+            if let option = self.currentToolOption {
+                if option.type == .graffiti {
+                    self.brushColorView.alpha = 1
+                }else if option.type == .mosaic {
+                    self.mosaicToolView.alpha = 1
+                }
             }
         }
     }
     func hidenTopView() {
         topViewIsHidden = true
-        var hiddenBrush = false
-        if let option = currentToolOption {
-            if option.type == .graffiti {
-                hiddenBrush = true
-            }
-        }
         UIView.animate(withDuration: 0.25) {
             self.toolView.alpha = 0
             self.topView.alpha = 0
             self.topMaskLayer.isHidden = true
-            if hiddenBrush {
-                self.brushColorView.alpha = 0
+            if let option = self.currentToolOption {
+                if option.type == .graffiti {
+                    self.brushColorView.alpha = 0
+                }else if option.type == .mosaic {
+                    self.mosaicToolView.alpha = 0
+                }
             }
         } completion: { (isFinished) in
             if self.topViewIsHidden {
                 self.toolView.isHidden = true
                 self.topView.isHidden = true
                 self.brushColorView.isHidden = true
+                self.mosaicToolView.isHidden = true
             }
         }
     }
@@ -778,6 +834,7 @@ extension PhotoEditorViewController: PhotoEditorViewDelegate {
     func editorView(drawViewEndDraw editorView: PhotoEditorView) {
         showTopView()
         brushColorView.canUndo = editorView.canUndoDraw
+        mosaicToolView.canUndo = editorView.canUndoMosaic
     }
 }
 
@@ -794,7 +851,16 @@ extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
         imageView.changedAspectRatio(of: CGSize(width: model.widthRatio, height: model.heightRatio))
     }
 }
-
+extension PhotoEditorViewController: PhotoEditorMosaicToolViewDelegate {
+    func mosaicToolView(_ mosaicToolView: PhotoEditorMosaicToolView, didChangedMosaicType type: PhotoEditorMosaicView.MosaicType) {
+        imageView.mosaicType = type
+    }
+    
+    func mosaicToolView(didUndoClick mosaicToolView: PhotoEditorMosaicToolView) {
+        imageView.undoMosaic()
+        mosaicToolView.canUndo = imageView.canUndoMosaic
+    }
+}
 extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
     func filterView(shouldSelectFilter filterView: PhotoEditorFilterView) -> Bool {
         true

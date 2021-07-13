@@ -23,24 +23,14 @@ class PhotoEditorDrawView: UIView {
     var lineColor: UIColor = .white
     var lineWidth: CGFloat = 5.0
     var enabled: Bool = false {
-        didSet {
-            isUserInteractionEnabled = enabled
-        }
+        didSet { isUserInteractionEnabled = enabled }
     }
     var scale: CGFloat = 1
-    var count: Int {
-        linePaths.count
-    }
-    var canUndo: Bool {
-        !linePaths.isEmpty
-    }
-    var isDrawing: Bool {
-        (!isUserInteractionEnabled || !enabled) ? false : isTouching
-    }
-    
+    var count: Int { linePaths.count }
+    var canUndo: Bool { !linePaths.isEmpty }
+    var isDrawing: Bool { (!isUserInteractionEnabled || !enabled) ? false : isTouching }
     var isTouching: Bool = false
     var isBegan: Bool = false
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         clipsToBounds = true

@@ -133,22 +133,18 @@ class EditorImageResizerView: UIView {
     var mirroring: Bool = false
     
     var drawEnabled: Bool {
-        get {
-            imageView.drawView.enabled
-        }
-        set {
-            imageView.drawView.enabled = newValue
-        }
+        get { imageView.drawView.enabled }
+        set { imageView.drawView.enabled = newValue }
+    }
+    var mosaicEnabled: Bool {
+        get { imageView.mosaicView.enabled }
+        set { imageView.mosaicView.enabled = newValue }
     }
     
-    var isDrawing: Bool {
-        imageView.drawView.isDrawing
-    }
+    var isDrawing: Bool { imageView.drawView.isDrawing }
     
     var zoomScale: CGFloat = 1 {
-        didSet {
-            imageView.zoomScale = zoomScale * scrollView.zoomScale
-        }
+        didSet { imageView.zoomScale = zoomScale * scrollView.zoomScale }
     }
     
     var filter: PhotoEditorFilter? = nil
@@ -177,11 +173,13 @@ class EditorImageResizerView: UIView {
                              transform: oldTransform,
                              mirrorType: oldMirrorType)
         }
+        let mosaicData = imageView.mosaicView.getMosaicData()
         let editedData = PhotoEditData.init(isPortrait: UIDevice.isPortrait,
                                             cropData: cropData,
                                             brushData: brushData,
                                             filter: filter,
-                                            filterValue: filterValue)
+                                            filterValue: filterValue,
+                                            mosaicData: mosaicData)
         return editedData
     }
     func setCropData(cropData: PhotoEditCropData) {
@@ -190,7 +188,6 @@ class EditorImageResizerView: UIView {
         oldAngle = cropData.angle
         oldMirrorType = cropData.mirrorType
         oldTransform = cropData.transform
-//        let cropRect = AVMakeRect(aspectRatio: editedData.cropSize, insideRect: getEditableArea())
         cropSize = cropData.cropSize
         oldContentInset = cropData.contentInset
         let rect = AVMakeRect(aspectRatio: cropData.maskRect.size, insideRect: getEditableArea())
@@ -207,6 +204,11 @@ class EditorImageResizerView: UIView {
     func setBrushData(brushData: [PhotoEditorBrushData]) {
         if !brushData.isEmpty {
             imageView.drawView.setBrushData(brushData, viewSize: imageView.bounds.size)
+        }
+    }
+    func setMosaicData(mosaicData: [PhotoEditorMosaicData]) {
+        if !mosaicData.isEmpty {
+            imageView.mosaicView.setMosaicData(mosaicDatas: mosaicData, viewSize: imageView.bounds.size)
         }
     }
     func getEditableArea() -> CGRect {
@@ -227,6 +229,8 @@ class EditorImageResizerView: UIView {
         let maxControlRect = CGRect(x: contentInsets.left, y: contentInsets.top, width: containerView.width - contentInsets.left - contentInsets.right, height: containerView.height - contentInsets.top - contentInsets.bottom)
         controlView.maxImageresizerFrame = maxControlRect
     }
+    
+    /// 更新图片
     func updateImage(_ image: UIImage) {
         imageView.setImage(image)
     }
@@ -839,6 +843,14 @@ class EditorImageResizerView: UIView {
     func cropping(_ inputImage: UIImage?, toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> (UIImage, URL, PhotoEditResult.ImageType)? {
         if var inputImage = inputImage {
             var otherImages: [UIImage] = []
+            if imageView.mosaicView.count > 0 {
+                DispatchQueue.main.sync {
+                    if let image = self.imageView.mosaicView.convertedToImage() {
+                        otherImages.append(image)
+                    }
+                    self.imageView.mosaicView.layer.contents = nil
+                }
+            }
             if imageView.drawView.count > 0 {
                 DispatchQueue.main.sync {
                     if let image = self.imageView.drawView.convertedToImage() {

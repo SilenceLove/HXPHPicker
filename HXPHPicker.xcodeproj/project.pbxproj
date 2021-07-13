@@ -52,6 +52,9 @@
 		7B80FA9F268EBE7D003C7B35 /* VideoEditorMusicAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA99268EBE7C003C7B35 /* VideoEditorMusicAnimationView.swift */; };
 		7B80FAA0268EBE7D003C7B35 /* VideoEditorMusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA9A268EBE7C003C7B35 /* VideoEditorMusicView.swift */; };
 		7B80FAA1268EBE7D003C7B35 /* VideoEditorPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA9B268EBE7D003C7B35 /* VideoEditorPlayerView.swift */; };
+		7B80FAA3268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FAA2268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift */; };
+		7B80FAA5268EC58F003C7B35 /* PhotoEditorMosaicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FAA4268EC58F003C7B35 /* PhotoEditorMosaicView.swift */; };
+		7B80FAA7268F12F7003C7B35 /* Editor+UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FAA6268F12F7003C7B35 /* Editor+UIImageView.swift */; };
 		7B824ABE2600544300767331 /* CustomPickerCellViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824ABD2600544300767331 /* CustomPickerCellViewController.swift */; };
 		7B824AC12600559800767331 /* CustomPickerCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824AC02600559800767331 /* CustomPickerCellView.swift */; };
 		7B824AC42600588E00767331 /* Core+UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B824AC32600588E00767331 /* Core+UIColor.swift */; };
@@ -335,6 +338,9 @@
 		7B80FA99268EBE7C003C7B35 /* VideoEditorMusicAnimationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditorMusicAnimationView.swift; sourceTree = "<group>"; };
 		7B80FA9A268EBE7C003C7B35 /* VideoEditorMusicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditorMusicView.swift; sourceTree = "<group>"; };
 		7B80FA9B268EBE7D003C7B35 /* VideoEditorPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditorPlayerView.swift; sourceTree = "<group>"; };
+		7B80FAA2268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorMosaicToolView.swift; sourceTree = "<group>"; };
+		7B80FAA4268EC58F003C7B35 /* PhotoEditorMosaicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorMosaicView.swift; sourceTree = "<group>"; };
+		7B80FAA6268F12F7003C7B35 /* Editor+UIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Editor+UIImageView.swift"; sourceTree = "<group>"; };
 		7B824ABD2600544300767331 /* CustomPickerCellViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPickerCellViewController.swift; sourceTree = "<group>"; };
 		7B824AC02600559800767331 /* CustomPickerCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPickerCellView.swift; sourceTree = "<group>"; };
 		7B824AC32600588E00767331 /* Core+UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIColor.swift"; sourceTree = "<group>"; };
@@ -682,6 +688,8 @@
 				7B80FA8C268EBE76003C7B35 /* PhotoEditorDrawView.swift */,
 				7B80FA8A268EBE76003C7B35 /* PhotoEditorFilterView.swift */,
 				7B80FA85268EBE75003C7B35 /* PhotoEditorView.swift */,
+				7B80FAA2268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift */,
+				7B80FAA4268EC58F003C7B35 /* PhotoEditorMosaicView.swift */,
 			);
 			path = Photo;
 			sourceTree = "<group>";
@@ -896,8 +904,8 @@
 		7BEB056425A93F8800B39BE5 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				7B80FA83268EBE25003C7B35 /* Video */,
 				7B80FA82268EBE1F003C7B35 /* Photo */,
+				7B80FA83268EBE25003C7B35 /* Video */,
 				7BEB058F25A9922D00B39BE5 /* EditorCropConfirmView.swift */,
 				7BEB056925A9417000B39BE5 /* EditorToolView.swift */,
 				7BEB057125A942EA00B39BE5 /* EditorToolViewCell.swift */,
@@ -935,6 +943,7 @@
 			isa = PBXGroup;
 			children = (
 				7BEB058825A959D100B39BE5 /* Editor+PhotoTools.swift */,
+				7B80FAA6268F12F7003C7B35 /* Editor+UIImageView.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1190,8 +1199,10 @@
 				7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */,
 				7B9876EE26253F08003854FD /* PhotoCroppingConfiguration.swift in Sources */,
 				7B64A9C0268C00E30002109E /* SelectBoxView.swift in Sources */,
+				7B80FAA3268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift in Sources */,
 				7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */,
 				7B80FA95268EBE76003C7B35 /* PhotoEditorDrawView.swift in Sources */,
+				7B80FAA7268F12F7003C7B35 /* Editor+UIImageView.swift in Sources */,
 				7BBBD58A25AEFE9100301DCC /* Core+Bundle.swift in Sources */,
 				7BBBD58B25AEFE9100301DCC /* Core+String.swift in Sources */,
 				7BBBD58C25AEFE9100301DCC /* Core+UIColor.swift in Sources */,
@@ -1271,6 +1282,7 @@
 				7BBBD5C025AEFE9200301DCC /* EditorConfiguration.swift in Sources */,
 				7BBBD5C125AEFE9200301DCC /* VideoEditorConfiguration.swift in Sources */,
 				7BBBD5C225AEFE9200301DCC /* VideoCroppingConfiguration.swift in Sources */,
+				7B80FAA5268EC58F003C7B35 /* PhotoEditorMosaicView.swift in Sources */,
 				7BBBD5C325AEFE9200301DCC /* EditorToolViewConfiguration.swift in Sources */,
 				7BBBD5C425AEFE9200301DCC /* CropConfirmViewConfiguration.swift in Sources */,
 				7BBBD5C525AEFE9200301DCC /* EditorController.swift in Sources */,
