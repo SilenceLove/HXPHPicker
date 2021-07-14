@@ -12,7 +12,7 @@ protocol PhotoEditorDrawViewDelegate: AnyObject {
     func drawView(endDraw drawView: PhotoEditorDrawView)
 }
 
-class PhotoEditorDrawView: UIView {
+class PhotoEditorDrawView: UIView, UIGestureRecognizerDelegate {
     
     weak var delegate: PhotoEditorDrawViewDelegate?
      
@@ -36,16 +36,22 @@ class PhotoEditorDrawView: UIView {
         clipsToBounds = true
         isUserInteractionEnabled = false
         let pan = PhotoPanGestureRecognizer.init(target: self, action: #selector(panGesureRecognizerClick(panGR:)))
+        pan.delegate = self
         addGestureRecognizer(pan)
     }
-    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if otherGestureRecognizer.isKind(of: UITapGestureRecognizer.self) &&
+            otherGestureRecognizer.view is PhotoEditorView {
+            return true
+        }
+        return false
+    }
     @objc func panGesureRecognizerClick(panGR: UIPanGestureRecognizer) {
         switch panGR.state {
         case .began:
             points.removeAll()
             let point = panGR.location(in: self)
             isTouching = false
-            isBegan = true
             let path = PhotoEditorBrushPath()
             path.lineWidth = lineWidth / scale
             path.lineCapStyle = .round
@@ -62,7 +68,6 @@ class PhotoEditorDrawView: UIView {
             let path = linePaths.last
             if path?.currentPoint.equalTo(point) == false {
                 delegate?.drawView(beganDraw: self)
-                isBegan = false
                 isTouching = true
                 
                 path?.addLine(to: point)

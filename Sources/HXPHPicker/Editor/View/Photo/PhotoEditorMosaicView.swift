@@ -15,39 +15,24 @@ protocol PhotoEditorMosaicViewDelegate: AnyObject {
     func mosaicView(endDraw mosaicView: PhotoEditorMosaicView)
 }
 
-class PhotoEditorMosaicView: UIView {
+class PhotoEditorMosaicView: UIView, UIGestureRecognizerDelegate {
     enum MosaicType {
         case mosaic
         case smear
     }
     
     weak var delegate: PhotoEditorMosaicViewDelegate?
-    var didSetMosaicImage = false
     var originalImage: UIImage? {
         didSet {
-            if didSetMosaicImage {
-                return
-            }
-            didSetMosaicImage = true
-            DispatchQueue.global().async {
-                if let mosaicImage = self.originalImage?.mosaicImage(level: 20) {
-                    DispatchQueue.main.sync {
-                        self.mosaicContentLayer.contents = mosaicImage.cgImage
-                    }
-                }else {
-                    self.didSetMosaicImage = false
-                }
-            }
+            mosaicContentLayer.contents = originalImage?.cgImage
         }
     }
     var mosaicContentLayer: CALayer = {
         let mosaicContentLayer = CALayer()
-        mosaicContentLayer.contentsScale = UIScreen.main.scale
         return mosaicContentLayer
     }()
     var mosaicPathLayer: CAShapeLayer = {
         let mosaicPathLayer = CAShapeLayer()
-        mosaicPathLayer.contentsScale = UIScreen.main.scale
         mosaicPathLayer.strokeColor = UIColor.white.cgColor
         mosaicPathLayer.fillColor = nil
         mosaicPathLayer.lineCap = .round
@@ -56,10 +41,8 @@ class PhotoEditorMosaicView: UIView {
     }()
     
     var scale: CGFloat = 1
-    var mosaicLineWidth: CGFloat = 15 {
-        didSet { mosaicPathLayer.lineWidth = mosaicLineWidth / scale }
-    }
-    var imageWidth: CGFloat = 30
+    let mosaicLineWidth: CGFloat
+    let imageWidth: CGFloat
     var type: MosaicType = .mosaic
     var isTouching: Bool = false
     var isBegan: Bool = false
@@ -69,7 +52,9 @@ class PhotoEditorMosaicView: UIView {
     }
     var canUndo: Bool { !mosaicPaths.isEmpty }
     
-    init() {
+    init(mosaicConfig: PhotoEditorConfiguration.MosaicConfig) {
+        mosaicLineWidth = mosaicConfig.mosaiclineWidth
+        imageWidth = mosaicConfig.smearWidth
         super.init(frame: .zero)
         layer.addSublayer(mosaicContentLayer)
         layer.addSublayer(mosaicPathLayer)
@@ -78,14 +63,23 @@ class PhotoEditorMosaicView: UIView {
         clipsToBounds = true
         isUserInteractionEnabled = false
         let pan = PhotoPanGestureRecognizer.init(target: self, action: #selector(panGesureRecognizerClick(panGR:)))
+        pan.delegate = self
         addGestureRecognizer(pan)
     }
     
     var mosaicPaths: [PhotoEditorMosaicPath] = []
     var mosaicPoints: [CGPoint] = []
-    var smearLayers: [CALayer] = []
+    var smearLayers: [PhotoEditorMosaicSmearLayer] = []
     var smearAngles: [CGFloat] = []
+    var smearColors: [UIColor] = []
     
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if otherGestureRecognizer.isKind(of: UITapGestureRecognizer.self) &&
+            otherGestureRecognizer.view is PhotoEditorView {
+            return true
+        }
+        return false
+    }
     @objc func panGesureRecognizerClick(panGR: UIPanGestureRecognizer) {
         switch panGR.state {
         case .began:
@@ -122,13 +116,13 @@ class PhotoEditorMosaicView: UIView {
                 }
             }else if type == .smear {
                 let image = "hx_editor_mosaic_brush_image".image?.withRenderingMode(.alwaysTemplate)
-                let pointXArray = [point.x - 10, point.x + 10, point.x - 5, point.x + 5, point.x]
-                let pointYArray = [point.y - 10, point.y + 10, point.y - 5, point.y + 5, point.y]
-                let pointX = pointXArray[Int(arc4random() % 4)]
-                let pointY = pointYArray[Int(arc4random() % 4)]
+                let pointXArray = [point.x - 4, point.x + 4, point.x - 3, point.x + 3, point.x - 2, point.x + 2, point.x]
+                let pointYArray = [point.y - 4, point.y + 4, point.y - 3, point.y + 3, point.y - 2, point.y + 2, point.y]
+                let pointX = pointXArray[Int(arc4random() % 6)]
+                let pointY = pointYArray[Int(arc4random() % 6)]
                 let newPoint = CGPoint(x: pointX, y: pointY)
                 if let lastPoint = mosaicPoints.last,
-                   (abs(newPoint.x - lastPoint.x * width) <= 5 || abs(newPoint.y - lastPoint.y * width) <= 5) {
+                   (abs(newPoint.x - lastPoint.x * width) <= 2 || abs(newPoint.y - lastPoint.y * width) <= 2) {
                     return
                 }
                 var angle: CGFloat = 0
@@ -145,6 +139,7 @@ class PhotoEditorMosaicView: UIView {
                     didChanged = true
                     layer.addSublayer(colorLayer)
                     smearLayers.append(colorLayer)
+                    smearColors.append(colorLayer.data.color)
                     smearAngles.append(angle)
                 }
             }
@@ -163,25 +158,31 @@ class PhotoEditorMosaicView: UIView {
                 if type == .smear {
                     path?.smearLayers = smearLayers
                     path?.angles = smearAngles
+                    path?.smearColors = smearColors
                 }
             }else {
                 undo()
             }
             smearAngles.removeAll()
             smearLayers.removeAll()
+            smearColors.removeAll()
             mosaicPoints.removeAll()
             isTouching = false
         default:
             break
         }
     }
-    func createSmearLayer(at point: CGPoint, image: UIImage?, imageWidth: CGFloat, angle: CGFloat) -> CALayer? {
+    func createSmearLayer(at point: CGPoint, image: UIImage?, imageWidth: CGFloat, angle: CGFloat, smearColor: UIColor? = nil) -> PhotoEditorMosaicSmearLayer? {
         guard let colorImage = image else {
             return nil
         }
         let imageHeight = colorImage.height * (imageWidth / colorImage.width)
         let rect = CGRect(x: point.x - imageWidth * 0.5, y: point.y - imageHeight * 0.5, width: imageWidth, height: imageHeight)
-        if let color = delegate?.mosaicView(self, splashColor: point) {
+        var color = smearColor
+        if color == nil {
+            color = delegate?.mosaicView(self, splashColor: point)
+        }
+        if let color = color {
             let data = PhotoEditorMosaicSmearLayerData(rect: CGRect(origin: .zero, size: rect.size), color: color)
             let smearLayer = PhotoEditorMosaicSmearLayer.init(data: data)
             smearLayer.frame = rect
@@ -260,6 +261,7 @@ class PhotoEditorMosaicView: UIView {
             let lineWidth = path.type == .mosaic ? path.lineWidth : path.width
             let  mosaicData = PhotoEditorMosaicData.init(type: path.type,
                                                          points: path.points,
+                                                         colors: path.smearColors,
                                                          lineWidth: lineWidth,
                                                          angles: path.angles)
             mosaicDatas.append(mosaicData)
@@ -285,13 +287,15 @@ class PhotoEditorMosaicView: UIView {
             }else if mosaicData.type == .smear {
                 let image = "hx_editor_mosaic_brush_image".image?.withRenderingMode(.alwaysTemplate)
                 let path = PhotoEditorMosaicPath(type: .smear, width: mosaicData.lineWidth)
-                var layers: [CALayer] = []
+                var layers: [PhotoEditorMosaicSmearLayer] = []
                 for (index, point) in mosaicData.points.enumerated() {
+                    let color = mosaicData.colors[index]
                     let newPoint = CGPoint(x: point.x * viewSize.width, y: point.y * viewSize.height)
                     if let colorLayer = createSmearLayer(at: newPoint,
                                                          image: image,
                                                          imageWidth: mosaicData.lineWidth,
-                                                         angle: mosaicData.angles[index]) {
+                                                         angle: mosaicData.angles[index],
+                                                         smearColor: color) {
                         layer.addSublayer(colorLayer)
                         layers.append(colorLayer)
                     }
@@ -299,6 +303,7 @@ class PhotoEditorMosaicView: UIView {
                 path.points = mosaicData.points
                 path.smearLayers = layers
                 path.angles = mosaicData.angles
+                path.smearColors = mosaicData.colors
                 mosaicPaths.append(path)
             }
         }
@@ -310,8 +315,11 @@ class PhotoEditorMosaicView: UIView {
     }
     override func layoutSubviews() {
         super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         mosaicContentLayer.frame = bounds
         mosaicPathLayer.frame = bounds
+        CATransaction.commit()
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -320,7 +328,8 @@ class PhotoEditorMosaicView: UIView {
 class PhotoEditorMosaicPath: PhotoEditorBrushPath {
     let type: PhotoEditorMosaicView.MosaicType
     let width: CGFloat
-    var smearLayers: [CALayer] = []
+    var smearLayers: [PhotoEditorMosaicSmearLayer] = []
+    var smearColors: [UIColor] = []
     var angles: [CGFloat] = []
     init(type: PhotoEditorMosaicView.MosaicType, width: CGFloat) {
         self.type = type
@@ -376,6 +385,7 @@ class PhotoEditorMosaicSmearLayer: CALayer {
 struct PhotoEditorMosaicData {
     let type: PhotoEditorMosaicView.MosaicType
     let points: [CGPoint]
+    let colors: [UIColor]
     let lineWidth: CGFloat
     let angles: [CGFloat]
 }

@@ -61,6 +61,17 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         }
     }
     
-    /// 马赛克线宽
-    public var mosaicLineWidth: CGFloat = 15
+    /// 马赛克配置
+    public lazy var mosaicConfig: MosaicConfig = .init(mosaicWidth: 20,
+                                                       mosaiclineWidth: 25,
+                                                       smearWidth: 30)
+    
+    public struct MosaicConfig {
+        /// 生成马赛克的大小
+        public let mosaicWidth: CGFloat
+        /// 涂鸦时马赛克的线宽
+        public let mosaiclineWidth: CGFloat
+        /// 涂抹的宽度
+        public let smearWidth: CGFloat
+    }
 }

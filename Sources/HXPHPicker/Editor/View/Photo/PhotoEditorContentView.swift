@@ -43,19 +43,24 @@ class PhotoEditorContentView: UIView {
         return drawView
     }()
     lazy var mosaicView: PhotoEditorMosaicView = {
-        let view = PhotoEditorMosaicView()
+        let view = PhotoEditorMosaicView(mosaicConfig: mosaicConfig)
         view.delegate = self
         return view
     }()
     
-    init() {
+    let mosaicConfig: PhotoEditorConfiguration.MosaicConfig
+    
+    init(mosaicConfig: PhotoEditorConfiguration.MosaicConfig) {
+        self.mosaicConfig = mosaicConfig
         super.init(frame: .zero)
         addSubview(imageView)
         addSubview(mosaicView)
         addSubview(drawView)
     }
-    func setImage(_ image: UIImage) {
+    func setMosaicOriginalImage(_ image: UIImage?) {
         mosaicView.originalImage = image
+    }
+    func setImage(_ image: UIImage) {
         #if canImport(Kingfisher)
         let view = imageView as! AnimatedImageView
         view.image = image

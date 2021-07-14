@@ -7,6 +7,7 @@
 
 import UIKit
 import Photos
+
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
@@ -117,7 +118,8 @@ open class PhotoEditorViewController: BaseViewController {
         super.init(nibName: nil, bundle: nil)
     }
     #endif
-    
+    var filterHDImage: UIImage?
+    var mosaicImage: UIImage?
     var thumbnailImage: UIImage!
     var needRequest: Bool = false
     var requestType: Int = 0
@@ -281,6 +283,8 @@ open class PhotoEditorViewController: BaseViewController {
                 requestNetworkImage()
                 #endif
             }
+        }else {
+            localImageHandler()
         }
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
@@ -333,7 +337,7 @@ open class PhotoEditorViewController: BaseViewController {
         if !imageInitializeCompletion {
             if !needRequest || image != nil {
                 imageView.setImage(image)
-                setFilterImage(image: image)
+//                setFilterImage()
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
                     brushColorView.canUndo = imageView.canUndoDraw
@@ -385,207 +389,15 @@ open class PhotoEditorViewController: BaseViewController {
             navigationController?.setNavigationBarHidden(true, animated: true)
         }
     }
-}
-extension PhotoEditorViewController {
-    #if HXPICKER_ENABLE_PICKER
-    func requestImage() {
-        if photoAsset.isLocalAsset {
-            if photoAsset.mediaType == .photo {
-                var image = photoAsset.localImageAsset!.image!
-                if photoAsset.mediaSubType.isGif {
-                    if let imageData = photoAsset.localImageAsset?.imageData {
-                        #if canImport(Kingfisher)
-                        if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
-                            image = gifImage
-                        }
-                        #endif
-                    }else if let imageURL = photoAsset.localImageAsset?.imageURL {
-                        do {
-                            let imageData = try Data.init(contentsOf: imageURL)
-                            #if canImport(Kingfisher)
-                            if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
-                                image = gifImage
-                            }
-                            #endif
-                        }catch {}
-                    }
-                }
-                requestAssetCompletion(image: image)
-            }else {
-                requestAssetCompletion(image: photoAsset.localVideoAsset!.image!)
-            }
-        }else if photoAsset.isNetworkAsset {
-            #if canImport(Kingfisher)
-            let loadingView = ProgressHUD.showLoading(addedTo: view, animated: true)
-            photoAsset.getNetworkImage(urlType: .original, filterEditor: true) { (receiveSize, totalSize) in
-                let progress = Double(receiveSize) / Double(totalSize)
-                if progress > 0 {
-                    loadingView?.updateText(text: "图片下载中".localized + "(" + String(Int(progress * 100)) + "%)")
-                }
-            } resultHandler: { [weak self] (image) in
-                if let image = image {
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    self?.requestAssetCompletion(image: image)
-                }else {
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
-                        self?.didBackClick()
-                    }
-                }
-            }
-            #endif
-        } else {
-            ProgressHUD.showLoading(addedTo: view, animated: true)
-            if photoAsset.phAsset != nil && !photoAsset.isGifAsset {
-                photoAsset.requestImageData(filterEditor: true,
-                                            iCloudHandler: nil,
-                                            progressHandler: nil) {
-                    [weak self] (asset, imageData, imageOrientation, info) in
-                    let image = UIImage.init(data: imageData)?.scaleSuitableSize()
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    self?.requestAssetCompletion(image: image!)
-                } failure: { [weak self] (asset, info) in
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    self?.requestAssetFailure()
-                }
-                return
-            }
-            photoAsset.requestAssetImageURL(filterEditor: true) {
-                [weak self] (imageUrl) in
-                DispatchQueue.global().async {
-                    if let imageUrl = imageUrl {
-                        #if canImport(Kingfisher)
-                        if self?.photoAsset.isGifAsset == true {
-                            do {
-                                let imageData = try Data.init(contentsOf: imageUrl)
-                                if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
-                                    DispatchQueue.main.async {
-                                        ProgressHUD.hide(forView: self?.view, animated: true)
-                                        self?.requestAssetCompletion(image: gifImage)
-                                    }
-                                    return
-                                }
-                            }catch {}
-                        }
-                        #endif
-                        if let image = UIImage.init(contentsOfFile: imageUrl.path)?.scaleSuitableSize() {
-                            DispatchQueue.main.async {
-                                ProgressHUD.hide(forView: self?.view, animated: true)
-                                self?.requestAssetCompletion(image: image)
-                            }
-                            return
-                        }
-                    }
-                    DispatchQueue.main.async {
-                        ProgressHUD.hide(forView: self?.view, animated: true)
-                        self?.requestAssetFailure()
-                    }
-                }
-            }
-        }
-    }
-    #endif
     
-    #if canImport(Kingfisher)
-    func requestNetworkImage() {
-        let url = networkImageURL!
-        let loadingView = ProgressHUD.showLoading(addedTo: view, animated: true)
-        PhotoTools.downloadNetworkImage(with: url, options: [.backgroundDecode]) { (receiveSize, totalSize) in
-            let progress = Double(receiveSize) / Double(totalSize)
-            if progress > 0 {
-                loadingView?.updateText(text: "图片下载中".localized + "(" + String(Int(progress * 100)) + "%)")
-            }
-        } completionHandler: { [weak self] (image) in
-            ProgressHUD.hide(forView: self?.view, animated: true)
-            if let image = image {
-                self?.requestAssetCompletion(image: image)
-            }else {
-                self?.requestAssetFailure()
-            }
-        }
-    }
-    #endif
-    
-    func requestAssetCompletion(image: UIImage) {
-        if imageInitializeCompletion == true {
-            imageView.setImage(image)
-            filterView.image = filterImage
-            if let editedData = editResult?.editedData {
-                imageView.setEditedData(editedData: editedData)
-                brushColorView.canUndo = imageView.canUndoDraw
-                mosaicToolView.canUndo = imageView.canUndoMosaic
-            }
-            if state == .cropping {
-                imageView.startCropping(true)
-                croppingAction()
-            }
-        }
-        setFilterImage(image: image)
+    func setImage(_ image: UIImage) {
         self.image = image
     }
-    func requestAssetFailure() {
-        ProgressHUD.hide(forView: view, animated: true)
-        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
-            self.didBackClick()
-        }
-    }
-    func setFilterImage(image: UIImage) {
-        let value = filterView.sliderView.value
-        let minSize = min(view.width, view.height) * 2
-        DispatchQueue.global().async {
-            if image.width > minSize {
-                let thumbnailScale = minSize / image.width
-                self.thumbnailImage = image.scaleImage(toScale: thumbnailScale)
-            }
-            if self.thumbnailImage == nil {
-                self.thumbnailImage = image
-            }
-            if let filter = self.editResult?.editedData.filter {
-                var newImage: UIImage?
-                if !self.config.filterConfig.infos.isEmpty {
-                    let info = self.config.filterConfig.infos[filter.sourceIndex]
-                    newImage = info.filterHandler(self.thumbnailImage, image, value, .touchUpInside)
-                }
-                if let newImage = newImage {
-                    DispatchQueue.main.sync {
-                        self.imageView.updateImage(newImage)
-                    }
-                }
-            }
-            self.filterImage = image.scaleToFillSize(size: CGSize(width: 80, height: 80), equalRatio: true)
-            DispatchQueue.main.async {
-                self.filterView.image = self.filterImage
-            }
-        }
-    }
 }
-// MARK: EditorToolViewDelegate
+
 extension PhotoEditorViewController: EditorToolViewDelegate {
-     
     func toolView(didFinishButtonClick toolView: EditorToolView) {
-        editResources()
-    }
-    func editResources() {
-        if imageView.canReset() ||
-            imageView.imageResizerView.hasCropping ||
-            imageView.canUndoDraw ||
-            imageView.canUndoMosaic ||
-            imageView.hasFilter {
-            
-            ProgressHUD.showLoading(addedTo: view, animated: true)
-            imageView.cropping { [weak self] (result) in
-                if let result = result, let self = self {
-                    self.delegate?.photoEditorViewController(self, didFinish: result)
-                    self.didBackClick()
-                }else {
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: self?.view, text: "图片获取失败!".localized, animated: true, delayHide: 1.5)
-                }
-            }
-        }else {
-            delegate?.photoEditorViewController(didFinishWithUnedited: self)
-            didBackClick()
-        }
+        exportResources()
     }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
         if model.type == .graffiti {
@@ -603,6 +415,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             }
         }else if model.type == .cropping {
             imageView.drawEnabled = false
+            imageView.mosaicEnabled = false
             state = .cropping
             imageView.startCropping(true)
             croppingAction()
@@ -627,130 +440,6 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             showFilterView()
         }
     }
-    
-    func showFilterView() {
-        UIView.animate(withDuration: 0.25) {
-            self.setFilterViewFrame()
-        }
-    }
-    func hiddenFilterView() {
-        UIView.animate(withDuration: 0.25) {
-            self.setFilterViewFrame()
-        }
-    }
-    
-    func showBrushColorView() {
-        brushColorView.isHidden = false
-        UIView.animate(withDuration: 0.25) {
-            self.brushColorView.alpha = 1
-        }
-    }
-    
-    func hiddenBrushColorView() {
-        if brushColorView.isHidden {
-            return
-        }
-        UIView.animate(withDuration: 0.25) {
-            self.brushColorView.alpha = 0
-        } completion: { (_) in
-            guard let option = self.currentToolOption, option.type == .graffiti else {
-                return
-            }
-            self.brushColorView.isHidden = true
-        }
-    }
-    
-    func showMosaicToolView() {
-        mosaicToolView.isHidden = false
-        UIView.animate(withDuration: 0.25) {
-            self.mosaicToolView.alpha = 1
-        }
-    }
-    func hiddenMosaicToolView() {
-        if mosaicToolView.isHidden {
-            return
-        }
-        UIView.animate(withDuration: 0.25) {
-            self.mosaicToolView.alpha = 0
-        } completion: { (_) in
-            guard let option = self.currentToolOption, option.type == .mosaic else {
-                return
-            }
-            self.mosaicToolView.isHidden = true
-        }
-    }
-    func croppingAction() {
-        if state == .cropping {
-            cropConfirmView.isHidden = false
-            cropToolView.isHidden = false
-            hidenTopView()
-        }else {
-            if let option = currentToolOption {
-                if option.type == .graffiti {
-                    imageView.drawEnabled = true
-                }else if option.type == .mosaic {
-                    imageView.mosaicEnabled = true
-                }
-            }
-            showTopView()
-        }
-        UIView.animate(withDuration: 0.25) {
-            self.cropConfirmView.alpha = self.state == .cropping ? 1 : 0
-            self.cropToolView.alpha = self.state == .cropping ? 1 : 0
-        } completion: { (isFinished) in
-            if self.state != .cropping {
-                self.cropConfirmView.isHidden = true
-                self.cropToolView.isHidden = true
-            }
-        }
-
-    }
-    func showTopView() {
-        topViewIsHidden = false
-        toolView.isHidden = false
-        topView.isHidden = false
-        if let option = currentToolOption {
-            if option.type == .graffiti {
-                brushColorView.isHidden = false
-            }else if option.type == .mosaic {
-                mosaicToolView.isHidden = false
-            }
-        }
-        UIView.animate(withDuration: 0.25) {
-            self.toolView.alpha = 1
-            self.topView.alpha = 1
-            self.topMaskLayer.isHidden = false
-            if let option = self.currentToolOption {
-                if option.type == .graffiti {
-                    self.brushColorView.alpha = 1
-                }else if option.type == .mosaic {
-                    self.mosaicToolView.alpha = 1
-                }
-            }
-        }
-    }
-    func hidenTopView() {
-        topViewIsHidden = true
-        UIView.animate(withDuration: 0.25) {
-            self.toolView.alpha = 0
-            self.topView.alpha = 0
-            self.topMaskLayer.isHidden = true
-            if let option = self.currentToolOption {
-                if option.type == .graffiti {
-                    self.brushColorView.alpha = 0
-                }else if option.type == .mosaic {
-                    self.mosaicToolView.alpha = 0
-                }
-            }
-        } completion: { (isFinished) in
-            if self.topViewIsHidden {
-                self.toolView.isHidden = true
-                self.topView.isHidden = true
-                self.brushColorView.isHidden = true
-                self.mosaicToolView.isHidden = true
-            }
-        }
-    }
 }
 extension PhotoEditorViewController: PhotoEditorBrushColorViewDelegate {
     func brushColorView(didUndoButton colorView: PhotoEditorBrushColorView) {
@@ -761,6 +450,7 @@ extension PhotoEditorViewController: PhotoEditorBrushColorViewDelegate {
         imageView.drawColorHex = colorHex
     }
 }
+
 // MARK: EditorCropConfirmViewDelegate
 extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     
@@ -769,7 +459,7 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     func cropConfirmView(didFinishButtonClick cropConfirmView: EditorCropConfirmView) {
         if config.fixedCropState {
             imageView.imageResizerView.finishCropping(false, completion: nil, updateCrop: false)
-            editResources()
+            exportResources()
             return
         }
         state = .normal
@@ -820,11 +510,9 @@ extension PhotoEditorViewController: PhotoEditorViewDelegate {
     }
     
     func editorView(willDisappearCrop editorView: PhotoEditorView) {
-        
     }
     
     func editorView(didDisappearCrop editorView: PhotoEditorView) {
-        
     }
     
     func editorView(drawViewBeganDraw editorView: PhotoEditorView) {
@@ -872,6 +560,7 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         if filter.isOriginal {
             imageView.imageResizerView.filter = nil
             imageView.updateImage(image)
+            imageView.setMosaicOriginalImage(mosaicImage)
             return
         }
         imageView.imageResizerView.filter = filter
@@ -881,9 +570,12 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         DispatchQueue.global().async {
             let filterInfo = self.config.filterConfig.infos[atItem]
             if let newImage = filterInfo.filterHandler(self.thumbnailImage, lastImage, value, .touchUpInside) {
+                let mosaicImage = newImage.mosaicImage(level: self.config.mosaicConfig.mosaicWidth)
                 DispatchQueue.main.sync {
                     ProgressHUD.hide(forView: self.view, animated: true)
                     self.imageView.updateImage(newImage)
+                    self.imageView.imageResizerView.filterValue = value
+                    self.imageView.setMosaicOriginalImage(mosaicImage)
                 }
             }else {
                 DispatchQueue.main.sync {
@@ -899,6 +591,10 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .valueChanged) {
             imageView.updateImage(newImage)
             imageView.imageResizerView.filterValue = value
+            if mosaicToolView.canUndo {
+                let mosaicImage = newImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+                imageView.setMosaicOriginalImage(mosaicImage)
+            }
         }
     }
     func filterView(_ filterView: PhotoEditorFilterView, touchUpInside value: Float) {
@@ -906,6 +602,8 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .touchUpInside) {
             imageView.updateImage(newImage)
             imageView.imageResizerView.filterValue = value
+            let mosaicImage = newImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+            imageView.setMosaicOriginalImage(mosaicImage)
         }
     }
 }

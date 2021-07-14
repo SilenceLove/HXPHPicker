@@ -79,7 +79,7 @@ extension PhotoTools {
                 if event == .touchUpInside {
                     return oldMovie(image, value: value)
                 }
-                return lastImage
+                return nil
             },
             PhotoEditorFilterInfo(filterName: "怀旧".localized,
                                   defaultValue: -1) {
@@ -108,7 +108,7 @@ extension PhotoTools {
                                             kCIInputRadiusKey: NSNumber(value: 10 * value)
                                         ])
                 }
-                return lastImage
+                return nil
             },
             PhotoEditorFilterInfo(filterName: "岁月".localized,
                                   defaultValue: -1) {

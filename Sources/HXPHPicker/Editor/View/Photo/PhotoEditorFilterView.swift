@@ -133,6 +133,9 @@ class PhotoEditorFilterView: UIView {
             collectionView.scrollToItem(at: IndexPath(item: currentSelectedIndex, section: 0), at: .centeredHorizontally, animated: true)
         }
     }
+    func currentSelectedCell() -> PhotoEditorFilterViewCell? {
+        collectionView.cellForItem(at: IndexPath(item: currentSelectedIndex, section: 0)) as? PhotoEditorFilterViewCell
+    }
     override func layoutSubviews() {
         super.layoutSubviews()
         sliderView.frame = CGRect(x: UIDevice.leftMargin + 20, y: 0, width: width - 40 - UIDevice.leftMargin - UIDevice.rightMargin, height: 20)

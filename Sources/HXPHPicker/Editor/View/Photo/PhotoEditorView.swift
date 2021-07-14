@@ -22,7 +22,8 @@ protocol PhotoEditorViewDelegate: AnyObject {
 class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     weak var editorDelegate: PhotoEditorViewDelegate?
     lazy var imageResizerView: EditorImageResizerView = {
-        let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropConfig)
+        let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropConfig,
+                                                           mosaicConfig: config.mosaicConfig)
         imageResizerView.imageView.drawView.lineColor = config.brushColors[config.defaultBrushColorIndex].color
         imageResizerView.imageView.drawView.lineWidth = config.brushLineWidth
         imageResizerView.delegate = self
@@ -106,11 +107,15 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     func updateImage(_ image: UIImage) {
         imageResizerView.updateImage(image)
     }
+    func setMosaicOriginalImage(_ image: UIImage?) {
+        imageResizerView.setMosaicOriginalImage(image)
+    }
     func getEditedData() -> PhotoEditData {
         imageResizerView.getEditedData()
     }
     func setEditedData(editedData: PhotoEditData) {
         imageResizerView.filter = editedData.filter
+        imageResizerView.filterValue = editedData.filterValue
         if editedData.isPortrait != UIDevice.isPortrait {
             return
         }

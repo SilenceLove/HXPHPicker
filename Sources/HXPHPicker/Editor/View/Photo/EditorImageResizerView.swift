@@ -61,8 +61,9 @@ class EditorImageResizerView: UIView {
         return scrollView
     }()
     
+    let mosaicConfig: PhotoEditorConfiguration.MosaicConfig
     lazy var imageView: PhotoEditorContentView = {
-        let imageView = PhotoEditorContentView.init()
+        let imageView = PhotoEditorContentView.init(mosaicConfig: mosaicConfig)
         return imageView
     }()
     
@@ -150,8 +151,10 @@ class EditorImageResizerView: UIView {
     var filter: PhotoEditorFilter? = nil
     var filterValue: Float = 0
     
-    init(cropConfig: PhotoCroppingConfiguration) {
+    init(cropConfig: PhotoCroppingConfiguration,
+         mosaicConfig: PhotoEditorConfiguration.MosaicConfig) {
         self.cropConfig = cropConfig
+        self.mosaicConfig = mosaicConfig
         super.init(frame: .zero)
         addSubview(containerView)
     }
@@ -233,6 +236,9 @@ class EditorImageResizerView: UIView {
     /// 更新图片
     func updateImage(_ image: UIImage) {
         imageView.setImage(image)
+    }
+    func setMosaicOriginalImage(_ image: UIImage?) {
+        imageView.setMosaicOriginalImage(image)
     }
     /// 配置宽高比数据
     func configAspectRatio() {
@@ -845,7 +851,7 @@ class EditorImageResizerView: UIView {
             var otherImages: [UIImage] = []
             if imageView.mosaicView.count > 0 {
                 DispatchQueue.main.sync {
-                    if let image = self.imageView.mosaicView.convertedToImage() {
+                    if let image = self.imageView.mosaicView.layer.convertedToImage() {
                         otherImages.append(image)
                     }
                     self.imageView.mosaicView.layer.contents = nil
@@ -853,7 +859,7 @@ class EditorImageResizerView: UIView {
             }
             if imageView.drawView.count > 0 {
                 DispatchQueue.main.sync {
-                    if let image = self.imageView.drawView.convertedToImage() {
+                    if let image = self.imageView.drawView.layer.convertedToImage() {
                         otherImages.append(image)
                     }
                     self.imageView.drawView.layer.contents = nil
