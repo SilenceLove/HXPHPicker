@@ -5,7 +5,7 @@
 //  Created by Slience on 2021/7/1.
 //
 
-import Foundation
+import UIKit
 
 class PhotoPanGestureRecognizer: UIPanGestureRecognizer {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {

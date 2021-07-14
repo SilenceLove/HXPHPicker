@@ -5,7 +5,7 @@
 //  Created by Slience on 2021/6/23.
 //
 
-import Foundation
+import UIKit
 import CoreImage
 
 /// 需要添加滤镜的原始图片、上一次添加滤镜的图片，value，event
