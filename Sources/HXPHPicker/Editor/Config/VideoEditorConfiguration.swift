@@ -19,7 +19,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     public var mustBeTailored: Bool = true
     
     /// 配乐配置
-    public lazy var musicConfig: MusicConfig = .init(infos: [])
+    public lazy var music: MusicConfig = .init(infos: [])
     
     public struct MusicConfig {
         /// 配乐信息
@@ -52,7 +52,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
         config.exportPresetName = exportPresetName
         config.defaultState = defaultState
         config.mustBeTailored = mustBeTailored
-        config.musicConfig = musicConfig
+        config.music = music
         config.cropping = cropping
         config.cropView = cropView
         config.toolView = toolView

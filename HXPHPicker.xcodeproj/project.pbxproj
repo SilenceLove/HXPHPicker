@@ -393,6 +393,11 @@
 		7BB285AD25A9E59600DBCF2B /* Core+UIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIImageView.swift"; sourceTree = "<group>"; };
 		7BB285B125A9F26A00DBCF2B /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		7BB285B525A9FB8400DBCF2B /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
+		7BB613FB26A0313700D38EBD /* GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GUIDE.md; sourceTree = "<group>"; };
+		7BB613FC26A037BE00D38EBD /* INSTALLATION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALLATION.md; sourceTree = "<group>"; };
+		7BB613FD26A0380100D38EBD /* HOME.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HOME.md; sourceTree = "<group>"; };
+		7BB613FE26A03BA800D38EBD /* PICKER_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PICKER_GUIDE.md; sourceTree = "<group>"; };
+		7BB613FF26A03BAE00D38EBD /* EDITOR_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = EDITOR_GUIDE.md; sourceTree = "<group>"; };
 		7BB66F7B26896E0B00694916 /* PhotoManager+Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoManager+Audio.swift"; sourceTree = "<group>"; };
 		7BBA80D325F5C2EB00CECBA7 /* PickerResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerResult.swift; sourceTree = "<group>"; };
 		7BBBD53D25AEFC5F00301DCC /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -841,6 +846,18 @@
 			path = Controller;
 			sourceTree = "<group>";
 		};
+		7BB613F926A02FA500D38EBD /* Wiki */ = {
+			isa = PBXGroup;
+			children = (
+				7BB613FD26A0380100D38EBD /* HOME.md */,
+				7BB613FB26A0313700D38EBD /* GUIDE.md */,
+				7BB613FC26A037BE00D38EBD /* INSTALLATION.md */,
+				7BB613FE26A03BA800D38EBD /* PICKER_GUIDE.md */,
+				7BB613FF26A03BAE00D38EBD /* EDITOR_GUIDE.md */,
+			);
+			path = Wiki;
+			sourceTree = "<group>";
+		};
 		7BBBD53E25AEFC5F00301DCC /* Example */ = {
 			isa = PBXGroup;
 			children = (
@@ -963,6 +980,7 @@
 		7BFD79FC25AC8AF700694499 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				7BB613F926A02FA500D38EBD /* Wiki */,
 				7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */,
 			);
 			path = Documentation;
@@ -1457,13 +1475,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1485,13 +1503,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -1521,7 +1539,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -1555,7 +1573,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

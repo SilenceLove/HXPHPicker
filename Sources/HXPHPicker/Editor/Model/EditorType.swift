@@ -13,7 +13,7 @@ public extension EditorController {
         case video
     }
     
-    enum AssetType {
+    enum SourceType {
         /// 本地
         case local
         /// 网络

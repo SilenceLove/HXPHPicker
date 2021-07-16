@@ -227,9 +227,9 @@ extension PhotoTools {
         config.photoList.cancelPosition = .left
         config.photoList.cancelType = .image
         
-        config.photoList.titleViewConfig.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
-        config.photoList.titleViewConfig.arrowBackgroundColor = "#B2B2B2".color
-        config.photoList.titleViewConfig.arrowColor = "#2E2F30".color
+        config.photoList.titleView.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
+        config.photoList.titleView.arrowBackgroundColor = "#B2B2B2".color
+        config.photoList.titleView.arrowColor = "#2E2F30".color
         
         config.photoList.cell.targetWidth = 250
         config.photoList.cell.selectBox.selectedBackgroundColor = "#07C160".color
@@ -295,8 +295,8 @@ extension PhotoTools {
         config.photoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
         config.photoEditor.cropConfimView.finishButtonBackgroundColor = "#07C160".color
         config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = "#07C160".color
-        config.photoEditor.cropConfig.aspectRatioSelectedColor = "#07C160".color
-        config.photoEditor.filterConfig = .init(infos: defaultFilters(),
+        config.photoEditor.cropping.aspectRatioSelectedColor = "#07C160".color
+        config.photoEditor.filter = .init(infos: defaultFilters(),
                                                 selectedColor: "#07C160".color)
         #endif
         

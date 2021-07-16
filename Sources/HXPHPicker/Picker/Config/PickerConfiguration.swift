@@ -107,22 +107,14 @@ open class PickerConfiguration: BaseConfiguration {
     public var navigationDarkTintColor: UIColor = UIColor.white
     
     /// 相册列表配置
-    public lazy var albumList : AlbumListConfiguration = {
-        return AlbumListConfiguration.init()
-    }()
+    public lazy var albumList : AlbumListConfiguration = .init()
     
     /// 照片列表配置
-    public lazy var photoList: PhotoListConfiguration = {
-        return PhotoListConfiguration.init()
-    }()
+    public lazy var photoList: PhotoListConfiguration = .init()
     
     /// 预览界面配置
-    public lazy var previewView: PreviewViewConfiguration = {
-        return PreviewViewConfiguration.init()
-    }()
+    public lazy var previewView: PreviewViewConfiguration = .init()
     
     /// 未授权提示界面相关配置
-    public lazy var notAuthorized : NotAuthorizedConfiguration = {
-        return NotAuthorizedConfiguration.init()
-    }()
+    public lazy var notAuthorized : NotAuthorizedConfiguration = .init()
 }

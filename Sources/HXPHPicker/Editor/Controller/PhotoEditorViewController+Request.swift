@@ -195,35 +195,52 @@ extension PhotoEditorViewController {
                 return
             }
         }
-        var value: Float = 0
-        var minSize: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-        DispatchQueue.main.sync {
-            value = filterView.sliderView.value
-            if !view.size.equalTo(.zero) {
-                minSize = min(view.width, view.height) * 2
+        var hasMosaic = false
+        var hasFilter = false
+        for option in config.toolView.toolOptions {
+            if option.type == .filter {
+                hasFilter = true
+            }else if option.type == .mosaic {
+                hasMosaic = true
             }
         }
-        if image.width > minSize {
-            let thumbnailScale = minSize / image.width
-            thumbnailImage = image.scaleImage(toScale: thumbnailScale)
+        var value: Float = 0
+        if hasFilter {
+            var minSize: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+            DispatchQueue.main.sync {
+                value = filterView.sliderView.value
+                if !view.size.equalTo(.zero) {
+                    minSize = min(view.width, view.height) * 2
+                }
+            }
+            if image.width > minSize {
+                let thumbnailScale = minSize / image.width
+                thumbnailImage = image.scaleImage(toScale: thumbnailScale)
+            }
+            if thumbnailImage == nil {
+                thumbnailImage = image
+            }
         }
-        if thumbnailImage == nil {
-            thumbnailImage = image
-        }
-        if let filter = editResult?.editedData.filter {
+        if let filter = editResult?.editedData.filter, hasFilter {
             var newImage: UIImage?
-            if !config.filterConfig.infos.isEmpty {
-                let info = config.filterConfig.infos[filter.sourceIndex]
+            if !config.filter.infos.isEmpty {
+                let info = config.filter.infos[filter.sourceIndex]
                 newImage = info.filterHandler(thumbnailImage, image, value, .touchUpInside)
             }
             if let newImage = newImage {
                 filterHDImage = newImage
-                mosaicImage = newImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+                if hasMosaic {
+                    mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
+                }
             }
         }else {
-            mosaicImage = thumbnailImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+            if hasMosaic {
+                mosaicImage = thumbnailImage.mosaicImage(level: config.mosaic.mosaicWidth)
+            }
         }
-        filterImage = image.scaleToFillSize(size: CGSize(width: 80, height: 80), equalRatio: true)
+        if hasFilter {
+            filterImage = image.scaleToFillSize(size: CGSize(width: 80, height: 80), equalRatio: true)
+        }
     }
     func setFilterImage() {
         if let image = filterHDImage {

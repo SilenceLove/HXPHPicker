@@ -96,7 +96,7 @@ public class PhotoPickerViewController: BaseViewController {
         return titleLabel
     }()
     lazy var titleView: AlbumTitleView = {
-        let titleView = AlbumTitleView.init(config: config.titleViewConfig)
+        let titleView = AlbumTitleView.init(config: config.titleView)
         titleView.addTarget(self, action: #selector(didTitleViewClick(control:)), for: .touchUpInside)
         return titleView
     }()

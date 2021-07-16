@@ -18,7 +18,8 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
     ///   - result: 编辑后的数据
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult)
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
+                                   didFinish result: PhotoEditResult)
     
     /// 点击完成按钮，但是照片未编辑
     /// - Parameters:
@@ -46,7 +47,7 @@ open class PhotoEditorViewController: BaseViewController {
     public private(set) var image: UIImage!
     
     /// 资源类型
-    public let assetType: EditorController.AssetType
+    public let sourceType: EditorController.SourceType
     
     /// 当前编辑状态
     public private(set) var state: State = .normal
@@ -64,7 +65,7 @@ open class PhotoEditorViewController: BaseViewController {
                 config: PhotoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
-        assetType = .local
+        sourceType = .local
         self.image = image
         self.config = config
         self.editResult = editResult
@@ -85,7 +86,7 @@ open class PhotoEditorViewController: BaseViewController {
                 config: PhotoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
-        assetType = .picker
+        sourceType = .picker
         requestType = 1
         needRequest = true
         self.config = config
@@ -109,7 +110,7 @@ open class PhotoEditorViewController: BaseViewController {
                 config: PhotoEditorConfiguration) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
-        assetType = .network
+        sourceType = .network
         requestType = 2
         needRequest = true
         self.networkImageURL = networkImageURL
@@ -217,12 +218,12 @@ open class PhotoEditorViewController: BaseViewController {
     
     lazy var cropToolView: PhotoEditorCropToolView = {
         var showRatios = true
-        if config.cropConfig.fixedRatio || config.cropConfig.isRoundCrop {
+        if config.cropping.fixedRatio || config.cropping.isRoundCrop {
             showRatios = false
         }
         let view = PhotoEditorCropToolView.init(showRatios: showRatios)
         view.delegate = self
-        view.themeColor = config.cropConfig.aspectRatioSelectedColor
+        view.themeColor = config.cropping.aspectRatioSelectedColor
         view.alpha = 0
         view.isHidden = true
         return view
@@ -239,7 +240,7 @@ open class PhotoEditorViewController: BaseViewController {
     lazy var filterView: PhotoEditorFilterView = {
         let filter = editResult?.editedData.filter
         let value = editResult?.editedData.filterValue
-        let view = PhotoEditorFilterView.init(filterConfig: config.filterConfig,
+        let view = PhotoEditorFilterView.init(filterConfig: config.filter,
                                               sourceIndex: filter?.sourceIndex ?? -1,
                                               value: value ?? 0)
         view.delegate = self
@@ -400,7 +401,8 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
         exportResources()
     }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
-        if model.type == .graffiti {
+        switch model.type {
+        case .graffiti:
             currentToolOption = nil
             imageView.mosaicEnabled = false
             hiddenMosaicToolView()
@@ -413,13 +415,13 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             }else {
                 hiddenBrushColorView()
             }
-        }else if model.type == .cropping {
+        case .cropping:
             imageView.drawEnabled = false
             imageView.mosaicEnabled = false
             state = .cropping
             imageView.startCropping(true)
             croppingAction()
-        }else if model.type == .mosaic {
+        case .mosaic:
             currentToolOption = nil
             imageView.drawEnabled = false
             hiddenBrushColorView()
@@ -432,12 +434,14 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             }else {
                 hiddenMosaicToolView()
             }
-        }else if model.type == .filter {
+        case .filter:
             imageView.drawEnabled = false
             imageView.mosaicEnabled = false
             isFilter = true
             hidenTopView()
             showFilterView()
+        default:
+            break
         }
     }
 }
@@ -568,9 +572,9 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         let value = filterView.sliderView.value
         let lastImage = imageView.image
         DispatchQueue.global().async {
-            let filterInfo = self.config.filterConfig.infos[atItem]
+            let filterInfo = self.config.filter.infos[atItem]
             if let newImage = filterInfo.filterHandler(self.thumbnailImage, lastImage, value, .touchUpInside) {
-                let mosaicImage = newImage.mosaicImage(level: self.config.mosaicConfig.mosaicWidth)
+                let mosaicImage = newImage.mosaicImage(level: self.config.mosaic.mosaicWidth)
                 DispatchQueue.main.sync {
                     ProgressHUD.hide(forView: self.view, animated: true)
                     self.imageView.updateImage(newImage)
@@ -587,22 +591,22 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
     }
     func filterView(_ filterView: PhotoEditorFilterView,
                     didChanged value: Float) {
-        let filterInfo = config.filterConfig.infos[filterView.currentSelectedIndex - 1]
+        let filterInfo = config.filter.infos[filterView.currentSelectedIndex - 1]
         if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .valueChanged) {
             imageView.updateImage(newImage)
             imageView.imageResizerView.filterValue = value
             if mosaicToolView.canUndo {
-                let mosaicImage = newImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+                let mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
                 imageView.setMosaicOriginalImage(mosaicImage)
             }
         }
     }
     func filterView(_ filterView: PhotoEditorFilterView, touchUpInside value: Float) {
-        let filterInfo = config.filterConfig.infos[filterView.currentSelectedIndex - 1]
+        let filterInfo = config.filter.infos[filterView.currentSelectedIndex - 1]
         if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .touchUpInside) {
             imageView.updateImage(newImage)
             imageView.imageResizerView.filterValue = value
-            let mosaicImage = newImage.mosaicImage(level: config.mosaicConfig.mosaicWidth)
+            let mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
             imageView.setMosaicOriginalImage(mosaicImage)
         }
     }

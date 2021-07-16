@@ -59,7 +59,7 @@ open class VideoEditorViewController: BaseViewController {
     public private(set) var state: State
     
     /// 资源类型
-    public let assetType: EditorController.AssetType
+    public let sourceType: EditorController.SourceType
     
     /// 在视频未获取成功之前展示的视频封面
     public var coverImage: UIImage?
@@ -73,6 +73,19 @@ open class VideoEditorViewController: BaseViewController {
             toolView.reloadMusic(isSelected: backgroundMusicPath != nil)
         }
     }
+    
+    /// 播放视频
+    public func playVideo() { startPlayTimer() }
+    
+    /// 视频原声音量
+    public var videoVolume: Float = 1 {
+        didSet {
+            playerView.player.volume = videoVolume
+        }
+    }
+    
+    /// 界面消失之后取消下载网络视频
+    public var viewDidDisappearCancelDownload = true
     
     /// 上一次的编辑数据
     public private(set) var editResult: VideoEditResult?
@@ -106,7 +119,7 @@ open class VideoEditorViewController: BaseViewController {
         }
         needRequest = true
         requestType = 3
-        self.assetType = .local
+        self.sourceType = .local
         self.editResult = editResult
         self.state = config.defaultState
         self.config = config
@@ -132,7 +145,7 @@ open class VideoEditorViewController: BaseViewController {
         }
         requestType = 2
         needRequest = true
-        self.assetType = .network
+        self.sourceType = .network
         self.editResult = editResult
         self.state = config.defaultState
         self.config = config
@@ -162,7 +175,7 @@ open class VideoEditorViewController: BaseViewController {
         }
         requestType = 1
         needRequest = true
-        self.assetType = .picker
+        sourceType = .picker
         self.editResult = editResult
         self.state = config.defaultState
         self.config = config
@@ -240,7 +253,7 @@ open class VideoEditorViewController: BaseViewController {
         return playerView
     }()
     lazy var musicView: VideoEditorMusicView = {
-        let view = VideoEditorMusicView.init(musicInfos: config.musicConfig.infos)
+        let view = VideoEditorMusicView.init(musicInfos: config.music.infos)
         view.delegate = self
         return view
     }()
@@ -336,8 +349,7 @@ open class VideoEditorViewController: BaseViewController {
         if let editResult = editResult {
             didEdited = true
             if let cropData = editResult.cropData {
-                playerView.playStartTime = CMTimeMakeWithSeconds(cropData.startTime,
-                                                                 preferredTimescale: cropData.preferredTimescale)
+                playerView.playStartTime = CMTimeMakeWithSeconds(cropData.startTime, preferredTimescale: cropData.preferredTimescale)
                 playerView.playEndTime = CMTimeMakeWithSeconds(cropData.endTime,
                                                                preferredTimescale: cropData.preferredTimescale)
                 rotateBeforeStorageData = cropData.cropingData
@@ -499,13 +511,14 @@ open class VideoEditorViewController: BaseViewController {
         super.viewDidDisappear(animated)
         stopAllOperations()
     }
-    func stopAllOperations() {
+    public func stopAllOperations() {
         stopPlayTimer()
         PhotoManager.shared.stopPlayMusic()
-        if let url = networkVideoURL {
+        if let url = networkVideoURL, viewDidDisappearCancelDownload {
             PhotoManager.shared.suspendTask(url)
             networkVideoURL = nil
         }
+        viewDidDisappearCancelDownload = true
     }
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)

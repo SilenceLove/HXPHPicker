@@ -47,9 +47,7 @@ public class PhotoListCellConfiguration {
     public var selectBoxRightMargin: CGFloat = 5
     
     /// 选择框相关配置
-    public lazy var selectBox: SelectBoxConfiguration = {
-        return SelectBoxConfiguration.init()
-    }()
+    public lazy var selectBox: SelectBoxConfiguration = .init()
     
     public init() { }
 }

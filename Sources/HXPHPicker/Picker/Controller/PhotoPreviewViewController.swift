@@ -175,6 +175,9 @@ public class PhotoPreviewViewController: BaseViewController {
         return .fade
     }
     public override var preferredStatusBarStyle: UIStatusBarStyle {
+        if PhotoManager.isDark {
+            return .lightContent
+        }
         return pickerController?.config.statusBarStyle ?? .default
     }
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -185,7 +188,6 @@ public class PhotoPreviewViewController: BaseViewController {
             }
         }
     }
-     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

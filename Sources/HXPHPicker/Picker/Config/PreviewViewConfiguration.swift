@@ -15,20 +15,13 @@ public class PreviewViewConfiguration {
     public var customVideoCellClass: PreviewVideoViewCell.Type?
     
     /// 背景颜色
-    public lazy var backgroundColor : UIColor = {
-        return .white
-    }()
+    public lazy var backgroundColor : UIColor = .white
     
     /// 暗黑风格下背景颜色
-    public lazy var backgroundDarkColor : UIColor = {
-        return .black
-    }()
+    public lazy var backgroundDarkColor : UIColor = .black
     
     /// 选择框配置
-    public lazy var selectBox: SelectBoxConfiguration = {
-        let config = SelectBoxConfiguration.init()
-        return config
-    }()
+    public lazy var selectBox: SelectBoxConfiguration = .init()
     
     /// 视频播放类型
     public var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal

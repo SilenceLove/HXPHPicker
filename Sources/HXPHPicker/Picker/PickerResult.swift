@@ -92,7 +92,7 @@ public struct PickerResult {
         }
     }
     
-    /// 获取已选资源的地址
+    /// 获取已选资源的地址（原图）
     /// 包括网络图片
     /// - Parameters:
     ///   - options: 获取的类型

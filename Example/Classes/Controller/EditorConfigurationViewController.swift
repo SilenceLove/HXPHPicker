@@ -125,7 +125,7 @@ extension EditorConfigurationViewController: PhotoEditorViewControllerDelegate {
         pickerConfig.photoEditor = photoConfig
         pickerResultVC.config = pickerConfig
         
-        switch photoEditorViewController.assetType {
+        switch photoEditorViewController.sourceType {
         case .local:
             let localImageAsset = LocalImageAsset.init(image: photoEditorViewController.image)
             let photoAsset = PhotoAsset.init(localImageAsset: localImageAsset)
@@ -148,7 +148,7 @@ extension EditorConfigurationViewController: PhotoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.photoEditor = photoConfig
         pickerResultVC.config = pickerConfig
-        switch photoEditorViewController.assetType {
+        switch photoEditorViewController.sourceType {
         case .local:
             let localImageAsset = LocalImageAsset.init(image: photoEditorViewController.image)
             let photoAsset = PhotoAsset.init(localImageAsset: localImageAsset)
@@ -220,7 +220,7 @@ extension EditorConfigurationViewController: VideoEditorViewControllerDelegate {
         pickerConfig.videoEditor = videoConfig
         pickerResultVC.config = pickerConfig
         
-        switch videoEditorViewController.assetType {
+        switch videoEditorViewController.sourceType {
         case .local:
             let photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: videoURL))
             photoAsset.videoEdit = result
@@ -239,7 +239,7 @@ extension EditorConfigurationViewController: VideoEditorViewControllerDelegate {
         let pickerConfig = PickerConfiguration.init()
         pickerConfig.videoEditor = videoConfig
         pickerResultVC.config = pickerConfig
-        switch videoEditorViewController.assetType {
+        switch videoEditorViewController.sourceType {
         case .local:
             let photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: videoURL))
             pickerResultVC.selectedAssets = [photoAsset]
@@ -269,13 +269,13 @@ extension EditorConfigurationViewController {
             case .fixedCropState:
                 return photoConfig.fixedCropState ? "true" : "false"
             case .isRoundCrop:
-                return photoConfig.cropConfig.isRoundCrop ? "true" : "false"
+                return photoConfig.cropping.isRoundCrop ? "true" : "false"
             case .fixedRatio:
-                return photoConfig.cropConfig.fixedRatio ? "true" : "false"
+                return photoConfig.cropping.fixedRatio ? "true" : "false"
             case .aspectRatioType:
-                return photoConfig.cropConfig.aspectRatioType.title
+                return photoConfig.cropping.aspectRatioType.title
             case .maskType:
-                switch photoConfig.cropConfig.maskType {
+                switch photoConfig.cropping.maskType {
                 case .blackColor:
                     return "blackColor"
                 case .darkBlurEffect:
@@ -341,11 +341,11 @@ extension EditorConfigurationViewController {
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func isRoundCropAction(_ indexPath: IndexPath) {
-        photoConfig.cropConfig.isRoundCrop = !photoConfig.cropConfig.isRoundCrop
+        photoConfig.cropping.isRoundCrop = !photoConfig.cropping.isRoundCrop
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func fixedRatioAction(_ indexPath: IndexPath) {
-        photoConfig.cropConfig.fixedRatio = !photoConfig.cropConfig.fixedRatio
+        photoConfig.cropping.fixedRatio = !photoConfig.cropping.fixedRatio
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func aspectRatioTypeAction(_ indexPath: IndexPath) {
@@ -365,7 +365,7 @@ extension EditorConfigurationViewController {
             let heightTextFiled = alert.textFields?.last
             let heightRatioStr = heightTextFiled?.text ?? "0"
             let heightRatio = Int(heightRatioStr.count == 0 ? "0" : heightRatioStr)!
-            self.photoConfig.cropConfig.aspectRatioType = .custom(CGSize(width: widthRatio, height: heightRatio))
+            self.photoConfig.cropping.aspectRatioType = .custom(CGSize(width: widthRatio, height: heightRatio))
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
@@ -379,11 +379,11 @@ extension EditorConfigurationViewController {
                 let index = titles.firstIndex(of: action.title!)!
                 switch index {
                 case 0:
-                    self.photoConfig.cropConfig.maskType = .blackColor
+                    self.photoConfig.cropping.maskType = .blackColor
                 case 1:
-                    self.photoConfig.cropConfig.maskType = .darkBlurEffect
+                    self.photoConfig.cropping.maskType = .darkBlurEffect
                 case 2:
-                    self.photoConfig.cropConfig.maskType = .lightBlurEffect
+                    self.photoConfig.cropping.maskType = .lightBlurEffect
                 default:
                     break
                 }
@@ -554,7 +554,7 @@ extension EditorConfigurationViewController {
                 return "." + rawValue
             default: break
             }
-            return ".cropConfig." + rawValue
+            return ".cropping." + rawValue
         }
         func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
             guard let controller = controller as? EditorConfigurationViewController else {

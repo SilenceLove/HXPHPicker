@@ -1,5 +1,27 @@
 # 更新日志
 
+## 1.1.4
+
+### 修复
+
+- Picker
+  - `appearanceStyle`设置为`dark`时，状态栏颜色未改变
+- Editor
+  - 选择滤镜时，选中状态出现重用
+  
+### 修改
+
+- Picker
+  - `titleViewConfig`修改为`titleView`
+  - 手势返回动画效果 
+- Editor
+  - `photoEditorConfig.cropConfig`修改为`cropping`
+  - `photoEditorConfig.filterConfig`修改为`filter`
+  - `photoEditorConfig.mosaicConfig`修改为`mosaic`
+  - `videoEditorConfig.musicConfig`修改为`music`
+  - `videoEditorViewController.assetType`修改为`sourceType`
+  - `EditorController.AssetType`修改为`EditorController.SourceType`
+
 ## 1.1.3
 
 ### 新增

@@ -15,7 +15,7 @@ public extension PhotoAsset {
     
     #if canImport(Kingfisher)
     /// 获取网络图片的地址，编辑过就是本地地址，未编辑就是网络地址
-    /// - Parameter resultHandler: 地址、是否为网络地址
+    /// - Parameter resultHandler: 图片地址、是否为网络地址
     func getNetworkImageURL(resultHandler: @escaping (URL?, Bool) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
@@ -60,7 +60,7 @@ public extension PhotoAsset {
     #endif
     
     /// 获取网络视频的地址，编辑过就是本地地址，未编辑就是网络地址
-    /// - Parameter resultHandler: 地址、是否为网络地址
+    /// - Parameter resultHandler: 视频地址、是否为网络地址
     func getNetworkVideoURL(resultHandler: @escaping (URL?, Bool) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {

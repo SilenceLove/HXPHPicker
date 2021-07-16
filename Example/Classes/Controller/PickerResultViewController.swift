@@ -460,7 +460,6 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
-        
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {
 //                print("success", image)
@@ -469,11 +468,6 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
 //            }
 //        } completionHandler: { (images) in
 //            print(images)
-//        }
-//        result.getURLs { (url, isNetwork, index, type) in
-//            print(type == .photo ? isNetwork ? "网络图片：" : "图片：" : isNetwork ? "网络视频" : "视频：", url! , "index:" , index)
-//        } completionHandler: { (urls) in
-//
 //        }
         pickerController.dismiss(animated: true, completion: nil)
     }
@@ -498,7 +492,9 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         }
     }
     func pickerController(_ pickerController: PhotoPickerController, previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset, atIndex: Int) {
-        previewTitleLabel?.text = String(atIndex + 1) + "/" + String(selectedAssets.count)
+        if pickerController.isPreviewAsset {
+            previewTitleLabel?.text = String(atIndex + 1) + "/" + String(selectedAssets.count)
+        }
     }
     func pickerController(_ pickerController: PhotoPickerController, previewSingleClick photoAsset: PhotoAsset, atIndex: Int) {
         if pickerController.isPreviewAsset && photoAsset.mediaType == .photo {

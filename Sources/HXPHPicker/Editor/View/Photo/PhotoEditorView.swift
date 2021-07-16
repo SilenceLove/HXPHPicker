@@ -22,8 +22,8 @@ protocol PhotoEditorViewDelegate: AnyObject {
 class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     weak var editorDelegate: PhotoEditorViewDelegate?
     lazy var imageResizerView: EditorImageResizerView = {
-        let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropConfig,
-                                                           mosaicConfig: config.mosaicConfig)
+        let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropping,
+                                                           mosaicConfig: config.mosaic)
         imageResizerView.imageView.drawView.lineColor = config.brushColors[config.defaultBrushColorIndex].color
         imageResizerView.imageView.drawView.lineWidth = config.brushLineWidth
         imageResizerView.delegate = self
@@ -127,7 +127,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         imageResizerView.setBrushData(brushData: editedData.brushData)
         imageResizerView.setMosaicData(mosaicData: editedData.mosaicData)
         updateImageViewFrame()
-        if config.cropConfig.isRoundCrop {
+        if config.cropping.isRoundCrop {
             imageResizerView.layer.cornerRadius = cropSize.width * 0.5
         }
     }
@@ -197,7 +197,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
             guard let self = self else { return }
             self.imageResizerView.zoomScale = self.zoomScale
             self.editorDelegate?.editorView(didDisappearCrop: self)
-            if self.config.cropConfig.isRoundCrop {
+            if self.config.cropping.isRoundCrop {
                 self.imageResizerView.layer.cornerRadius = self.cropSize.width * 0.5
             }
             completion?()

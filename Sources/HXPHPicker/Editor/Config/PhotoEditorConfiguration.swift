@@ -20,13 +20,13 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     public lazy var toolView: EditorToolViewConfiguration = {
         let config = EditorToolViewConfiguration.init()
         let graffiti = EditorToolOptions(imageName: "hx_editor_tools_graffiti",
-                                               type: .graffiti)
+                                         type: .graffiti)
         let crop = EditorToolOptions(imageName: "hx_editor_photo_crop",
-                                           type: .cropping)
+                                     type: .cropping)
         let mosaic = EditorToolOptions(imageName: "hx_editor_tools_mosaic",
-                                             type: .mosaic)
+                                       type: .mosaic)
         let filter = EditorToolOptions(imageName: "hx_editor_tools_filter",
-                                             type: .filter)
+                                       type: .filter)
         config.toolOptions = [graffiti, crop, mosaic, filter]
         return config
     }()
@@ -41,13 +41,13 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     public var brushLineWidth: CGFloat = 5
     
     /// 裁剪配置
-    public lazy var cropConfig: PhotoCroppingConfiguration = .init()
+    public lazy var cropping: PhotoCroppingConfiguration = .init()
     
     /// 裁剪确认视图配置
     public lazy var cropConfimView: CropConfirmViewConfiguration = .init()
     
     /// 滤镜配置
-    public lazy var filterConfig: FilterConfig = .init(infos: PhotoTools.defaultFilters())
+    public lazy var filter: FilterConfig = .init(infos: PhotoTools.defaultFilters())
     
     public struct FilterConfig {
         /// 滤镜信息
@@ -62,9 +62,9 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     }
     
     /// 马赛克配置
-    public lazy var mosaicConfig: MosaicConfig = .init(mosaicWidth: 20,
-                                                       mosaiclineWidth: 25,
-                                                       smearWidth: 30)
+    public lazy var mosaic: MosaicConfig = .init(mosaicWidth: 20,
+                                                 mosaiclineWidth: 25,
+                                                 smearWidth: 30)
     
     public struct MosaicConfig {
         /// 生成马赛克的大小
