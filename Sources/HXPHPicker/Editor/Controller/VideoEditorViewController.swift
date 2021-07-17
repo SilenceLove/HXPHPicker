@@ -544,13 +544,14 @@ extension VideoEditorViewController {
             downloadNetworkVideo()
             return
         }
-        let loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频加载中".localized, animated: true)
+        let loadingView = ProgressHUD.showLoading(addedTo: view, text: nil, animated: true)
         view.bringSubviewToFront(topView)
         assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { [weak self] (photoAsset, requestID) in
             self?.assetRequestID = requestID
+            loadingView?.updateText(text: "正在同步iCloud".localized + "...")
         } progressHandler: { (photoAsset, progress) in
             if progress > 0 {
-                loadingView?.updateText(text: "视频加载中".localized + "(" + String(Int(progress * 100)) + "%)")
+                loadingView?.updateText(text: "正在同步iCloud".localized + "(" + String(Int(progress * 100)) + "%)")
             }
         } success: { [weak self] (photoAsset, avAsset, info) in
             ProgressHUD.hide(forView: self?.view, animated: false)
@@ -558,16 +559,20 @@ extension VideoEditorViewController {
             self?.reqeustAssetCompletion = true
             self?.assetRequestComplete()
         } failure: { [weak self] (photoAsset, info) in
-            if info?.isCancel != true {
+            if let info = info, !info.isCancel {
                 ProgressHUD.hide(forView: self?.view, animated: false)
-                self?.assetRequestFailure()
+                if info.inICloud {
+                    self?.assetRequestFailure(message: "iCloud同步失败".localized)
+                }else {
+                    self?.assetRequestFailure()
+                }
             }
         }
     }
     #endif
     
-    func assetRequestFailure() {
-        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "视频获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+    func assetRequestFailure(message: String = "视频获取失败!".localized) {
+        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: message, actionTitle: "确定".localized) { (alertAction) in
             self.backAction()
         }
     }

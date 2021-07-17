@@ -37,9 +37,10 @@ class ProgressHUD: UIView {
         return blurEffectView
     }()
     
-    lazy var indicatorView : UIActivityIndicatorView = {
-        let indicatorView = UIActivityIndicatorView.init(style: .whiteLarge)
-        indicatorView.hidesWhenStopped = true
+    lazy var indicatorView : ProgressCircleView = {
+        let indicatorView = ProgressCircleView(frame: CGRect(origin: .zero, size: CGSize(width: 40, height: 40)))
+//        let indicatorView = UIActivityIndicatorView.init(style: .whiteLarge)
+//        indicatorView.hidesWhenStopped = true
         return indicatorView
     }()
     
@@ -128,6 +129,7 @@ class ProgressHUD: UIView {
         hideViews(animated: (timer.userInfo != nil))
     }
     func hideViews(animated: Bool) {
+        indicatorView.stopAnimating()
         if animated {
             UIView.animate(withDuration: 0.25) {
                 self.backgroundView.alpha = 0
@@ -270,5 +272,67 @@ class ProgressHUD: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+
+class ProgressCircleView: UIView {
+    
+    lazy var circleLayer: CAShapeLayer = {
+        let lineWidth: CGFloat = 3
+        let circleLayer = CAShapeLayer()
+        circleLayer.frame = bounds
+        circleLayer.contentsScale = UIScreen.main.scale
+        circleLayer.strokeColor = UIColor.white.cgColor
+        circleLayer.fillColor = UIColor.clear.cgColor
+        let path = UIBezierPath(arcCenter: CGPoint(x: width * 0.5, y: height * 0.5), radius: width * 0.5 - lineWidth * 0.5, startAngle: -CGFloat.pi, endAngle: -CGFloat.pi + CGFloat.pi * 2, clockwise: true)
+        circleLayer.path = path.cgPath
+        circleLayer.lineCap = .round
+        circleLayer.lineJoin = .round
+        circleLayer.lineWidth = lineWidth
+        return circleLayer
+    }()
+    
+    lazy var maskLayer: CALayer = {
+        let maskLayer = CALayer()
+        maskLayer.frame = bounds
+        maskLayer.contentsScale = UIScreen.main.scale
+        let topLayer = CAGradientLayer.init()
+        topLayer.frame = CGRect(x: 0, y: 0, width: width, height: height * 0.5)
+        topLayer.colors = [UIColor.white.withAlphaComponent(0.85).cgColor, UIColor.white.withAlphaComponent(0.5).cgColor]
+        topLayer.startPoint = CGPoint(x: 0, y: 0);
+        topLayer.endPoint = CGPoint(x: 1, y: 0);
+        maskLayer.addSublayer(topLayer)
+        let bottomLayer = CAGradientLayer.init()
+        bottomLayer.frame = CGRect(x: 0, y: height * 0.5, width: width, height: height * 0.5)
+        bottomLayer.colors = [UIColor.white.withAlphaComponent(0.5).cgColor, UIColor.white.withAlphaComponent(0.15).cgColor, UIColor.white.withAlphaComponent(0.05).cgColor]
+        bottomLayer.startPoint = CGPoint(x: 1, y: 1);
+        bottomLayer.endPoint = CGPoint(x: 0, y: 1);
+        maskLayer.addSublayer(bottomLayer)
+        maskLayer.mask = circleLayer
+        return maskLayer
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.addSublayer(maskLayer)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func startAnimating() {
+        let animation = CABasicAnimation(keyPath: "transform.rotation")
+        animation.fromValue = 0
+        animation.toValue = CGFloat.pi * 2
+        animation.duration = 0.5
+        animation.repeatCount = MAXFLOAT
+        animation.isRemovedOnCompletion = false
+        animation.timingFunction = CAMediaTimingFunction(name: .linear)
+        maskLayer.add(animation, forKey: nil)
+    }
+    func stopAnimating() {
+        maskLayer.removeAllAnimations()
     }
 }

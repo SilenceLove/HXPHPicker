@@ -56,6 +56,8 @@
 "暂无配乐" = "サウンドトラックなし";
 "配乐" = "サウンドトラック";
 "视频原声" = "ビデオサウンドトラック";
+"正在同步iCloud" = "ICloud同期";
+"iCloud同步失败" = "iCloudの同期に失敗しました";
 
 "HXAlbumCameraRoll" = "カメラロール";
 "HXAlbumPanoramas" = "パノラマ";

@@ -102,7 +102,6 @@ extension PhotoTools {
         }
         return albumName
     }
-    
     public class func getVideoCoverImage(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?

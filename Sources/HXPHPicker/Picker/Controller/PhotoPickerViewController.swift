@@ -703,22 +703,23 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
     }
     func openEditor(_ photoAsset: PhotoAsset, _ cell: PhotoPickerBaseViewCell?) {
-        #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video {
             openVideoEditor(photoAsset: photoAsset, coverImage: cell?.imageView.image)
         }else {
             openPhotoEditor(photoAsset: photoAsset)
         }
-        #endif
     }
     @discardableResult
     func openPhotoEditor(photoAsset: PhotoAsset) -> Bool {
+        guard let pickerController = pickerController,
+              photoAsset.mediaType == .photo else {
+            return false
+        }
+        if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
+            return false
+        }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
-        if let pickerController = pickerController, photoAsset.mediaType == .photo ,
-           pickerController.config.editorOptions.contains(.photo) {
-            if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
-                return false
-            }
+        if pickerController.config.editorOptions.contains(.photo) {
             let config = pickerController.config.photoEditor
             config.languageType = pickerController.config.languageType
             config.appearanceStyle = pickerController.config.appearanceStyle
@@ -732,12 +733,14 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
     }
     @discardableResult
     func openVideoEditor(photoAsset: PhotoAsset, coverImage: UIImage? = nil) -> Bool {
+        guard let pickerController = pickerController, photoAsset.mediaType == .video else {
+            return false
+        }
+        if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
+            return false
+        }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
-        if let pickerController = pickerController, photoAsset.mediaType == .video ,
-           pickerController.config.editorOptions.contains(.video) {
-            if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
-                return false
-            }
+        if pickerController.config.editorOptions.contains(.video) {
             let isExceedsTheLimit = pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset)
             let config: VideoEditorConfiguration
             if isExceedsTheLimit {
@@ -1088,16 +1091,26 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
             // 选中
             #if HXPICKER_ENABLE_EDITOR
             if cell.photoAsset.mediaType == .video &&
-                pickerController!.videoDurationExceedsTheLimit(photoAsset: cell.photoAsset){
+                pickerController!.videoDurationExceedsTheLimit(photoAsset: cell.photoAsset) && pickerController!.config.editorOptions.isVideo {
                 if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
                     openVideoEditor(photoAsset: cell.photoAsset, coverImage: cell.imageView.image)
                 }
                 return
             }
             #endif
-            if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
-                cell.updateSelectedState(isSelected: true, animated: true)
-                updateCellSelectedTitle()
+            func addAsset() {
+                if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
+                    cell.updateSelectedState(isSelected: true, animated: true)
+                    updateCellSelectedTitle()
+                }
+            }
+            let inICloud = cell.photoAsset.checkICloundStatus(allowSyncPhoto: pickerController!.config.allowSyncICloudWhenSelectPhoto, completion: { isSuccess in
+                if isSuccess {
+                    addAsset()
+                }
+            })
+            if !inICloud {
+                addAsset()
             }
         }
         bottomView.updateFinishButtonTitle()

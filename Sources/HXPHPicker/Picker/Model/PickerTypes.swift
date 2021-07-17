@@ -51,7 +51,7 @@ public enum SelectionTapAction: Equatable {
     case quickSelect
     
     /// 打开编辑器
-    /// - 点击资源时会进入编辑界面
+    /// - 点击资源时如果可以编辑的话，就会进入编辑界面
     case openEditor
 }
 

@@ -24,6 +24,12 @@ open class PickerConfiguration: BaseConfiguration {
     /// 允许加载系统照片库
     public var allowLoadPhotoLibrary: Bool = true
     
+    /// 选择照片时，先判断是否在iCloud上。如果在iCloud上会先同步iCloud上的资源
+    /// 如果在断网或者系统iCloud出错的情况下:
+    /// true: 选择失败
+    /// fasle: 获取原始图片会失败
+    public var allowSyncICloudWhenSelectPhoto : Bool = true
+    
     /// 相册展示模式
     public var albumShowMode: AlbumShowMode = .normal
     

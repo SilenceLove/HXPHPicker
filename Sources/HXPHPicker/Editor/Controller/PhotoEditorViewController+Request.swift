@@ -93,7 +93,11 @@ extension PhotoEditorViewController {
                     }
                 } failure: { [weak self] (asset, info) in
                     ProgressHUD.hide(forView: self?.view, animated: true)
-                    self?.requestAssetFailure()
+                    if let inICloud = info?.inICloud {
+                        self?.requestAssetFailure(isICloud: true)
+                    }else {
+                        self?.requestAssetFailure(isICloud: false)
+                    }
                 }
                 return
             }
@@ -128,7 +132,7 @@ extension PhotoEditorViewController {
                     }
                     DispatchQueue.main.async {
                         ProgressHUD.hide(forView: self.view, animated: true)
-                        self.requestAssetFailure()
+                        self.requestAssetFailure(isICloud: false)
                     }
                 }
             }
@@ -156,7 +160,7 @@ extension PhotoEditorViewController {
                     }
                 }
             }else {
-                self.requestAssetFailure()
+                self.requestAssetFailure(isICloud: false)
             }
         }
     }
@@ -179,9 +183,10 @@ extension PhotoEditorViewController {
         setFilterImage()
         setImage(image)
     }
-    func requestAssetFailure() {
+    func requestAssetFailure(isICloud: Bool) {
         ProgressHUD.hide(forView: view, animated: true)
-        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: "图片获取失败!".localized, actionTitle: "确定".localized) { (alertAction) in
+        let text = isICloud ? "iCloud同步失败" : "图片获取失败!"
+        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: text.localized, actionTitle: "确定".localized) { (alertAction) in
             self.didBackClick()
         }
     }

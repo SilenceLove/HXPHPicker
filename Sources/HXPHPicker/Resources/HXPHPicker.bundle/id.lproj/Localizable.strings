@@ -57,6 +57,8 @@
 "暂无配乐" = "Tidak ada soundtrack";
 "配乐" = "Soundtrack";
 "视频原声" = "Soundtrack video";
+"正在同步iCloud" = "Sinkronisasi iCloud";
+"iCloud同步失败" = "Sinkronisasi iCloud gagal";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

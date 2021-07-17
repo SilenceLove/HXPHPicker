@@ -57,6 +57,8 @@
 "暂无配乐" = "暫無配樂";
 "配乐" = "配樂";
 "视频原声" = "視頻原聲";
+"正在同步iCloud" = "正在同步iCloud";
+"iCloud同步失败" = "iCloud同步失敗";
 
 "HXAlbumCameraRoll" = "所有照片";
 "HXAlbumPanoramas" = "全景照片";

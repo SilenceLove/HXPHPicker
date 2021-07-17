@@ -187,7 +187,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
         }
         if type == .push {
-            UIView.animate(withDuration: duration - 0.2, delay: 0, options: [.curveLinear]) {
+            UIView.animate(withDuration: duration - 0.2, delay: 0, options: [.curveEaseIn]) {
                 if previewVC?.bottomView.mask != nil {
                     previewVC?.bottomView.mask?.frame = CGRect(x: 0, y: 0, width: contentView.width, height: maskHeight + 70)
                 }
