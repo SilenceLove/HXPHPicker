@@ -38,6 +38,10 @@ extension PhotoManager: AVAudioPlayerDelegate {
         audioPlayFinish = nil
     }
     
+    public func changeAudioPlayerVolume(_ volume: Float) {
+        audioPlayer?.volume = volume
+    }
+    
     
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {

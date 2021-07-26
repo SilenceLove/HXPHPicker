@@ -94,22 +94,23 @@ extension PhotoEditorViewController {
                 } failure: { [weak self] (asset, info) in
                     ProgressHUD.hide(forView: self?.view, animated: true)
                     if let inICloud = info?.inICloud {
-                        self?.requestAssetFailure(isICloud: true)
+                        self?.requestAssetFailure(isICloud: inICloud)
                     }else {
                         self?.requestAssetFailure(isICloud: false)
                     }
                 }
                 return
             }
-            photoAsset.requestAssetImageURL(filterEditor: true) {
-                [weak self] (imageUrl) in
+            photoAsset.requestAssetImageURL(filterEditor: true) { [weak self] result in
                 guard let self = self else { return }
-                DispatchQueue.global().async {
-                    if let imageUrl = imageUrl {
+                switch result {
+                case .success(let response):
+                    DispatchQueue.global().async {
+                        let imageURL = response.url
                         #if canImport(Kingfisher)
                         if self.photoAsset.isGifAsset == true {
                             do {
-                                let imageData = try Data.init(contentsOf: imageUrl)
+                                let imageData = try Data.init(contentsOf: imageURL)
                                 if let gifImage = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))  {
                                     self.filterHDImageHandler(image: gifImage)
                                     DispatchQueue.main.async {
@@ -121,7 +122,7 @@ extension PhotoEditorViewController {
                             }catch {}
                         }
                         #endif
-                        if let image = UIImage.init(contentsOfFile: imageUrl.path)?.scaleSuitableSize() {
+                        if let image = UIImage.init(contentsOfFile: imageURL.path)?.scaleSuitableSize() {
                             self.filterHDImageHandler(image: image)
                             DispatchQueue.main.async {
                                 ProgressHUD.hide(forView: self.view, animated: true)
@@ -130,10 +131,10 @@ extension PhotoEditorViewController {
                             return
                         }
                     }
-                    DispatchQueue.main.async {
-                        ProgressHUD.hide(forView: self.view, animated: true)
-                        self.requestAssetFailure(isICloud: false)
-                    }
+                case .failure(_):
+                    ProgressHUD.hide(forView: self.view, animated: true)
+                    self.requestAssetFailure(isICloud: false)
+                    break
                 }
             }
         }

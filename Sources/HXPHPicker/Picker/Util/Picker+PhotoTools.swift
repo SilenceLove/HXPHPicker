@@ -189,6 +189,7 @@ extension PhotoTools {
             return String.init(format: "%dB", arguments: [bytes])
         }
     }
+    
     /// 获取和微信主题一致的配置
     public class func getWXPickerConfig(isMoment: Bool = false) -> PickerConfiguration {
         let config = PickerConfiguration.init()
@@ -297,6 +298,7 @@ extension PhotoTools {
         config.photoEditor.cropping.aspectRatioSelectedColor = "#07C160".color
         config.photoEditor.filter = .init(infos: defaultFilters(),
                                                 selectedColor: "#07C160".color)
+        config.photoEditor.text.tintColor =  "#07C160".color
         #endif
         
         config.notAuthorized.closeButtonImageName = "hx_picker_notAuthorized_close_dark"

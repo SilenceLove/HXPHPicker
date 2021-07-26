@@ -8,7 +8,6 @@
 import UIKit
 import Photos
 
-
 // MARK: Request Photo
 public extension PhotoAsset {
     
@@ -18,7 +17,7 @@ public extension PhotoAsset {
     ///   - fileURL: 指定图片的本地地址
     ///   - resultHandler: 获取结果
     func requestImageURL(toFile fileURL:URL? = nil,
-                         resultHandler: @escaping (URL?) -> Void) {
+                         resultHandler: @escaping AssetURLCompletion) {
         if phAsset == nil {
             requestLocalImageURL(toFile: fileURL, resultHandler: resultHandler)
             return
@@ -221,16 +220,12 @@ public extension PhotoAsset {
     ///   - resultHandler: 获取结果
     func requestVideoURL(toFile fileURL:URL? = nil,
                          exportPreset: String? = nil,
-                         resultHandler: @escaping (URL?) -> Void) {
+                         resultHandler: @escaping AssetURLCompletion) {
         if phAsset == nil {
-            requestLocalVideoURL { (videoURL, photoAsset) in
-                resultHandler(videoURL)
-            }
+            requestLocalVideoURL(toFile: fileURL, resultHandler: resultHandler)
             return
         }
-        requestAssetVideoURL(toFile: fileURL,
-                             exportPreset: exportPreset,
-                             resultHandler: resultHandler)
+        requestAssetVideoURL(toFile: fileURL, exportPreset: exportPreset, resultHandler: resultHandler)
     }
     
     /// 请求AVAsset，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset

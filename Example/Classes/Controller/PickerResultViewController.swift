@@ -107,6 +107,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
         }
+        
     }
     
     @objc func longGestureRecognizerClick(longGestureRecognizer: UILongPressGestureRecognizer) {
@@ -214,19 +215,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         var count = 0
         for photoAsset in selectedAssets {
             if photoAsset.mediaType == .photo {
-                if photoAsset.isNetworkAsset {
-                    #if canImport(Kingfisher)
-                    photoAsset.getNetworkImageURL { (url, isNetwork) in
-                        count += 1
-                        print(isNetwork ? "网络图片：" : "编辑后的网络图片", url!)
-                        if count == total {
-                            ProgressHUD.hide(forView: self.view, animated: false)
-                            ProgressHUD.showSuccess(addedTo: self.view, text: "获取完成", animated: true, delay: 1.5)
-                        }
-                    }
-                    continue
-                    #endif
-                }
                 if photoAsset.mediaSubType == .livePhoto {
                     var imageURL: URL?
                     var videoURL: URL?
@@ -250,11 +238,17 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                     }
                 }else {
                     count += 1
-                    photoAsset.requestImageURL { [weak self] (imageURL) in
-                        if imageURL != nil {
-                            print("图片地址：\(imageURL!)")
-                        }else {
-                            print("图片地址获取失败")
+                    photoAsset.getImageURL { [weak self] result in
+                        switch result {
+                        case .success(let response):
+                            if photoAsset.isNetworkAsset {
+                                print(response.urlType == .network ? "网络图片：" : "编辑后的网络图片", response.url)
+                            }else {
+                                print("图片地址：\(response.url)")
+                            }
+                        case .failure(let error):
+                            print("图片地址获取失败", error)
+                            break
                         }
                         if count == total {
                             ProgressHUD.hide(forView: self?.view, animated: false)
@@ -267,23 +261,17 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
 //                    }
                 }
             }else {
-                if photoAsset.isNetworkAsset {
-                    photoAsset.getNetworkVideoURL { (videoURL, isNetwork) in
-                        count += 1
-                        print(isNetwork ? "网络视频：" : "编辑后的网络视频", videoURL!)
-                        if count == total {
-                            ProgressHUD.hide(forView: self.view, animated: false)
-                            ProgressHUD.showSuccess(addedTo: self.view, text: "获取完成", animated: true, delay: 1.5)
+                photoAsset.getVideoURL { [weak self] result in
+                    switch result {
+                    case .success(let response):
+                        if photoAsset.isNetworkAsset {
+                            print(response.urlType == .network ? "网络视频：" : "编辑后的网络视频", response.url)
+                        }else {
+                            print("视频地址：\(response.url)")
                         }
-                    }
-                    continue
-                }
-                photoAsset.requestVideoURL { [weak self] (videoURL) in
-                    count += 1
-                    if videoURL == nil {
-                        print("视频地址获取失败")
-                    }else {
-                        print("视频地址：\(videoURL!)")
+                    case .failure(let error):
+                        print("视频地址获取失败", error)
+                        break
                     }
                     if count == total {
                         ProgressHUD.hide(forView: self?.view, animated: false)
@@ -460,6 +448,7 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
+
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {
 //                print("success", image)
@@ -532,7 +521,35 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
             }
         }
     }
-    
+    func pickerController(_ pickerController: PhotoPickerController, loadTitleChartlet photoEditorViewController: PhotoEditorViewController, response: @escaping ([EditorChartlet]) -> Void) {
+        // 模仿延迟加加载数据
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            var titles = PhotoTools.defaultTitleChartlet()
+            let localTitleChartlet = EditorChartlet(image: UIImage(named: "hx_sticker_cover"))
+            titles.append(localTitleChartlet)
+            response(titles)
+        }
+    }
+    func pickerController(_ pickerController: PhotoPickerController, loadChartletList photoEditorViewController: PhotoEditorViewController, titleChartlet: EditorChartlet, titleIndex: Int, response: @escaping (Int, [EditorChartlet]) -> Void) {
+        if titleIndex == 0 {
+            response(titleIndex, PhotoTools.defaultNetworkChartlet())
+        }else {
+            let chartlet1 = EditorChartlet(image: UIImage(named: "hx_sticker_chongya"))
+            let chartlet2 = EditorChartlet(image: UIImage(named: "hx_sticker_haoxinqing"))
+            let chartlet3 = EditorChartlet(image: UIImage(named: "hx_sticker_housailei"))
+            let chartlet4 = EditorChartlet(image: UIImage(named: "hx_sticker_jintianfenkeai"))
+            let chartlet5 = EditorChartlet(image: UIImage(named: "hx_sticker_keaibiaoq"))
+            let chartlet6 = EditorChartlet(image: UIImage(named: "hx_sticker_kehaixing"))
+            let chartlet7 = EditorChartlet(image: UIImage(named: "hx_sticker_saihong"))
+            let chartlet8 = EditorChartlet(image: UIImage(named: "hx_sticker_wow"))
+            let chartlet9 = EditorChartlet(image: UIImage(named: "hx_sticker_woxiangfazipai"))
+            let chartlet10 = EditorChartlet(image: UIImage(named: "hx_sticker_xiaochuzhujiao"))
+            let chartlet11 = EditorChartlet(image: UIImage(named: "hx_sticker_yuanqimanman"))
+            let chartlet12 = EditorChartlet(image: UIImage(named: "hx_sticker_yuanqishaonv"))
+            let chartlet13 = EditorChartlet(image: UIImage(named: "hx_sticker_zaizaijia"))
+            response(titleIndex, [chartlet1, chartlet2, chartlet3, chartlet4, chartlet5, chartlet6, chartlet7, chartlet8, chartlet9, chartlet10, chartlet11, chartlet12, chartlet13])
+        }
+    }
     func pickerController(_ pickerController: PhotoPickerController, videoEditor videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
         var musics: [VideoEditorMusicInfo] = []
         let audioUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: "mp3")!

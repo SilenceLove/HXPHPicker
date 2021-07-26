@@ -723,6 +723,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             let config = pickerController.config.photoEditor
             config.languageType = pickerController.config.languageType
             config.appearanceStyle = pickerController.config.appearanceStyle
+            config.indicatorType = pickerController.config.indicatorType
             let photoEditorVC = PhotoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.photoEdit, config: config)
             photoEditorVC.delegate = self
             navigationController?.pushViewController(photoEditorVC, animated: true)
@@ -752,6 +753,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             }
             config.languageType = pickerController.config.languageType
             config.appearanceStyle = pickerController.config.appearanceStyle
+            config.indicatorType = pickerController.config.indicatorType
             let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: config)
             videoEditorVC.coverImage = coverImage;
             videoEditorVC.delegate = self
@@ -807,6 +809,16 @@ extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
                 updateCellSelectedTitle()
             }
             bottomView.updateFinishButtonTitle()
+        }
+    }
+    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(pickerController, loadTitleChartlet: photoEditorViewController, response: response)
+        }
+    }
+    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, titleChartlet: EditorChartlet, titleIndex: Int, loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(pickerController, loadChartletList: photoEditorViewController, titleChartlet: titleChartlet, titleIndex: titleIndex, response: response)
         }
     }
     public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {

@@ -11,14 +11,38 @@
   - [选择逻辑](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%80%89%E6%8B%A9%E9%80%BB%E8%BE%91)
   - [替换相机](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%9B%BF%E6%8D%A2%E7%9B%B8%E6%9C%BA)
   - [替换编辑器](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%9B%BF%E6%8D%A2%E7%BC%96%E8%BE%91%E5%99%A8)
+  -  [配置照片编辑器贴纸标题数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E7%85%A7%E7%89%87%E7%BC%96%E8%BE%91%E5%99%A8%E8%B4%B4%E7%BA%B8%E6%A0%87%E9%A2%98%E6%95%B0%E6%8D%AE)
+  -  [配置照片编辑器贴纸数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E7%85%A7%E7%89%87%E7%BC%96%E8%BE%91%E5%99%A8%E8%B4%B4%E7%BA%B8%E6%95%B0%E6%8D%AE)
   - [替换视频编辑器的配乐界面](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%9B%BF%E6%8D%A2%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E9%85%8D%E4%B9%90%E7%95%8C%E9%9D%A2)
   - [配置视频编辑器的配乐列表数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E9%85%8D%E4%B9%90%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE)
   - [预览界面](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%A2%84%E8%A7%88%E7%95%8C%E9%9D%A2)
   - [单独预览时的自定义转场动画](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%8D%95%E7%8B%AC%E9%A2%84%E8%A7%88%E6%97%B6%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BD%AC%E5%9C%BA%E5%8A%A8%E7%94%BB)
   - [控制器的生命周期](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F)
 - [配置项说明](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E9%A1%B9%E8%AF%B4%E6%98%8E)
+  - [LanguageType](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#languagetype)
+  - [AppearanceStyle](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#appearancestyle)
+  - [PrefersStatusBarHidden](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#prefersstatusbarhidden)
+  - [ShouldAutorotate](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#shouldautorotate)
+  - [SupportedInterfaceOrientations](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#supportedinterfaceorientations)
+  - [IndicatorType](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#indicatortype)
+  - [SelectOptions](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectoptions)
+  - [SelectMode](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectMode)
+  - [AlbumShowMode](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#albumShowMode)
+  - [AllowSyncICloudWhenSelectPhoto](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#allowSyncICloudWhenSelectPhoto)
+  - [SelectionTapAction](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectionTapAction)
+  - [AllowSelectedTogether](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#allowSelectedTogether)
+  - [CreationDate](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#creationDate)
+  - [ReverseOrder](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#reverseOrder)
+  - [SelectedCount](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectedCount)
+  - [EditorOptions](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#editorOptions)
+  - [AlbumList](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#albumList)
+  - [PhotoList](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#photoList)
+  - [PreviewView](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#previewView)
+  - [NotAuthorized](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#notAuthorized)
+  - [Editor](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#editor)
 - [公开方法](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%85%AC%E5%BC%80%E6%96%B9%E6%B3%95)
   - [获取原始图片/视频](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E8%8E%B7%E5%8F%96%E5%8E%9F%E5%A7%8B%E5%9B%BE%E7%89%87%E8%A7%86%E9%A2%91)
+  - [单独预览资源](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%8D%95%E7%8B%AC%E9%A2%84%E8%A7%88%E8%B5%84%E6%BA%90)
 
 
 ## 调用/回调说明
@@ -210,6 +234,50 @@ func pickerController(_ pickerController: PhotoPickerController,
                       didEditAsset photoAsset: PhotoAsset,
                       atIndex: Int) {
     // 自带的编辑器编辑完成后
+}
+```
+
+### 配置照片编辑器贴纸标题数据
+
+```swift
+/// 照片编辑器加载贴图标题资源
+/// - Parameters:
+///   - pickerController: 对应的 PhotoPickerController
+///   - photoEditorViewController: 对应的 PhotoEditorViewController
+///   - loadTitleChartlet: 传入标题数组
+func pickerController(_ pickerController: PhotoPickerController,
+                      loadTitleChartlet photoEditorViewController: PhotoEditorViewController,
+                      response: @escaping EditorTitleChartletResponse) { 
+    #if canImport(Kingfisher)
+    // 获取默认的贴纸标题数据
+    let titles = PhotoTools.defaultTitleChartlet()
+    // 获取到标题数据之后回传给内部
+    response(titles)
+    #endif                      
+}
+```
+
+### 配置照片编辑器贴纸数据
+
+```swift
+/// 照片编辑器加载贴图资源
+/// - Parameters:
+///   - pickerController: 对应的 PhotoPickerController
+///   - photoEditorViewController: 对应的 PhotoEditorViewController
+///   - titleChartlet: 对应配置的 title
+///   - titleIndex: 对应配置的 title 的位置索引
+///   - response: 传入 title索引 和 贴图数据
+func pickerController(_ pickerController: PhotoPickerController,
+                      loadChartletList photoEditorViewController: PhotoEditorViewController,
+                      titleChartlet: EditorChartlet,
+                      titleIndex: Int,
+                      response: EditorChartletListResponse) {
+    #if canImport(Kingfisher)
+    // 获取默认的贴纸数据
+    let chartletList = PhotoTools.defaultNetworkChartlet()
+    // 获取到贴纸数据之后回传给内部
+    response(titleIndex, chartletList)
+    #endif
 }
 ```
 
@@ -429,7 +497,88 @@ func pickerController(_ pickerController: PhotoPickerController,
 
 ### PickerConfiguration
 
+#### LanguageType
+
+`languageType`是选择器显示的语言类型，默认为`.system`
+
+```swift
+public enum LanguageType: Int {
+    case system = 0             //!< 跟随系统语言
+    case simplifiedChinese = 1  //!< 中文简体
+    case traditionalChinese = 2 //!< 中文繁体
+    case japanese = 3           //!< 日文
+    case korean = 4             //!< 韩文
+    case english = 5            //!< 英文
+    case thai = 6               //!< 泰语
+    case indonesia = 7          //!< 印尼语
+}
+```
+
+#### AppearanceStyle
+
+`appearanceStyle`是选择器外观显示的风格，默认为`.varied`
+
+```swift
+public enum AppearanceStyle: Int {
+    /// 跟随系统变化
+    case varied = 0
+    /// 正常风格，不会跟随系统变化
+    case normal = 1
+    /// 暗黑风格
+    case dark = 2
+}
+```
+
+#### PrefersStatusBarHidden
+
+`prefersStatusBarHidden`是否隐藏状态栏，默认`false`
+
+#### ShouldAutorotate
+
+`shouldAutorotate`是否允许选择自动旋转，默认`true
+
+#### SupportedInterfaceOrientations
+
+`supportedInterfaceOrientations`选择器支持的方向，默认`.all`
+
+```swift
+public struct UIInterfaceOrientationMask : OptionSet {
+
+    public init(rawValue: UInt)
+
+    
+    public static var portrait: UIInterfaceOrientationMask { get }
+
+    public static var landscapeLeft: UIInterfaceOrientationMask { get }
+
+    public static var landscapeRight: UIInterfaceOrientationMask { get }
+
+    public static var portraitUpsideDown: UIInterfaceOrientationMask { get }
+
+    public static var landscape: UIInterfaceOrientationMask { get }
+
+    public static var all: UIInterfaceOrientationMask { get }
+
+    public static var allButUpsideDown: UIInterfaceOrientationMask { get }
+}
+```
+
+#### IndicatorType
+
+`indicatorType`显示加载指示器的类型，默认`.circle`
+
+```swift
+/// 加载指示器类型
+public enum IndicatorType {
+    /// 渐变圆环
+    case circle
+    /// 系统菊花
+    case system
+}
+```
+
 #### SelectOptions
+
 `selectOptions` 是可选择资源的类型，默认为 `[.photo, .video]`
 
 ```swift
@@ -478,6 +627,13 @@ enum AlbumShowMode: Int {
     case popup = 1
 }
 ```
+
+#### AllowSyncICloudWhenSelectPhoto
+
+`allowSyncICloudWhenSelectPhoto`选择照片时，先判断是否在iCloud上。如果在iCloud上会先同步iCloud上的资源
+如果在断网或者系统iCloud出错的情况下:
+为`true`时，选择失败
+为`false`时，获取原始图片会失败
 
 #### SelectionTapAction
 
@@ -578,11 +734,11 @@ struct PickerAssetOptions: OptionSet {
 /// 包括网络图片
 /// - Parameters:
 ///   - options: 获取的类型
-///   - handler: 获取到url的回调 (地址，是否网络资源，对应的位置下标，类型)
+///   - handler: 获取到url的回调
 ///   - completionHandler: 全部获取完成
-func getURLs(options: Options = .any,
-             urlReceivedHandler handler: @escaping (URL?, Bool, Int, PhotoAsset.MediaType) -> Void,
-             completionHandler: @escaping ([URL]) -> Void)
+public func getURLs(options: Options = .any,
+                    urlReceivedHandler handler: @escaping (Result<PhotoAssetURLResponse, PhotoAssetError>, PhotoAsset, Int) -> Void,
+                    completionHandler: @escaping ([URL]) -> Void)
 ```
 
 #### Sample Code
@@ -590,24 +746,29 @@ func getURLs(options: Options = .any,
 ```swift
 func pickerController(_ pickerController: PhotoPickerController, 
                         didFinishSelection result: PickerResult) {
-    result.getURLs { (url, isNetwork, index, type) in
-        if let url = url {
-            switch type {
-            case .photo:
-                if isNetwork {
-                    // url 为网络图片地址
+    result.getURLs { result, photoAsset, index in
+        switch result {
+        case .success(let response):
+            if response.mediaType == .photo {
+                // 图片地址
+                if response.urlType == .network {
+                    // 网络地址
                 }else {
-                    // url 为本地图片地址
+                    // 本地地址
                 }
-            case .video:
-                if isNetwork {
-                    // url 为网络视频地址
+            }else {
+                // 视频地址
+                if response.urlType == .network {
+                    // 网络地址
                 }else {
-                    // url 为本地视频地址
+                    // 本地地址
                 }
             }
+        case .failure(let error):
+            // 获取失败
+            print(error)
         }
-    } completionHandler: { (urls) in
+    } completionHandler: { urls in
         // Your code
     }
 }
@@ -616,40 +777,20 @@ func pickerController(_ pickerController: PhotoPickerController,
 在`PhotoAsset`对象中，我们也提供了获取原始图片/视频的方法:
 
 ```swift
-/// 获取原始图片地址
-/// 网络图片获取方法 getNetworkImageURL
+/// 获取url
+///   - completion: result 
+func getAssetURL(completion: @escaping AssetURLCompletion)
+
+/// 获取图片url
+///   - completion: result
+func getImageURL(completion: @escaping AssetURLCompletion)
+
+/// 获取视频url
 /// - Parameters:
-///   - fileURL: 指定图片的本地地址
-///   - resultHandler: 获取结果
-func requestImageURL(toFile fileURL:URL? = nil,
-                     resultHandler: @escaping (URL?) -> Void)
-
-/// 获取原始视频地址，系统相册里的视频需要自行压缩
-/// 网络视频如果在本地有缓存则会返回本地地址，如果没有缓存则为ni
-/// - Parameters:
-///   - fileURL: 指定视频地址
-///   - exportPreset: 导出质量，不传则获取的是原始视频地址
-///   - resultHandler: 获取结果
-func requestVideoURL(toFile fileURL:URL? = nil,
-                     exportPreset: String? = nil,
-                     resultHandler: @escaping (URL?) -> Void)
-
-/// 获取网络图片的地址，编辑过就是本地地址，未编辑就是网络地址
-/// - Parameter resultHandler: 图片地址、是否为网络地址
-func getNetworkImageURL(resultHandler: @escaping (URL?, Bool) -> Void)
-
-/// 获取网络图片
-/// - Parameters:
-///   - filterEditor: 过滤编辑的数据
-///   - resultHandler: 获取结果
-func getNetworkImage(urlType: DonwloadURLType = .original,
-                     filterEditor: Bool = false,
-                     progressBlock: DownloadProgressBlock? = nil,
-                     resultHandler: @escaping (UIImage?) -> Void)
-
-/// 获取网络视频的地址，编辑过就是本地地址，未编辑就是网络地址
-/// - Parameter resultHandler: 视频地址、是否为网络地址
-func getNetworkVideoURL(resultHandler: @escaping (URL?, Bool) -> Void)
+///   - exportPreset: 导出质量
+///   - completion: result
+func getVideoURL(exportPreset: String? = nil,
+                 completion: @escaping AssetURLCompletion)
 ```
 
 #### Sample Code
@@ -657,54 +798,50 @@ func getNetworkVideoURL(resultHandler: @escaping (URL?, Bool) -> Void)
 ```swift
 func pickerController(_ pickerController: PhotoPickerController,
                         didFinishSelection result: PickerResult) {
-    guard let asset = result.photoAssets.first else { return }
-    switch asset.mediaType {
-    case .photo:
-        if asset.isNetworkAsset {
-            asset.getNetworkImageURL { url, isNetwork in
-                if let imageURL = url {
-                    // success
-                    if isNetwork {
-                        // networkURL
-                    }else {
-                        // localURL
-                    }
+    guard let photoAsset = result.photoAssets.first else { return }
+    photoAsset.getAssetURL { result in
+        switch result {
+        case .success(let response):
+            if response.mediaType == .photo {
+                // 图片地址
+                if response.urlType == .network {
+                    // 网络地址
                 }else {
-                    // failure
+                    // 本地地址
+                }
+            }else {
+                // 视频地址
+                if response.urlType == .network {
+                    // 网络地址
+                }else {
+                    // 本地地址
                 }
             }
-        }else {
-            asset.requestImageURL(toFile: nil) { url in
-                if let imageURL = url {
-                    // success
-                }else {
-                    // failure
-                }
-            }
-        }
-    case .video:
-        if asset.isNetworkAsset {
-            asset.getNetworkVideoURL { url, isNetwork in
-                if let videoURL = url {
-                    // success
-                    if isNetwork {
-                        // networkURL
-                    }else {
-                        // localURL
-                    }
-                }else {
-                    // failure
-                }
-            }
-        }else {
-            asset.requestVideoURL(toFile: nil, exportPreset: nil) { url in
-                if let videoURL = url {
-                    // success
-                }else {
-                    // failure
-                }
-            }
+        case .failure(let error):
+            // 获取失败
+            print(error)
         }
     }
 }
+```
+
+### 单独预览资源
+
+```swift
+let previewConfig = PhotoTools.getWXPickerConfig() 
+let previewController = PhotoPickerController(preview: previewConfig, 
+                                              currentIndex: 0, 
+                                              delegate: self)
+// 预览的资源数组
+previewController.selectedAssetArray = selectedAssets
+present(previewController, animated: true, completion: nil)
+```
+
+#### 预览视频时添加进度条
+
+```swfit
+// 单击界面时，不自动播放视频
+previewConfig.previewView.singleClickCellAutoPlayVideo = false
+// 更换为带进度条的cell
+previewConfig.previewView.customVideoCellClass = PreviewVideoControlViewCell.self
 ```

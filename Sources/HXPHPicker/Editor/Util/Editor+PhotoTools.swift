@@ -70,6 +70,27 @@ extension PhotoTools {
         return getFrameDuration(from: gifInfo)
     }
     
+    public class func defaultColors() -> [String] {
+        ["#ffffff", "#2B2B2B", "#FA5150", "#FEC200", "#07C160", "#10ADFF", "#6467EF"]
+    }
+    
+    #if canImport(Kingfisher)
+    public class func defaultTitleChartlet() -> [EditorChartlet] {
+        let title = EditorChartlet(url: URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/xxy_s_highlighted.png"))
+        return [title]
+    }
+    
+    public class func defaultNetworkChartlet() -> [EditorChartlet] {
+        var chartletList: [EditorChartlet] = []
+        for index in 1...40 {
+            let urlString = "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/xxy" + String(index) + ".png"
+            let chartlet = EditorChartlet(url: .init(string: urlString))
+            chartletList.append(chartlet)
+        }
+        return chartletList
+    }
+    #endif
+    
     /// 默认滤镜
     public class func defaultFilters() -> [PhotoEditorFilterInfo] {
         return [
@@ -184,12 +205,14 @@ extension PhotoTools {
     /// - Parameters:
     ///   - videoURL: 视频地址
     ///   - audioURL: 需要添加的音频地址
-    ///   - hasOriginalSound: 是否有原声
+    ///   - audioVolume: 需要添加的音频音量
+    ///   - originalAudioVolume: 视频原始音频音量
     ///   - presentName: 导出质量
     ///   - completion: 添加完成
     class func videoAddBackgroundMusic(forVideo videoURL: URL,
                                        audioURL: URL?,
-                                       hasOriginalSound: Bool,
+                                       audioVolume: Float,
+                                       originalAudioVolume: Float,
                                        presentName: String,
                                        completion: @escaping (URL?) -> Void) {
         let outputURL = getVideoTmpURL()
@@ -229,18 +252,17 @@ extension PhotoTools {
                     }
                 }
                 newAudioInputParams = AVMutableAudioMixInputParameters(track: newAudioTrack)
-                newAudioInputParams?.setVolumeRamp(fromStartVolume: 1, toEndVolume: 1, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
+                newAudioInputParams?.setVolumeRamp(fromStartVolume: audioVolume, toEndVolume: audioVolume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
                 newAudioInputParams?.trackID =  newAudioTrack?.trackID ?? kCMPersistentTrackID_Invalid
             }
             
-            if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid),
-               (hasOriginalSound || (!hasOriginalSound && audioURL == nil)) {
+            if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
                 if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
                     try originalVoiceTrack.insertTimeRange(videoTimeRange, of: audioTrack, at: .zero)
                 }
-                let volue: Float = !hasOriginalSound && audioURL == nil ? 0 : 1
+                let volume: Float = originalAudioVolume
                 let originalAudioInputParams = AVMutableAudioMixInputParameters(track: originalVoiceTrack)
-                originalAudioInputParams.setVolumeRamp(fromStartVolume: volue, toEndVolume: volue, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
+                originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
                 originalAudioInputParams.trackID = originalVoiceTrack.trackID
                 if let newAudioInputParams = newAudioInputParams {
                     audioMix.inputParameters = [newAudioInputParams, originalAudioInputParams]

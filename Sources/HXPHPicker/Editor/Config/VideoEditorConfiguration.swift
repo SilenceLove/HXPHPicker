@@ -23,6 +23,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     
     public struct MusicConfig {
         /// 配乐信息
+        /// 也可通过代理回调设置
         public let infos: [VideoEditorMusicInfo]
         public init(infos: [VideoEditorMusicInfo]) {
             self.infos = infos

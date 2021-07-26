@@ -565,42 +565,47 @@ extension PhotoAsset {
         }
     }
     /// 获取本地图片地址
-    func requestLocalImageURL(toFile fileURL:URL? = nil, resultHandler: @escaping (URL?) -> Void) {
+    func requestLocalImageURL(toFile fileURL:URL? = nil, resultHandler: @escaping AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
             if let fileURL = fileURL {
                 if PhotoTools.copyFile(at: photoEdit.editedImageURL, to: fileURL) {
-                    resultHandler(fileURL)
+                    resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .photo)))
                 }else {
-                    resultHandler(nil)
+                    resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(photoEdit.editedImageURL)
+            resultHandler(.success(.init(url: photoEdit.editedImageURL, urlType: .local, mediaType: .photo)))
             return
         }
         #endif
         if let localImageURL = getLocalImageAssetURL() {
             if let fileURL = fileURL {
                 if PhotoTools.copyFile(at: localImageURL, to: fileURL) {
-                    resultHandler(fileURL)
+                    resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .photo)))
                 }else {
-                    resultHandler(nil)
+                    resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(localImageURL)
+            resultHandler(.success(.init(url: localImageURL, urlType: .local, mediaType: .photo)))
             return
         }
         DispatchQueue.global().async {
             if let imageData = self.getLocalImageData() {
-                let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData)
-                DispatchQueue.main.async {
-                    resultHandler(imageURL)
+                if let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData) {
+                    DispatchQueue.main.async {
+                        resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
+                    }
+                }else {
+                    DispatchQueue.main.async {
+                        resultHandler(.failure(.fileWriteFailed))
+                    }
                 }
             }else {
                 DispatchQueue.main.async {
-                    resultHandler(nil)
+                    resultHandler(.failure(.invalidData))
                 }
             }
         }
@@ -665,24 +670,24 @@ extension PhotoAsset {
     
     /// 获取本地/网络视频地址
     func requestLocalVideoURL(toFile fileURL:URL? = nil,
-                              resultHandler: @escaping (URL?, PhotoAsset) -> Void) {
+                              resultHandler: AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             if let fileURL = fileURL {
                 if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
-                    resultHandler(fileURL, self)
+                    resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .video)))
                 }else {
-                    resultHandler(nil, self)
+                    resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(videoEdit.editedURL, self)
+            resultHandler(.success(.init(url: videoEdit.editedURL, urlType: .network, mediaType: .video)))
             return
         }
         #endif
         if phAsset == nil {
             if mediaType == .photo {
-                resultHandler(nil, self)
+                resultHandler(.failure(.typeError))
             }else {
                 var videoURL: URL? = nil
                 if isNetworkAsset {
@@ -695,57 +700,78 @@ extension PhotoAsset {
                 }
                 if let fileURL = fileURL, let videoURL = videoURL {
                     if PhotoTools.copyFile(at: videoURL, to: fileURL) {
-                        resultHandler(fileURL, self)
+                        resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .video)))
                     }else {
-                        resultHandler(nil, self)
+                        resultHandler(.failure(.fileWriteFailed))
                     }
                 }else {
-                    resultHandler(videoURL, self)
+                    if let videoURL = videoURL {
+                        resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+                    }else {
+                        if isNetworkAsset {
+                            getNetworkVideoURL(resultHandler: resultHandler)
+                        }else {
+                            resultHandler(.failure(.emptyLocalURL))
+                        }
+                    }
                 }
             }
         }
     }
-    func requestAssetImageURL(toFile fileURL:URL? = nil, filterEditor: Bool = false, resultHandler: @escaping (URL?) -> Void) {
+    func requestAssetImageURL(toFile fileURL:URL? = nil, filterEditor: Bool = false, resultHandler: @escaping AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit, !filterEditor {
             if let fileURL = fileURL {
                 if PhotoTools.copyFile(at: photoEdit.editedImageURL, to: fileURL) {
-                    resultHandler(fileURL)
+                    resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .photo)))
                 }else {
-                    resultHandler(nil)
+                    resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(photoEdit.editedImageURL)
+            resultHandler(.success(.init(url: photoEdit.editedImageURL, urlType: .local, mediaType: .photo)))
             return
         }
         if let videoEdit = videoEdit {
             DispatchQueue.global().async {
-                var imageURL: URL?
                 if let imageData = PhotoTools.getImageData(for: videoEdit.coverImage) {
-                    imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData)
-                }
-                DispatchQueue.main.async {
-                    resultHandler(imageURL)
+                    if let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData) {
+                        DispatchQueue.main.async {
+                            resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
+                        }
+                    }else {
+                        DispatchQueue.main.async {
+                            resultHandler(.failure(.fileWriteFailed))
+                        }
+                    }
+                }else {
+                    DispatchQueue.main.async {
+                        resultHandler(.failure(.invalidData))
+                    }
                 }
             }
             return
         }
         #endif
         if phAsset == nil {
-            resultHandler(nil)
+            resultHandler(.failure(.invalidPHAsset))
             return
         }
         if mediaType == .video {
             requestImageData(iCloudHandler: nil, progressHandler: nil) { (photoAsset, imageData, imageOrientation, info) in
                 DispatchQueue.global().async {
-                    let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData)
-                    DispatchQueue.main.async {
-                        resultHandler(imageURL)
+                    if let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData) {
+                        DispatchQueue.main.async {
+                            resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
+                        }
+                    }else {
+                        DispatchQueue.main.async {
+                            resultHandler(.failure(.fileWriteFailed))
+                        }
                     }
                 }
             } failure: { (photoAsset, ino) in
-                resultHandler(nil)
+                resultHandler(.failure(.invalidData))
             }
             return
         }
@@ -763,59 +789,74 @@ extension PhotoAsset {
         }
         let isGif = phAsset!.isImageAnimated
         AssetManager.requestImageURL(for: phAsset!, toFile: imageFileURL) { (imageURL) in
-            if let imageURL = imageURL, isGif, self.mediaSubType != .imageAnimated {
-                // 本质上是gif，需要变成静态图
-                do {
-                    let imageData = PhotoTools.getImageData(for: UIImage.init(contentsOfFile: imageURL.path))
-                    if FileManager.default.fileExists(atPath: imageURL.path) {
-                        try FileManager.default.removeItem(at: imageURL)
+            if let imageURL = imageURL {
+                if isGif && self.mediaSubType != .imageAnimated {
+                    // 本质上是gif，需要变成静态图
+                    do {
+                        let imageData = PhotoTools.getImageData(for: UIImage.init(contentsOfFile: imageURL.path))
+                        if FileManager.default.fileExists(atPath: imageURL.path) {
+                            try FileManager.default.removeItem(at: imageURL)
+                        }
+                        try imageData?.write(to: imageURL)
+                        resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
+                    } catch {
+                        resultHandler(.failure(.fileWriteFailed))
                     }
-                    try imageData?.write(to: imageURL)
-                    resultHandler(imageURL)
-                } catch {
-                    resultHandler(nil)
+                }else {
+                    resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
                 }
             }else {
-                resultHandler(imageURL)
+                resultHandler(.failure(.invalidData))
             }
         }
     }
     
     func requestAssetVideoURL(toFile fileURL:URL? = nil,
                               exportPreset: String? = nil,
-                              resultHandler: @escaping (URL?) -> Void) {
+                              resultHandler: @escaping AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
             if let fileURL = fileURL {
                 if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
-                    resultHandler(fileURL)
+                    resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .video)))
                 }else {
-                    resultHandler(nil)
+                    resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(videoEdit.editedURL)
+            resultHandler(.success(.init(url: videoEdit.editedURL, urlType: .local, mediaType: .video)))
             return
         }
         #endif
+        guard let phAsset = phAsset else {
+            resultHandler(.failure(.invalidPHAsset))
+            return
+        }
         let toFile = fileURL == nil ? PhotoTools.getVideoTmpURL() : fileURL!
+        let assetHandler: (URL?, Error?) -> Void  =  { videoURL, error in
+            if let videoURL = videoURL {
+                resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+            }else {
+                resultHandler(.failure(.exportFailed))
+            }
+        }
         if let exportPreset = exportPreset {
-            AssetManager.exportVideoURL(forVideo: phAsset!, toFile: toFile, exportPreset: exportPreset) { (videoURL, error) in
-                resultHandler(nil)
+            AssetManager.exportVideoURL(forVideo: phAsset, toFile: toFile, exportPreset: exportPreset) { (videoURL, error) in
+                assetHandler(videoURL, error)
             }
             return
         }
         if mediaSubType == .livePhoto {
-            AssetManager.requestLivePhoto(videoURL: phAsset!, toFile: toFile) { (videoURL, error) in
-                resultHandler(videoURL)
+            AssetManager.requestLivePhoto(videoURL: phAsset, toFile: toFile) { (videoURL, error) in
+                assetHandler(videoURL, nil)
             }
         }else {
             if mediaType == .photo {
-                resultHandler(nil)
+                resultHandler(.failure(.typeError))
                 return
             }
-            AssetManager.requestVideoURL(for: phAsset!, toFile: toFile) { (videoURL) in
-                resultHandler(videoURL)
+            AssetManager.requestVideoURL(for: phAsset, toFile: toFile) { (videoURL) in
+                assetHandler(videoURL, nil)
             }
         }
     }

@@ -49,6 +49,12 @@ public extension EditorToolOptions {
         /// photo - 涂鸦
         case graffiti
         
+        /// photo - 贴图
+        case chartlet
+        
+        /// photo - 文本
+        case text
+        
         /// photo - 马赛克
         case mosaic
         

@@ -49,5 +49,5 @@ public class PhotoListCellConfiguration {
     /// 选择框相关配置
     public lazy var selectBox: SelectBoxConfiguration = .init()
     
-    public init() { }
+    public init() { PhotoManager.shared.targetWidth = targetWidth }
 }

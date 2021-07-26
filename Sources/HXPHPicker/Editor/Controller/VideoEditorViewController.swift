@@ -69,9 +69,12 @@ open class VideoEditorViewController: BaseViewController {
     
     /// 当前配乐的音频路径
     public var backgroundMusicPath: String? {
-        didSet {
-            toolView.reloadMusic(isSelected: backgroundMusicPath != nil)
-        }
+        didSet { toolView.reloadMusic(isSelected: backgroundMusicPath != nil) }
+    }
+    
+    /// 配乐音量
+    public var backgroundMusicVolume: Float = 1 {
+        didSet { PhotoManager.shared.changeAudioPlayerVolume(backgroundMusicVolume) }
     }
     
     /// 播放视频
@@ -79,9 +82,7 @@ open class VideoEditorViewController: BaseViewController {
     
     /// 视频原声音量
     public var videoVolume: Float = 1 {
-        didSet {
-            playerView.player.volume = videoVolume
-        }
+        didSet { playerView.player.volume = videoVolume }
     }
     
     /// 界面消失之后取消下载网络视频
@@ -797,9 +798,9 @@ extension VideoEditorViewController: EditorToolViewDelegate {
         }
         PhotoTools.videoAddBackgroundMusic(forVideo: videoURL,
                                            audioURL: audioURL,
-                                           hasOriginalSound: playerView.player.volume == 0 ? false : true,
-                                           presentName: config.exportPresetName) {
-            [weak self] (url) in
+                                           audioVolume: backgroundMusicVolume,
+                                           originalAudioVolume: playerView.player.volume,
+                                           presentName: config.exportPresetName) { [weak self] (url) in
             if let url = url {
                 self?.editFinishCallBack(url)
                 self?.backAction()

@@ -80,6 +80,29 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
                           atIndex: Int) -> Bool
     
     #if HXPICKER_ENABLE_EDITOR
+    
+    /// 照片编辑器加载贴图标题资源
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoEditorViewController: 对应的 PhotoEditorViewController
+    ///   - loadTitleChartlet: 传入标题数组
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadTitleChartlet photoEditorViewController: PhotoEditorViewController,
+                          response: @escaping EditorTitleChartletResponse)
+    
+    /// 照片编辑器加载贴图资源
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoEditorViewController: 对应的 PhotoEditorViewController
+    ///   - titleChartlet: 对应配置的 title
+    ///   - titleIndex: 对应配置的 title 的位置索引
+    ///   - response: 传入 title索引 和 贴图数据
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadChartletList photoEditorViewController: PhotoEditorViewController,
+                          titleChartlet: EditorChartlet,
+                          titleIndex: Int,
+                          response: @escaping EditorChartletListResponse)
+    
     /// 视频编辑器，将要点击工具栏音乐按钮
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -238,6 +261,25 @@ public extension PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, shouldEditAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool { true }
     
     #if HXPICKER_ENABLE_EDITOR
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadTitleChartlet photoEditorViewController: PhotoEditorViewController,
+                          response: @escaping EditorTitleChartletResponse) {
+        #if canImport(Kingfisher)
+        let titles = PhotoTools.defaultTitleChartlet()
+        response(titles)
+        #endif
+    }
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadChartletList photoEditorViewController: PhotoEditorViewController,
+                          titleChartlet: EditorChartlet,
+                          titleIndex: Int,
+                          response: @escaping EditorChartletListResponse) {
+        /// 默认加载这些贴图
+        #if canImport(Kingfisher)
+        let chartletList = PhotoTools.defaultNetworkChartlet()
+        response(titleIndex, chartletList)
+        #endif
+    }
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditorShouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool { true }
     

@@ -26,6 +26,23 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
     func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController)
     
+    /// 加载贴图标题资源
+    /// - Parameters:
+    ///   - photoEditorViewController: 对应的 PhotoEditorViewController 
+    ///   - loadTitleChartlet: 传入标题数组
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
+                                   loadTitleChartlet response: @escaping EditorTitleChartletResponse)
+    /// 加载贴图资源
+    /// - Parameters:
+    ///   - photoEditorViewController: 对应的 PhotoEditorViewController
+    ///   - titleChartlet: 对应配置的 title
+    ///   - titleIndex: 对应配置的 title 的位置索引
+    ///   - response: 传入 title索引 和 贴图数据
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
+                                   titleChartlet: EditorChartlet,
+                                   titleIndex: Int,
+                                   loadChartletList response: @escaping EditorChartletListResponse)
+    
     /// 取消编辑
     /// - Parameter photoEditorViewController: 对应的 PhotoEditorViewController
     func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController)
@@ -34,6 +51,23 @@ public extension PhotoEditorViewControllerDelegate {
     func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {}
     func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {}
     func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {}
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
+                                   loadTitleChartlet response: @escaping EditorTitleChartletResponse) {
+        #if canImport(Kingfisher)
+        let titles = PhotoTools.defaultTitleChartlet()
+        response(titles)
+        #endif
+    }
+    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
+                                   titleChartlet: EditorChartlet,
+                                   titleIndex: Int,
+                                   loadChartletList response: @escaping EditorChartletListResponse) {
+        /// 默认加载这些贴图
+        #if canImport(Kingfisher)
+        let chartletList = PhotoTools.defaultNetworkChartlet()
+        response(titleIndex, chartletList)
+        #endif
+    }
 }
 
 open class PhotoEditorViewController: BaseViewController {
@@ -132,17 +166,14 @@ open class PhotoEditorViewController: BaseViewController {
     lazy var imageView: PhotoEditorView = {
         let imageView = PhotoEditorView.init(config: config)
         imageView.editorDelegate = self
-        let singleTap = UITapGestureRecognizer.init(target: self, action: #selector(singleTap(tap:)))
-        imageView.addGestureRecognizer(singleTap)
         return imageView
     }()
     var topViewIsHidden: Bool = false
-    @objc func singleTap(tap: UITapGestureRecognizer) {
+    @objc func singleTap() {
         if state == .cropping {
             return
         }
-        if isFilter {
-            isFilter = false
+        func resetOtherOption() {
             if let option = currentToolOption {
                 if option.type == .graffiti {
                     imageView.drawEnabled = true
@@ -151,7 +182,18 @@ open class PhotoEditorViewController: BaseViewController {
                 }
             }
             showTopView()
+        }
+        if isFilter {
+            isFilter = false
+            resetOtherOption()
             hiddenFilterView()
+            return
+        }
+        if showChartlet {
+            imageView.isEnabled = true
+            showChartlet = false
+            resetOtherOption()
+            hiddenChartletView()
             return
         }
         if topViewIsHidden {
@@ -215,6 +257,12 @@ open class PhotoEditorViewController: BaseViewController {
         view.isHidden = true
         return view
     }()
+    var showChartlet: Bool = false
+    lazy var chartletView: EditorChartletView = {
+        let view = EditorChartletView(config: config.chartlet)
+        view.delegate = self
+        return view
+    }()
     
     lazy var cropToolView: PhotoEditorCropToolView = {
         var showRatios = true
@@ -254,6 +302,10 @@ open class PhotoEditorViewController: BaseViewController {
     
     open override func viewDidLoad() {
         super.viewDidLoad()
+        let singleTap = UITapGestureRecognizer.init(target: self, action: #selector(singleTap))
+        singleTap.delegate = self
+        view.addGestureRecognizer(singleTap)
+        view.isExclusiveTouch = true
         if config.fixedCropState {
             state = .cropping
             toolView.alpha = 0
@@ -268,6 +320,7 @@ open class PhotoEditorViewController: BaseViewController {
         view.addSubview(imageView)
         view.addSubview(toolView)
         view.addSubview(brushColorView)
+        view.addSubview(chartletView)
         view.addSubview(cropConfirmView)
         view.addSubview(cropToolView)
         view.addSubview(mosaicToolView)
@@ -289,8 +342,12 @@ open class PhotoEditorViewController: BaseViewController {
         }
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
+        if showChartlet {
+            singleTap()
+        }
         imageView.undoAllDraw()
         imageView.undoAllMosaic()
+        imageView.undoAllSticker()
         brushColorView.canUndo = imageView.canUndoDraw
         mosaicToolView.canUndo = imageView.canUndoMosaic
         imageView.reset(false)
@@ -326,6 +383,7 @@ open class PhotoEditorViewController: BaseViewController {
         brushColorView.frame = cropToolView.frame
         mosaicToolView.frame = brushColorView.frame
         cropToolView.updateContentInset()
+        setChartletViewFrame()
         setFilterViewFrame()
         if !imageView.frame.equalTo(view.bounds) && !imageView.frame.isEmpty && !imageViewDidChange {
             imageView.frame = view.bounds
@@ -358,6 +416,17 @@ open class PhotoEditorViewController: BaseViewController {
             }
             orientationDidChange = false
             imageViewDidChange = true
+        }
+    }
+    func setChartletViewFrame() {
+        var viewHeight = config.chartlet.viewHeight
+        if viewHeight > view.height {
+            viewHeight = view.height * 0.6
+        }
+        if showChartlet {
+            chartletView.frame = CGRect(x: 0, y: view.height - viewHeight - UIDevice.bottomMargin, width: view.width, height: viewHeight + UIDevice.bottomMargin)
+        }else {
+            chartletView.frame = CGRect(x: 0, y: view.height, width: view.width, height: viewHeight + UIDevice.bottomMargin)
         }
     }
     func setFilterViewFrame() {
@@ -410,14 +479,34 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             toolView.stretchMask = imageView.drawEnabled
             toolView.layoutSubviews()
             if imageView.drawEnabled {
+                imageView.stickerEnabled = false
                 showBrushColorView()
                 currentToolOption = model
             }else {
+                imageView.stickerEnabled = true
                 hiddenBrushColorView()
             }
+        case .chartlet:
+            chartletView.firstRequest()
+            imageView.deselectedSticker()
+            imageView.drawEnabled = false
+            imageView.mosaicEnabled = false
+            imageView.stickerEnabled = false
+            imageView.isEnabled = false
+            showChartlet = true
+            hidenTopView()
+            showChartletView()
+        case .text:
+            imageView.deselectedSticker()
+            let textVC = EditorStickerTextViewController(config: config.text)
+            textVC.delegate = self
+            let nav = EditorStickerTextController(rootViewController: textVC)
+            nav.modalPresentationStyle = config.text.modalPresentationStyle
+            present(nav, animated: true, completion: nil)
         case .cropping:
             imageView.drawEnabled = false
             imageView.mosaicEnabled = false
+            imageView.stickerEnabled = false
             state = .cropping
             imageView.startCropping(true)
             croppingAction()
@@ -429,14 +518,17 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             toolView.stretchMask = imageView.mosaicEnabled
             toolView.layoutSubviews()
             if imageView.mosaicEnabled {
+                imageView.stickerEnabled = false
                 showMosaicToolView()
                 currentToolOption = model
             }else {
+                imageView.stickerEnabled = true
                 hiddenMosaicToolView()
             }
         case .filter:
             imageView.drawEnabled = false
             imageView.mosaicEnabled = false
+            imageView.stickerEnabled = false
             isFilter = true
             hidenTopView()
             showFilterView()
@@ -528,6 +620,14 @@ extension PhotoEditorViewController: PhotoEditorViewDelegate {
         brushColorView.canUndo = editorView.canUndoDraw
         mosaicToolView.canUndo = editorView.canUndoMosaic
     }
+    func editorView(_ editorView: PhotoEditorView, updateStickerText item: EditorStickerItem) {
+        let textVC = EditorStickerTextViewController(config: config.text,
+                                                     stickerItem: item)
+        textVC.delegate = self
+        let nav = EditorStickerTextController(rootViewController: textVC)
+        nav.modalPresentationStyle = config.text.modalPresentationStyle
+        present(nav, animated: true, completion: nil)
+    }
 }
 
 extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
@@ -609,5 +709,54 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
             let mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
             imageView.setMosaicOriginalImage(mosaicImage)
         }
+    }
+}
+
+extension PhotoEditorViewController: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view is EditorStickerContentView {
+            return false
+        }
+        if let isDescendant = touch.view?.isDescendant(of: imageView), isDescendant {
+            return true
+        }
+        return false
+    }
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
+    }
+}
+
+extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
+    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerItem: EditorStickerItem) {
+        imageView.updateSticker(item: stickerItem)
+    }
+    
+    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerText: EditorStickerText) {
+        let item = EditorStickerItem(image: stickerText.image, text: stickerText)
+        imageView.addSticker(item: item, isSelected: false)
+    }
+}
+
+extension PhotoEditorViewController: EditorChartletViewDelegate {
+    func chartletView(_ chartletView: EditorChartletView, loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
+        delegate?.photoEditorViewController(self, loadTitleChartlet: response)
+    }
+    func chartletView(backClick chartletView: EditorChartletView) {
+        singleTap()
+    }
+    func chartletView(_ chartletView: EditorChartletView,
+                      titleChartlet: EditorChartlet,
+                      titleIndex: Int,
+                      loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
+        delegate?.photoEditorViewController(self,
+                                            titleChartlet: titleChartlet,
+                                            titleIndex: titleIndex,
+                                            loadChartletList: response)
+    }
+    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage) {
+        let item = EditorStickerItem(image: image, text: nil)
+        imageView.addSticker(item: item, isSelected: false)
+        singleTap()
     }
 }

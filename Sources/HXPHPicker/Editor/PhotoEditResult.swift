@@ -37,6 +37,7 @@ struct PhotoEditData {
     let filter: PhotoEditorFilter?
     let filterValue: Float
     let mosaicData: [PhotoEditorMosaicData]
+    let stickerData: EditorStickerData?
 }
 
 struct PhotoEditCropData {
