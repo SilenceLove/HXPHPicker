@@ -11,7 +11,7 @@ import UIKit
 open class PhotoEditorConfiguration: EditorConfiguration {
     
     /// 控制画笔、贴图...导出之后清晰程度
-    public var scale: CGFloat = UIScreen.main.scale
+    public var scale: CGFloat = 2
     
     /// 编辑器默认状态
     public var state: PhotoEditorViewController.State = .normal

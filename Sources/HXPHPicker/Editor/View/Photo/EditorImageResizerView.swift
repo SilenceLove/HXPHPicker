@@ -44,7 +44,7 @@ class EditorImageResizerView: UIView {
     deinit {
 //        print("deinit", self)
     }
-    var exportScale: CGFloat = 1
+    var exportScale: CGFloat = UIScreen.main.scale
     /// 裁剪配置
     var cropConfig: PhotoCroppingConfiguration
     weak var delegate: EditorImageResizerViewDelegate?
@@ -947,6 +947,14 @@ class EditorImageResizerView: UIView {
             if !otherImages.isEmpty {
                 otherImage = UIImage.merge(images: otherImages)?.scaleToFillSize(size: inputImage.size)
             }
+            var crop_Rect = cropRect
+            if exportScale != inputImage.scale {
+                let scale = exportScale / inputImage.scale
+                crop_Rect.origin.x *= scale
+                crop_Rect.origin.y *= scale
+                crop_Rect.size.width *= scale
+                crop_Rect.size.height *= scale
+            }
             if let option = inputImage.animateImageFrame() {
                 var images = [UIImage]()
                 var delays = [Double]()
@@ -955,7 +963,7 @@ class EditorImageResizerView: UIView {
                     if let otherImage = otherImage, let newImage = image.merge(images: [otherImage], scale: exportScale) {
                         currentImage = newImage
                     }
-                    if let newImage = cropImage(currentImage, toRect: cropRect, viewWidth: viewWidth, viewHeight: viewHeight) {
+                    if let newImage = cropImage(currentImage, toRect: crop_Rect, viewWidth: viewWidth, viewHeight: viewHeight) {
                         images.append(newImage)
                         delays.append(option.1[index])
                     }
@@ -968,7 +976,7 @@ class EditorImageResizerView: UIView {
             if let otherImage = otherImage, let image = inputImage.merge(images: [otherImage], scale: exportScale) {
                 inputImage = image
             }
-            if let image = cropImage(inputImage, toRect: cropRect, viewWidth: viewWidth, viewHeight: viewHeight),
+            if let image = cropImage(inputImage, toRect: crop_Rect, viewWidth: viewWidth, viewHeight: viewHeight),
                let imageURL = PhotoTools.write(image: image) {
                 if let thumbnailImage = image.scaleImage(toScale: 0.6) {
                     return (thumbnailImage, imageURL, .normal)
