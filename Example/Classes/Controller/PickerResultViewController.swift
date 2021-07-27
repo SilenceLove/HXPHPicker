@@ -107,7 +107,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
         }
-        
     }
     
     @objc func longGestureRecognizerClick(longGestureRecognizer: UILongPressGestureRecognizer) {
@@ -448,7 +447,6 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
-
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {
 //                print("success", image)
@@ -618,6 +616,12 @@ class ResultViewCell: PhotoPickerViewCell {
         deleteButton.addTarget(self, action: #selector(didDeleteButtonClick), for: .touchUpInside)
         return deleteButton
     }()
+    override var photoAsset: PhotoAsset! {
+        didSet {
+            // 隐藏被编辑过的标示
+            assetEditMarkIcon.isHidden = true
+        }
+    }
     override func requestThumbnailImage() {
         // 因为这里的cell不会很多，重新设置 targetWidth，使图片更加清晰
         super.requestThumbnailImage(targetWidth: width * UIScreen.main.scale)

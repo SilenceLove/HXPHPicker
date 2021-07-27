@@ -14,6 +14,7 @@
 		7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */; };
 		7B09599D25FB380D005DB27B /* PreviewVideoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */; };
 		7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599F25FB39AD005DB27B /* ProgressImageView.swift */; };
+		7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */; };
 		7B3C290E266F62B600F0622F /* Picker+PhotoAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3C290D266F62B600F0622F /* Picker+PhotoAsset.swift */; };
 		7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D040E264E0F91002EB37C /* Core+DispatchQueue.swift */; };
 		7B4338CE2601CC5A0074C723 /* PickerColorConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4338CD2601CC5A0074C723 /* PickerColorConfigurationViewController.swift */; };
@@ -245,6 +246,7 @@
 		7B09599F25FB39AD005DB27B /* ProgressImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressImageView.swift; sourceTree = "<group>"; };
 		7B0959A325FB5E95005DB27B /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
 		7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCroppingConfiguration.swift; sourceTree = "<group>"; };
+		7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Codable.swift"; sourceTree = "<group>"; };
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+PHAssetCollection.swift"; sourceTree = "<group>"; };
 		7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+Dictionary.swift"; sourceTree = "<group>"; };
@@ -666,6 +668,7 @@
 				7B5ED04E26A55FE200A968B7 /* PhotoAsset+URL.swift */,
 				7B62469925FA265A00090025 /* PhotoAsset+Request.swift */,
 				7B4CA1CE265B9A9F009FEC18 /* PhotoAsset+Network.swift */,
+				7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */,
 				7B73D6AB259C88A90045DA42 /* PhotoAssetCollection.swift */,
 			);
 			path = Model;
@@ -1346,6 +1349,7 @@
 				7B4CA1CC265B9521009FEC18 /* NetworkAsset.swift in Sources */,
 				7BBBD5BE25AEFE9200301DCC /* PickerTransition.swift in Sources */,
 				7BBBD5BF25AEFE9200301DCC /* PickerInteractiveTransition.swift in Sources */,
+				7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */,
 				7BBBD5C025AEFE9200301DCC /* EditorConfiguration.swift in Sources */,
 				7BBBD5C125AEFE9200301DCC /* VideoEditorConfiguration.swift in Sources */,
 				7BBBD5C225AEFE9200301DCC /* VideoCroppingConfiguration.swift in Sources */,

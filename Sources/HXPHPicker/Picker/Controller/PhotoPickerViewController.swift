@@ -867,11 +867,20 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     }
     public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
         let photoAsset = videoEditorViewController.photoAsset!
+        let beforeHasEdit = photoAsset.videoEdit != nil
+        photoAsset.videoEdit = nil
+        if beforeHasEdit {
+            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        }
         if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
                 pickerController!.singleFinishCallback(for: photoAsset)
             }
             return
+        }
+        if beforeHasEdit {
+            let cell = getCell(for: photoAsset)
+            cell?.photoAsset = photoAsset
         }
         if !photoAsset.isSelected {
             if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {

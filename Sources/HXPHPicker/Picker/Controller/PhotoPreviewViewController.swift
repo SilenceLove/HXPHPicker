@@ -828,6 +828,9 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
         let photoAsset = photoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.photoEdit != nil
         photoAsset.photoEdit = nil;
+        if beforeHasEdit {
+            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+        }
         if !isMultipleSelect {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
                 pickerController?.singleFinishCallback(for: photoAsset)
@@ -838,7 +841,6 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
             didSelectBoxControlClick()
         }
         if beforeHasEdit {
-            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
             reloadCell(for: photoAsset)
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
@@ -895,11 +897,19 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     }
     public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
         let photoAsset = videoEditorViewController.photoAsset!
+        let beforeHasEdit = photoAsset.videoEdit != nil
+        photoAsset.videoEdit = nil;
+        if beforeHasEdit {
+            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+        }
         if videoLoadSingleCell || !isMultipleSelect {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
                 pickerController?.singleFinishCallback(for: photoAsset)
             }
             return
+        }
+        if beforeHasEdit {
+            reloadCell(for: photoAsset)
         }
         if !photoAsset.isSelected {
             didSelectBoxControlClick()

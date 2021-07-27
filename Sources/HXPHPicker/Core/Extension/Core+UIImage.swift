@@ -292,7 +292,7 @@ extension UIImage {
         if images.isEmpty {
             return self
         }
-        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: width * scale, height: height * scale), false, scale)
         draw(in: CGRect(origin: .zero, size: size))
         for image in images {
             image.draw(in: CGRect(origin: .zero, size: image.size))

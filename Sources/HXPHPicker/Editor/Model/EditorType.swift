@@ -113,7 +113,7 @@ extension PhotoEditorView {
 }
 
 extension EditorImageResizerView {
-    enum MirrorType {
+    enum MirrorType: Int, Codable {
         case none
         case horizontal
     }

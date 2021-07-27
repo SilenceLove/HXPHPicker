@@ -36,7 +36,7 @@ public struct PhotoEditorFilterInfo {
     }
 }
 
-class PhotoEditorFilter: Equatable {
+class PhotoEditorFilter: Equatable, Codable {
     
     let filterName: String
     let defaultValue: Float

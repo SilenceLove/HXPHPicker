@@ -25,7 +25,7 @@ extension String {
         
         fileName.append(String(format: "%d", arguments: [nowDate]))
         fileName.append(String(format: "%d", arguments: [arc4random()%10000]))
-        return fileName.md5() + "." + suffix
+        return suffix.isEmpty ? fileName.md5() : fileName.md5() + "." + suffix
     }
     func md5() -> String {
         let str = self.cString(using: String.Encoding.utf8)

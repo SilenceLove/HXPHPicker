@@ -45,6 +45,77 @@ struct EditorStickerItem {
     }
 }
 
+extension EditorStickerText: Codable {
+    enum CodingKeys: CodingKey {
+        case image
+        case text
+        case textColor
+        case showBackgroud
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let imageData = try container.decode(Data.self, forKey: .image)
+        image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(imageData) as! UIImage
+        text = try container.decode(String.self, forKey: .text)
+        let colorData = try container.decode(Data.self, forKey: .textColor)
+        textColor = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorData) as! UIColor
+        showBackgroud = try container.decode(Bool.self, forKey: .showBackgroud)
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if #available(iOS 11.0, *) {
+            let imageData = try NSKeyedArchiver.archivedData(withRootObject: image, requiringSecureCoding: false)
+            try container.encode(imageData, forKey: .image)
+            let colorData = try NSKeyedArchiver.archivedData(withRootObject: textColor, requiringSecureCoding: false)
+            try container.encode(colorData, forKey: .textColor)
+        } else {
+            let imageData = NSKeyedArchiver.archivedData(withRootObject: image)
+            try container.encode(imageData, forKey: .image)
+            let colorData = NSKeyedArchiver.archivedData(withRootObject: textColor)
+            try container.encode(colorData, forKey: .textColor)
+        }
+        try container.encode(text, forKey: .text)
+        try container.encode(showBackgroud, forKey: .showBackgroud)
+    }
+}
+
+extension EditorStickerItem: Codable {
+    enum CodingKeys: CodingKey {
+        case image
+        case hasText
+        case text
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let imageData = try container.decode(Data.self, forKey: .image)
+        image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(imageData) as! UIImage
+        let hasText = try container.decode(Bool.self, forKey: .hasText)
+        if hasText {
+            text = try container.decode(EditorStickerText.self, forKey: .text)
+        }else {
+            text = nil
+        }
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if #available(iOS 11.0, *) {
+            let imageData = try NSKeyedArchiver.archivedData(withRootObject: image, requiringSecureCoding: false)
+            try container.encode(imageData, forKey: .image)
+        } else {
+            let imageData = NSKeyedArchiver.archivedData(withRootObject: image)
+            try container.encode(imageData, forKey: .image)
+        }
+        if let text = text {
+            try container.encode(text, forKey: .text)
+            try container.encode(true, forKey: .hasText)
+        }else {
+            try container.encode(false, forKey: .hasText)
+        }
+    }
+}
+
 class EditorStickerContentView: UIView {
     
     lazy var imageView: UIImageView = {

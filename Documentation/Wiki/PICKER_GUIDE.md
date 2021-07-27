@@ -42,6 +42,7 @@
   - [Editor](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#editor)
 - [公开方法](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%85%AC%E5%BC%80%E6%96%B9%E6%B3%95)
   - [获取原始图片/视频](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E8%8E%B7%E5%8F%96%E5%8E%9F%E5%A7%8B%E5%9B%BE%E7%89%87%E8%A7%86%E9%A2%91)
+  - [数据持久化](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96)
   - [单独预览资源](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%8D%95%E7%8B%AC%E9%A2%84%E8%A7%88%E8%B5%84%E6%BA%90)
 
 
@@ -820,6 +821,42 @@ func pickerController(_ pickerController: PhotoPickerController,
         case .failure(let error):
             // 获取失败
             print(error)
+        }
+    }
+}
+```
+
+### 数据持久化
+
+在`PhotoAsset`对象中，提供了编解码的方法:
+
+```swift
+/// 编码
+/// - Returns: 编码之后的数据
+public func encode() -> Data?
+
+/// 解码
+/// - Parameter data: 之前编码得到的数据
+/// - Returns: 对应的 PhotoAsset 对象
+public class func decoder(data: Data) -> PhotoAsset? 
+```
+
+#### Sample Code
+
+```swift
+func pickerController(_ pickerController: PhotoPickerController,
+                        didFinishSelection result: PickerResult) {
+    guard let photoAsset = result.photoAssets.first else { return }
+    // 获取编码之后的数据
+    if let data = photoAsset.encode() {
+        // 存入本地
+        try? data.write(to: URL(fileURLWithPath: "自己定义的路径"))
+    }
+    // 获取之前编码存在本地的数据
+    {
+        if let data = FileManager.default.contents(atPath: "自己定义的路径"),
+           let photoAsset = PhotoAsset.decoder(data: data) {
+            // photoAsset 上一次存在本地的 PhotoAsset 对象
         }
     }
 }

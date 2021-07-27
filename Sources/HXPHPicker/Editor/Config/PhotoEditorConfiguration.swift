@@ -10,8 +10,8 @@ import UIKit
 /// 旋转会重置所有编辑效果
 open class PhotoEditorConfiguration: EditorConfiguration {
     
-    /// 控制画笔、贴图...导出之后清晰程度，例：UIScreen.main.scale
-    public var scale: CGFloat = 2
+    /// 控制画笔、贴图...导出之后清晰程度
+    public var scale: CGFloat = UIScreen.main.scale
     
     /// 编辑器默认状态
     public var state: PhotoEditorViewController.State = .normal

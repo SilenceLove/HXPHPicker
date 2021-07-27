@@ -353,8 +353,8 @@ open class VideoEditorViewController: BaseViewController {
                 playerView.playStartTime = CMTimeMakeWithSeconds(cropData.startTime, preferredTimescale: cropData.preferredTimescale)
                 playerView.playEndTime = CMTimeMakeWithSeconds(cropData.endTime,
                                                                preferredTimescale: cropData.preferredTimescale)
-                rotateBeforeStorageData = cropData.cropingData
-                rotateBeforeData = cropData.cropRectData
+                rotateBeforeStorageData = (cropData.cropingData.offsetX, cropData.cropingData.validX, cropData.cropingData.validWidth)
+                rotateBeforeData = (cropData.cropRectData.offsetX, cropData.cropRectData.validX, cropData.cropRectData.validWidth)
             }
         }
     }
@@ -596,13 +596,14 @@ extension VideoEditorViewController {
             setPlayerViewFrame()
         }
         if let editResult = editResult {
-            playerView.player.volume = editResult.hideVideoSoundTrack ? 0 : 1
-            musicView.originalSoundButton.isSelected = !editResult.hideVideoSoundTrack
+            playerView.player.volume = editResult.videoSoundVolume
+            musicView.originalSoundButton.isSelected = editResult.videoSoundVolume > 0
             if let audioURL = editResult.backgroundMusicURL {
                 backgroundMusicPath = audioURL.path
                 musicView.backgroundButton.isSelected = true
                 PhotoManager.shared.playMusic(filePath: audioURL.path) {
                 }
+                backgroundMusicVolume = editResult.backgroundMusicVolume
             }
         }
     }
@@ -826,8 +827,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
             cropData = VideoCropData.init(startTime: startTime.seconds,
                                           endTime: endTime.seconds,
                                           preferredTimescale: avAsset.duration.timescale,
-                                          cropingData: rotateBeforeStorageData,
-                                          cropRectData: rotateBeforeData)
+                                          cropingData: .init(offsetX: rotateBeforeStorageData.0, validX: rotateBeforeStorageData.1, validWidth: rotateBeforeStorageData.2),
+                                          cropRectData: .init(offsetX: rotateBeforeData.0, validX: rotateBeforeData.1, validWidth: rotateBeforeData.2))
         }
         var backgroundMusicURL: URL?
         if let audioPath = backgroundMusicPath {
@@ -835,8 +836,9 @@ extension VideoEditorViewController: EditorToolViewDelegate {
         }
         let editResult = VideoEditResult.init(editedURL: videoURL,
                                               cropData: cropData,
+                                              videoSoundVolume: playerView.player.volume,
                                               backgroundMusicURL: backgroundMusicURL,
-                                              hideVideoSoundTrack: playerView.player.volume == 0 ? true : false)
+                                              backgroundMusicVolume: backgroundMusicVolume)
         delegate?.videoEditorViewController(self, didFinish: editResult)
     }
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {

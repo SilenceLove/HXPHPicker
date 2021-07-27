@@ -469,13 +469,13 @@ extension EditorStickerView: EditorStickerItemViewDelegate {
     }
 }
 
-struct EditorStickerData {
+struct EditorStickerData: Codable {
     let items: [EditorStickerItemData]
     let mirrorType: EditorImageResizerView.MirrorType
     let angel: CGFloat
 }
 
-struct EditorStickerItemData {
+struct EditorStickerItemData: Codable {
     let item: EditorStickerItem
     let pinchScale: CGFloat
     let rotation: CGFloat

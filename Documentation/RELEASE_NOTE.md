@@ -4,6 +4,8 @@
 
 ### 新增
 
+- Picker
+  - `PhotoAsset`数据持久化`public func encode() -> Data?`、`public class func decoder(data: Data) -> PhotoAsset?`
 - Editor
   - 贴图、文本
 
