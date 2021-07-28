@@ -78,7 +78,7 @@ open class PickerConfiguration: BaseConfiguration {
     /// 视频编辑配置
     public lazy var videoEditor: VideoEditorConfiguration = .init()
     
-    /// 图片编辑配置
+    /// 照片编辑配置
     public lazy var photoEditor: PhotoEditorConfiguration = .init()
     #endif
     

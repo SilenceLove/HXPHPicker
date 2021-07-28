@@ -53,17 +53,20 @@ extension PhotoTools {
     }
     
     /// 删除视频缓存
+    @discardableResult
     public class func removeVideoCache() -> Bool {
         return removeFile(filePath: getVideoCacheFolderPath())
     }
     
     /// 获取视频缓存文件大小
+    @discardableResult
     public class func getVideoCacheFileSize() -> Int {
         return folderSize(atPath: getVideoCacheFolderPath())
     }
     
     /// 获取视频缓存文件地址
     /// - Parameter key: 生成文件的key
+    @discardableResult
     public class func getVideoCacheURL(for key: String) -> URL {
         var cachePath = getVideoCacheFolderPath()
         let fileManager = FileManager.default
@@ -78,6 +81,7 @@ extension PhotoTools {
     
     /// 视频是否有缓存
     /// - Parameter key: 对应视频的key
+    @discardableResult
     public class func isCached(forVideo key: String) -> Bool {
         let fileManager = FileManager.default
         let filePath = getVideoCacheURL(for: key).path
@@ -85,6 +89,7 @@ extension PhotoTools {
     }
     
     /// 获取对应后缀的临时路径
+    @discardableResult
     public class func getTmpURL(for suffix: String) -> URL {
         var tmpPath = NSTemporaryDirectory()
         tmpPath.append(contentsOf: String.fileName(suffix: suffix))
@@ -92,6 +97,7 @@ extension PhotoTools {
         return tmpURL
     }
     /// 获取图片临时路径
+    @discardableResult
     public class func getImageTmpURL(_ imageContentType: ImageContentType = .jpg) -> URL {
         var suffix: String
         switch imageContentType {
@@ -107,10 +113,12 @@ extension PhotoTools {
         return getTmpURL(for: suffix)
     }
     /// 获取视频临时路径
+    @discardableResult
     public class func getVideoTmpURL() -> URL {
         return getTmpURL(for: "mp4")
     }
     /// 将UIImage转换成Data
+    @discardableResult
     public class func getImageData(for image: UIImage?) -> Data? {
         if let pngData = image?.pngData() {
             return pngData
@@ -120,6 +128,7 @@ extension PhotoTools {
         return nil
     }
     
+    @discardableResult
     class func write(toFile fileURL:URL? = nil, image: UIImage?) -> URL? {
         if let imageData = getImageData(for: image) {
             return write(toFile: fileURL, imageData: imageData)
@@ -127,6 +136,7 @@ extension PhotoTools {
         return nil
     }
     
+    @discardableResult
     class func write(toFile fileURL:URL? = nil, imageData: Data) -> URL? {
         let imageURL = fileURL == nil ? getImageTmpURL(imageData.isGif ? .gif : .jpg) : fileURL!
         do {
@@ -140,6 +150,7 @@ extension PhotoTools {
         }
     }
     
+    @discardableResult
     class func copyFile(at srcURL: URL, to dstURL: URL) -> Bool {
         if srcURL.path == dstURL.path {
             return true

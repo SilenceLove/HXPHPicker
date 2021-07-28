@@ -948,7 +948,7 @@ class EditorImageResizerView: UIView {
                 otherImage = UIImage.merge(images: otherImages)?.scaleToFillSize(size: inputImage.size)
             }
             var crop_Rect = cropRect
-            if exportScale != inputImage.scale {
+            if exportScale != inputImage.scale && otherImage != nil {
                 let scale = exportScale / inputImage.scale
                 crop_Rect.origin.x *= scale
                 crop_Rect.origin.y *= scale

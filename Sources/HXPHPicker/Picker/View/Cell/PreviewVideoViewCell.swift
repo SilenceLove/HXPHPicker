@@ -165,6 +165,10 @@ extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
         showToolView()
     }
     
+    func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool) {
+        playButton.isHidden = !isPlaybackLikelyToKeepUp
+    }
+    
     func videoView(hidePlayButton videoView: VideoPlayerView) {
         if playButton.alpha == 1 {
             UIView.animate(withDuration: 0.15) {

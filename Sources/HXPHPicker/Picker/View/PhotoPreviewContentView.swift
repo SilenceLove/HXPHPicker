@@ -156,11 +156,17 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
         #endif
         if let videoURL = photoAsset.networkVideoAsset?.videoURL {
+            videoView.isNetwork = false
             let key = videoURL.absoluteString
             if PhotoTools.isCached(forVideo: key) {
                 let url = PhotoTools.getVideoCacheURL(for: key)
                 checkNetworkVideoFileSize(url)
                 networkVideoRequestCompletion(url)
+                return
+            }
+            if PhotoManager.shared.loadNetworkVideoMode == .play {
+                videoView.isNetwork = true
+                networkVideoRequestCompletion(videoURL)
                 return
             }
             if loadingView == nil {

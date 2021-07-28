@@ -15,6 +15,8 @@ protocol PhotoPreviewVideoViewDelegate: AnyObject {
     func videoView(showPlayButton videoView: VideoPlayerView)
     func videoView(hidePlayButton videoView: VideoPlayerView)
     
+    func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool)
+    
     func videoView(resetPlay videoView: VideoPlayerView)
     func videoView(_ videoView: VideoPlayerView, readyToPlay duration: CGFloat)
     func videoView(_ videoView: VideoPlayerView, didChangedBuffer duration: CGFloat)
@@ -23,10 +25,15 @@ protocol PhotoPreviewVideoViewDelegate: AnyObject {
 
 class PhotoPreviewVideoView: VideoPlayerView {
     weak var delegate: PhotoPreviewVideoViewDelegate?
+    var isNetwork: Bool = false
     override var avAsset: AVAsset? {
         didSet {
             do { try AVAudioSession.sharedInstance().setCategory(.playback) } catch {}
             delegate?.videoView(showPlayButton: self)
+            if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play {
+                delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
+                loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
+            }
             delegate?.videoView(resetPlay: self)
             let playerItem = AVPlayerItem.init(asset: avAsset!)
             player.replaceCurrentItem(with: playerItem)
@@ -34,7 +41,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             addedPlayerObservers()
         }
     }
-    
+    var loadingView: ProgressHUD?
     var isPlaying: Bool = false
     var didEnterBackground: Bool = false
     var enterPlayGroundShouldPlay: Bool = false
@@ -84,6 +91,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
     }
     func hiddenPlayButton() {
         ProgressHUD.hide(forView: self, animated: true)
+        loadingView = nil
         delegate?.videoView(hidePlayButton: self)
     }
     func showPlayButton() {
@@ -106,6 +114,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             playerLayer.player = nil
             removePlayerObservers()
             ProgressHUD.hide(forView: self, animated: true)
+            loadingView = nil
         }
     }
     func addedPlayerObservers() {
@@ -147,7 +156,8 @@ class PhotoPreviewVideoView: VideoPlayerView {
                 switch playerItem.status {
                 case AVPlayerItem.Status.readyToPlay:
                     // 可以播放了
-                    ProgressHUD.hide(forView: self, animated: true)
+                    loadingView?.isHidden = true
+                    delegate?.videoView(self, isPlaybackLikelyToKeepUp: true)
                     delegate?.videoView(self, readyToPlay: CGFloat(CMTimeGetSeconds(playerItem.duration)))
                     if playbackTimeObserver == nil {
                         playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: .main) { [weak self] (time) in
@@ -177,12 +187,18 @@ class PhotoPreviewVideoView: VideoPlayerView {
             }else if keyPath == "playbackBufferEmpty" {
                 
             }else if keyPath == "playbackLikelyToKeepUp" {
-                if !player.currentItem!.isPlaybackLikelyToKeepUp {
-                    // 缓冲完成
-                    ProgressHUD.showLoading(addedTo: self, animated: true)
-                }else {
+                let isPlaybackLikelyToKeepUp = player.currentItem!.isPlaybackLikelyToKeepUp
+                delegate?.videoView(self, isPlaybackLikelyToKeepUp: isPlaybackLikelyToKeepUp)
+                if !isPlaybackLikelyToKeepUp {
                     // 缓冲中
-                    ProgressHUD.hide(forView: self, animated: true)
+                    if loadingView == nil {
+                        loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
+                    }else {
+                        loadingView?.isHidden = false
+                    }
+                }else {
+                    // 缓冲完成
+                    loadingView?.isHidden = true
                 }
             }
         }else if object is AVPlayerLayer && keyPath == "readyForDisplay" {

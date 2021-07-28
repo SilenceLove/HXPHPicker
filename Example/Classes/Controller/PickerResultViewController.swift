@@ -10,6 +10,7 @@
 import UIKit
 import Photos
 import HXPHPicker
+import Kingfisher
 
 class PickerResultViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDragDelegate, UICollectionViewDropDelegate, ResultViewCellDelegate {
      
@@ -74,7 +75,10 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             collectionView.addGestureRecognizer(longGestureRecognizer)
         }
         view.backgroundColor = UIColor.white
-        navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "设置", style:    .done, target: self, action: #selector(didSettingButtonClick))
+        let settingBtn = UIBarButtonItem.init(title: "设置", style:    .done, target: self, action: #selector(didSettingButtonClick))
+        let clearBtn = UIBarButtonItem.init(title: "清空缓存", style:    .done, target: self, action: #selector(didClearButtonClick))
+        
+        navigationItem.rightBarButtonItems = [settingBtn, clearBtn]
         
         if preselect {
             config.maximumSelectedVideoDuration = 0
@@ -102,7 +106,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                 localAssetArray.append(videoAsset)
             }
             
-            let networkVideoURL1 = URL.init(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/picker_examle_tiantaichuifeng.mp4")!
+            let networkVideoURL1 = URL.init(string: "https://sf1-ttcdn-tos.pstatp.com/obj/tos-cn-v-0004/471d1136b00141f5a9ddf81e461547fd")!
             let networkVideoAsset1 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL1))
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
@@ -185,6 +189,10 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         pickerConfigVC.showOpenPickerButton = false
         pickerConfigVC.config = config
         present(UINavigationController.init(rootViewController: pickerConfigVC), animated: true, completion: nil)
+    }
+    @objc func didClearButtonClick() {
+        PhotoTools.removeVideoCache()
+        ImageCache.default.clearCache()
     }
     
     /// 跳转选择资源界面
