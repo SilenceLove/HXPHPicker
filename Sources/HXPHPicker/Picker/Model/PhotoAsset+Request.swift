@@ -30,7 +30,7 @@ public extension PhotoAsset {
     func requestImage(completion: ((UIImage?, PhotoAsset) -> Void)?) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
-            completion?(photoEdit.editedImage, self)
+            completion?(UIImage(contentsOfFile: photoEdit.editedImageURL.path), self)
             return nil
         }
         if let videoEdit = videoEdit {

@@ -75,6 +75,6 @@ public extension PhotoAsset {
             getNetworkVideoURL(resultHandler: completion)
             return
         }
-        requestAssetVideoURL(exportPreset: exportPreset, resultHandler: completion)
+        requestVideoURL(exportPreset: exportPreset, resultHandler: completion)
     }
 }

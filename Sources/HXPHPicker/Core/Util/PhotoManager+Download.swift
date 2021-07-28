@@ -11,10 +11,17 @@ extension PhotoManager: URLSessionDownloadDelegate {
     
     @discardableResult
     public func downloadTask(with url: URL,
-                      progress: @escaping (Double, URLSessionDownloadTask) -> Void,
-                      completionHandler: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask {
+                             progress: ((Double, URLSessionDownloadTask) -> Void)?,
+                             completionHandler: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask {
         let key = url.absoluteString
-        downloadProgresss[key] = progress
+        if PhotoTools.isCached(forVideo: key) {
+            let videoURL = PhotoTools.getVideoCacheURL(for: key)
+            completionHandler(videoURL, nil)
+            return URLSessionDownloadTask()
+        }
+        if let progress = progress {
+            downloadProgresss[key] = progress
+        }
         downloadCompletions[key] = completionHandler
         if let task = downloadTasks[key] {
             if task.state == .suspended {

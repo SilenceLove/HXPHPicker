@@ -15,6 +15,8 @@
 		7B09599D25FB380D005DB27B /* PreviewVideoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */; };
 		7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599F25FB39AD005DB27B /* ProgressImageView.swift */; };
 		7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */; };
+		7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */; };
+		7B30D0CC26B1466F0048D766 /* WeChatMometPublishViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30D0CB26B1466F0048D766 /* WeChatMometPublishViewController.swift */; };
 		7B3C290E266F62B600F0622F /* Picker+PhotoAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3C290D266F62B600F0622F /* Picker+PhotoAsset.swift */; };
 		7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D040E264E0F91002EB37C /* Core+DispatchQueue.swift */; };
 		7B4338CE2601CC5A0074C723 /* PickerColorConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4338CD2601CC5A0074C723 /* PickerColorConfigurationViewController.swift */; };
@@ -257,6 +259,8 @@
 		7B2A0C0325A7175500E949FD /* AppearanceStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceStyle.swift; sourceTree = "<group>"; };
 		7B2A0C0725A717D100E949FD /* CustomLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLanguage.swift; sourceTree = "<group>"; };
 		7B2A0C0B25A7189F00E949FD /* Picker+PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PhotoTools.swift"; sourceTree = "<group>"; };
+		7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMometViewController.swift; sourceTree = "<group>"; };
+		7B30D0CB26B1466F0048D766 /* WeChatMometPublishViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMometPublishViewController.swift; sourceTree = "<group>"; };
 		7B3C290D266F62B600F0622F /* Picker+PhotoAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PhotoAsset.swift"; sourceTree = "<group>"; };
 		7B3D040E264E0F91002EB37C /* Core+DispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+DispatchQueue.swift"; sourceTree = "<group>"; };
 		7B4338CD2601CC5A0074C723 /* PickerColorConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerColorConfigurationViewController.swift; sourceTree = "<group>"; };
@@ -824,6 +828,8 @@
 				7B4338D0260200840074C723 /* EditorConfigurationViewController.swift */,
 				7B842B1C2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift */,
 				7B842B1F2654C00900F11CAD /* AvatarPickerResultViewController.swift */,
+				7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */,
+				7B30D0CB26B1466F0048D766 /* WeChatMometPublishViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -1205,7 +1211,9 @@
 				7B824AC42600588E00767331 /* Core+UIColor.swift in Sources */,
 				7B4338CE2601CC5A0074C723 /* PickerColorConfigurationViewController.swift in Sources */,
 				7B824AC12600559800767331 /* CustomPickerCellView.swift in Sources */,
+				7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */,
 				7BC230DC25B1743A00434BBB /* ProgressHUD.swift in Sources */,
+				7B30D0CC26B1466F0048D766 /* WeChatMometPublishViewController.swift in Sources */,
 				7BBBD54025AEFC5F00301DCC /* AppDelegate.swift in Sources */,
 				7B824AD12600762C00767331 /* PickerConfigurationViewController.swift in Sources */,
 			);

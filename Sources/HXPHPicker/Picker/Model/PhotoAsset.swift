@@ -411,7 +411,7 @@ extension PhotoAsset {
     func getOriginalImage() -> UIImage? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
-            return photoEdit.editedImage
+            return UIImage(contentsOfFile: photoEdit.editedImageURL.path)
         }
         if let videoEdit = videoEdit {
             return videoEdit.coverImage
@@ -618,7 +618,7 @@ extension PhotoAsset {
     func requestLocalImage(urlType: DonwloadURLType = .original, resultHandler: @escaping (UIImage?, PhotoAsset) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
-            resultHandler(photoEdit.editedImage, self)
+            resultHandler(UIImage(contentsOfFile: photoEdit.editedImageURL.path), self)
             return
         }
         if let videoEdit = videoEdit {

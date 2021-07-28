@@ -81,6 +81,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         navigationItem.rightBarButtonItems = [settingBtn, clearBtn]
         
         if preselect {
+            PhotoManager.shared.loadNetworkVideoMode = .play
             config.maximumSelectedVideoDuration = 0
             config.maximumSelectedVideoCount = 0
             let networkVideoURL = URL.init(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/picker_examle_video.mp4")!
@@ -110,6 +111,8 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             let networkVideoAsset1 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL1))
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
+        }else {
+            PhotoManager.shared.loadNetworkVideoMode = .download
         }
     }
     
@@ -494,6 +497,74 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, previewSingleClick photoAsset: PhotoAsset, atIndex: Int) {
         if pickerController.isPreviewAsset && photoAsset.mediaType == .photo {
             pickerController.dismiss(animated: true, completion: nil)
+        }
+    }
+    func pickerController(_ pickerController: PhotoPickerController, previewLongPressClick photoAsset: PhotoAsset, atIndex: Int) {
+        if pickerController.isPreviewAsset {
+            let alert = UIAlertController(title: "长按事件", message: nil, preferredStyle: .actionSheet)
+            alert.addAction(.init(title: "保存", style: .default, handler: { alertAction in
+                ProgressHUD.showLoading(addedTo: pickerController.view, animated: true)
+                func saveImage(_ image: UIImage) {
+                    AssetManager.saveSystemAlbum(forImage: image) { phAsset in
+                        if phAsset != nil {
+                            ProgressHUD.showSuccess(addedTo: pickerController.view, text: "保存成功", animated: true, delay: 1.5)
+                        }else {
+                            ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
+                        }
+                    }
+                }
+                func saveVideo(_ videoURL: URL) {
+                    AssetManager.saveSystemAlbum(forVideoURL: videoURL) { phAsset in
+                        if phAsset != nil {
+                            ProgressHUD.showSuccess(addedTo: pickerController.view, text: "保存成功", animated: true, delay: 1.5)
+                        }else {
+                            ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
+                        }
+                    }
+                }
+                photoAsset.getAssetURL { result in
+                    switch result {
+                    case .success(let response):
+                        if response.mediaType == .photo {
+                            if response.urlType == .network {
+                                ImageDownloader.default.downloadImage(with: response.url) { result in
+                                    ProgressHUD.hide(forView: pickerController.view, animated: true)
+                                    switch result {
+                                    case .success(let imageResult):
+                                        saveImage(imageResult.image)
+                                    case .failure(_):
+                                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
+                                    }
+                                }
+                            }else {
+                                let image = UIImage(contentsOfFile: response.url.path)!
+                                saveImage(image)
+                            }
+                        }else {
+                            if response.urlType == .network {
+                                PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error in
+                                    ProgressHUD.hide(forView: pickerController.view, animated: true)
+                                    if let videoURL = videoURL {
+                                        saveVideo(videoURL)
+                                    }else {
+                                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
+                                    }
+                                }
+                            }else {
+                                saveVideo(response.url)
+                            }
+                        }
+                    case .failure(_):
+                        ProgressHUD.hide(forView: pickerController.view, animated: true)
+                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
+                    }
+                }
+            }))
+            alert.addAction(.init(title: "删除", style: .destructive, handler: { alertAction in
+                pickerController.deleteCurrentPreviewPhotoAsset()
+            }))
+            alert.addAction(.init(title: "取消", style: .cancel, handler: nil))
+            pickerController.present(alert, animated: true, completion: nil)
         }
     }
     func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int) {

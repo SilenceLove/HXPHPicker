@@ -156,9 +156,9 @@ class PhotoPreviewVideoView: VideoPlayerView {
                 switch playerItem.status {
                 case AVPlayerItem.Status.readyToPlay:
                     // 可以播放了
+                    delegate?.videoView(self, readyToPlay: CGFloat(CMTimeGetSeconds(playerItem.duration)))
                     loadingView?.isHidden = true
                     delegate?.videoView(self, isPlaybackLikelyToKeepUp: true)
-                    delegate?.videoView(self, readyToPlay: CGFloat(CMTimeGetSeconds(playerItem.duration)))
                     if playbackTimeObserver == nil {
                         playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: .main) { [weak self] (time) in
                             guard let self = self else { return }

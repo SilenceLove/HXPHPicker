@@ -371,6 +371,20 @@ func pickerController(_ pickerController: PhotoPickerController,
     }
 }
 
+/// 预览界面长按操作
+/// - Parameters:
+///   - pickerController: 对应的 PhotoPickerController
+///   - photoAsset: 对应显示的 PhotoAsset 数据
+///   - atIndex: 对应显示的位置
+func pickerController(_ pickerController: PhotoPickerController,
+                      previewLongPressClick photoAsset: PhotoAsset,
+                      atIndex: Int) {
+    // 当为外部预览时，长按弹出菜单
+    if pickerController.isPreviewAsset {
+        
+    }
+}
+
 /// 预览界面将要删除 Asset
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController

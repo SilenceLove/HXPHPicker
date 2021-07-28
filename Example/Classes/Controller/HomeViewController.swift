@@ -115,6 +115,7 @@ extension HomeViewController {
         case preselectAsset
         case collectionView
         case customCell
+        case weChatMoment
         
         var title: String {
             switch self {
@@ -126,6 +127,8 @@ extension HomeViewController {
                 return "Picker+UICollectionView"
             case .customCell:
                 return "Picker+CustomCell"
+            case .weChatMoment:
+                return "WeChat-Moment"
             }
         }
         
@@ -153,6 +156,8 @@ extension HomeViewController {
                 let pickerController = PhotoPickerController.init(config: config)
                 pickerController.autoDismiss = false
                 return pickerController
+            case .weChatMoment:
+                return WeChatMometViewController()
             }
         }
     }

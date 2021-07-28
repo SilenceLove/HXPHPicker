@@ -148,6 +148,15 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
                           previewSingleClick photoAsset: PhotoAsset,
                           atIndex: Int)
     
+    /// 预览界面长按操作
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应显示的 PhotoAsset 数据
+    ///   - atIndex: 对应显示的位置
+    func pickerController(_ pickerController: PhotoPickerController,
+                          previewLongPressClick photoAsset: PhotoAsset,
+                          atIndex: Int)
+    
     /// 预览界面将要删除 Asset
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -294,6 +303,10 @@ public extension PhotoPickerControllerDelegate {
     
     func pickerController(_ pickerController: PhotoPickerController,
                           previewSingleClick photoAsset: PhotoAsset,
+                          atIndex: Int) { }
+    
+    func pickerController(_ pickerController: PhotoPickerController,
+                          previewLongPressClick photoAsset: PhotoAsset,
                           atIndex: Int) { }
     
     func pickerController(_ pickerController: PhotoPickerController, previewShouldDeleteAsset photoAsset: PhotoAsset, atIndex: Int) -> Bool { true }

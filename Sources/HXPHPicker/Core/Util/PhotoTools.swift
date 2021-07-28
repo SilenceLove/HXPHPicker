@@ -12,8 +12,6 @@ import Photos
 import Kingfisher
 #endif
 
-public typealias statusHandler = (PHAuthorizationStatus) -> ()
-
 public class PhotoTools {
     
     /// 跳转系统设置界面

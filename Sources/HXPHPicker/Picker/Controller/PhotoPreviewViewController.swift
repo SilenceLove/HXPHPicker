@@ -657,6 +657,11 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             pickerController.pickerDelegate?.pickerController(pickerController, previewSingleClick: cell.photoAsset, atIndex: currentPreviewIndex)
         }
     }
+    func cell(longPress cell: PhotoPreviewViewCell) {
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(pickerController, previewLongPressClick: cell.photoAsset, atIndex: currentPreviewIndex)
+        }
+    }
     
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
