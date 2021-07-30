@@ -25,7 +25,7 @@ public extension PhotoAsset {
         if let url = networkImageAsset?.originalURL {
             resultHandler(.success(.init(url: url, urlType: .network, mediaType: .photo)))
         }else {
-            resultHandler(.failure(.emptyNetworkURL))
+            resultHandler(.failure(.networkURLIsEmpty))
         }
     }
     
@@ -74,7 +74,7 @@ public extension PhotoAsset {
         if let url = networkVideoAsset?.videoURL {
             resultHandler(.success(.init(url: url, urlType: .network, mediaType: .video)))
         }else {
-            resultHandler(.failure(.emptyNetworkURL))
+            resultHandler(.failure(.networkURLIsEmpty))
         }
     }
 }

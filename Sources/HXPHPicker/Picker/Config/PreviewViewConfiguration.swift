@@ -14,6 +14,11 @@ public class PreviewViewConfiguration {
     /// 自定义视频Cell
     public var customVideoCellClass: PreviewVideoViewCell.Type?
     
+    /// 网络视频加载方式
+    public var loadNetworkVideoMode: PhotoAsset.LoadNetworkVideoMode = .download {
+        didSet { PhotoManager.shared.loadNetworkVideoMode = loadNetworkVideoMode }
+    }
+    
     /// 背景颜色
     public lazy var backgroundColor : UIColor = .white
     
@@ -57,5 +62,5 @@ public class PreviewViewConfiguration {
     /// 暗黑模式下取消按钮图片名
     public var cancelDarkImageName: String = "hx_picker_photolist_cancel"
     
-    public init() { }
+    public init() { PhotoManager.shared.loadNetworkVideoMode = loadNetworkVideoMode }
 }

@@ -316,41 +316,44 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             return
         }
         #endif
-        requestID = photoAsset.requestImageData(iCloudHandler: { [weak self] (asset, iCloudRequestID) in
+        requestID = photoAsset.requestImageData(iCloudHandler: { [weak self] asset, iCloudRequestID in
             if asset == self?.photoAsset {
                 self?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
             }
-        }, progressHandler: { [weak self] (asset, progress) in
+        }, progressHandler: { [weak self] asset, progress in
             if asset == self?.photoAsset {
                 self?.requestUpdateProgress(progress: progress, isICloud: true)
             }
-        }, success: { [weak self] (asset, imageData, imageOrientation, info) in
+        }, resultHandler: { [weak self] asset, result in
             guard let self = self else { return }
-            if asset.mediaSubType.isGif {
-                if asset == self.photoAsset {
-                    self.requestSucceed()
-                    self.imageView.setImageData(imageData)
-                    self.setAnimatedImageCompletion = true
-                    self.requestID = nil
-                    self.requestCompletion = true
-                }
-            }else {
-                DispatchQueue.global().async {
-                    var image = UIImage.init(data: imageData)
-                    image = image?.scaleSuitableSize()
-                    DispatchQueue.main.async {
-                        if asset == self.photoAsset {
-                            self.requestSucceed()
-                            self.imageView.setImage(image, animated: true)
-                            self.requestID = nil
-                            self.requestCompletion = true
+            switch result {
+            case .success(let dataResult):
+                if asset.mediaSubType.isGif {
+                    if asset == self.photoAsset {
+                        self.requestSucceed()
+                        self.imageView.setImageData(dataResult.imageData)
+                        self.setAnimatedImageCompletion = true
+                        self.requestID = nil
+                        self.requestCompletion = true
+                    }
+                }else {
+                    DispatchQueue.global().async {
+                        var image = UIImage.init(data: dataResult.imageData)
+                        image = image?.scaleSuitableSize()
+                        DispatchQueue.main.async {
+                            if asset == self.photoAsset {
+                                self.requestSucceed()
+                                self.imageView.setImage(image, animated: true)
+                                self.requestID = nil
+                                self.requestCompletion = true
+                            }
                         }
                     }
                 }
-            }
-        }, failure: { [weak self] (asset, info) in
-            if asset == self?.photoAsset {
-                self?.requestFailed(info: info, isICloud: true)
+            case .failure(let error):
+                if asset == self.photoAsset {
+                    self.requestFailed(info: error.info, isICloud: true)
+                }
             }
         })
     }
@@ -383,7 +386,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 self?.requestID = nil
                 self?.requestCompletion = true
             }
-        }, failure: { [weak self] (asset, info) in
+        }, failure: { [weak self] (asset, info, error) in
             if asset == self?.photoAsset {
                 self?.requestFailed(info: info, isICloud: true)
             }
@@ -411,7 +414,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 self?.requestID = nil
                 self?.requestCompletion = true
             }
-        }, failure: { [weak self] (asset, info) in
+        }, failure: { [weak self] (asset, info, error) in
             if asset == self?.photoAsset {
                 self?.requestFailed(info: info, isICloud: true)
             }

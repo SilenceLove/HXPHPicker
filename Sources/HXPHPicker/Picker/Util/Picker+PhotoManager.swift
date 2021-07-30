@@ -11,13 +11,6 @@ import Photos
 import PhotosUI
 
 extension PhotoManager {
-    /// 网络视频加载方式
-    public enum LoadNetworkVideoMode {
-        /// 先下载
-        case download
-        /// 直接播放
-        case play
-    }
     struct AssociatedKeys {
         static var targetWidthKey: String = "targetWidth"
         static var loadNetworkVideoMode: String = "loadNetworkVideoMode"
@@ -31,9 +24,9 @@ extension PhotoManager {
         }
     }
     /// 网络视频加载方式
-    public var loadNetworkVideoMode: LoadNetworkVideoMode {
+    public var loadNetworkVideoMode: PhotoAsset.LoadNetworkVideoMode {
         get {
-            objc_getAssociatedObject(self, &AssociatedKeys.loadNetworkVideoMode) as? LoadNetworkVideoMode ?? .download
+            objc_getAssociatedObject(self, &AssociatedKeys.loadNetworkVideoMode) as? PhotoAsset.LoadNetworkVideoMode ?? .download
         }
         set {
             objc_setAssociatedObject(self, &AssociatedKeys.loadNetworkVideoMode, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

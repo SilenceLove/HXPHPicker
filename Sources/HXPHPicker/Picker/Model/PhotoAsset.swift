@@ -11,7 +11,7 @@ import Photos
 
 public typealias PhotoAssetICloudHandler = (PhotoAsset, PHImageRequestID) -> Void
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
-public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?) -> Void
+public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?, PhotoAsset.AssetError) -> Void
 
 open class PhotoAsset: Equatable {
     
@@ -439,13 +439,16 @@ extension PhotoAsset {
             options.version = .original
         }
         var originalImage: UIImage?
-        AssetManager.requestImageData(for: phAsset!, options: options) { (imageData, dataUTI, orientation, info) in
-            if let imageData = imageData {
-                originalImage = UIImage.init(data: imageData)
+        AssetManager.requestImageData(for: phAsset!, options: options) { (result) in
+            switch result {
+            case .success(let dataResult):
+                originalImage = UIImage.init(data: dataResult.imageData)
                 if let imageCount = originalImage?.images?.count, self.mediaSubType != .imageAnimated, self.phAsset!.isImageAnimated, imageCount > 1 {
                     // 原始图片是动图，但是设置的是不显示动图，所以在这里处理一下
                     originalImage = originalImage?.images?.first
                 }
+            default:
+                break
             }
         }
         return originalImage
@@ -504,39 +507,47 @@ extension PhotoAsset {
         }
         return size
     }
-    func requestlocalImageData(resultHandler: @escaping (Data?, PhotoAsset) -> Void) {
+    func requestlocalImageData(resultHandler: ((PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>) -> Void)?) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
             do {
                 let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
-                resultHandler(imageData, self)
+                resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: photoEdit.editedImage.imageOrientation, info: nil)))
             }catch {
-                resultHandler(nil, self)
+                resultHandler?(self, .failure(.init(info: nil, error: .invalidData)))
             }
             return
         }
         if let videoEdit = videoEdit {
-            resultHandler(PhotoTools.getImageData(for: videoEdit.coverImage), self)
+            if let imageData = PhotoTools.getImageData(for: videoEdit.coverImage) {
+                resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: videoEdit.coverImage!.imageOrientation, info: nil)))
+            }else {
+                resultHandler?(self, .failure(.init(info: nil, error: .invalidData)))
+            }
             return
         }
         #endif
         if phAsset == nil {
             DispatchQueue.global().async {
                 if let imageData = self.localImageAsset?.imageData {
-                    resultHandler(imageData, self)
+                    let image = UIImage(data: imageData)
+                    DispatchQueue.main.async {
+                        resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: image!.imageOrientation, info: nil)))
+                    }
                     return
                 }else if let imageURL = self.localImageAsset?.imageURL {
                     do {
                         let imageData = try Data.init(contentsOf: imageURL)
+                        let image = UIImage(data: imageData)
                         DispatchQueue.main.async {
-                            resultHandler(imageData, self)
+                            resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: image!.imageOrientation, info: nil)))
                         }
                         return
                     }catch { }
-                }else if let localImage = self.localImageAsset?.image {
-                    let imageData = PhotoTools.getImageData(for: localImage)
+                }else if let localImage = self.localImageAsset?.image,
+                         let imageData = PhotoTools.getImageData(for: localImage) {
                     DispatchQueue.main.async {
-                        resultHandler(imageData, self)
+                        resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: localImage.imageOrientation, info: nil)))
                     }
                     return
                 }else {
@@ -545,21 +556,22 @@ extension PhotoAsset {
                         self.getNetworkImage {  (image) in
                             if let imageData = image?.kf.gifRepresentation() {
                                 DispatchQueue.main.async {
-                                    resultHandler(imageData, self)
+                                    resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: image!.imageOrientation, info: nil)))
                                 }
                                 return
                             }
-                            let imageData = PhotoTools.getImageData(for: image)
-                            DispatchQueue.main.async {
-                                resultHandler(imageData, self)
+                            if let imageData = PhotoTools.getImageData(for: image) {
+                                DispatchQueue.main.async {
+                                    resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: image!.imageOrientation, info: nil)))
+                                }
+                                return
                             }
                         }
-                        return
                         #endif
                     }
                 }
                 DispatchQueue.main.async {
-                    resultHandler(nil, self)
+                    resultHandler?(self, .failure(.init(info: nil, error: .invalidData)))
                 }
             }
         }
@@ -711,7 +723,7 @@ extension PhotoAsset {
                         if isNetworkAsset {
                             getNetworkVideoURL(resultHandler: resultHandler)
                         }else {
-                            resultHandler(.failure(.emptyLocalURL))
+                            resultHandler(.failure(.localURLIsEmpty))
                         }
                     }
                 }
@@ -758,20 +770,24 @@ extension PhotoAsset {
             return
         }
         if mediaType == .video {
-            requestImageData(iCloudHandler: nil, progressHandler: nil) { (photoAsset, imageData, imageOrientation, info) in
-                DispatchQueue.global().async {
-                    if let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData) {
-                        DispatchQueue.main.async {
-                            resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
-                        }
-                    }else {
-                        DispatchQueue.main.async {
-                            resultHandler(.failure(.fileWriteFailed))
+            requestImageData(iCloudHandler: nil, progressHandler: nil) { photoAsset, result in
+                switch result {
+                case .success(let dataResult):
+                    let imageData = dataResult.imageData
+                    DispatchQueue.global().async {
+                        if let imageURL = PhotoTools.write(toFile: fileURL, imageData: imageData) {
+                            DispatchQueue.main.async {
+                                resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
+                            }
+                        }else {
+                            DispatchQueue.main.async {
+                                resultHandler(.failure(.fileWriteFailed))
+                            }
                         }
                     }
+                case .failure(let error):
+                    resultHandler(.failure(error.error))
                 }
-            } failure: { (photoAsset, ino) in
-                resultHandler(.failure(.invalidData))
             }
             return
         }
@@ -788,8 +804,9 @@ extension PhotoAsset {
             imageFileURL = PhotoTools.getTmpURL(for: suffix)
         }
         let isGif = phAsset!.isImageAnimated
-        AssetManager.requestImageURL(for: phAsset!, toFile: imageFileURL) { (imageURL) in
-            if let imageURL = imageURL {
+        AssetManager.requestImageURL(for: phAsset!, toFile: imageFileURL) { (result) in
+            switch result {
+            case .success(let imageURL):
                 if isGif && self.mediaSubType != .imageAnimated {
                     // 本质上是gif，需要变成静态图
                     do {
@@ -805,8 +822,8 @@ extension PhotoAsset {
                 }else {
                     resultHandler(.success(.init(url: imageURL, urlType: .local, mediaType: .photo)))
                 }
-            }else {
-                resultHandler(.failure(.invalidData))
+            case .failure(let error):
+                resultHandler(.failure(error))
             }
         }
     }
@@ -833,20 +850,25 @@ extension PhotoAsset {
             return
         }
         let toFile = fileURL == nil ? PhotoTools.getVideoTmpURL() : fileURL!
-        let assetHandler: (URL?, Error?) -> Void  =  { videoURL, error in
-            if let videoURL = videoURL {
-                resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
-            }else {
-                resultHandler(.failure(.exportFailed))
-            }
-        }
         if let exportPreset = exportPreset {
-            AssetManager.exportVideoURL(forVideo: phAsset, toFile: toFile, exportPreset: exportPreset) { (videoURL, error) in
-                assetHandler(videoURL, error)
+            AssetManager.exportVideoURL(forVideo: phAsset, toFile: toFile, exportPreset: exportPreset) { (result) in
+                switch result {
+                case .success(let videoURL):
+                    resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+                case .failure(let error):
+                    resultHandler(.failure(error.error))
+                }
             }
             return
         }
         if mediaSubType == .livePhoto {
+            let assetHandler: (URL?, Error?) -> Void  =  { videoURL, error in
+                if let videoURL = videoURL {
+                    resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+                }else {
+                    resultHandler(.failure(.exportFailed(error)))
+                }
+            }
             AssetManager.requestLivePhoto(videoURL: phAsset, toFile: toFile) { (videoURL, error) in
                 assetHandler(videoURL, nil)
             }
@@ -855,8 +877,13 @@ extension PhotoAsset {
                 resultHandler(.failure(.typeError))
                 return
             }
-            AssetManager.requestVideoURL(for: phAsset, toFile: toFile) { (videoURL) in
-                assetHandler(videoURL, nil)
+            AssetManager.requestVideoURL(for: phAsset, toFile: toFile) { (result) in
+                switch result {
+                case .success(let videoURL):
+                    resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+                case .failure(let error):
+                    resultHandler(.failure(error))
+                }
             }
         }
     }

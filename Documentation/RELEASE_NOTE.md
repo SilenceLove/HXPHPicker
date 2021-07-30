@@ -1,5 +1,22 @@
 # 更新日志
 
+## 1.1.6
+
+### 新增
+
+- Picker
+  - 网络视频加载方式`public var loadNetworkVideoMode: PhotoAsset.LoadNetworkVideoMode = .download`
+  - 预览界面长按回调`func pickerController(_ pickerController: PhotoPickerController,
+  previewLongPressClick photoAsset: PhotoAsset,
+  atIndex: Int)`
+- Editor
+  - 搜索背景音乐
+  
+### 修复
+
+- Picker
+  - 获取本地资源原始地址失败
+
 ## 1.1.5
 
 ### 新增

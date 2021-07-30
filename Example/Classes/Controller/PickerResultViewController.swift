@@ -50,6 +50,18 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     var localAssetArray: [PhotoAsset] = []
     
     var preselect: Bool = false
+    var isPublish: Bool = false
+    
+    var localCachePath: String {
+        var cachePath = PhotoTools.getSystemCacheFolderPath()
+        cachePath.append(contentsOf: "/com.silence.WeChat_Moment")
+        return cachePath
+    }
+    var localURL: URL {
+        var cachePath = localCachePath
+        cachePath.append(contentsOf: "/PhotoAssets")
+        return URL.init(fileURLWithPath: cachePath)
+    }
     
     weak var previewTitleLabel: UILabel?
     weak var currentPickerController: PhotoPickerController?
@@ -75,10 +87,29 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             collectionView.addGestureRecognizer(longGestureRecognizer)
         }
         view.backgroundColor = UIColor.white
-        let settingBtn = UIBarButtonItem.init(title: "设置", style:    .done, target: self, action: #selector(didSettingButtonClick))
-        let clearBtn = UIBarButtonItem.init(title: "清空缓存", style:    .done, target: self, action: #selector(didClearButtonClick))
-        
-        navigationItem.rightBarButtonItems = [settingBtn, clearBtn]
+        if isPublish {
+            title = "Moment"
+            let publishBtn = UIBarButtonItem.init(title: "发布", style:    .done, target: self, action: #selector(didPublishBtnClick))
+            
+            navigationItem.rightBarButtonItems = [publishBtn]
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消", style: .done, target: self, action: #selector(didCancelButtonClick))
+            
+            if let localData = FileManager.default.contents(atPath: localURL.path),
+               let datas = try? JSONDecoder().decode([Data].self, from: localData) {
+                var photoAssets: [PhotoAsset] = []
+                for data in datas {
+                    if let photoAsset = PhotoAsset.decoder(data: data) {
+                        photoAssets.append(photoAsset)
+                    }
+                }
+                selectedAssets = photoAssets
+            }
+        }else {
+            let settingBtn = UIBarButtonItem.init(title: "设置", style:    .done, target: self, action: #selector(didSettingButtonClick))
+            let clearBtn = UIBarButtonItem.init(title: "清空缓存", style:    .done, target: self, action: #selector(didClearButtonClick))
+            
+            navigationItem.rightBarButtonItems = [settingBtn, clearBtn]
+        }
         
         if preselect {
             PhotoManager.shared.loadNetworkVideoMode = .play
@@ -197,6 +228,46 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         PhotoTools.removeVideoCache()
         ImageCache.default.clearCache()
     }
+    func removeLocalPhotoAssetFile() {
+        if FileManager.default.fileExists(atPath: localURL.path) {
+            try? FileManager.default.removeItem(at: localURL)
+        }
+    }
+    @objc func didPublishBtnClick() {
+        removeLocalPhotoAssetFile()
+        dismiss(animated: true, completion: nil)
+    }
+    @objc func didCancelButtonClick() {
+        if selectedAssets.isEmpty {
+            removeLocalPhotoAssetFile()
+            dismiss(animated: true, completion: nil)
+            return
+        }
+        PhotoTools.showAlert(viewController: self, title: "是否将此次编辑保留?", message: nil, leftActionTitle: "不保留", leftHandler: { _ in
+            self.removeLocalPhotoAssetFile()
+            self.dismiss(animated: true, completion: nil)
+        }, rightActionTitle: "保留") { _ in
+            var datas: [Data] = []
+            for photoAsset in self.selectedAssets {
+                if let data = photoAsset.encode() {
+                    datas.append(data)
+                }
+            }
+            do {
+                if !FileManager.default.fileExists(atPath: self.localCachePath) {
+                    try FileManager.default.createDirectory(atPath: self.localCachePath, withIntermediateDirectories: true, attributes: nil)
+                }
+                if FileManager.default.fileExists(atPath: self.localURL.path) {
+                    try FileManager.default.removeItem(at: self.localURL)
+                }
+                let data = try JSONEncoder().encode(datas)
+                try data.write(to: self.localURL)
+            } catch {
+                print(error)
+            }
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
     
     /// 跳转选择资源界面
     @IBAction func selectButtonClick(_ sender: UIButton) {
@@ -222,6 +293,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             ProgressHUD.showWarning(addedTo: self.view, text: "请先选择资源", animated: true, delay: 1.5)
             return
         }
+        ProgressHUD.showLoading(addedTo: self.view, animated: true)
         var count = 0
         for photoAsset in selectedAssets {
             if photoAsset.mediaType == .photo {
@@ -247,7 +319,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                         }
                     }
                 }else {
-                    count += 1
                     photoAsset.getImageURL { [weak self] result in
                         switch result {
                         case .success(let response):
@@ -260,6 +331,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                             print("图片地址获取失败", error)
                             break
                         }
+                        count += 1
                         if count == total {
                             ProgressHUD.hide(forView: self?.view, animated: false)
                             ProgressHUD.showSuccess(addedTo: self?.view, text: "获取完成", animated: true, delay: 1.5)
@@ -283,6 +355,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                         print("视频地址获取失败", error)
                         break
                     }
+                    count += 1
                     if count == total {
                         ProgressHUD.hide(forView: self?.view, animated: false)
                         ProgressHUD.showSuccess(addedTo: self?.view, text: "获取完成", animated: true, delay: 1.5)
@@ -527,15 +600,14 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
                     case .success(let response):
                         if response.mediaType == .photo {
                             if response.urlType == .network {
-                                ImageDownloader.default.downloadImage(with: response.url) { result in
+                                PhotoTools.downloadNetworkImage(with: response.url, options: [], completionHandler: { image in
                                     ProgressHUD.hide(forView: pickerController.view, animated: true)
-                                    switch result {
-                                    case .success(let imageResult):
-                                        saveImage(imageResult.image)
-                                    case .failure(_):
+                                    if let image = image {
+                                        saveImage(image)
+                                    }else {
                                         ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
                                     }
-                                }
+                                })
                             }else {
                                 let image = UIImage(contentsOfFile: response.url.path)!
                                 saveImage(image)

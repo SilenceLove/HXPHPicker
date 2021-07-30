@@ -29,9 +29,11 @@ class VideoEditorMusic: Equatable {
     }
     
     var isLoading: Bool = false
+    var isSelected: Bool = false
     
     var metaData: [String: String] = [:]
     var lyrics: [VideoEditorLyric] = []
+    var lyricIsEmpty = false
     var songName: String? { metaData["ti"] }
     var singer: String? { metaData["ar"] }
     var time: TimeInterval? {
@@ -125,6 +127,10 @@ class VideoEditorMusic: Equatable {
             }
         }
         lyrics = sorted
+        if lyrics.isEmpty {
+            lyricIsEmpty = true
+            lyrics.append(.init(lyric: "此歌曲暂无歌词，请您欣赏"))
+        }
     }
     
     func lyric(at range: NSRange) -> [VideoEditorLyric] {

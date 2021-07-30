@@ -204,6 +204,9 @@ open class PhotoPickerController: UINavigationController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        PhotoManager.shared.targetWidth = config.photoList.cell.targetWidth
+        PhotoManager.shared.indicatorType = config.indicatorType
+        PhotoManager.shared.loadNetworkVideoMode = config.previewView.loadNetworkVideoMode
         configColor()
         navigationBar.isTranslucent = config.navigationBarIsTranslucent
         selectOptions = config.selectOptions
@@ -617,17 +620,20 @@ extension PhotoPickerController {
                 photoAsset.checkAdjustmentStatus { (isAdjusted, asset) in
                     if isAdjusted {
                         if asset.mediaType == .photo {
-                            asset.requestImageData(iCloudHandler: nil, progressHandler: nil) { (sAsset, imageData, imageOrientation, info) in
-                                sAsset.updateFileSize(imageData.count)
-                                totalFileSize += sAsset.fileSize
-                                total += 1
-                                if total == self.selectedAssetArray.count {
-                                    calculationCompletion(totalFileSize)
-                                }
-                            } failure: { (sAsset, info) in
-                                total += 1
-                                if total == self.selectedAssetArray.count {
-                                    calculationCompletion(totalFileSize)
+                            asset.requestImageData(iCloudHandler: nil, progressHandler: nil) { sAsset, result in
+                                switch result {
+                                case .success(let dataResult):
+                                    sAsset.updateFileSize(dataResult.imageData.count)
+                                    totalFileSize += sAsset.fileSize
+                                    total += 1
+                                    if total == self.selectedAssetArray.count {
+                                        calculationCompletion(totalFileSize)
+                                    }
+                                case .failure(_):
+                                    total += 1
+                                    if total == self.selectedAssetArray.count {
+                                        calculationCompletion(totalFileSize)
+                                    }
                                 }
                             }
                         }else {
@@ -639,7 +645,7 @@ extension PhotoPickerController {
                                 if total == self.selectedAssetArray.count {
                                     calculationCompletion(totalFileSize)
                                 }
-                            } failure: { (sAsset, info) in
+                            } failure: { (sAsset, info, error) in
                                 total += 1
                                 if total == self.selectedAssetArray.count {
                                     calculationCompletion(totalFileSize)

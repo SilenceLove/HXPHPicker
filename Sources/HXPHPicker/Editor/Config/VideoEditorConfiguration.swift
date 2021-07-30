@@ -19,15 +19,19 @@ open class VideoEditorConfiguration: EditorConfiguration {
     public var mustBeTailored: Bool = true
     
     /// 配乐配置
-    public lazy var music: MusicConfig = .init(infos: [])
+    public lazy var music: MusicConfig = .init()
     
-    public struct MusicConfig {
+    public class MusicConfig {
+        /// 显示搜索
+        public var showSearch: Bool = true
+        /// 完成按钮背景颜色、搜索框光标颜色
+        public var tintColor: UIColor = .systemTintColor
+        /// 搜索框的 placeholder
+        public var placeholder: String = ""
         /// 配乐信息
         /// 也可通过代理回调设置
-        public let infos: [VideoEditorMusicInfo]
-        public init(infos: [VideoEditorMusicInfo]) {
-            self.infos = infos
-        }
+        public var infos: [VideoEditorMusicInfo] = []
+        public init() { }
     }
     
     /// 裁剪配置

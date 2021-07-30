@@ -415,19 +415,24 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         let options = PHImageRequestOptions.init()
         options.resizeMode = .fast
         options.isSynchronous = false
-        requestID = AssetManager.requestImageData(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in
-            if let imageData = imageData {
+        requestID = AssetManager.requestImageData(for: asset, options: options) { (result) in
+            var info: [AnyHashable : Any]? = nil
+            switch result {
+            case .success(let dataResult):
+                info = dataResult.info
                 DispatchQueue.global().async {
                     var image: UIImage?
-                    if imageOrientation != .up {
-                        image = UIImage.init(data: imageData)?.normalizedImage()
+                    if dataResult.imageOrientation != .up {
+                        image = UIImage.init(data: dataResult.imageData)?.normalizedImage()
                     }else {
-                        image = UIImage.init(data: imageData)
+                        image = UIImage.init(data: dataResult.imageData)
                     }
                     DispatchQueue.main.async {
                         self.pushImageView.image = image
                     }
                 }
+            case .failure(let error):
+                info = error.info
             }
             if AssetManager.assetDownloadFinined(for: info) ||
                 AssetManager.assetCancelDownload(for: info){

@@ -15,6 +15,7 @@
   -  [配置照片编辑器贴纸数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E7%85%A7%E7%89%87%E7%BC%96%E8%BE%91%E5%99%A8%E8%B4%B4%E7%BA%B8%E6%95%B0%E6%8D%AE)
   - [替换视频编辑器的配乐界面](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%9B%BF%E6%8D%A2%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E9%85%8D%E4%B9%90%E7%95%8C%E9%9D%A2)
   - [配置视频编辑器的配乐列表数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E9%85%8D%E4%B9%90%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE)
+  - [视频编辑器搜索配乐数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E6%90%9C%E7%B4%A2%E9%85%8D%E4%B9%90%E6%95%B0%E6%8D%AE)
   - [预览界面](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%A2%84%E8%A7%88%E7%95%8C%E9%9D%A2)
   - [单独预览时的自定义转场动画](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%8D%95%E7%8B%AC%E9%A2%84%E8%A7%88%E6%97%B6%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BD%AC%E5%9C%BA%E5%8A%A8%E7%94%BB)
   - [控制器的生命周期](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F)
@@ -336,6 +337,38 @@ func pickerController(_ pickerController: PhotoPickerController,
         return true
     }
     return false
+}
+```
+
+### 视频编辑器搜索配乐数据
+
+```swift
+/// 视频编辑器搜索配乐信息
+/// - Parameters:
+///   - videoEditorViewController: 对应的 VideoEditorViewController
+///   - text: 搜索的文字内容
+///   - completion: 传入配乐信息，是否需要加载更多
+func pickerController(_ pickerController: PhotoPickerController,
+                      videoEditor videoEditorViewController: VideoEditorViewController,
+                      didSearch text: String?,
+                      completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    // 模仿延迟加加载数据
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        completionHandler(self.getMusicInfos(), true)
+    }
+}
+/// 视频编辑器加载更多配乐信息
+/// - Parameters:
+///   - videoEditorViewController: 对应的 VideoEditorViewController
+///   - text: 搜索的文字内容
+///   - completion: 传入配乐信息，是否还有更多数据
+func pickerController(_ pickerController: PhotoPickerController,
+                      videoEditor videoEditorViewController: VideoEditorViewController,
+                      loadMore text: String?,
+                      completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        completionHandler(self.getMusicInfos(), false)
+    }
 }
 ```
 
@@ -752,7 +785,7 @@ struct PickerAssetOptions: OptionSet {
 ///   - handler: 获取到url的回调
 ///   - completionHandler: 全部获取完成
 public func getURLs(options: Options = .any,
-                    urlReceivedHandler handler: @escaping (Result<PhotoAssetURLResponse, PhotoAssetError>, PhotoAsset, Int) -> Void,
+                    urlReceivedHandler handler: @escaping (Result<PhotoAsset.AssetURLResult, PhotoAsset.AssetError>, PhotoAsset, Int) -> Void,
                     completionHandler: @escaping ([URL]) -> Void)
 ```
 

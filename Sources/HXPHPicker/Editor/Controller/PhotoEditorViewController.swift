@@ -306,6 +306,12 @@ open class PhotoEditorViewController: BaseViewController {
         singleTap.delegate = self
         view.addGestureRecognizer(singleTap)
         view.isExclusiveTouch = true
+        view.backgroundColor = .black
+        view.clipsToBounds = true
+        view.addSubview(imageView)
+        view.addSubview(toolView)
+        view.addSubview(cropConfirmView)
+        view.addSubview(cropToolView)
         if config.fixedCropState {
             state = .cropping
             toolView.alpha = 0
@@ -314,17 +320,11 @@ open class PhotoEditorViewController: BaseViewController {
             topView.isHidden = true
         }else {
             state = config.state
+            view.addSubview(brushColorView)
+            view.addSubview(chartletView)
+            view.addSubview(mosaicToolView)
+            view.addSubview(filterView)
         }
-        view.backgroundColor = .black
-        view.clipsToBounds = true
-        view.addSubview(imageView)
-        view.addSubview(toolView)
-        view.addSubview(brushColorView)
-        view.addSubview(chartletView)
-        view.addSubview(cropConfirmView)
-        view.addSubview(cropToolView)
-        view.addSubview(mosaicToolView)
-        view.addSubview(filterView)
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
         if needRequest {

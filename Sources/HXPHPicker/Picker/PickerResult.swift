@@ -49,7 +49,7 @@ public struct PickerResult {
     ///   - videoURLHandler: 每一次获取视频地址都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
     public func getVideoURL(exportPreset: String = AVAssetExportPresetMediumQuality,
-                            videoURLHandler: @escaping (Result<PhotoAssetURLResponse, PhotoAssetError>, PhotoAsset, Int) -> Void,
+                            videoURLHandler: @escaping (Result<PhotoAsset.AssetURLResult, PhotoAsset.AssetError>, PhotoAsset, Int) -> Void,
                             completionHandler: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.get.videoURL")
@@ -107,7 +107,7 @@ public struct PickerResult {
     ///   - handler: 获取到url的回调
     ///   - completionHandler: 全部获取完成
     public func getURLs(options: Options = .any,
-                        urlReceivedHandler handler: @escaping (Result<PhotoAssetURLResponse, PhotoAssetError>, PhotoAsset, Int) -> Void,
+                        urlReceivedHandler handler: @escaping (Result<PhotoAsset.AssetURLResult, PhotoAsset.AssetError>, PhotoAsset, Int) -> Void,
                         completionHandler: @escaping ([URL]) -> Void) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.request.urls")
@@ -128,7 +128,7 @@ public struct PickerResult {
                     mediatype = .photo
                 }
                 #endif
-                let resultHandler: AssetURLCompletion = { result in
+                let resultHandler: PhotoAsset.AssetURLCompletion = { result in
                     switch result {
                     case .success(let respone):
                         urls.append(respone.url)

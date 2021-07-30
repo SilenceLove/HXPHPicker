@@ -45,15 +45,18 @@ extension PhotoAsset {
                     loadingView = ProgressHUD.showLoading(addedTo: keyWindow, text: "正在同步iCloud".localized + "...", animated: true)
                 } progressHandler: { _, progress in
                     loadingView?.updateText(text: "正在同步iCloud".localized + "(" + String(Int(progress * 100)) + "%)")
-                } success: { _, _, _, _ in
-                    ProgressHUD.hide(forView: keyWindow, animated: true)
-                    loadingView = nil
-                    completion(true)
-                } failure: { _, _ in
-                    ProgressHUD.hide(forView: keyWindow, animated: false)
-                    ProgressHUD.showWarning(addedTo: keyWindow, text: "iCloud同步失败".localized, animated: true, delayHide: 1.5)
-                    loadingView = nil
-                    completion(false)
+                } resultHandler: { _, result in
+                    switch result {
+                    case .success(_):
+                        ProgressHUD.hide(forView: keyWindow, animated: true)
+                        loadingView = nil
+                        completion(true)
+                    case .failure(_):
+                        ProgressHUD.hide(forView: keyWindow, animated: false)
+                        ProgressHUD.showWarning(addedTo: keyWindow, text: "iCloud同步失败".localized, animated: true, delayHide: 1.5)
+                        loadingView = nil
+                        completion(false)
+                    }
                 }
             }else if mediaType == .video {
                 requestAVAsset { _, _ in
@@ -64,7 +67,7 @@ extension PhotoAsset {
                     ProgressHUD.hide(forView: keyWindow, animated: true)
                     loadingView = nil
                     completion(true)
-                } failure: { _, _ in
+                } failure: { _, _, _ in
                     ProgressHUD.hide(forView: keyWindow, animated: false)
                     ProgressHUD.showWarning(addedTo: keyWindow, text: "iCloud同步失败".localized, animated: true, delayHide: 1.5)
                     loadingView = nil

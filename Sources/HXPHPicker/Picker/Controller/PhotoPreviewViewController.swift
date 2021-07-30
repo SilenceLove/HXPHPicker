@@ -880,6 +880,16 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         return false
     }
+    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didSearch text: String?, completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(pickerController, videoEditor: videoEditorViewController, didSearch: text, completionHandler: completionHandler)
+        }
+    }
+    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMore text: String?, completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(pickerController, videoEditor: videoEditorViewController, loadMore: text, completionHandler: completionHandler)
+        }
+    }
     public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result

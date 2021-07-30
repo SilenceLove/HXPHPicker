@@ -11,7 +11,7 @@ import HXPHPicker
 class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate {
     var isImage = false
     lazy var imageView: UIImageView = {
-        let view = UIImageView()
+        let view = UIImageView(image: .init(named: "wx_head_icon"))
         view.contentMode = .scaleAspectFill
         view.clipsToBounds = true
         view.isUserInteractionEnabled = true
@@ -39,24 +39,48 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
             imageView.image = result.photoAssets.first?.originalImage
         }else {
             pickerController.dismiss(animated: true) {
-                let vc = WeChatMometPublishViewController()
+                let vc = PickerResultViewController()
+                vc.isPublish = true
+                vc.selectedAssets = result.photoAssets
+                vc.isOriginal = result.isOriginal
                 let nav = UINavigationController(rootViewController: vc)
-                
+                nav.modalPresentationStyle = .fullScreen
                 self.present(nav, animated: true, completion: nil)
             }
         }
     }
+    func pickerController(didCancel pickerController: PhotoPickerController) {
+        pickerController.dismiss(animated: true, completion: nil)
+    }
+    var localCachePath: String {
+        var cachePath = PhotoTools.getSystemCacheFolderPath()
+        cachePath.append(contentsOf: "/com.silence.WeChat_Moment")
+        return cachePath
+    }
+    var localURL: URL {
+        var cachePath = localCachePath
+        cachePath.append(contentsOf: "/PhotoAssets")
+        return URL.init(fileURLWithPath: cachePath)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "WeChat-Moment"
+        title = "Moment"
         view.backgroundColor = .white
         view.addSubview(imageView)
-        
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "发布", style: .done, target: self, action: #selector(didPublishClick))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "camera_overturn"), style: .done, target: self, action: #selector(didPublishClick))
     }
     
     @objc func didPublishClick() {
+        if FileManager.default.fileExists(atPath: localURL.path)  {
+            let vc = PickerResultViewController()
+            vc.isPublish = true
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav, animated: true, completion: nil)
+            return
+        }
+        isImage = false
         let config = PhotoTools.getWXPickerConfig(isMoment: true)
         config.maximumSelectedVideoDuration = 60
         let pickerController = PhotoPickerController(picker: config, delegate: self)

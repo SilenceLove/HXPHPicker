@@ -119,6 +119,26 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditor videoEditorViewController: VideoEditorViewController,
                           loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool
+    
+    /// 视频编辑器搜索配乐信息
+    /// - Parameters:
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
+    ///   - text: 搜索的文字内容
+    ///   - completion: 传入配乐信息，是否需要加载更多
+    func pickerController(_ pickerController: PhotoPickerController,
+                          videoEditor videoEditorViewController: VideoEditorViewController,
+                          didSearch text: String?,
+                          completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void)
+    
+    /// 视频编辑器加载更多配乐信息
+    /// - Parameters:
+    ///   - videoEditorViewController: 对应的 VideoEditorViewController
+    ///   - text: 搜索的文字内容
+    ///   - completion: 传入配乐信息，是否还有更多数据
+    func pickerController(_ pickerController: PhotoPickerController,
+                          videoEditor videoEditorViewController: VideoEditorViewController,
+                          loadMore text: String?,
+                          completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void)
     #endif
     
     /// Asset 编辑完后调用
@@ -295,6 +315,18 @@ public extension PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditor videoEditorViewController: VideoEditorViewController,
                           loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool { false }
+    func pickerController(_ pickerController: PhotoPickerController,
+                          videoEditor videoEditorViewController: VideoEditorViewController,
+                          didSearch text: String?,
+                          completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        completionHandler([], false)
+    }
+    func pickerController(_ pickerController: PhotoPickerController,
+                          videoEditor videoEditorViewController: VideoEditorViewController,
+                          loadMore text: String?,
+                          completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        completionHandler([], false)
+    }
     #endif
     
     func pickerController(_ pickerController: PhotoPickerController, didEditAsset photoAsset: PhotoAsset, atIndex: Int) { }

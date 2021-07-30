@@ -150,6 +150,14 @@ public extension PhotoAsset {
         case canceled       //!< 取消下载
         case failed         //!< 下载失败
     }
+    
+    /// 网络视频加载方式
+    enum LoadNetworkVideoMode {
+        /// 先下载
+        case download
+        /// 直接播放
+        case play
+    }
 }
 
 public enum AlbumShowMode: Int {

@@ -81,22 +81,25 @@ extension PhotoEditorViewController {
                 photoAsset.requestImageData(filterEditor: true,
                                             iCloudHandler: nil,
                                             progressHandler: nil) {
-                    [weak self] (asset, imageData, imageOrientation, info) in
+                    [weak self] asset, result in
                     guard let self = self else { return }
-                    let image = UIImage.init(data: imageData)?.scaleSuitableSize()
-                    DispatchQueue.global().async {
-                        self.filterHDImageHandler(image: image!)
-                        DispatchQueue.main.async {
-                            ProgressHUD.hide(forView: self.view, animated: true)
-                            self.requestAssetCompletion(image: image!)
+                    switch result {
+                    case .success(let dataResult):
+                        let image = UIImage.init(data: dataResult.imageData)?.scaleSuitableSize()
+                        DispatchQueue.global().async {
+                            self.filterHDImageHandler(image: image!)
+                            DispatchQueue.main.async {
+                                ProgressHUD.hide(forView: self.view, animated: true)
+                                self.requestAssetCompletion(image: image!)
+                            }
                         }
-                    }
-                } failure: { [weak self] (asset, info) in
-                    ProgressHUD.hide(forView: self?.view, animated: true)
-                    if let inICloud = info?.inICloud {
-                        self?.requestAssetFailure(isICloud: inICloud)
-                    }else {
-                        self?.requestAssetFailure(isICloud: false)
+                    case .failure(let error):
+                        ProgressHUD.hide(forView: self.view, animated: true)
+                        if let inICloud = error.info?.inICloud {
+                            self.requestAssetFailure(isICloud: inICloud)
+                        }else {
+                            self.requestAssetFailure(isICloud: false)
+                        }
                     }
                 }
                 return

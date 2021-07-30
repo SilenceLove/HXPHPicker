@@ -10,6 +10,7 @@ import UIKit
 protocol VideoEditorMusicViewDelegate: AnyObject {
     func musicView(_ musicView: VideoEditorMusicView, didSelectMusic audioPath: String?)
     func musicView(deselectMusic musicView: VideoEditorMusicView)
+    func musicView(didSearchButton musicView: VideoEditorMusicView)
     func musicView(_ musicView: VideoEditorMusicView, didOriginalSoundButtonClick isSelected: Bool)
 }
 
@@ -30,6 +31,29 @@ class VideoEditorMusicView: UIView {
         layer.borderWidth = 0.0
         return layer
     }()
+    lazy var searchBgView: UIVisualEffectView = {
+        let visualEffect = UIBlurEffect.init(style: .light)
+        let view = UIVisualEffectView.init(effect: visualEffect)
+        view.layer.cornerRadius = 15
+        view.layer.masksToBounds = true
+        view.contentView.addSubview(searchButton)
+        return view
+    }()
+    lazy var searchButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage("hx_editor_video_music_search".image?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.setTitle("搜索".localized, for: .normal)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -3, bottom: 0, right: 0)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 3, bottom: 0, right: 0)
+        button.titleLabel?.font = .mediumPingFang(ofSize: 14)
+        button.tintColor = .white
+        button.imageView?.tintColor = .white
+        button.addTarget(self, action: #selector(didSearchButtonClick), for: .touchUpInside)
+        return button
+    }()
+    @objc func didSearchButtonClick() {
+        delegate?.musicView(didSearchButton: self)
+    }
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
         flowLayout.scrollDirection = .horizontal
@@ -103,24 +127,36 @@ class VideoEditorMusicView: UIView {
     var pageWidth: CGFloat = 0
     var selectedIndex: Int = -1
     var currentPlayIndex: Int = -2
+    var beforeIsSelect = false
     var musics: [VideoEditorMusic] = []
-    init(musicInfos: [VideoEditorMusicInfo]) {
+    let config: VideoEditorConfiguration.MusicConfig
+    init(config: VideoEditorConfiguration.MusicConfig) {
+        self.config = config
         super.init(frame: .zero)
-        setMusics(infos: musicInfos)
+        setMusics(infos: config.infos)
         layer.addSublayer(bgMaskLayer)
         addSubview(collectionView)
+        if config.showSearch {
+            addSubview(searchBgView)
+        }
         addSubview(backgroundButton)
         addSubview(originalSoundButton)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     @objc func appDidEnterBackground() {
+        if backgroundButton.isSelected && currentPlayIndex != -2 {
+            beforeIsSelect = true
+        }
         stopMusic()
     }
     @objc func appDidEnterPlayGround() {
-        if backgroundButton.isSelected {
+        if backgroundButton.isSelected && beforeIsSelect {
             playMusic()
+        }else {
+            backgroundButton.isSelected = false
         }
+        beforeIsSelect = false
     }
     func setMusics(infos: [VideoEditorMusicInfo]) {
         var musicArray: [VideoEditorMusic] = []
@@ -178,10 +214,17 @@ class VideoEditorMusicView: UIView {
         super.layoutSubviews()
         bgMaskLayer.frame = bounds
         let margin: CGFloat = 30
+        let searchTextWidth = searchButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 14), maxHeight: 30) ?? 0
+        var searchButtonWidth = searchTextWidth + (searchButton.currentImage?.width ?? 0) + 20
+        if searchButtonWidth < 65 {
+            searchButtonWidth = 65
+        }
+        searchBgView.frame = CGRect(x: UIDevice.leftMargin + margin, y: 0, width: searchButtonWidth, height: 30)
+        searchButton.frame = searchBgView.bounds
         pageWidth = width - margin * 2 - UIDevice.leftMargin - UIDevice.rightMargin + flowLayout.minimumLineSpacing
-        collectionView.frame = CGRect(x: 0, y: 0, width: width, height: 140)
-        flowLayout.sectionInset = UIEdgeInsets(top: 15, left: margin + UIDevice.leftMargin, bottom: 5, right: margin + UIDevice.rightMargin)
-        flowLayout.itemSize = CGSize(width: pageWidth - flowLayout.minimumLineSpacing, height: collectionView.height - 50)
+        collectionView.frame = CGRect(x: 0, y: searchBgView.frame.maxY + 15, width: width, height: 90)
+        flowLayout.sectionInset = UIEdgeInsets(top: 0, left: margin + UIDevice.leftMargin, bottom: 0, right: margin + UIDevice.rightMargin)
+        flowLayout.itemSize = CGSize(width: pageWidth - flowLayout.minimumLineSpacing, height: collectionView.height)
         setBottomButtonFrame()
     }
     func setBottomButtonFrame() {
@@ -194,9 +237,9 @@ class VideoEditorMusicView: UIView {
         let originalTextWidth = originalSoundButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 16), maxHeight: buttonHeight) ?? 0
         let originalButtonWidth = imageWidth + originalTextWidth + 10
         let margin: CGFloat = 20
-        backgroundButton.frame = CGRect(x: width * 0.5 - margin - bgButtonWidth, y: collectionView.frame.maxY, width: bgButtonWidth, height: buttonHeight)
+        backgroundButton.frame = CGRect(x: width * 0.5 - margin - bgButtonWidth, y: collectionView.frame.maxY + 20, width: bgButtonWidth, height: buttonHeight)
         
-        originalSoundButton.frame = CGRect(x: width * 0.5 + margin, y: collectionView.frame.maxY, width: originalButtonWidth, height: buttonHeight)
+        originalSoundButton.frame = CGRect(x: width * 0.5 + margin, y: collectionView.frame.maxY + 20, width: originalButtonWidth, height: buttonHeight)
         
         if musics.isEmpty {
             originalSoundButton.centerX = width * 0.5
@@ -311,13 +354,16 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         view.contentView.addSubview(musicIconView)
         return view
     }()
-    
+    lazy var songNameLb: UILabel = {
+        let label = UILabel()
+        label.font = .mediumPingFang(ofSize: 16)
+        return label
+    }()
     lazy var animationView: VideoEditorMusicAnimationView = {
         let view = VideoEditorMusicAnimationView()
         view.isHidden = true
         return view
     }()
-    
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
         flowLayout.scrollDirection = .horizontal
@@ -381,8 +427,18 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             if music.lyrics.isEmpty {
                 music.parseLrc()
             }
+            if let songName = music.songName, !songName.isEmpty,
+               let singer = music.singer, !singer.isEmpty {
+                songNameLb.text = songName + " - " + singer
+            }else {
+                songNameLb.text = music.songName
+            }
             collectionView.reloadData()
-            resetStatus()
+            if music.isSelected {
+                playMusic()
+            }else {
+                resetStatus()
+            }
         }
     }
     var isPlaying: Bool = false
@@ -392,30 +448,69 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         let visualEffect = UIBlurEffect.init(style: .extraLight)
         bgView.effect = visualEffect
         musicIconView.tintColor = "#333333".color
+        songNameLb.textColor = "#333333".color
         animationView.startAnimation()
         animationView.isHidden = false
         collectionView.reloadData()
-        let startPoint = -(width - 15)
-        if PhotoManager.shared.playMusic(filePath: music.audioPath, finished: { [weak self] in
-            self?.setPreciseContentOffset(x: startPoint, y: 0)
-        }) {
-            if let time = PhotoManager.shared.audioPlayer?.duration {
-                scrollLyric(time: time)
-            }else if let time = music.time {
-                scrollLyric(time: time)
-            }else if let time = music.lyrics.last?.startTime {
-                scrollLyric(time: time + 5)
+        let startPointX = -(width - 15)
+        if music.isSelected {
+            playTimer?.cancel()
+            if music.lyricIsEmpty {
+                DispatchQueue.main.async {
+                    self.scrollLyric(time: 10)
+                }
+                return
+            }
+            PhotoManager.shared.audioPlayFinish = { [weak self] in
+                guard let self = self else { return }
+                if self.music.lyricIsEmpty {
+                    return
+                }
+                self.setPreciseContentOffset(x: startPointX, y: 0)
+            }
+            DispatchQueue.main.async {
+                guard let time = PhotoManager.shared.audioPlayer?.currentTime,
+                      let duration = PhotoManager.shared.audioPlayer?.duration else {
+                    return
+                }
+                let timeScale = CGFloat(time / duration)
+                let maxOffsetX = self.collectionView.contentSize.width - self.width + (self.width - 15) - startPointX
+                let timeOffsetX = maxOffsetX * timeScale + startPointX
+                self.setPreciseContentOffset(x: timeOffsetX, y: 0)
+                self.scrollLyric(time: duration)
+            }
+        }else {
+            if PhotoManager.shared.playMusic(filePath: music.audioPath, finished: { [weak self] in
+                guard let self = self else { return }
+                if self.music.lyricIsEmpty {
+                    return
+                }
+                self.setPreciseContentOffset(x: startPointX, y: 0)
+            }) {
+                if music.lyricIsEmpty {
+                    scrollLyric(time: 10)
+                    return
+                }
+                if let time = PhotoManager.shared.audioPlayer?.duration {
+                    scrollLyric(time: time)
+                }else if let time = music.time {
+                    scrollLyric(time: time)
+                }else if let time = music.lyrics.last?.startTime {
+                    scrollLyric(time: time + 5)
+                }
             }
         }
     }
     
     func scrollLyric(time: TimeInterval) {
         playTimer?.cancel()
-        let startPoint = -(width - 15)
-        collectionView.setContentOffset(CGPoint(x: startPoint, y: 0), animated: false)
-        let maxOffsetX = self.collectionView.contentSize.width - width + (width - 15)
+        let startPointX = -(width - 15)
+        if !music.isSelected {
+            collectionView.setContentOffset(CGPoint(x: startPointX, y: 0), animated: false)
+        }
+        let maxOffsetX = collectionView.contentSize.width - width + (width - 15)
         let duration: TimeInterval = 0.005
-        let marginX = (maxOffsetX - startPoint) / CGFloat(time * (1 / duration))
+        let marginX = (maxOffsetX - startPointX) / CGFloat(time * (1 / duration))
         let playTimer = DispatchSource.makeTimerSource()
         playTimer.schedule(deadline: .now(), repeating: .milliseconds(5), leeway: .milliseconds(0))
         playTimer.setEventHandler(handler: { [weak self] in
@@ -423,6 +518,9 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             DispatchQueue.main.sync {
                 let offsetX = self.collectionView.contentOffset.x
                 if offsetX >= maxOffsetX {
+                    if self.music.lyricIsEmpty {
+                        self.setPreciseContentOffset(x: startPointX, y: 0)
+                    }
                     return
                 }
                 self.setPreciseContentOffset(x: offsetX + marginX, y: 0)
@@ -438,6 +536,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     }
     
     func stopMusic() {
+        music.isSelected = false
         PhotoManager.shared.stopPlayMusic()
         resetStatus()
     }
@@ -446,6 +545,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         let visualEffect = UIBlurEffect.init(style: .light)
         bgView.effect = visualEffect
         musicIconView.tintColor = .white
+        songNameLb.textColor = .white
         animationView.isHidden = true
         animationView.stopAnimation()
         collectionView.reloadData()
@@ -458,6 +558,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         contentView.addSubview(shadeView)
         contentView.addSubview(loadingView)
         contentView.addSubview(animationView)
+        contentView.addSubview(songNameLb)
     }
     
     required init?(coder: NSCoder) {
@@ -470,6 +571,10 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         musicIconView.x = 15
         musicIconView.y = 15
         animationView.frame = CGRect(x: width - 60, y: 20, width: 20, height: 15)
+        songNameLb.x = musicIconView.frame.maxX + 10
+        songNameLb.width = animationView.x - 10 - songNameLb.x
+        songNameLb.height = 20
+        songNameLb.centerY = musicIconView.centerY
         shadeView.frame = CGRect(x: 0, y: musicIconView.frame.maxY + 10, width: width, height: height - musicIconView.frame.maxY - 20)
         collectionView.frame = shadeView.bounds
         maskLayer.frame = CGRect(x: 10, y: 0, width: shadeView.width - 20, height: shadeView.height)
@@ -503,7 +608,7 @@ class VideoEditorMusicLyricViewCell: UICollectionViewCell {
     
     lazy var lyricLb: UILabel = {
         let label = UILabel.init()
-        label.font = UIFont.mediumPingFang(ofSize: 16)
+        label.font = .mediumPingFang(ofSize: 16)
         label.textColor = .white
         return label
     }()

@@ -16,12 +16,10 @@ extension PhotoTools {
     ///   - status: 权限类型
     public class func showNotAuthorizedAlert(viewController : UIViewController? ,
                                              status : PHAuthorizationStatus) {
-        if viewController == nil {
-            return
-        }
+        guard let vc = viewController else { return }
         if status == .denied ||
             status == .restricted {
-            showAlert(viewController: viewController, title: "无法访问相册中照片".localized, message: "当前无照片访问权限，建议前往系统设置，\n允许访问「照片」中的「所有照片」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
+            showAlert(viewController: vc, title: "无法访问相册中照片".localized, message: "当前无照片访问权限，建议前往系统设置，\n允许访问「照片」中的「所有照片」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
                 openSettingsURL()
             }
         }
@@ -29,10 +27,8 @@ extension PhotoTools {
     
     /// 显示没有相机权限弹窗
     public class func showNotCameraAuthorizedAlert(viewController : UIViewController?) {
-        if viewController == nil {
-            return
-        }
-        showAlert(viewController: viewController, title: "无法使用相机功能".localized, message: "请前往系统设置中，允许访问「相机」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
+        guard let vc = viewController else { return }
+        showAlert(viewController: vc, title: "无法使用相机功能".localized, message: "请前往系统设置中，允许访问「相机」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
             openSettingsURL()
         }
     }
@@ -289,6 +285,7 @@ extension PhotoTools {
         config.videoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
         config.videoEditor.toolView.toolSelectedColor = "#07C160".color
         config.videoEditor.toolView.musicSelectedColor = "#07C160".color
+        config.videoEditor.music.tintColor = "#07C160".color
         
         config.photoEditor.toolView.toolSelectedColor = "#07C160".color
         config.photoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
