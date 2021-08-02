@@ -314,7 +314,16 @@ public extension PhotoPickerControllerDelegate {
     
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditor videoEditorViewController: VideoEditorViewController,
-                          loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool { false }
+                          loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+        var infos: [VideoEditorMusicInfo] = []
+        if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"),
+           let lrc = "天外来物".lrc {
+            let info = VideoEditorMusicInfo(audioURL: audioURL, lrc: lrc)
+            infos.append(info)
+        }
+        completionHandler(infos)
+        return false
+    }
     func pickerController(_ pickerController: PhotoPickerController,
                           videoEditor videoEditorViewController: VideoEditorViewController,
                           didSearch text: String?,

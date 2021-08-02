@@ -170,6 +170,8 @@ class VideoEditorSearchMusicView: UIView {
                 cell.stopMusic()
             }else {
                 musics[currentSelectItem].isSelected = false
+                let url = musics[currentSelectItem].audioURL
+                PhotoManager.shared.suspendTask(url)
                 PhotoManager.shared.stopPlayMusic()
             }
             currentSelectItem = -1
@@ -194,8 +196,8 @@ class VideoEditorSearchMusicView: UIView {
     func getMusics(infos: [VideoEditorMusicInfo]) -> [VideoEditorMusic] {
         var musicArray: [VideoEditorMusic] = []
         for musicInfo in infos {
-            let music = VideoEditorMusic(audioPath: musicInfo.audioPath,
-                                         lrcPath: musicInfo.lrcPath)
+            let music = VideoEditorMusic(audioURL: musicInfo.audioURL,
+                                         lrc: musicInfo.lrc)
             musicArray.append(music)
         }
         return musicArray
@@ -279,13 +281,19 @@ extension VideoEditorSearchMusicView: UICollectionViewDataSource, UICollectionVi
                 lastCell.stopMusic()
             }else {
                 musics[currentSelectItem].isSelected = false
+                let url = musics[currentSelectItem].audioURL
+                PhotoManager.shared.suspendTask(url)
                 PhotoManager.shared.stopPlayMusic()
             }
         }
         let cell = collectionView.cellForItem(at: indexPath) as! VideoEditorMusicViewCell
-        delegate?.searchMusicView(self, didSelectItem: cell.music.audioPath)
-        cell.playMusic()
-        cell.music.isSelected = true
+        cell.playMusic { [weak self] path in
+            guard let self = self else { return }
+            let shake = UIImpactFeedbackGenerator(style: .light)
+            shake.prepare()
+            shake.impactOccurred()
+            self.delegate?.searchMusicView(self, didSelectItem: path)
+        }
         currentSelectItem = indexPath.item
         finishButton.isEnabled = true
     }

@@ -148,12 +148,16 @@ extension HomeViewController {
             case .collectionView:
                 return PickerResultViewController()
             case .customCell:
-                let config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: false)
+                let config: PickerConfiguration = PhotoTools.getWXPickerConfig(
+                    isMoment: false
+                )
                 config.photoSelectionTapAction = .quickSelect
                 config.videoSelectionTapAction = .quickSelect
                 config.photoList.cell.customSingleCellClass = CustomPickerViewCell.self
                 config.photoList.cell.customSelectableCellClass = CustomPickerViewCell.self
-                let pickerController = PhotoPickerController.init(config: config)
+                let pickerController = PhotoPickerController(
+                    config: config
+                )
                 pickerController.autoDismiss = false
                 return pickerController
             case .weChatMoment:

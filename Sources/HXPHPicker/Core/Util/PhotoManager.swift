@@ -64,14 +64,13 @@ public class PhotoManager: NSObject {
     }()
     
     var audioPlayer: AVAudioPlayer?
-    
     var audioPlayFinish: (() -> Void)?
     
     var downloadTasks: [String : URLSessionDownloadTask] = [:]
-    
-    var downloadCompletions: [String : (URL?, Error?) -> Void] = [:]
-    
+    var downloadCompletions: [String : (URL?, Error?, Any?) -> Void] = [:]
     var downloadProgresss: [String : (Double, URLSessionDownloadTask) -> Void] = [:]
+    var downloadFileURLs: [String : URL] = [:]
+    var downloadExts: [String : Any] = [:]
     
     private override init() {
         super.init()

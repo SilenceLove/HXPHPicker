@@ -176,9 +176,11 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 loadingView?.isHidden = false
             }
             networkVideoLoading = true
-            PhotoManager.shared.downloadTask(with: videoURL) { [weak self] (progress, task) in
+            PhotoManager.shared.downloadTask(
+                with: videoURL) {
+                [weak self] (progress, task) in
                 self?.requestUpdateProgress(progress: progress, isICloud: false)
-            } completionHandler: { [weak self] (url, error) in
+            } completionHandler: { [weak self] (url, error, _) in
                 guard let self = self else {
                     return
                 }
@@ -500,6 +502,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             if photoAsset.isNetworkAsset {
                 if requestNetworkCompletion {
                     videoView.showPlayButton()
+                }else {
+                    videoView.showMaskView()
                 }
             }else {
                 videoView.showPlayButton()
@@ -514,6 +518,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             if photoAsset.isNetworkAsset {
                 if requestNetworkCompletion {
                     videoView.hiddenPlayButton()
+                }else {
+                    videoView.hiddenMaskView()
                 }
             }else {
                 videoView.hiddenPlayButton()

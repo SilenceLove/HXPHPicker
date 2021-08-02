@@ -28,7 +28,11 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
         config.photoEditor.cropping.aspectRatioType = .ratio_1x1
         config.photoEditor.cropping.fixedRatio = true
         config.photoEditor.fixedCropState = true
-        let pickerController = PhotoPickerController(picker: config, delegate: self)
+        
+        let pickerController = PhotoPickerController(
+            picker: config,
+            delegate: self
+        )
         
         present(pickerController, animated: true, completion: nil)
     }

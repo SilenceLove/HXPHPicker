@@ -213,6 +213,40 @@ public extension PhotoAsset {
             }
         }
     }
+    
+    func requestLivePhotoURL(completion: @escaping (Result<AssetURLResult, AssetError>) -> Void) {
+        #if HXPICKER_ENABLE_EDITOR
+        if let photoEdit = photoEdit {
+            completion(.success(.init(url: photoEdit.editedImageURL, urlType: .local, mediaType: .photo, livePhoto: nil)))
+            return
+        }
+        #endif
+        guard let phAsset = phAsset else {
+            completion(.failure(.invalidPHAsset))
+            return
+        }
+        var imageURL: URL?
+        var videoURL: URL?
+        AssetManager.requestLivePhoto(contentURL: phAsset) { url in
+            imageURL  = url
+        } videoHandler: { url in
+            videoURL  = url
+        } completionHandler: { error in
+            if let error = error {
+                switch error {
+                case .allError(let imageError, let videoError):
+                    completion(.failure(.exportLivePhotoURLFailed(imageError, videoError)))
+                case .imageError(let error):
+                    completion(.failure(.exportLivePhotoImageURLFailed(error)))
+                case .videoError(let error):
+                    completion(.failure(.exportLivePhotoVideoURLFailed(error)))
+                }
+            }else {
+                completion(.success(.init(url: imageURL!, urlType: .local, mediaType: .photo, livePhoto: .init(imageURL: imageURL!, videoURL: videoURL!))))
+            }
+        }
+
+    }
 }
 
 

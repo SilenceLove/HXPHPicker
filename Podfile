@@ -6,10 +6,10 @@ use_frameworks!
 
 target 'Example' do
   # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 6.0'
-  pod 'HXPHPicker/Full', :path => './'
+  pod 'HXPHPicker', :path => './'
   
   # 不带网络图片功能
-  # pod 'HXPHPicker', :path => './'
+  # pod 'HXPHPicker/Lite', :path => './'
   
   # 只有选择功能
   # pod 'HXPHPicker/Picker', :path => './'

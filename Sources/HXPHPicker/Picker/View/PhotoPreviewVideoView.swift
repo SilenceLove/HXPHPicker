@@ -14,6 +14,8 @@ protocol PhotoPreviewVideoViewDelegate: AnyObject {
     func videoView(stopPlay videoView: VideoPlayerView)
     func videoView(showPlayButton videoView: VideoPlayerView)
     func videoView(hidePlayButton videoView: VideoPlayerView)
+    func videoView(showMaskView videoView: VideoPlayerView)
+    func videoView(hideMaskView videoView: VideoPlayerView)
     
     func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool)
     
@@ -96,6 +98,12 @@ class PhotoPreviewVideoView: VideoPlayerView {
     }
     func showPlayButton() {
         delegate?.videoView(showPlayButton: self)
+    }
+    func hiddenMaskView() {
+        delegate?.videoView(hideMaskView: self)
+    }
+    func showMaskView() {
+        delegate?.videoView(showMaskView: self)
     }
     func cancelPlayer() {
         if player.currentItem != nil {

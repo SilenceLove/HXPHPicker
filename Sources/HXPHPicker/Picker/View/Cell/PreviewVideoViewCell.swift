@@ -113,7 +113,17 @@ open class PreviewVideoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDe
     }
     
     /// 隐藏工具视图(例如滑动条)
-    open func hiddenToolView() {
+    open func hideToolView() {
+        
+    }
+    
+    /// 显示遮罩层
+    open func showMask() {
+        
+    }
+    
+    /// 隐藏遮罩层
+    open func hideMask() {
         
     }
     
@@ -179,6 +189,12 @@ extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
                 }
             }
         }
-        hiddenToolView()
+        hideToolView()
+    }
+    func videoView(showMaskView videoView: VideoPlayerView) {
+        showMask()
+    }
+    func videoView(hideMaskView videoView: VideoPlayerView) {
+        hideMask()
     }
 }

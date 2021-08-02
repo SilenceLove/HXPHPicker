@@ -161,8 +161,8 @@ class VideoEditorMusicView: UIView {
     func setMusics(infos: [VideoEditorMusicInfo]) {
         var musicArray: [VideoEditorMusic] = []
         for musicInfo in infos {
-            let music = VideoEditorMusic(audioPath: musicInfo.audioPath,
-                                         lrcPath: musicInfo.lrcPath)
+            let music = VideoEditorMusic(audioURL: musicInfo.audioURL,
+                                         lrc: musicInfo.lrc)
             musicArray.append(music)
         }
         musics = musicArray
@@ -198,8 +198,8 @@ class VideoEditorMusicView: UIView {
         if !musics.isEmpty {
             return
         }
-        let loadMusic = VideoEditorMusic(audioPath: "",
-                                         lrcPath: "")
+        let loadMusic = VideoEditorMusic(audioURL: URL(fileURLWithPath: ""),
+                                         lrc: "")
         loadMusic.isLoading = true
         musics = [loadMusic]
         collectionView.reloadData()
@@ -322,25 +322,30 @@ extension VideoEditorMusicView: UICollectionViewDataSource, UICollectionViewDele
         if cell?.music.isLoading == true {
             return
         }
-        cell?.playMusic()
+        cell?.playMusic(completion: { [weak self] path in
+            guard let self = self else { return }
+            self.backgroundButton.isSelected = true
+            let shake = UIImpactFeedbackGenerator(style: .light)
+            shake.prepare()
+            shake.impactOccurred()
+            self.delegate?.musicView(self, didSelectMusic: path)
+        })
         currentPlayIndex = selectedIndex
-        backgroundButton.isSelected = true
-        let shake = UIImpactFeedbackGenerator(style: .light)
-        shake.prepare()
-        shake.impactOccurred()
-        delegate?.musicView(self, didSelectMusic: cell?.music.audioPath)
     }
     func stopMusic() {
-        if currentPlayIndex >= 0 {
-            let beforeCell = collectionView.cellForItem(at: IndexPath(item: currentPlayIndex, section: 0)) as? VideoEditorMusicViewCell
-            if beforeCell?.music.isLoading == true {
+        if let beforeCell = collectionView.cellForItem(at: IndexPath(item: currentPlayIndex, section: 0)) as? VideoEditorMusicViewCell {
+            if beforeCell.music.isLoading == true {
                 return
             }
-            beforeCell?.stopMusic()
-            currentPlayIndex = -2
+            beforeCell.stopMusic()
         }else {
+            if currentPlayIndex >= 0 {
+                let url = musics[currentPlayIndex].audioURL
+                PhotoManager.shared.suspendTask(url)
+            }
             PhotoManager.shared.stopPlayMusic()
         }
+        currentPlayIndex = -2
         delegate?.musicView(deselectMusic: self)
     }
 }
@@ -435,7 +440,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             }
             collectionView.reloadData()
             if music.isSelected {
-                playMusic()
+                playMusic { _ in  }
             }else {
                 resetStatus()
             }
@@ -443,7 +448,78 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     }
     var isPlaying: Bool = false
     var playTimer: DispatchSourceTimer?
-    func playMusic() {
+    func checkNetworkURL() -> Bool {
+        if checkLocalURL() {
+            return false
+        }
+        if let scheme = music.audioURL.scheme {
+            if scheme == "http" || scheme == "https" {
+                return true
+            }
+        }
+        return UIApplication.shared.canOpenURL(music.audioURL)
+    }
+    func checkLocalURL() -> Bool {
+        FileManager.default.fileExists(atPath: music.audioURL.path)
+    }
+    func playMusic(completion: @escaping (String) -> Void) {
+        hideLoading()
+        if checkLocalURL() {
+            completion(music.audioURL.path)
+            didPlay(audioPath: music.audioURL.path)
+            music.isSelected = true
+        }else if checkNetworkURL() {
+            let key = music.audioURL.absoluteString
+            let audioTmpURL = PhotoTools.getAudioTmpURL(for: key)
+            if PhotoTools.isCached(forAudio: key) {
+                completion(audioTmpURL.path)
+                didPlay(audioPath: audioTmpURL.path)
+                music.isSelected = true
+                return
+            }
+            showLoading()
+            PhotoManager.shared.downloadTask(
+                with: music.audioURL,
+                toFile: audioTmpURL,
+                ext: music
+            ) {
+                audioURL, error, ext in
+                self.hideLoading()
+                if let audioURL = audioURL,
+                   let music = ext as? VideoEditorMusic {
+                    completion(audioURL.path)
+                    if music == self.music {
+                        self.didPlay(audioPath: audioURL.path)
+                    }else {
+                        PhotoManager.shared.playMusic(filePath: audioURL.path) {}
+                    }
+                    music.isSelected = true
+                }else {
+                    self.resetStatus()
+                }
+            }
+        }else {
+            resetStatus()
+        }
+    }
+    func showLoading() {
+        loadingView.style = .gray
+        loadingView.isHidden = false
+        loadingView.startAnimating()
+        let visualEffect = UIBlurEffect.init(style: .extraLight)
+        bgView.effect = visualEffect
+        musicIconView.tintColor = "#333333".color
+        songNameLb.textColor = "#333333".color
+        songNameLb.isHidden = true
+        collectionView.isHidden = true
+    }
+    func hideLoading() {
+        songNameLb.isHidden = false
+        collectionView.isHidden = false
+        loadingView.isHidden = true
+        loadingView.stopAnimating()
+    }
+    func didPlay(audioPath: String) {
         isPlaying = true
         let visualEffect = UIBlurEffect.init(style: .extraLight)
         bgView.effect = visualEffect
@@ -480,7 +556,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
                 self.scrollLyric(time: duration)
             }
         }else {
-            if PhotoManager.shared.playMusic(filePath: music.audioPath, finished: { [weak self] in
+            if PhotoManager.shared.playMusic(filePath: audioPath, finished: { [weak self] in
                 guard let self = self else { return }
                 if self.music.lyricIsEmpty {
                     return
@@ -537,11 +613,16 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     
     func stopMusic() {
         music.isSelected = false
+        if checkNetworkURL() {
+            PhotoManager.shared.suspendTask(music.audioURL)
+        }
         PhotoManager.shared.stopPlayMusic()
         resetStatus()
     }
     func resetStatus() {
         isPlaying = false
+        songNameLb.isHidden = false
+        collectionView.isHidden = false
         let visualEffect = UIBlurEffect.init(style: .light)
         bgView.effect = visualEffect
         musicIconView.tintColor = .white

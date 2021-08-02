@@ -644,7 +644,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
                 currentCell?.scrollContentView.videoView.startPlay()
             }
-            videoCell?.hiddenToolView()
+            videoCell?.hideToolView()
         }
         if config.showBottomView {
             UIView.animate(withDuration: 0.25) {

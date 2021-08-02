@@ -112,7 +112,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         }
         
         if preselect {
-            PhotoManager.shared.loadNetworkVideoMode = .play
+            config.previewView.loadNetworkVideoMode = .play
             config.maximumSelectedVideoDuration = 0
             config.maximumSelectedVideoCount = 0
             let networkVideoURL = URL.init(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/picker_examle_video.mp4")!
@@ -142,8 +142,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             let networkVideoAsset1 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL1))
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
-        }else {
-            PhotoManager.shared.loadNetworkVideoMode = .download
         }
     }
     
@@ -225,7 +223,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         present(UINavigationController.init(rootViewController: pickerConfigVC), animated: true, completion: nil)
     }
     @objc func didClearButtonClick() {
-        PhotoTools.removeVideoCache()
+        PhotoTools.removeCache()
         ImageCache.default.clearCache()
     }
     func removeLocalPhotoAssetFile() {
@@ -294,74 +292,29 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             return
         }
         ProgressHUD.showLoading(addedTo: self.view, animated: true)
-        var count = 0
-        for photoAsset in selectedAssets {
-            if photoAsset.mediaType == .photo {
-                if photoAsset.mediaSubType == .livePhoto {
-                    var imageURL: URL?
-                    var videoURL: URL?
-                    AssetManager.requestLivePhoto(contentURL: photoAsset.phAsset!) { (url) in
-                        imageURL = url
-                    } videoHandler: { (url) in
-                        videoURL = url
-                    } completionHandler: { [weak self] (error) in
-                        count += 1
-                        if error == nil {
-                            let image = UIImage.init(contentsOfFile: imageURL!.path)
-                            print("LivePhoto中的图片：\(String(describing: image!))")
-                            print("LivePhoto中的视频地址：\(videoURL!)")
-                        }else {
-                            print("LivePhoto中的内容获取失败\(error!)")
-                        }
-                        if count == total {
-                            ProgressHUD.hide(forView: self?.view, animated: false)
-                            ProgressHUD.showSuccess(addedTo: self?.view, text: "获取完成", animated: true, delay: 1.5)
-                        }
-                    }
-                }else {
-                    photoAsset.getImageURL { [weak self] result in
-                        switch result {
-                        case .success(let response):
-                            if photoAsset.isNetworkAsset {
-                                print(response.urlType == .network ? "网络图片：" : "编辑后的网络图片", response.url)
-                            }else {
-                                print("图片地址：\(response.url)")
-                            }
-                        case .failure(let error):
-                            print("图片地址获取失败", error)
-                            break
-                        }
-                        count += 1
-                        if count == total {
-                            ProgressHUD.hide(forView: self?.view, animated: false)
-                            ProgressHUD.showSuccess(addedTo: self?.view, text: "获取完成", animated: true, delay: 1.5)
-                        }
-                    }
-//                    print("图片：\(photoAsset.originalImage!)")
-//                    if count == total {
-//                        ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: true)
-//                    }
+        let result = PickerResult(photoAssets: selectedAssets, isOriginal: false)
+        result.getURLs { result, photoAsset, index in
+            print("第" + String(index + 1) + "个")
+            switch result {
+            case .success(let response):
+                if let livePhoto = response.livePhoto {
+                    print("LivePhoto里的图片地址：", livePhoto.imageURL)
+                    print("LivePhoto里的视频地址：", livePhoto.videoURL)
+                    return
                 }
-            }else {
-                photoAsset.getVideoURL { [weak self] result in
-                    switch result {
-                    case .success(let response):
-                        if photoAsset.isNetworkAsset {
-                            print(response.urlType == .network ? "网络视频：" : "编辑后的网络视频", response.url)
-                        }else {
-                            print("视频地址：\(response.url)")
-                        }
-                    case .failure(let error):
-                        print("视频地址获取失败", error)
-                        break
-                    }
-                    count += 1
-                    if count == total {
-                        ProgressHUD.hide(forView: self?.view, animated: false)
-                        ProgressHUD.showSuccess(addedTo: self?.view, text: "获取完成", animated: true, delay: 1.5)
-                    }
-                }
+                print(response.urlType == .network ?
+                        response.mediaType == .photo ?
+                            "网络图片地址：" : "网络视频地址：" :
+                        response.mediaType == .photo ?
+                            "本地图片地址" : "本地视频地址",
+                      response.url)
+            case .failure(let error):
+                print("地址获取失败", error)
+                break
             }
+        } completionHandler: { urls in
+            ProgressHUD.hide(forView: self.view, animated: false)
+            ProgressHUD.showSuccess(addedTo: self.view, text: "获取完成", animated: true, delay: 1.5)
         }
     }
     
@@ -411,6 +364,9 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         // modalPresentationStyle = .custom 会使用框架自带的动画效果
         // 预览时可以重新初始化一个config设置单独的颜色或其他配置
         let previewConfig = PhotoTools.getWXPickerConfig()
+        if preselect {
+            previewConfig.previewView.loadNetworkVideoMode = .play
+        }
         // 编辑器配置保持一致
         previewConfig.photoEditor = config.photoEditor
         
@@ -531,6 +487,7 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
+
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {
 //                print("success", image)
@@ -614,7 +571,7 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
                             }
                         }else {
                             if response.urlType == .network {
-                                PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error in
+                                PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error, _ in
                                     ProgressHUD.hide(forView: pickerController.view, animated: true)
                                     if let videoURL = videoURL {
                                         saveVideo(videoURL)
@@ -703,43 +660,51 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         var musics: [VideoEditorMusicInfo] = []
         let audioUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: "mp3")!
         let lyricUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: nil)!
-        let music1 = VideoEditorMusicInfo.init(audioPath: audioUrl1.path,
-                                               lrcPath: lyricUrl1.path)
+        let lrc1 = try! String(contentsOfFile: lyricUrl1.path)
+        let music1 = VideoEditorMusicInfo.init(audioURL: audioUrl1,
+                                               lrc: lrc1)
         musics.append(music1)
         let audioUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: "mp3")!
         let lyricUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: nil)!
-        let music2 = VideoEditorMusicInfo.init(audioPath: audioUrl2.path,
-                                               lrcPath: lyricUrl2.path)
+        let lrc2 = try! String(contentsOfFile: lyricUrl2.path)
+        let music2 = VideoEditorMusicInfo.init(audioURL: audioUrl2,
+                                               lrc: lrc2)
         musics.append(music2)
         let audioUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
         let lyricUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
-        let music3 = VideoEditorMusicInfo.init(audioPath: audioUrl3.path,
-                                               lrcPath: lyricUrl3.path)
+        let lrc3 = try! String(contentsOfFile: lyricUrl3.path)
+        let music3 = VideoEditorMusicInfo.init(audioURL: audioUrl3,
+                                               lrc: lrc3)
         musics.append(music3)
         let audioUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: "mp3")!
         let lyricUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: nil)!
-        let music4 = VideoEditorMusicInfo.init(audioPath: audioUrl4.path,
-                                               lrcPath: lyricUrl4.path)
+        let lrc4 = try! String(contentsOfFile: lyricUrl4.path)
+        let music4 = VideoEditorMusicInfo.init(audioURL: audioUrl4,
+                                               lrc: lrc4)
         musics.append(music4)
         let audioUrl5 = Bundle.main.url(forResource: "无赖", withExtension: "mp3")!
         let lyricUrl5 = Bundle.main.url(forResource: "无赖", withExtension: nil)!
-        let music5 = VideoEditorMusicInfo.init(audioPath: audioUrl5.path,
-                                               lrcPath: lyricUrl5.path)
+        let lrc5 = try! String(contentsOfFile: lyricUrl5.path)
+        let music5 = VideoEditorMusicInfo.init(audioURL: audioUrl5,
+                                               lrc: lrc5)
         musics.append(music5)
         let audioUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: "mp3")!
         let lyricUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: nil)!
-        let music6 = VideoEditorMusicInfo.init(audioPath: audioUrl6.path,
-                                               lrcPath: lyricUrl6.path)
+        let lrc6 = try! String(contentsOfFile: lyricUrl6.path)
+        let music6 = VideoEditorMusicInfo.init(audioURL: audioUrl6,
+                                               lrc: lrc6)
         musics.append(music6)
         let audioUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3")!
         let lyricUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: nil)!
-        let music7 = VideoEditorMusicInfo.init(audioPath: audioUrl7.path,
-                                               lrcPath: lyricUrl7.path)
+        let lrc7 = try! String(contentsOfFile: lyricUrl7.path)
+        let music7 = VideoEditorMusicInfo.init(audioURL: audioUrl7,
+                                               lrc: lrc7)
         musics.append(music7)
         let audioUrl8 = Bundle.main.url(forResource: "爱你", withExtension: "mp3")!
         let lyricUrl8 = Bundle.main.url(forResource: "爱你", withExtension: nil)!
-        let music8 = VideoEditorMusicInfo.init(audioPath: audioUrl8.path,
-                                               lrcPath: lyricUrl8.path)
+        let lrc8 = try! String(contentsOfFile: lyricUrl8.path)
+        let music8 = VideoEditorMusicInfo.init(audioURL: audioUrl8,
+                                               lrc: lrc8)
         musics.append(music8)
         completionHandler(musics)
         return false

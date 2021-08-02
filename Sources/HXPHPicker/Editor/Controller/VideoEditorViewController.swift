@@ -61,7 +61,15 @@ public extension VideoEditorViewControllerDelegate {
     func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {}
     func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {}
     func videoEditorViewController(shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool { true }
-    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool { false }
+    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+        var infos: [VideoEditorMusicInfo] = []
+        if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"),
+           let lrc = "天外来物".lrc {
+            let info = VideoEditorMusicInfo(audioURL: audioURL, lrc: lrc)
+            infos.append(info)
+        }
+        return false
+    }
     func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController,
                                    didSearch text: String?,
                                    completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
@@ -678,11 +686,12 @@ extension VideoEditorViewController {
             }
             loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频下载中".localized, animated: true)
             view.bringSubviewToFront(topView)
-            PhotoManager.shared.downloadTask(with: videoURL) { [weak self] (progress, task) in
+            PhotoManager.shared.downloadTask(with: videoURL) {
+                [weak self] (progress, task) in
                 if progress > 0 {
                     self?.loadingView?.updateText(text: "视频下载中".localized + "(" + String(Int(progress * 100)) + "%)")
                 }
-            } completionHandler: { [weak self] (url, error) in
+            } completionHandler: { [weak self] (url, error, _) in
                 if let url = url {
                     #if HXPICKER_ENABLE_PICKER
                     if let photoAsset = self?.photoAsset {

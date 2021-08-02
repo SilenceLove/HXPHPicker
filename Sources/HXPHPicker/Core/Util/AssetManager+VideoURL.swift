@@ -11,7 +11,7 @@ import Photos
 // MARK: 获取视频地址
 public extension AssetManager {
     
-    typealias VideoURLResultHandler = (Result<URL, PhotoAsset.AssetError>) -> Void
+    typealias VideoURLResultHandler = (Result<URL, AssetError>) -> Void
     
     /// 请求获取视频地址
     /// - Parameters:

@@ -17,6 +17,15 @@ extension String {
     
     var image: UIImage? { UIImage.image(for: self) }
     
+    var lrc: String? {
+        var lrcString : String?
+        if let bundle = PhotoManager.shared.bundle,
+           let path = bundle.path(forResource: "musics", ofType: nil) {
+            lrcString = try? String(contentsOfFile: path + "/" + self)
+        }
+        return lrcString
+    }
+    
     static func fileName(suffix: String) -> String {
         var uuid = UUID().uuidString
         uuid = uuid.replacingOccurrences(of: "-", with: "").lowercased()

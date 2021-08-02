@@ -30,6 +30,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
         public var placeholder: String = ""
         /// 配乐信息
         /// 也可通过代理回调设置
+        /// func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool
         public var infos: [VideoEditorMusicInfo] = []
         public init() { }
     }

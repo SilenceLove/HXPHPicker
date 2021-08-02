@@ -20,7 +20,7 @@ public extension AssetManager {
     
     struct AVAssetError: Error {
         public let info: [AnyHashable : Any]?
-        public let error: PhotoAsset.AssetError
+        public let error: AssetError
     }
     
     /// 请求获取AVAsset，如果资源在iCloud上会自动请求下载iCloud上的资源

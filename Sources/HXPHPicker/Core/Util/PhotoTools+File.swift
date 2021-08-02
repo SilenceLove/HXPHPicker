@@ -48,14 +48,32 @@ extension PhotoTools {
     /// 获取视频缓存文件夹路径
     public class func getVideoCacheFolderPath() -> String {
         var cachePath = getSystemCacheFolderPath()
-        cachePath.append(contentsOf: "/com.silence.HXPHPicker.videoCache")
+        cachePath.append(contentsOf: "/com.silence.HXPHPicker/videoCache")
         return cachePath
+    }
+    
+    public class func getAudioTmpFolderPath() -> String {
+        var tmpPath = NSTemporaryDirectory()
+        tmpPath.append(contentsOf: "com.silence.HXPHPicker/audioCache")
+        return tmpPath
+    }
+    
+    /// 删除缓存
+    public class func removeCache() {
+        removeVideoCache()
+        removeAudioCache()
     }
     
     /// 删除视频缓存
     @discardableResult
     public class func removeVideoCache() -> Bool {
         return removeFile(filePath: getVideoCacheFolderPath())
+    }
+    
+    /// 删除音频临时缓存
+    @discardableResult
+    public class func removeAudioCache() -> Bool {
+        return removeFile(filePath: getAudioTmpFolderPath())
     }
     
     /// 获取视频缓存文件大小
@@ -79,12 +97,30 @@ extension PhotoTools {
         return URL.init(fileURLWithPath: cachePath)
     }
     
+    @discardableResult
+    public class func getAudioTmpURL(for key: String) -> URL {
+        var cachePath = getAudioTmpFolderPath()
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: cachePath) {
+            try? fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
+        }
+        cachePath.append(contentsOf: "/" + key.md5() + ".mp3")
+        return URL.init(fileURLWithPath: cachePath)
+    }
+    
     /// 视频是否有缓存
     /// - Parameter key: 对应视频的key
     @discardableResult
     public class func isCached(forVideo key: String) -> Bool {
         let fileManager = FileManager.default
         let filePath = getVideoCacheURL(for: key).path
+        return fileManager.fileExists(atPath: filePath)
+    }
+    
+    @discardableResult
+    public class func isCached(forAudio key: String) -> Bool {
+        let fileManager = FileManager.default
+        let filePath = getAudioTmpURL(for: key).path
         return fileManager.fileExists(atPath: filePath)
     }
     

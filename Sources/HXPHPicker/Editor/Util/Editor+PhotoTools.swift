@@ -76,7 +76,9 @@ extension PhotoTools {
     
     #if canImport(Kingfisher)
     public class func defaultTitleChartlet() -> [EditorChartlet] {
-        let title = EditorChartlet(url: URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/xxy_s_highlighted.png"))
+        let title = EditorChartlet(
+            url: URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/xxy_s_highlighted.png")
+        )
         return [title]
     }
     
@@ -84,7 +86,9 @@ extension PhotoTools {
         var chartletList: [EditorChartlet] = []
         for index in 1...40 {
             let urlString = "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/xxy" + String(index) + ".png"
-            let chartlet = EditorChartlet(url: .init(string: urlString))
+            let chartlet = EditorChartlet(
+                url: .init(string: urlString)
+            )
             chartletList.append(chartlet)
         }
         return chartletList
@@ -94,71 +98,106 @@ extension PhotoTools {
     /// 默认滤镜
     public class func defaultFilters() -> [PhotoEditorFilterInfo] {
         return [
-            PhotoEditorFilterInfo(filterName: "老电影".localized,
-                                  defaultValue: 1) {
+            PhotoEditorFilterInfo(
+                filterName: "老电影".localized,
+                defaultValue: 1
+            ) {
                 (image, lastImage, value, event) in
                 if event == .touchUpInside {
                     return oldMovie(image, value: value)
                 }
                 return nil
             },
-            PhotoEditorFilterInfo(filterName: "怀旧".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "怀旧".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectInstant",
-                             parameters: [:])
+                             parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "黑白".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "黑白".localized,
+                defaultValue: -1) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectNoir",
-                             parameters: [:])
+                             parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "色调".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "色调".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectTonal",
-                             parameters: [:])
+                             parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "模糊".localized,
-                                  defaultValue: 0.5) {
+            PhotoEditorFilterInfo(
+                filterName: "模糊".localized,
+                defaultValue: 0.5
+            ) {
                 (image, lastImage, value, event) in
                 if event == .touchUpInside {
-                    return image.filter(name: "CIGaussianBlur",
-                                        parameters: [
-                                            kCIInputRadiusKey: NSNumber(value: 10 * value)
-                                        ])
+                    return image.filter(
+                        name: "CIGaussianBlur",
+                        parameters: [
+                            kCIInputRadiusKey: NSNumber(value: 10 * value)
+                        ]
+                    )
                 }
                 return nil
             },
-            PhotoEditorFilterInfo(filterName: "岁月".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "岁月".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectTransfer",
-                             parameters: [:])
+                image.filter(
+                    name: "CIPhotoEffectTransfer",
+                    parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "单色".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "单色".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectMono", parameters: [:])
+                image.filter(
+                    name: "CIPhotoEffectMono",
+                    parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "褪色".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "褪色".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectFade",
-                             parameters: [:])
+                image.filter(
+                    name: "CIPhotoEffectFade",
+                    parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "冲印".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "冲印".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectProcess",
-                             parameters: [:])
+                image.filter(
+                    name: "CIPhotoEffectProcess",
+                    parameters: [:]
+                )
             },
-            PhotoEditorFilterInfo(filterName: "铬黄".localized,
-                                  defaultValue: -1) {
+            PhotoEditorFilterInfo(
+                filterName: "铬黄".localized,
+                defaultValue: -1
+            ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectChrome",
-                             parameters: [:])
+                image.filter(
+                    name: "CIPhotoEffectChrome",
+                    parameters: [:]
+                )
             }
         ]
     }

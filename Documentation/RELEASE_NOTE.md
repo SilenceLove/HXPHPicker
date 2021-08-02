@@ -17,6 +17,12 @@
 - Picker
   - 获取本地资源原始地址失败
 
+### 修改
+
+- Editor
+  - `VideoEditorMusicInfo`的`audioPath`修改为`audioURL`，`lrcPath`修改为`lrc`歌词lrc内容
+  - 背景音乐可添加网络音频地址
+
 ## 1.1.5
 
 ### 新增

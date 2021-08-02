@@ -785,7 +785,7 @@ struct PickerAssetOptions: OptionSet {
 ///   - handler: 获取到url的回调
 ///   - completionHandler: 全部获取完成
 public func getURLs(options: Options = .any,
-                    urlReceivedHandler handler: @escaping (Result<PhotoAsset.AssetURLResult, PhotoAsset.AssetError>, PhotoAsset, Int) -> Void,
+                    urlReceivedHandler handler: @escaping (Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void,
                     completionHandler: @escaping ([URL]) -> Void)
 ```
 

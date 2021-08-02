@@ -11,7 +11,7 @@ import Photos
 
 public typealias PhotoAssetICloudHandler = (PhotoAsset, PHImageRequestID) -> Void
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
-public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?, PhotoAsset.AssetError) -> Void
+public typealias PhotoAssetFailureHandler = (PhotoAsset, [AnyHashable : Any]?, AssetError) -> Void
 
 open class PhotoAsset: Equatable {
     

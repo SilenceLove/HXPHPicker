@@ -232,7 +232,7 @@ public class PhotoTools {
                 if supportedTypeArray.contains(AVFileType.mp4) {
                     exportSession.outputFileType = .mp4
                 }else if supportedTypeArray.isEmpty {
-                    completion(nil, PhotoError.error(message: "不支持导出该类型视频"))
+                    completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
                     return
                 }else {
                     exportSession.outputFileType = supportedTypeArray.first
@@ -253,11 +253,11 @@ public class PhotoTools {
                     }
                 })
             }else {
-                completion(nil, PhotoError.error(message: "不支持导出该类型视频"))
+                completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
                 return
             }
         }else {
-            completion(nil, PhotoError.error(message: "设备不支持导出：" + presentName))
+            completion(nil, PhotoError.error(type: .exportFailed, message: "设备不支持导出：" + presentName))
             return
         }
     }

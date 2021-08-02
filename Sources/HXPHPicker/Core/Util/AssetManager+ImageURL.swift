@@ -10,7 +10,7 @@ import Photos
 
 // MARK: 获取图片地址
 public extension AssetManager {
-    typealias ImageURLResultHandler = (Result<URL, PhotoAsset.AssetError>) -> Void
+    typealias ImageURLResultHandler = (Result<URL, AssetError>) -> Void
     
     /// 请求获取图片地址
     /// - Parameters:
