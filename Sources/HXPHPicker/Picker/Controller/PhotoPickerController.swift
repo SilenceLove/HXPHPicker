@@ -292,7 +292,8 @@ extension PhotoPickerController {
         if config.creationDate {
             options.sortDescriptors = [NSSortDescriptor.init(key: "creationDate", ascending: config.creationDate)]
         }
-        PhotoManager.shared.fetchCameraAssetCollection(for: selectOptions, options: options) { (assetCollection) in
+        PhotoManager.shared.fetchCameraAssetCollection(for: selectOptions, options: options) { [weak self] (assetCollection) in
+            guard let self = self else { return }
             if assetCollection.count == 0 {
                 self.cameraAssetCollection = PhotoAssetCollection.init(albumName: self.config.albumList.emptyAlbumName.localized, coverImage: self.config.albumList.emptyCoverImageName.image)
             }else {
@@ -348,7 +349,9 @@ extension PhotoPickerController {
                 }
                 return
             }
-            PhotoManager.shared.fetchAssetCollections(for: self.options, showEmptyCollection: false) { (assetCollection, isCameraRoll) in
+            PhotoManager.shared.fetchAssetCollections(for: self.options, showEmptyCollection: false) {
+                [weak self] (assetCollection, isCameraRoll) in
+                guard let self = self else { return }
                 if assetCollection != nil {
                     // 获取封面
                     assetCollection?.fetchCoverAsset()
@@ -1005,6 +1008,7 @@ extension PhotoPickerController {
         for photoAsset in localCameraAssetArray {
             cameraAssetArray.append(photoAsset.copyCamera())
         }
+        PhotoManager.shared.saveCameraPreview()
         pickerDelegate?.pickerController(self, didDismissComplete: cameraAssetArray)
     }
 }

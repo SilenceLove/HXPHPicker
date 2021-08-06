@@ -593,6 +593,12 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
                 pickerController.deleteCurrentPreviewPhotoAsset()
             }))
             alert.addAction(.init(title: "取消", style: .cancel, handler: nil))
+            if UIDevice.isPad {
+                let pop = alert.popoverPresentationController
+                pop?.permittedArrowDirections = .any
+                pop?.sourceView = pickerController.view
+                pop?.sourceRect = CGRect(x: pickerController.view.width * 0.5, y: pickerController.view.height, width: 0, height: 0)
+            }
             pickerController.present(alert, animated: true, completion: nil)
         }
     }

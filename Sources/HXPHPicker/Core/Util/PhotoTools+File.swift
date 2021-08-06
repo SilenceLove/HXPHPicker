@@ -45,6 +45,13 @@ extension PhotoTools {
         return NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).last!
     }
     
+    /// 获取图片缓存文件夹路径
+    public class func getImageCacheFolderPath() -> String {
+        var cachePath = getSystemCacheFolderPath()
+        cachePath.append(contentsOf: "/com.silence.HXPHPicker/imageCache")
+        return cachePath
+    }
+    
     /// 获取视频缓存文件夹路径
     public class func getVideoCacheFolderPath() -> String {
         var cachePath = getSystemCacheFolderPath()

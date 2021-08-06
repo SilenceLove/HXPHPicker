@@ -65,6 +65,8 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         public var loadScene: LoadScene = .cellDisplay
         /// 贴图标题
         public var titles: [EditorChartlet] = []
+        
+        public init() { }
     }
     
     /// 文本
@@ -124,5 +126,13 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         public let mosaiclineWidth: CGFloat
         /// 涂抹的宽度
         public let smearWidth: CGFloat
+        
+        public init(mosaicWidth: CGFloat,
+                    mosaiclineWidth: CGFloat,
+                    smearWidth: CGFloat) {
+            self.mosaicWidth = mosaicWidth
+            self.mosaiclineWidth = mosaiclineWidth
+            self.smearWidth = smearWidth
+        }
     }
 }

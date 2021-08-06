@@ -177,10 +177,14 @@ public extension PhotoPickerViewController {
 }
 
 public extension PhotoPreviewViewController {
-    enum VideoPlayType {
-        case normal     //!< 正常状态，不自动播放
-        case auto       //!< 自动播放
-        case once       //!< 自动播放一次
+    enum PlayType {
+        /// 视频不自动播放
+        /// LivePhoto需要长按播放
+        case normal
+        /// 自动循环播放
+        case auto
+        /// 只有第一次自动播放
+        case once
     }
 }
 

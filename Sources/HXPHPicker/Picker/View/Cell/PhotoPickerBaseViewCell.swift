@@ -82,26 +82,28 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             downloadStatus = .downloading
             #if canImport(Kingfisher)
             imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error, photoAsset) in
-                if self?.photoAsset == photoAsset {
+                guard let self = self else { return }
+                if self.photoAsset == photoAsset {
                     if image != nil {
-                        self?.downloadStatus = .succeed
+                        self.downloadStatus = .succeed
                     }else {
                         if error!.isTaskCancelled {
-                            self?.downloadStatus = .canceled
+                            self.downloadStatus = .canceled
                         }else {
-                            self?.downloadStatus = .failed
+                            self.downloadStatus = .failed
                         }
                     }
                 }
             })
             #else
             imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
-                if self?.photoAsset == photoAsset {
-                    self?.imageView.image = image
+                guard let self = self else { return }
+                if self.photoAsset == photoAsset {
+                    self.imageView.image = image
                     if image != nil {
-                        self?.downloadStatus = .succeed
+                        self.downloadStatus = .succeed
                     }else {
-                        self?.downloadStatus = .failed
+                        self.downloadStatus = .failed
                     }
                 }
             }
@@ -112,14 +114,16 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             }
         }else {
             requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
-                if photoAsset == self?.photoAsset && image != nil {
-                    if self?.firstLoadCompletion == false {
-                        self?.isHidden = false
-                        self?.firstLoadCompletion = true
+                guard let self = self else { return }
+                if let info = info, info.isCancel { return }
+                if let image = image, self.photoAsset == photoAsset {
+                    if self.firstLoadCompletion == false {
+                        self.isHidden = false
+                        self.firstLoadCompletion = true
                     }
-                    self?.imageView.image = image
+                    self.imageView.image = image
                     if !AssetManager.assetIsDegraded(for: info) {
-                        self?.requestID = nil
+                        self.requestID = nil
                     }
                 }
             })

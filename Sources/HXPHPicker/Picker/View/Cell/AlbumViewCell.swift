@@ -83,14 +83,17 @@ open class AlbumViewCell: UITableViewCell {
     /// 获取相册封面图片，重写此方法修改封面图片
     open func requestCoverImage() {
         requestID = assetCollection?.requestCoverImage(completion: { [weak self] (image, assetCollection, info) in
-            if assetCollection == self?.assetCollection && image != nil {
-                self?.albumCoverView.image = image
+            guard let self = self else { return }
+            if let info = info, info.isCancel { return }
+            if let image = image, assetCollection == self.assetCollection {
+                self.albumCoverView.image = image
                 if !AssetManager.assetIsDegraded(for: info) {
-                    self?.requestID = nil
+                    self.requestID = nil
                 }
             }
         })
     }
+    
     // 颜色配置，重写此方法修改颜色配置
     open func configColor() {
         let isDark = PhotoManager.isDark

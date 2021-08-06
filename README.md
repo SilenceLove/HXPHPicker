@@ -1,4 +1,5 @@
-# HXPHPicker
+<img src="http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/hxphpickerpreview.png">
+
 <p align="left">
 <a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%2010.0%2B?color=cyan&icon=apple&label"></a>
 <a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
@@ -67,7 +68,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.1.6"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.1.7"))
 ]
 ```
 
@@ -155,6 +156,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.1.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#117) | 2021-08-06 | 12.5.1 | 5.3 | 10.0+ |
 | [v1.1.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#116) | 2021-08-02 | 12.5.1 | 5.3 | 10.0+ |
 | [v1.1.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#115) | 2021-07-28 | 12.5.1 | 5.3 | 10.0+ |
 | [v1.1.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#114) | 2021-07-16 | 12.5.1 | 5.3 | 10.0+ |

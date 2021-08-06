@@ -1,5 +1,29 @@
 # 更新日志
 
+## 1.1.7
+
+### 新增
+
+- Picker
+  - `Haptic touch`预览
+- Editor
+  - 长按预览贴纸
+
+### 修复
+
+- Core
+  - 国际化补全
+- Picker
+  - 特殊情况下退出预览时可能会崩溃
+  - 极端情况下预览gif时不会播放
+  
+### 优化
+
+- Editor
+  - `PhotoEditorConfiguration.ChartletConfig`公开初始化方法
+  - `PhotoEditorConfiguration.MosaicConfig`公开初始化方法
+  - 裁剪框显示优化
+
 ## 1.1.6
 
 ### 新增

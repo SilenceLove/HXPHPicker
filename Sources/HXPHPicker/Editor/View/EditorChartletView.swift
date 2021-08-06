@@ -88,8 +88,13 @@ class EditorChartletView: UIView {
             view.contentInsetAdjustmentBehavior = .never
         }
         view.register(EditorChartletViewListCell.self, forCellWithReuseIdentifier: "EditorChartletViewListCell_ID")
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressClick(longPress:)))
+        view.addGestureRecognizer(longPress)
         return view
     }()
+    var previewView: EditorChartletPreviewView?
+    var previewIndex: Int = -1
     let config: PhotoEditorConfiguration.ChartletConfig
     var titles: [EditorChartletTitle] = []
     var selectedTitleIndex: Int = 0
@@ -127,6 +132,59 @@ class EditorChartletView: UIView {
                 titleChartlet.isSelected = true
             }
             titles.append(titleChartlet)
+        }
+    }
+    
+    @objc func longPressClick(longPress: UILongPressGestureRecognizer) {
+        guard let listCell = listView.cellForItem(at: IndexPath(item: selectedTitleIndex, section: 0)) as? EditorChartletViewListCell else {
+            return
+        }
+        switch longPress.state {
+        case .began, .changed:
+            let point = longPress.location(in: listCell.collectionView)
+            if let indexPath = listCell.collectionView.indexPathForItem(at: point),
+               let cell = listCell.collectionView.cellForItem(at: indexPath) as? EditorChartletViewCell {
+                if previewIndex == indexPath.item {
+                    return
+                }
+                if let beforeCell = listCell.collectionView.cellForItem(at: IndexPath(item: previewIndex, section: 0)) as? EditorChartletViewCell {
+                    beforeCell.showSelectedBgView = false
+                }
+                previewView?.removeFromSuperview()
+                previewView = nil
+                previewIndex = indexPath.item
+                let keyWindow = UIApplication.shared.keyWindow
+                let rect = cell.convert(cell.bounds, to: keyWindow)
+                let touchCenter = CGPoint(x: rect.midX, y: rect.midY)
+                #if canImport(Kingfisher)
+                if let image = cell.chartlet.image {
+                    previewView = EditorChartletPreviewView(image: image, touch: touchCenter, touchView: cell.size)
+                    keyWindow?.addSubview(previewView!)
+                }else if let url = cell.chartlet.url {
+                    previewView = EditorChartletPreviewView(imageURL: url, touch: touchCenter, touchView: cell.size)
+                    keyWindow?.addSubview(previewView!)
+                }
+                #else
+                if let image = cell.chartlet.image {
+                    previewView = EditorChartletPreviewView(image: image, touch: touchCenter, touchView: cell.size)
+                    keyWindow?.addSubview(previewView!)
+                }
+                #endif
+                cell.showSelectedBgView = true
+            }
+        case .cancelled, .ended, .failed:
+            if let cell = listCell.collectionView.cellForItem(at: IndexPath(item: previewIndex, section: 0)) as? EditorChartletViewCell {
+                cell.showSelectedBgView = false
+            }
+            UIView.animate(withDuration: 0.2) {
+                self.previewView?.alpha = 0
+            } completion: { _ in
+                self.previewView?.removeFromSuperview()
+                self.previewView = nil
+                self.previewIndex = -1
+            }
+        default:
+            break
         }
     }
     
@@ -298,8 +356,8 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .vertical
-        flowLayout.minimumLineSpacing = 15
-        flowLayout.minimumInteritemSpacing = 15
+        flowLayout.minimumLineSpacing = 5
+        flowLayout.minimumInteritemSpacing = 5
         return flowLayout
     }()
     lazy var collectionView: UICollectionView = {
@@ -426,8 +484,15 @@ class EditorChartletViewCell: UICollectionViewCell {
         }
     }
     
+    var showSelectedBgView: Bool = false {
+        didSet {
+            selectedBgView.isHidden = !showSelectedBgView
+        }
+    }
+    
     var chartlet: EditorChartlet! {
         didSet {
+            selectedBgView.isHidden = true
             #if canImport(Kingfisher)
             setupImage(image: chartlet.image, url: chartlet.url)
             #else
@@ -466,7 +531,7 @@ class EditorChartletViewCell: UICollectionViewCell {
             imageView.size = CGSize(width: 25, height: 25)
             imageView.center = CGPoint(x: width * 0.5, y: height * 0.5)
         }else {
-            imageView.frame = bounds
+            imageView.frame = CGRect(x: 5, y: 5, width: width - 10, height: height - 10)
         }
     }
     

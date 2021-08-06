@@ -42,7 +42,6 @@ extension PhotoManager: AVAudioPlayerDelegate {
         audioPlayer?.volume = volume
     }
     
-    
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             audioPlayer?.currentTime = 0

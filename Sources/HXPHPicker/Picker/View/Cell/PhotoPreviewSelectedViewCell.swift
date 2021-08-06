@@ -55,15 +55,18 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
             imageView.setImage(for: photoAsset, urlType: .thumbnail)
             #else
             imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
-                if self?.photoAsset == photoAsset {
-                    self?.imageView.image = image
+                guard let self = self else { return }
+                if self.photoAsset == photoAsset {
+                    self.imageView.image = image
                 }
             }
             #endif
         }else {
             requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in
-                if self?.photoAsset == asset {
-                    self?.imageView.image = image
+                guard let self = self else { return }
+                if let info = info, info.isCancel { return }
+                if self.photoAsset == asset {
+                    self.imageView.image = image
                 }
             })
         }

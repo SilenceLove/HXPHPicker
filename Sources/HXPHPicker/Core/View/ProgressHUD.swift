@@ -285,7 +285,6 @@ class ProgressHUD: UIView {
 class ProgressIndefiniteView: UIView {
     
     lazy var circleLayer: CAShapeLayer = {
-        let lineWidth: CGFloat = 3
         let circleLayer = CAShapeLayer()
         circleLayer.frame = bounds
         circleLayer.contentsScale = UIScreen.main.scale
@@ -329,6 +328,16 @@ class ProgressIndefiniteView: UIView {
         return maskLayer
     }()
     var isAnimating: Bool = false
+    let lineWidth: CGFloat
+    
+    init(frame: CGRect, lineWidth: CGFloat = 3) {
+        self.lineWidth = lineWidth
+        super.init(frame: frame)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
@@ -342,7 +351,7 @@ class ProgressIndefiniteView: UIView {
     func startAnimating() {
         if isAnimating { return }
         isAnimating = true
-        let duration: CFTimeInterval = 0.5
+        let duration: CFTimeInterval = 0.4
         let animation = CABasicAnimation(keyPath: "transform.rotation")
         animation.fromValue = 0
         animation.toValue = CGFloat.pi * 2

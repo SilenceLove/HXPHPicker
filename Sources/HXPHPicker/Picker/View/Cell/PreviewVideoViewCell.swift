@@ -27,7 +27,7 @@ open class PreviewVideoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDe
         }
     }
     
-    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
+    var videoPlayType: PhotoPreviewViewController.PlayType = .normal  {
         didSet {
             if videoPlayType == .auto || videoPlayType == .once {
                 playButton.isSelected = true

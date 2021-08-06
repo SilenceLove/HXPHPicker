@@ -164,11 +164,11 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         assetTypeMaskView.frame = CGRect(x: 0, y: imageView.height - 25, width: width, height: 25)
         assetTypeMaskLayer.frame = CGRect(x: 0, y: -5, width: assetTypeMaskView.width, height: assetTypeMaskView.height + 5)
         assetTypeLb.frame = CGRect(x: 0, y: height - 19, width: width - 5, height: 18)
-        assetTypeIcon.size = assetTypeIcon.image?.size ?? CGSize.zero
+        assetTypeIcon.size = assetTypeIcon.image?.size ?? .zero
         assetTypeIcon.x = 5
         assetTypeIcon.y = height - assetTypeIcon.height - 5
         assetTypeLb.centerY = assetTypeIcon.centerY
-        assetEditMarkIcon.size = assetEditMarkIcon.image?.size ?? CGSize.zero
+        assetEditMarkIcon.size = assetEditMarkIcon.image?.size ?? .zero
         assetEditMarkIcon.x = 5
         assetEditMarkIcon.y = height - assetEditMarkIcon.height - 5
     }

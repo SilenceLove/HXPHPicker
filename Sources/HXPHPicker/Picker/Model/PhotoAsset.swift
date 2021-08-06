@@ -174,6 +174,8 @@ open class PhotoAsset: Equatable {
     private var pVideoTime: String?
     private var pVideoDuration: TimeInterval = 0
     
+    var playerTime: CGFloat = 0
+    
     public static func == (lhs: PhotoAsset, rhs: PhotoAsset) -> Bool {
         return lhs.isEqual(rhs)
     }

@@ -26,18 +26,18 @@ public struct EditorChartlet {
     public init(image: UIImage?,
                 ext: Any? = nil) {
         self.image = image
-        #if canImport(Kingfisher)
-        self.url = nil
-        #endif
         self.ext = ext
+        #if canImport(Kingfisher)
+        url = nil
+        #endif
     }
     
     #if canImport(Kingfisher)
     public init(url: URL?,
                 ext: Any? = nil) {
         self.url = url
-        self.image = nil
         self.ext = ext
+        image = nil
     }
     #endif
 }
@@ -56,14 +56,14 @@ class EditorChartletTitle {
     init(image: UIImage?) {
         self.image = image
         #if canImport(Kingfisher)
-        self.url = nil
+        url = nil
         #endif
     }
     
     #if canImport(Kingfisher)
     init(url: URL?) {
         self.url = url
-        self.image = nil
+        image = nil
     }
     #endif
     

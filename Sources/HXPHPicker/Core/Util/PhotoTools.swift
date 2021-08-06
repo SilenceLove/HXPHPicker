@@ -33,6 +33,7 @@ public class PhotoTools {
                                 leftHandler: ((UIAlertAction) -> Void)?,
                                 rightActionTitle: String? ,
                                 rightHandler: ((UIAlertAction) -> Void)?) {
+        guard let viewController = viewController else { return }
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
         if let leftActionTitle = leftActionTitle {
             let leftAction = UIAlertAction.init(title: leftActionTitle, style: UIAlertAction.Style.cancel, handler: leftHandler)
@@ -42,7 +43,13 @@ public class PhotoTools {
             let rightAction = UIAlertAction.init(title: rightActionTitle, style: UIAlertAction.Style.default, handler: rightHandler)
             alertController.addAction(rightAction)
         }
-        viewController?.present(alertController, animated: true, completion: nil)
+        if UIDevice.isPad {
+            let pop = alertController.popoverPresentationController
+            pop?.permittedArrowDirections = .any
+            pop?.sourceView = viewController.view
+            pop?.sourceRect = CGRect(x: viewController.view.width * 0.5, y: viewController.view.height, width: 0, height: 0)
+        }
+        viewController.present(alertController, animated: true, completion: nil)
     }
     
     public class func showConfirm(viewController: UIViewController? ,
@@ -51,6 +58,12 @@ public class PhotoTools {
                                   actionTitle: String?,
                                   actionHandler: ((UIAlertAction) -> Void)?) {
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
+        if UIDevice.isPad {
+            let pop = alertController.popoverPresentationController
+            pop?.permittedArrowDirections = .any
+            pop?.sourceView = viewController?.view
+            pop?.sourceRect = viewController?.view.bounds ?? .zero
+        }
         if let actionTitle = actionTitle {
             let action = UIAlertAction.init(title: actionTitle, style: UIAlertAction.Style.cancel, handler: actionHandler)
             alertController.addAction(action)

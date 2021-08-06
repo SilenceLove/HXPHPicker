@@ -152,8 +152,10 @@ public class PhotoPreviewViewController: BaseViewController {
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         viewDidAppear = true
-        let cell = getCell(for: currentPreviewIndex)
-        cell?.requestPreviewAsset()
+        DispatchQueue.main.async {
+            let cell = self.getCell(for: self.currentPreviewIndex)
+            cell?.requestPreviewAsset()
+        }
         pickerController?.viewControllersDidAppear(self)
         if (pickerController?.modalPresentationStyle == .fullScreen && interactiveTransition == nil) || (!UIDevice.isPortrait && !UIDevice.isPad) && !isExternalPreview {
             interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .pop)
@@ -516,6 +518,8 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
         if photoAsset.mediaType == .photo {
             if photoAsset.mediaSubType == .livePhoto {
                 cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PreviewLivePhotoViewCell.self), for: indexPath) as! PreviewLivePhotoViewCell
+                let livePhotoCell = cell as! PreviewLivePhotoViewCell
+                livePhotoCell.livePhotoPlayType = config.livePhotoPlayType
             }else {
                 cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PreviewPhotoViewCell.self), for: indexPath) as! PreviewPhotoViewCell
             }

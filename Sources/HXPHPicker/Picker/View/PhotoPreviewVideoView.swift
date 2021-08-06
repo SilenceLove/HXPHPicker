@@ -25,9 +25,24 @@ protocol PhotoPreviewVideoViewDelegate: AnyObject {
     func videoView(_ videoView: VideoPlayerView, didChangedPlayerTime duration: CGFloat)
 }
 
+extension PhotoPreviewVideoViewDelegate {
+    func videoView(startPlay videoView: VideoPlayerView) {}
+    func videoView(stopPlay videoView: VideoPlayerView) {}
+    func videoView(showPlayButton videoView: VideoPlayerView) {}
+    func videoView(hidePlayButton videoView: VideoPlayerView) {}
+    func videoView(showMaskView videoView: VideoPlayerView) {}
+    func videoView(hideMaskView videoView: VideoPlayerView) {}
+    func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool) {}
+    func videoView(resetPlay videoView: VideoPlayerView) {}
+    func videoView(_ videoView: VideoPlayerView, readyToPlay duration: CGFloat) {}
+    func videoView(_ videoView: VideoPlayerView, didChangedBuffer duration: CGFloat) {}
+    func videoView(_ videoView: VideoPlayerView, didChangedPlayerTime duration: CGFloat) {}
+}
+
 class PhotoPreviewVideoView: VideoPlayerView {
     weak var delegate: PhotoPreviewVideoViewDelegate?
     var isNetwork: Bool = false
+    var playerTime: CGFloat = 0
     override var avAsset: AVAsset? {
         didSet {
             do { try AVAudioSession.sharedInstance().setCategory(.playback) } catch {}
@@ -48,7 +63,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
     var didEnterBackground: Bool = false
     var enterPlayGroundShouldPlay: Bool = false
     var canRemovePlayerObservers: Bool = false
-    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal
+    var videoPlayType: PhotoPreviewViewController.PlayType = .normal
     
     var playbackTimeObserver: Any?
     
@@ -104,6 +119,13 @@ class PhotoPreviewVideoView: VideoPlayerView {
     }
     func showMaskView() {
         delegate?.videoView(showMaskView: self)
+        if let status = player.currentItem?.status,
+           status != .readyToPlay {
+            if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play && loadingView == nil {
+                delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
+                loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
+            }
+        }
     }
     func cancelPlayer() {
         if player.currentItem != nil {
@@ -178,7 +200,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
                 case AVPlayerItem.Status.failed:
                     // 初始化失败
                     cancelPlayer()
-                    ProgressHUD.showWarning(addedTo: self, text: "视频加载失败!", animated: true, delayHide: 1.5)
+                    ProgressHUD.showWarning(addedTo: self, text: "视频加载失败!".localized, animated: true, delayHide: 1.5)
                     break
                 default:
                     break
@@ -216,6 +238,9 @@ class PhotoPreviewVideoView: VideoPlayerView {
             if playerLayer.isReadyForDisplay && !didEnterBackground && (videoPlayType == .auto || videoPlayType == .once) {
                 startPlay()
             }
+            if playerTime > 0 {
+                seek(to: TimeInterval(playerTime), isPlay: true)
+            }
         }
     }
     
@@ -237,10 +262,14 @@ class PhotoPreviewVideoView: VideoPlayerView {
             stopPlay()
         }
         var seconds = time
+        let duration = CMTimeGetSeconds(playerItem.duration)
+        if duration.isNaN {
+            return
+        }
         if time < 0 {
             seconds = 0
-        }else if time > CMTimeGetSeconds(playerItem.duration) {
-            seconds = CMTimeGetSeconds(playerItem.duration)
+        }else if time > duration {
+            seconds = duration
         }
         player.seek(to: CMTimeMakeWithSeconds(seconds, preferredTimescale: playerItem.duration.timescale), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] isFinished in
             if isFinished && isPlay {

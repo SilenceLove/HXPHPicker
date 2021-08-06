@@ -35,7 +35,7 @@ public class EditorImageResizerMaskView: UIView {
         let layer = CAShapeLayer.init()
         layer.strokeColor = UIColor.white.cgColor
         layer.fillColor = UIColor.clear.cgColor
-        layer.lineWidth = 1.5
+        layer.lineWidth = 1.2
         layer.shadowOffset = CGSize(width: -1, height: 1)
         layer.contentsScale = UIScreen.main.scale
         return layer
@@ -52,9 +52,9 @@ public class EditorImageResizerMaskView: UIView {
     
     lazy var gridlinesLayer: CAShapeLayer = {
         let layer = CAShapeLayer.init()
-        layer.strokeColor = UIColor.white.cgColor
+        layer.strokeColor = UIColor.white.withAlphaComponent(0.7).cgColor
         layer.fillColor = UIColor.clear.cgColor
-        layer.lineWidth = 0.75
+        layer.lineWidth = 0.5
         layer.shadowOffset = CGSize(width: -1, height: 1)
         layer.contentsScale = UIScreen.main.scale
         return layer

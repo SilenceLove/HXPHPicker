@@ -92,11 +92,11 @@ extension PhotoAssetCollection {
 extension PhotoAssetCollection {
      
     func fetchResult() {
-        if collection == nil {
+        guard let collection = collection  else {
             return
         }
-        albumName = PhotoTools.transformAlbumName(for: collection!)
-        result = PHAsset.fetchAssets(in: collection!, options: options)
+        albumName = PhotoTools.transformAlbumName(for: collection)
+        result = PHAsset.fetchAssets(in: collection, options: options)
         count = result?.count ?? 0
     }
     

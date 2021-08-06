@@ -52,6 +52,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }()
     
     var isBacking: Bool = false
+    var isPeek = false
     
     var type: Type = .photo
     var requestID: PHImageRequestID?
@@ -59,13 +60,14 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var requestNetworkCompletion: Bool = false
     var networkVideoLoading: Bool = false
     
-    var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal  {
+    var videoPlayType: PhotoPreviewViewController.PlayType = .normal  {
         didSet {
             if type == .video {
                 videoView.videoPlayType = videoPlayType
             }
         }
     }
+    var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once
     var currentLoadAssetLocalIdentifier: String?
     var photoAsset: PhotoAsset! {
         didSet {
@@ -88,8 +90,11 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
             requestNetworkCompletion = true
             requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { [weak self] (image, asset, info) in
-                if asset == self?.photoAsset && image != nil {
-                    self?.imageView.image = image
+                guard let self = self else { return }
+                if let info = info, info.isCancel { return }
+                if let image = image,
+                   asset == self.photoAsset {
+                    self.imageView.image = image
                 }
             })
         }
@@ -99,12 +104,13 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         requestCompletion = true
         #if canImport(Kingfisher)
         if photoAsset.mediaSubType != .networkVideo {
-            showLoadingView(text: "正在下载")
+            showLoadingView(text: "正在下载".localized)
         }
         imageView.setImage(for: photoAsset, urlType: .original) { [weak self] (receivedData, totolData) in
-            if let mediaSubType = self?.photoAsset.mediaSubType, mediaSubType != .networkVideo {
+            guard let self = self else { return }
+            if self.photoAsset.mediaSubType != .networkVideo {
                 let percentage = Double(receivedData) / Double(totolData)
-                self?.requestUpdateProgress(progress: percentage, isICloud: false)
+                self.requestUpdateProgress(progress: percentage, isICloud: false)
             }
         } completionHandler: { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
@@ -170,8 +176,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 return
             }
             if loadingView == nil {
-                ProgressHUD.hide(forView: superview?.superview, animated: false)
-                showLoadingView(text: "正在下载")
+                ProgressHUD.hide(forView: hudSuperview(), animated: false)
+                showLoadingView(text: "正在下载".localized)
             }else {
                 loadingView?.isHidden = false
             }
@@ -181,9 +187,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 [weak self] (progress, task) in
                 self?.requestUpdateProgress(progress: progress, isICloud: false)
             } completionHandler: { [weak self] (url, error, _) in
-                guard let self = self else {
-                    return
-                }
+                guard let self = self else { return }
                 self.networkVideoLoading = false
                 if let url = url {
                     if let image = self.photoAsset.networkVideoAsset?.coverImage {
@@ -256,7 +260,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             canRequest = false
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             if loadingView == nil {
-                loadingView = ProgressHUD.showLoading(addedTo: superview?.superview, text: "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
+                loadingView = ProgressHUD.showLoading(addedTo: hudSuperview(), text: "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
             }
         }else {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -291,6 +295,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 }
             }
         }else if type == .video {
+            if !isPeek {
+                videoView.playerTime = photoAsset.playerTime
+            }
             if videoView.player.currentItem == nil && canRequest {
                 requestAVAsset()
             }
@@ -319,12 +326,14 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
         #endif
         requestID = photoAsset.requestImageData(iCloudHandler: { [weak self] asset, iCloudRequestID in
-            if asset == self?.photoAsset {
-                self?.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestShowDonwloadICloudHUD(iCloudRequestID: iCloudRequestID)
             }
         }, progressHandler: { [weak self] asset, progress in
-            if asset == self?.photoAsset {
-                self?.requestUpdateProgress(progress: progress, isICloud: true)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestUpdateProgress(progress: progress, isICloud: true)
             }
         }, resultHandler: { [weak self] asset, result in
             guard let self = self else { return }
@@ -370,55 +379,66 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         #endif
         let targetSize : CGSize = size
         requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { [weak self] (asset, requestID) in
-            if asset == self?.photoAsset {
-                self?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
         }, progressHandler: {  [weak self](asset, progress) in
-            if asset == self?.photoAsset {
-                self?.requestUpdateProgress(progress: progress, isICloud: true)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestUpdateProgress(progress: progress, isICloud: true)
             }
         }, success: { [weak self] (asset, livePhoto, info) in
-            if asset == self?.photoAsset {
-                self?.requestSucceed()
-                self?.livePhotoView.livePhoto = livePhoto
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestSucceed()
+                self.livePhotoView.livePhoto = livePhoto
                 UIView.animate(withDuration: 0.25) {
-                    self?.livePhotoView.alpha = 1
+                    self.livePhotoView.alpha = 1
                 }
-                self?.livePhotoView.startPlayback(with: PHLivePhotoViewPlaybackStyle.full)
-                self?.requestID = nil
-                self?.requestCompletion = true
+                if self.livePhotoPlayType == .auto ||
+                    self.livePhotoPlayType == .once {
+                    self.livePhotoView.startPlayback(with: PHLivePhotoViewPlaybackStyle.full)
+                }
+                self.requestID = nil
+                self.requestCompletion = true
             }
         }, failure: { [weak self] (asset, info, error) in
-            if asset == self?.photoAsset {
-                self?.requestFailed(info: info, isICloud: true)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestFailed(info: info, isICloud: true)
             }
         })
     }
     func requestAVAsset() {
         requestID = photoAsset.requestAVAsset(iCloudHandler: { [weak self] (asset, requestID) in
-            if asset == self?.photoAsset {
-                self?.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
             }
         }, progressHandler: { [weak self] (asset, progress) in
-            if asset == self?.photoAsset {
-                self?.requestUpdateProgress(progress: progress, isICloud: true)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestUpdateProgress(progress: progress, isICloud: true)
             }
         }, success: { [weak self] (asset, avAsset, info) in
-            if asset == self?.photoAsset {
-                self?.requestSucceed()
-                if self?.isBacking ?? true {
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestSucceed()
+                if self.isBacking {
                     return
                 }
-                self?.videoView.avAsset = avAsset
+                self.videoView.avAsset = avAsset
                 UIView.animate(withDuration: 0.25) {
-                    self?.videoView.alpha = 1
+                    self.videoView.alpha = 1
                 }
-                self?.requestID = nil
-                self?.requestCompletion = true
+                self.requestID = nil
+                self.requestCompletion = true
             }
         }, failure: { [weak self] (asset, info, error) in
-            if asset == self?.photoAsset {
-                self?.requestFailed(info: info, isICloud: true)
+            guard let self = self else { return }
+            if asset == self.photoAsset {
+                self.requestFailed(info: info, isICloud: true)
             }
         })
     }
@@ -426,14 +446,21 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         requestID = iCloudRequestID
         currentLoadAssetLocalIdentifier = photoAsset.phAsset?.localIdentifier
-        showLoadingView(text: "正在同步iCloud")
+        showLoadingView(text: "正在同步iCloud".localized)
     }
     func requestUpdateProgress(progress: Double, isICloud: Bool) {
-        let text = isICloud ? "正在同步iCloud" : "正在下载"
+        let text = isICloud ? "正在同步iCloud".localized : "正在下载".localized
         loadingView?.updateText(text: text.localized + "(" + String(Int(progress * 100)) + "%)")
     }
+    func hudSuperview() -> UIView? {
+        if !isPeek {
+            return superview?.superview
+        }else {
+            return self
+        }
+    }
     func showLoadingView(text: String) {
-        loadingView = ProgressHUD.showLoading(addedTo: superview?.superview, text: text.localized, animated: true)
+        loadingView = ProgressHUD.showLoading(addedTo: hudSuperview(), text: text.localized, animated: true)
     }
     func resetLoadingState() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -442,18 +469,22 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     func requestSucceed() {
         resetLoadingState()
-        ProgressHUD.hide(forView: superview?.superview, animated: true)
+        ProgressHUD.hide(forView: hudSuperview(), animated: true)
     }
     func requestFailed(info: [AnyHashable : Any]?, isICloud: Bool) {
         loadingView?.removeFromSuperview()
         resetLoadingState()
         if let info = info, !info.isCancel {
-            let text = (info.inICloud && isICloud) ? "iCloud同步失败" : "下载失败"
-            ProgressHUD.hide(forView: superview?.superview, animated: false)
-            ProgressHUD.showWarning(addedTo: superview?.superview, text: text.localized, animated: true, delayHide: 2)
+            let text = (info.inICloud && isICloud) ? "iCloud同步失败".localized : "下载失败".localized
+            ProgressHUD.hide(forView: hudSuperview(), animated: false)
+            ProgressHUD.showWarning(addedTo: hudSuperview(), text: text.localized, animated: true, delayHide: 2)
         }
     }
     func cancelRequest() {
+        guard let photoAsset = photoAsset else { return }
+        if !isPeek {
+            photoAsset.playerTime = 0
+        }
         switch photoAsset.mediaSubType {
         case .localImage, .networkImage(_):
             requestCompletion = false
@@ -475,7 +506,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             requestID = nil
         }
         stopAnimatedImage()
-        ProgressHUD.hide(forView: superview?.superview, animated: false)
+        ProgressHUD.hide(forView: hudSuperview(), animated: false)
         if type == .livePhoto {
             if #available(iOS 9.1, *) {
                 livePhotoView.stopPlayback()
@@ -527,7 +558,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
         if requestNetworkCompletion {
             loadingView = nil
-            ProgressHUD.hide(forView: superview?.superview, animated: false)
+            ProgressHUD.hide(forView: hudSuperview(), animated: false)
         }else {
             loadingView?.isHidden = true
         }
@@ -540,6 +571,11 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     func stopAnimatedImage() {
         if photoAsset.mediaSubType.isGif {
             imageView.stopAnimatedImage()
+        }
+    }
+    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
+        if livePhotoPlayType == .auto {
+            livePhotoView.startPlayback(with: .full)
         }
     }
     

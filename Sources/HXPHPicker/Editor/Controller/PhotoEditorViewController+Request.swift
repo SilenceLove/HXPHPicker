@@ -189,7 +189,7 @@ extension PhotoEditorViewController {
     }
     func requestAssetFailure(isICloud: Bool) {
         ProgressHUD.hide(forView: view, animated: true)
-        let text = isICloud ? "iCloud同步失败" : "图片获取失败!"
+        let text = isICloud ? "iCloud同步失败".localized : "图片获取失败!".localized
         PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: text.localized, actionTitle: "确定".localized) { (alertAction) in
             self.didBackClick()
         }

@@ -103,6 +103,7 @@ class VideoEditorSearchMusicView: UIView {
         let searchIcon = UIImageView()
         searchIcon.image = "hx_editor_video_music_search".image?.withRenderingMode(.alwaysTemplate)
         searchIcon.tintColor = .white.withAlphaComponent(0.4)
+        searchIcon.size = searchIcon.image?.size ?? .zero
         view.leftView = searchIcon
         view.leftViewMode = .always
         view.layer.cornerRadius = 10
@@ -272,6 +273,7 @@ extension VideoEditorSearchMusicView: UICollectionViewDataSource, UICollectionVi
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        endEditing(true)
         collectionView.deselectItem(at: indexPath, animated: false)
         if currentSelectItem == indexPath.item {
             return
@@ -327,6 +329,9 @@ extension VideoEditorSearchMusicView: UICollectionViewDataSource, UICollectionVi
                 })
             }
         }
+    }
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        endEditing(true)
     }
     func setupCollectionInset() {
         let top: CGFloat = 10

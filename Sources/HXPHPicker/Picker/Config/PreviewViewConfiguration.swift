@@ -29,7 +29,10 @@ public class PreviewViewConfiguration {
     public lazy var selectBox: SelectBoxConfiguration = .init()
     
     /// 视频播放类型
-    public var videoPlayType: PhotoPreviewViewController.VideoPlayType = .normal
+    public var videoPlayType: PhotoPreviewViewController.PlayType = .normal
+    
+    /// LivePhoto播放类型
+    public var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once
     
     /// 单击cell隐藏/显示导航栏时是否播放/暂停视频
     public var singleClickCellAutoPlayVideo: Bool = true

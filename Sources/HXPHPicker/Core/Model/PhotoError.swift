@@ -22,7 +22,7 @@ public extension PhotoError {
      var errorDescription: String? {
         switch self {
         case let .error(_, message):
-                return message
+            return message
         }
     }
 }

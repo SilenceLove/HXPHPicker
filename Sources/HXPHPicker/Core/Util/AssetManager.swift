@@ -65,9 +65,11 @@ public class AssetManager {
             if let placeholder = placeholder, let phAsset = fetchAsset(withLocalIdentifier: placeholder.localIdentifier) {
                 completion(phAsset)
                 if let albumName = albumName, let assetCollection = createAssetCollection(for: albumName) {
-                    do {try PHPhotoLibrary.shared().performChangesAndWait {
-                        PHAssetCollectionChangeRequest.init(for: assetCollection)?.insertAssets([phAsset] as NSFastEnumeration, at: IndexSet.init(integer: 0))
-                    }}catch{}
+                    do {
+                        try PHPhotoLibrary.shared().performChangesAndWait {
+                            PHAssetCollectionChangeRequest.init(for: assetCollection)?.insertAssets([phAsset] as NSFastEnumeration, at: IndexSet.init(integer: 0))
+                        }
+                    }catch{}
                 }
             }else {
                 completion(nil)

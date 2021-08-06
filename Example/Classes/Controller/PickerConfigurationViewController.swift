@@ -782,7 +782,7 @@ extension SelectionTapAction {
         }
     }
 }
-extension PhotoPreviewViewController.VideoPlayType {
+extension PhotoPreviewViewController.PlayType {
     var title: String {
         switch self {
         case .normal:

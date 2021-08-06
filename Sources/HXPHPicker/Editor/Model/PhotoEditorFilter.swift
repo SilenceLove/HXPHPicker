@@ -28,7 +28,7 @@ public struct PhotoEditorFilterInfo {
     public let filterHandler: PhotoEditorFilterHandler
     
     public init(filterName: String,
-                defaultValue: Float,
+                defaultValue: Float = -1,
                 filterHandler: @escaping PhotoEditorFilterHandler) {
         self.filterName = filterName
         self.defaultValue = defaultValue

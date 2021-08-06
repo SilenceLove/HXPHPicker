@@ -98,6 +98,47 @@ extension PhotoTools {
         }
         return albumName
     }
+    class func cameraPreviewImageURL() -> URL {
+        var cachePath = getImageCacheFolderPath()
+        cachePath.append(contentsOf: "/" + "cameraPreviewImage".md5())
+        return URL(fileURLWithPath: cachePath)
+    }
+    class func isCacheCameraPreviewImage() -> Bool {
+        let imageCacheURL = cameraPreviewImageURL()
+        return FileManager.default.fileExists(atPath: imageCacheURL.path)
+    }
+    class func saveCameraPreviewImage(_ image: UIImage) {
+        if let data = getImageData(for: image),
+           !data.isEmpty {
+            do {
+                let cachePath = getImageCacheFolderPath()
+                let fileManager = FileManager.default
+                if !fileManager.fileExists(atPath: cachePath) {
+                    try fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
+                }
+                let imageCacheURL = cameraPreviewImageURL()
+                if !fileManager.fileExists(atPath: imageCacheURL.path) {
+                    try fileManager.removeItem(at: imageCacheURL)
+                }
+                try data.write(to: cameraPreviewImageURL())
+            } catch {
+                print("saveError:\n", error)
+            }
+        }
+    }
+    class func getCameraPreviewImage() -> UIImage? {
+        do {
+            let cacheURL = cameraPreviewImageURL()
+            if !FileManager.default.fileExists(atPath: cacheURL.path) {
+                return nil
+            }
+            let data = try Data(contentsOf: cacheURL)
+            return UIImage(data: data)
+        } catch {
+            print("getError:\n", error)
+        }
+        return nil
+    }
     public class func getVideoCoverImage(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?

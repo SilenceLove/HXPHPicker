@@ -109,8 +109,7 @@ extension PhotoTools {
                 return nil
             },
             PhotoEditorFilterInfo(
-                filterName: "怀旧".localized,
-                defaultValue: -1
+                filterName: "怀旧".localized
             ) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectInstant",
@@ -118,16 +117,15 @@ extension PhotoTools {
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "黑白".localized,
-                defaultValue: -1) {
+                filterName: "黑白".localized
+            ) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectNoir",
                              parameters: [:]
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "色调".localized,
-                defaultValue: -1
+                filterName: "色调".localized
             ) {
                 (image, _, _, _) in
                 image.filter(name: "CIPhotoEffectTonal",
@@ -150,8 +148,7 @@ extension PhotoTools {
                 return nil
             },
             PhotoEditorFilterInfo(
-                filterName: "岁月".localized,
-                defaultValue: -1
+                filterName: "岁月".localized
             ) {
                 (image, _, _, _) in
                 image.filter(
@@ -160,8 +157,7 @@ extension PhotoTools {
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "单色".localized,
-                defaultValue: -1
+                filterName: "单色".localized
             ) {
                 (image, _, _, _) in
                 image.filter(
@@ -170,8 +166,7 @@ extension PhotoTools {
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "褪色".localized,
-                defaultValue: -1
+                filterName: "褪色".localized
             ) {
                 (image, _, _, _) in
                 image.filter(
@@ -180,8 +175,7 @@ extension PhotoTools {
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "冲印".localized,
-                defaultValue: -1
+                filterName: "冲印".localized
             ) {
                 (image, _, _, _) in
                 image.filter(
@@ -190,8 +184,7 @@ extension PhotoTools {
                 )
             },
             PhotoEditorFilterInfo(
-                filterName: "铬黄".localized,
-                defaultValue: -1
+                filterName: "铬黄".localized
             ) {
                 (image, _, _, _) in
                 image.filter(

@@ -89,7 +89,7 @@ open class PickerConfiguration: BaseConfiguration {
     public var navigationBarIsTranslucent: Bool = true
     
     /// 导航控制器背景颜色
-    public var navigationViewBackgroundColor: UIColor = UIColor.white
+    public var navigationViewBackgroundColor: UIColor = .white
     
     /// 暗黑风格下导航控制器背景颜色
     public var navigationViewBackgroudDarkColor: UIColor = "#2E2F30".color
@@ -101,16 +101,16 @@ open class PickerConfiguration: BaseConfiguration {
     public var navigationBarDarkStyle: UIBarStyle = .black
     
     /// 导航栏标题颜色
-    public var navigationTitleColor: UIColor = UIColor.black
+    public var navigationTitleColor: UIColor = .black
     
     /// 暗黑风格下导航栏标题颜色
-    public var navigationTitleDarkColor: UIColor = UIColor.white
+    public var navigationTitleDarkColor: UIColor = .white
     
     /// TintColor
     public var navigationTintColor: UIColor?
     
     /// 暗黑风格下TintColor
-    public var navigationDarkTintColor: UIColor = UIColor.white
+    public var navigationDarkTintColor: UIColor = .white
     
     /// 相册列表配置
     public lazy var albumList : AlbumListConfiguration = .init()
