@@ -21,18 +21,13 @@ public extension PhotoPickerViewCellDelegate {
 }
 
 open class PhotoPickerBaseViewCell: UICollectionViewCell {
+    /// 代理
     public weak var delegate: PhotoPickerViewCellDelegate?
-    
     /// 配置
     public var config: PhotoListCellConfiguration? {
-        didSet {
-            configColor()
-        }
+        didSet { configColor() }
     }
-    open func configColor() {
-        backgroundColor = PhotoManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
-    }
-    // 展示图片
+    /// 展示图片
     public lazy var imageView: UIImageView = {
         let imageView = UIImageView.init()
         imageView.contentMode = .scaleAspectFill
@@ -41,41 +36,32 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     }()
     /// 是否可以选择
     open var canSelect = true
-    
     /// 请求ID
     public var requestID: PHImageRequestID?
-    
     /// 网络图片下载状态
     public var downloadStatus: PhotoAsset.DownloadStatus = .unknow
-    
+    /// 对应资源的 PhotoAsset 对象
     open var photoAsset: PhotoAsset! {
         didSet {
             updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
             requestThumbnailImage()
         }
     }
-    private var firstLoadCompletion: Bool = false
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        initView()
-    }
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+    /// 初始化
     open func initView() {
         isHidden = true
         contentView.addSubview(imageView)
     }
-    
+    /// 配置背景颜色
+    open func configColor() {
+        backgroundColor = PhotoManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
+    }
     /// 当前选中时显示的标题数字
     open var selectedTitle: String = "0"
-    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
         requestThumbnailImage(targetWidth: PhotoManager.shared.targetWidth <= 0 ? width * 2 : PhotoManager.shared.targetWidth)
     }
-    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
         if photoAsset.isNetworkAsset || photoAsset.mediaSubType == .localVideo {
@@ -129,7 +115,6 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             })
         }
     }
-    
     /// 更新已选状态
     /// 重写此方法时如果是自定义的选择按钮显示当前选择的下标文字，必须在此方法内更新文字内容，否则将会出现顺序显示错乱
     /// 当前选择的下标：photoAsset.selectIndex
@@ -143,7 +128,6 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     open func layoutView() {
         imageView.frame = bounds
     }
-    
     /// 取消请求资源图片
     public func cancelRequest() {
         if requestID != nil {
@@ -152,11 +136,15 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
         }
     }
     
+    private var firstLoadCompletion: Bool = false
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        initView()
+    }
     open override func layoutSubviews() {
         super.layoutSubviews()
         layoutView()
     }
-    
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if #available(iOS 13.0, *) {
@@ -164,5 +152,8 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
                 configColor()
             }
         }
+    }
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

@@ -36,6 +36,8 @@ open class PreviewVideoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDe
         }
     }
     
+    var statusBarShouldBeHidden = false
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         scrollContentView = PhotoPreviewContentView.init(type: .video)
@@ -172,7 +174,9 @@ extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
                 self.playButton.alpha = 1
             }
         }
-        showToolView()
+        if !statusBarShouldBeHidden {
+            showToolView()
+        }
     }
     
     func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool) {

@@ -144,11 +144,16 @@ public extension PhotoAsset {
         }
     }
     enum DownloadStatus: Int {
-        case unknow         //!< 未知，不用下载或还未开始下载
-        case succeed        //!< 下载成功
-        case downloading    //!< 下载中
-        case canceled       //!< 取消下载
-        case failed         //!< 下载失败
+        /// 未知，不用下载或还未开始下载
+        case unknow
+        /// 下载成功
+        case succeed
+        /// 下载中
+        case downloading
+        /// 取消下载
+        case canceled
+        /// 下载失败
+        case failed
     }
     
     /// 网络视频加载方式

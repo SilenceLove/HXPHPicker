@@ -63,8 +63,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         return URL.init(fileURLWithPath: cachePath)
     }
     
-    weak var previewTitleLabel: UILabel?
-    weak var currentPickerController: PhotoPickerController?
     init() {
         super.init(nibName:"PickerResultViewController",bundle: nil)
     }
@@ -355,59 +353,122 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         if selectedAssets.isEmpty {
             return
         }
-//        let config = VideoEditorConfiguration.init()
-//        config.languageType = .english
-//        let vc = EditorController.init(photoAsset: selectedAssets.first!, config: config)
-////        vc.videoEditorDelegate = self
-//        present(vc, animated: true, completion: nil)
-//        return
-        // modalPresentationStyle = .custom 会使用框架自带的动画效果
-        // 预览时可以重新初始化一个config设置单独的颜色或其他配置
-        let previewConfig = PhotoTools.getWXPickerConfig()
-        if preselect {
-            previewConfig.previewView.loadNetworkVideoMode = .play
-        }
-        // 编辑器配置保持一致
-        previewConfig.photoEditor = config.photoEditor
-        
-        previewConfig.prefersStatusBarHidden = true
-        previewConfig.previewView.showBottomView = false
-        previewConfig.previewView.singleClickCellAutoPlayVideo = false
-        previewConfig.previewView.customVideoCellClass = PreviewVideoControlViewCell.self
-        previewConfig.previewView.bottomView.showSelectedView = false
-        
         var style: UIModalPresentationStyle = .custom
         if previewStyleControl.selectedSegmentIndex == 1 {
             if #available(iOS 13.0, *) {
                 style = .automatic
             }
         }
-        let pickerController = PhotoPickerController.init(preview: previewConfig, currentIndex: indexPath.item, modalPresentationStyle: style)
-        pickerController.selectedAssetArray = selectedAssets
-        pickerController.pickerDelegate = self
+        let config = PhotoBrowser.Configuration()
+        config.showDelete = true
+        config.modalPresentationStyle = style
         
-        config.previewView.cancelImageName = ""
-        pickerController.navigationBar.shadowImage = UIImage.image(for: UIColor.clear, havingSize: .zero)
-        pickerController.navigationBar.barTintColor = .clear
-        pickerController.navigationBar.backgroundColor = .clear
-        
-        let titleLabel = UILabel.init()
-        titleLabel.size = CGSize(width: 100, height: 30)
-        titleLabel.textColor = .white
-        titleLabel.font = UIFont.semiboldPingFang(ofSize: 17)
-        titleLabel.textAlignment = .center
-        titleLabel.text = String(indexPath.item + 1) + "/" + String(selectedAssets.count)
-        pickerController.previewViewController()?.navigationItem.titleView = titleLabel
-        previewTitleLabel = titleLabel
-        pickerController.previewViewController()?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "删除", style: .done, target: self, action: #selector(deletePreviewAsset))
-        present(pickerController, animated: true, completion: nil)
-        self.currentPickerController = pickerController
-    }
-    @objc func deletePreviewAsset() {
-        PhotoTools.showAlert(viewController: self.currentPickerController, title: "是否删除当前资源", message: nil, leftActionTitle: "确定", leftHandler: { (alertAction) in
-            self.currentPickerController?.deleteCurrentPreviewPhotoAsset()
-        }, rightActionTitle: "取消") { (alertAction) in
+        let cell = collectionView.cellForItem(at: indexPath) as? ResultViewCell
+        PhotoBrowser.show(
+            selectedAssets,
+            pageIndex: indexPath.item,
+            config: config,
+            transitionalImage: cell?.imageView.image
+        ) {
+            index in
+            self.collectionView.cellForItem(
+                at: IndexPath(
+                    item: index,
+                    section: 0
+                )
+            ) as? ResultViewCell
+        } deleteAssetHandler: {
+            index, photoAsset, photoBrowser in
+            PhotoTools.showAlert(
+                viewController: photoBrowser,
+                title: "是否删除当前资源",
+                leftActionTitle: "确定",
+                leftHandler: {
+                    (alertAction) in
+                    photoBrowser.deleteCurrentPreviewPhotoAsset()
+                    self.previewDidDeleteAsset(
+                        index: index
+                    )
+                }, rightActionTitle: "取消") { (alertAction) in }
+        } longPressHandler: {
+            index, photoAsset, photoBrowser in
+            self.previewLongPressClick(
+                photoAsset: photoAsset,
+                photoBrowser: photoBrowser
+            )
         }
+    }
+    
+    func previewLongPressClick(photoAsset: PhotoAsset, photoBrowser: PhotoBrowser) {
+        let alert = UIAlertController(title: "长按事件", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(.init(title: "保存", style: .default, handler: { alertAction in
+            ProgressHUD.showLoading(addedTo: photoBrowser.view, animated: true)
+            func saveImage(_ image: UIImage) {
+                AssetManager.saveSystemAlbum(forImage: image) { phAsset in
+                    if phAsset != nil {
+                        ProgressHUD.showSuccess(addedTo: photoBrowser.view, text: "保存成功", animated: true, delay: 1.5)
+                    }else {
+                        ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                    }
+                }
+            }
+            func saveVideo(_ videoURL: URL) {
+                AssetManager.saveSystemAlbum(forVideoURL: videoURL) { phAsset in
+                    if phAsset != nil {
+                        ProgressHUD.showSuccess(addedTo: photoBrowser.view, text: "保存成功", animated: true, delay: 1.5)
+                    }else {
+                        ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                    }
+                }
+            }
+            photoAsset.getAssetURL { result in
+                switch result {
+                case .success(let response):
+                    if response.mediaType == .photo {
+                        if response.urlType == .network {
+                            PhotoTools.downloadNetworkImage(with: response.url, options: [], completionHandler: { image in
+                                ProgressHUD.hide(forView: photoBrowser.view, animated: true)
+                                if let image = image {
+                                    saveImage(image)
+                                }else {
+                                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                                }
+                            })
+                        }else {
+                            let image = UIImage(contentsOfFile: response.url.path)!
+                            saveImage(image)
+                        }
+                    }else {
+                        if response.urlType == .network {
+                            PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error, _ in
+                                ProgressHUD.hide(forView: photoBrowser.view, animated: true)
+                                if let videoURL = videoURL {
+                                    saveVideo(videoURL)
+                                }else {
+                                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                                }
+                            }
+                        }else {
+                            saveVideo(response.url)
+                        }
+                    }
+                case .failure(_):
+                    ProgressHUD.hide(forView: photoBrowser.view, animated: true)
+                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                }
+            }
+        }))
+        alert.addAction(.init(title: "删除", style: .destructive, handler: { alertAction in
+            photoBrowser.deleteCurrentPreviewPhotoAsset()
+        }))
+        alert.addAction(.init(title: "取消", style: .cancel, handler: nil))
+        if UIDevice.isPad {
+            let pop = alert.popoverPresentationController
+            pop?.permittedArrowDirections = .any
+            pop?.sourceView = photoBrowser.view
+            pop?.sourceRect = CGRect(x: photoBrowser.view.width * 0.5, y: photoBrowser.view.height, width: 0, height: 0)
+        }
+        photoBrowser.present(alert, animated: true, completion: nil)
     }
     
     func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
@@ -519,96 +580,16 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
             viewController.navigationController?.navigationBar.setBackgroundImage(UIImage.gradualShadowImage(CGSize(width: view.width, height: UIDevice.isAllIPhoneX ? navHeight + 54 : navHeight + 30)), for: .default)
         }
     }
-    func pickerController(_ pickerController: PhotoPickerController, previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset, atIndex: Int) {
-        if pickerController.isPreviewAsset {
-            previewTitleLabel?.text = String(atIndex + 1) + "/" + String(selectedAssets.count)
-        }
-    }
-    func pickerController(_ pickerController: PhotoPickerController, previewSingleClick photoAsset: PhotoAsset, atIndex: Int) {
-        if pickerController.isPreviewAsset && photoAsset.mediaType == .photo {
-            pickerController.dismiss(animated: true, completion: nil)
-        }
-    }
-    func pickerController(_ pickerController: PhotoPickerController, previewLongPressClick photoAsset: PhotoAsset, atIndex: Int) {
-        if pickerController.isPreviewAsset {
-            let alert = UIAlertController(title: "长按事件", message: nil, preferredStyle: .actionSheet)
-            alert.addAction(.init(title: "保存", style: .default, handler: { alertAction in
-                ProgressHUD.showLoading(addedTo: pickerController.view, animated: true)
-                func saveImage(_ image: UIImage) {
-                    AssetManager.saveSystemAlbum(forImage: image) { phAsset in
-                        if phAsset != nil {
-                            ProgressHUD.showSuccess(addedTo: pickerController.view, text: "保存成功", animated: true, delay: 1.5)
-                        }else {
-                            ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
-                        }
-                    }
-                }
-                func saveVideo(_ videoURL: URL) {
-                    AssetManager.saveSystemAlbum(forVideoURL: videoURL) { phAsset in
-                        if phAsset != nil {
-                            ProgressHUD.showSuccess(addedTo: pickerController.view, text: "保存成功", animated: true, delay: 1.5)
-                        }else {
-                            ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
-                        }
-                    }
-                }
-                photoAsset.getAssetURL { result in
-                    switch result {
-                    case .success(let response):
-                        if response.mediaType == .photo {
-                            if response.urlType == .network {
-                                PhotoTools.downloadNetworkImage(with: response.url, options: [], completionHandler: { image in
-                                    ProgressHUD.hide(forView: pickerController.view, animated: true)
-                                    if let image = image {
-                                        saveImage(image)
-                                    }else {
-                                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
-                                    }
-                                })
-                            }else {
-                                let image = UIImage(contentsOfFile: response.url.path)!
-                                saveImage(image)
-                            }
-                        }else {
-                            if response.urlType == .network {
-                                PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error, _ in
-                                    ProgressHUD.hide(forView: pickerController.view, animated: true)
-                                    if let videoURL = videoURL {
-                                        saveVideo(videoURL)
-                                    }else {
-                                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
-                                    }
-                                }
-                            }else {
-                                saveVideo(response.url)
-                            }
-                        }
-                    case .failure(_):
-                        ProgressHUD.hide(forView: pickerController.view, animated: true)
-                        ProgressHUD.showWarning(addedTo: pickerController.view, text: "保存失败", animated: true, delay: 1.5)
-                    }
-                }
-            }))
-            alert.addAction(.init(title: "删除", style: .destructive, handler: { alertAction in
-                pickerController.deleteCurrentPreviewPhotoAsset()
-            }))
-            alert.addAction(.init(title: "取消", style: .cancel, handler: nil))
-            if UIDevice.isPad {
-                let pop = alert.popoverPresentationController
-                pop?.permittedArrowDirections = .any
-                pop?.sourceView = pickerController.view
-                pop?.sourceRect = CGRect(x: pickerController.view.width * 0.5, y: pickerController.view.height, width: 0, height: 0)
-            }
-            pickerController.present(alert, animated: true, completion: nil)
-        }
-    }
     func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int) {
+        previewDidDeleteAsset(index: atIndex)
+    }
+    func previewDidDeleteAsset(index: Int) {
         let isFull = selectedAssets.count == config.maximumSelectedCount
-        selectedAssets.remove(at: atIndex)
+        selectedAssets.remove(at: index)
         if isFull {
             collectionView.reloadData()
         }else {
-            collectionView.deleteItems(at: [IndexPath.init(item: atIndex, section: 0)])
+            collectionView.deleteItems(at: [IndexPath.init(item: index, section: 0)])
         }
         updateCollectionViewHeight()
     }
@@ -750,6 +731,9 @@ class ResultViewCell: PhotoPickerViewCell {
     }
     @objc func didDeleteButtonClick() {
         resultDelegate?.cell?(didDeleteButton: self)
+    }
+    func hideDelete() {
+        deleteButton.isHidden = true
     }
     override func initView() {
         super.initView()

@@ -49,7 +49,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             delegate?.videoView(showPlayButton: self)
             if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play {
                 delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
-                loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
+                loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
             }
             delegate?.videoView(resetPlay: self)
             let playerItem = AVPlayerItem.init(asset: avAsset!)
@@ -113,19 +113,32 @@ class PhotoPreviewVideoView: VideoPlayerView {
     }
     func showPlayButton() {
         delegate?.videoView(showPlayButton: self)
+        if let status = player.currentItem?.status,
+           status != .readyToPlay {
+            if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play && loadingView == nil {
+                delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
+                loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
+            }
+        }
     }
     func hiddenMaskView() {
         delegate?.videoView(hideMaskView: self)
     }
     func showMaskView() {
         delegate?.videoView(showMaskView: self)
-        if let status = player.currentItem?.status,
-           status != .readyToPlay {
-            if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play && loadingView == nil {
-                delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
-                loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
-            }
+//        if let status = player.currentItem?.status,
+//           status != .readyToPlay {
+//            if isNetwork && PhotoManager.shared.loadNetworkVideoMode == .play && loadingView == nil {
+//                delegate?.videoView(self, isPlaybackLikelyToKeepUp: false)
+//                loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
+//            }
+//        }
+    }
+    func loadingSuperview() -> UIView? {
+        if let view = superview as? PhotoPreviewContentView {
+            return view.hudSuperview()
         }
+        return self
     }
     func cancelPlayer() {
         if player.currentItem != nil {
@@ -222,7 +235,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
                 if !isPlaybackLikelyToKeepUp {
                     // 缓冲中
                     if loadingView == nil {
-                        loadingView = ProgressHUD.showLoading(addedTo: self, animated: true)
+                        loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
                     }else {
                         loadingView?.isHidden = false
                     }

@@ -104,7 +104,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         requestCompletion = true
         #if canImport(Kingfisher)
         if photoAsset.mediaSubType != .networkVideo {
-            showLoadingView(text: "正在下载".localized)
+            if !ImageCache.default.isCached(forKey: photoAsset.networkImageAsset!.originalURL.cacheKey) {
+                showLoadingView(text: "正在下载".localized)
+            }
         }
         imageView.setImage(for: photoAsset, urlType: .original) { [weak self] (receivedData, totolData) in
             guard let self = self else { return }
@@ -218,6 +220,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     
     func networkVideoRequestCompletion(_ videoURL: URL) {
+        if !isPeek {
+            videoView.playerTime = photoAsset.playerTime
+        }
         requestNetworkCompletion = true
         videoView.avAsset = AVAsset.init(url: videoURL)
         UIView.animate(withDuration: 0.25) {

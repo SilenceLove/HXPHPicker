@@ -159,7 +159,8 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
     }
     @discardableResult
     func openVideoEditor(photoAsset: PhotoAsset, coverImage: UIImage? = nil) -> Bool {
-        guard let pickerController = pickerController, photoAsset.mediaType == .video else {
+        guard let pickerController = pickerController,
+              photoAsset.mediaType == .video else {
             return false
         }
         if !pickerController.shouldEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0) {
@@ -202,11 +203,24 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 let imageSize = assetCell.photoAsset.imageSize
                 let aspectRatio = imageSize.width / imageSize.height
                 let maxWidth = viewSize.width - UIDevice.leftMargin - UIDevice.rightMargin - 60
+                let maxHeight = UIScreen.main.bounds.height * 0.659
+                let minWidth: CGFloat = 120
+                let minHeight: CGFloat = 120
                 var width = imageSize.width
                 var height = imageSize.height
                 if width > maxWidth {
                     width = maxWidth
                     height = width / aspectRatio
+                }
+                if height > maxHeight {
+                    height = maxHeight
+                    width = height * aspectRatio
+                }
+                if width < minWidth {
+                    width = minWidth
+                }
+                if height < minHeight {
+                    height = minHeight
                 }
                 let vc = PhotoPeekViewController(assetCell.photoAsset)
                 vc.preferredContentSize = CGSize(width: width, height: height)

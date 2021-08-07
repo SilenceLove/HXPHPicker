@@ -28,7 +28,7 @@ public class PhotoTools {
     /// 显示UIAlertController
     public class func showAlert(viewController: UIViewController? ,
                                 title: String? ,
-                                message: String? ,
+                                message: String? = nil,
                                 leftActionTitle: String? ,
                                 leftHandler: ((UIAlertAction) -> Void)?,
                                 rightActionTitle: String? ,

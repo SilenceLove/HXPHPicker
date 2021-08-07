@@ -8,7 +8,7 @@
 import UIKit
 import AVKit
 
-class PhotoPeekViewController: UIViewController {
+public class PhotoPeekViewController: UIViewController {
     
     lazy var contentView: PhotoPreviewContentView = {
         let type: PhotoPreviewContentView.`Type`
@@ -49,7 +49,7 @@ class PhotoPeekViewController: UIViewController {
     var progress: CGFloat = 0
     var isCamera = false
     
-    init(_ photoAsset: PhotoAsset) {
+    public init(_ photoAsset: PhotoAsset) {
         self.photoAsset = photoAsset
         super.init(nibName: nil, bundle: nil)
     }
@@ -59,7 +59,7 @@ class PhotoPeekViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         if photoAsset != nil {
             view.addSubview(contentView)
@@ -70,7 +70,7 @@ class PhotoPeekViewController: UIViewController {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if photoAsset != nil {
             contentView.requestPreviewAsset()
@@ -80,7 +80,7 @@ class PhotoPeekViewController: UIViewController {
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if photoAsset != nil {
             contentView.cancelRequest()
@@ -90,7 +90,7 @@ class PhotoPeekViewController: UIViewController {
         }
     }
     
-    override func viewDidLayoutSubviews() {
+    public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         if photoAsset != nil {
             contentView.frame = view.bounds
