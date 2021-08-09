@@ -107,7 +107,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
         delegate?.videoView(stopPlay: self)
     }
     func hiddenPlayButton() {
-        ProgressHUD.hide(forView: self, animated: true)
+        hideLoading()
         loadingView = nil
         delegate?.videoView(hidePlayButton: self)
     }
@@ -140,6 +140,9 @@ class PhotoPreviewVideoView: VideoPlayerView {
         }
         return self
     }
+    func hideLoading() {
+        ProgressHUD.hide(forView: loadingSuperview(), animated: true)
+    }
     func cancelPlayer() {
         if player.currentItem != nil {
             stopPlay()
@@ -156,7 +159,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
             player.replaceCurrentItem(with: nil)
             playerLayer.player = nil
             removePlayerObservers()
-            ProgressHUD.hide(forView: self, animated: true)
+            hideLoading()
             loadingView = nil
         }
     }

@@ -85,7 +85,10 @@ extension PhotoEditorViewController {
                     guard let self = self else { return }
                     switch result {
                     case .success(let dataResult):
-                        let image = UIImage.init(data: dataResult.imageData)?.scaleSuitableSize()
+                        var image = UIImage.init(data: dataResult.imageData)
+                        if dataResult.imageData.count > 3000000 {
+                            image = image?.scaleSuitableSize()
+                        }
                         DispatchQueue.global().async {
                             self.filterHDImageHandler(image: image!)
                             DispatchQueue.main.async {

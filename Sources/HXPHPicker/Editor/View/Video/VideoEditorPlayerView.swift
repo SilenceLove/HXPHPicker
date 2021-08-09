@@ -8,7 +8,7 @@
 import UIKit
 import AVKit
 
-protocol VideoEditorPlayerViewDelegate: NSObjectProtocol {
+protocol VideoEditorPlayerViewDelegate: AnyObject {
     func playerView(_ playerView: VideoEditorPlayerView, didPlayAt time: CMTime)
     func playerView(_ playerView: VideoEditorPlayerView, didPauseAt time: CMTime)
     func playerView(_ playerViewReadyForDisplay: VideoEditorPlayerView)

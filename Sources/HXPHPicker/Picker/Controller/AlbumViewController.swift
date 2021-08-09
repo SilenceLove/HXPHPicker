@@ -171,10 +171,12 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         titleLabel.size = CGSize(width: titleWidth, height: 30)
         let margin: CGFloat = UIDevice.leftMargin
         tableView.frame = CGRect(x: margin, y: 0, width: view.width - 2 * margin, height: view.height)
-        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
-            tableView.contentInset = UIEdgeInsets.init(top: UIDevice.navigationBarHeight, left: 0, bottom: UIDevice.bottomMargin, right: 0)
-        }else {
-            tableView.contentInset = UIEdgeInsets.init(top: navigationController!.navigationBar.height, left: 0, bottom: UIDevice.bottomMargin, right: 0)
+        if let nav = navigationController {
+            if nav.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
+                tableView.contentInset = UIEdgeInsets.init(top: UIDevice.navigationBarHeight, left: 0, bottom: UIDevice.bottomMargin, right: 0)
+            }else {
+                tableView.contentInset = UIEdgeInsets.init(top: nav.navigationBar.height, left: 0, bottom: UIDevice.bottomMargin, right: 0)
+            }
         }
         if orientationDidChange {
             if !assetCollectionsArray.isEmpty {

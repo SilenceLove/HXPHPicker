@@ -911,6 +911,7 @@ func pickerController(_ pickerController: PhotoPickerController,
 
 ### 单独预览资源
 
+#### PhotoPickerController
 ```swift
 let previewConfig = PhotoTools.getWXPickerConfig() 
 let previewController = PhotoPickerController(preview: previewConfig, 
@@ -919,6 +920,54 @@ let previewController = PhotoPickerController(preview: previewConfig,
 // 预览的资源数组
 previewController.selectedAssetArray = selectedAssets
 present(previewController, animated: true, completion: nil)
+```
+
+#### PhotoBrowser
+```swift
+let config = PhotoBrowser.Configuration()
+config.showDelete = true
+config.modalPresentationStyle = style
+let cell = collectionView.cellForItem(at: indexPath) as? ResultViewCell
+PhotoBrowser.show(
+    // 预览的资源数组
+    selectedAssets,
+    // 当前预览的位置
+    pageIndex: indexPath.item,
+    // 预览相关配置
+    config: config,
+    // 转场动画初始的 UIImage
+    transitionalImage: cell?.imageView.image
+) {
+    index in
+    // 转场过渡时起始/结束时 对应的 UIView
+    self.collectionView.cellForItem(
+        at: IndexPath(
+            item: index,
+            section: 0
+        )
+    ) as? ResultViewCell
+} deleteAssetHandler: {
+    index, photoAsset, photoBrowser in
+    // 点击了删除按钮
+    PhotoTools.showAlert(
+        viewController: photoBrowser,
+        title: "是否删除当前资源",
+        leftActionTitle: "确定",
+        leftHandler: {
+            (alertAction) in
+            photoBrowser.deleteCurrentPreviewPhotoAsset()
+            self.previewDidDeleteAsset(
+                index: index
+            )
+        }, rightActionTitle: "取消") { (alertAction) in }
+} longPressHandler: {
+    index, photoAsset, photoBrowser in
+    // 长按事件
+    self.previewLongPressClick(
+        photoAsset: photoAsset,
+        photoBrowser: photoBrowser
+    )
+}
 ```
 
 #### 预览视频时添加进度条

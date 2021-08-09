@@ -52,12 +52,18 @@ public extension PhotoAsset {
     func getAssetURL(completion: @escaping AssetURLCompletion) {
         if mediaType == .photo {
             if mediaSubType == .livePhoto {
-                getLivePhotoURL(completion: completion)
+                getLivePhotoURL(
+                    completion: completion
+                )
                 return
             }
-            getImageURL(completion: completion)
+            getImageURL(
+                completion: completion
+            )
         }else {
-            getVideoURL(completion: completion)
+            getVideoURL(
+                completion: completion
+            )
         }
     }
     
@@ -66,11 +72,15 @@ public extension PhotoAsset {
     func getImageURL(completion: @escaping AssetURLCompletion) {
         #if canImport(Kingfisher)
         if isNetworkAsset {
-            getNetworkImageURL(resultHandler: completion)
+            getNetworkImageURL(
+                resultHandler: completion
+            )
             return
         }
         #endif
-        requestImageURL(resultHandler: completion)
+        requestImageURL(
+            resultHandler: completion
+        )
     }
     
     /// 获取视频url
@@ -80,13 +90,20 @@ public extension PhotoAsset {
     func getVideoURL(exportPreset: String? = nil,
                      completion: @escaping AssetURLCompletion) {
         if isNetworkAsset {
-            getNetworkVideoURL(resultHandler: completion)
+            getNetworkVideoURL(
+                resultHandler: completion
+            )
             return
         }
-        requestVideoURL(exportPreset: exportPreset, resultHandler: completion)
+        requestVideoURL(
+            exportPreset: exportPreset,
+            resultHandler: completion
+        )
     }
     
     func getLivePhotoURL(completion: @escaping AssetURLCompletion) {
-        requestLivePhotoURL(completion: completion)
+        requestLivePhotoURL(
+            completion: completion
+        )
     }
 }

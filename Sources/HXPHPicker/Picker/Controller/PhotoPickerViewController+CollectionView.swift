@@ -204,24 +204,18 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 let aspectRatio = imageSize.width / imageSize.height
                 let maxWidth = viewSize.width - UIDevice.leftMargin - UIDevice.rightMargin - 60
                 let maxHeight = UIScreen.main.bounds.height * 0.659
-                let minWidth: CGFloat = 120
-                let minHeight: CGFloat = 120
                 var width = imageSize.width
                 var height = imageSize.height
                 if width > maxWidth {
                     width = maxWidth
-                    height = width / aspectRatio
+                    height = min(width / aspectRatio, maxHeight)
                 }
                 if height > maxHeight {
                     height = maxHeight
-                    width = height * aspectRatio
+                    width = min(height * aspectRatio, maxWidth)
                 }
-                if width < minWidth {
-                    width = minWidth
-                }
-                if height < minHeight {
-                    height = minHeight
-                }
+                width = max(120, width)
+                height = max(120, height)
                 let vc = PhotoPeekViewController(assetCell.photoAsset)
                 vc.preferredContentSize = CGSize(width: width, height: height)
                 return vc

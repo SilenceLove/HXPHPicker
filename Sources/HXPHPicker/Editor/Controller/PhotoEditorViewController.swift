@@ -370,7 +370,8 @@ open class PhotoEditorViewController: BaseViewController {
         topView.height = navigationController?.navigationBar.height ?? 44
         let cancelButton = topView.subviews.first
         cancelButton?.x = UIDevice.leftMargin
-        if let modalPresentationStyle = navigationController?.modalPresentationStyle, UIDevice.isPortrait {
+        if let modalPresentationStyle = navigationController?.modalPresentationStyle,
+           UIDevice.isPortrait {
             if modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom {
                 topView.y = UIDevice.generalStatusBarHeight
             }

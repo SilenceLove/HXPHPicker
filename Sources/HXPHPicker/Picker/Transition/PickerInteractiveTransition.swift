@@ -285,6 +285,9 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
                 self.transitionContext?.completeTransition(false)
                 self.transitionContext = nil
             }
+        }else {
+            toView?.isHidden = false
+            toView = nil
         }
     }
     func interPercentDidFinish() {
@@ -362,6 +365,9 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
                     self.transitionContext = nil
                 }
             }
+        }else {
+            toView?.isHidden = false
+            toView = nil
         }
     }
     override func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {

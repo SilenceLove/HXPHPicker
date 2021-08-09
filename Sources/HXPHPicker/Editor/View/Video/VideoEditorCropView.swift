@@ -8,7 +8,7 @@
 import UIKit
 import AVKit
 
-protocol VideoEditorCropViewDelegate: NSObjectProtocol {
+protocol VideoEditorCropViewDelegate: AnyObject {
     func cropView(_ cropView: VideoEditorCropView, didChangedValidRectAt time: CMTime)
     func cropView(_ cropView: VideoEditorCropView, endChangedValidRectAt time: CMTime)
     func cropView(_ cropView: VideoEditorCropView, progressLineDragBeganAt time: CMTime)

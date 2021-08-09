@@ -114,6 +114,7 @@ extension HomeViewController {
         case preselectAsset
         case collectionView
         case customCell
+        case weChat
         case weChatMoment
         case photoBrowser
         
@@ -127,6 +128,8 @@ extension HomeViewController {
                 return "Picker+UICollectionView"
             case .customCell:
                 return "Picker+CustomCell"
+            case .weChat:
+                return "WeChat"
             case .weChatMoment:
                 return "WeChat-Moment"
             case .photoBrowser:
@@ -162,6 +165,8 @@ extension HomeViewController {
                 )
                 pickerController.autoDismiss = false
                 return pickerController
+            case .weChat:
+                return WeChatViewController()
             case .weChatMoment:
                 return WeChatMometViewController()
             case .photoBrowser:

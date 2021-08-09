@@ -355,7 +355,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 }else {
                     DispatchQueue.global().async {
                         var image = UIImage.init(data: dataResult.imageData)
-                        image = image?.scaleSuitableSize()
+                        if dataResult.imageData.count > 3000000 {
+                            image = image?.scaleSuitableSize()
+                        }
                         DispatchQueue.main.async {
                             if asset == self.photoAsset {
                                 self.requestSucceed()

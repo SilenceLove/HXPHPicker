@@ -112,7 +112,10 @@ public class PhotoPreviewViewController: BaseViewController {
         }
         configBottomViewFrame()
         if firstLayoutSubviews {
-            if !previewAssets.isEmpty && config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) && config.showBottomView {
+            if !previewAssets.isEmpty &&
+                config.bottomView.showSelectedView &&
+                (isMultipleSelect || isExternalPreview) &&
+                config.showBottomView {
                 DispatchQueue.main.async {
                     self.bottomView.selectedView.scrollTo(photoAsset: self.previewAssets[self.currentPreviewIndex], isAnimated: false)
                 }

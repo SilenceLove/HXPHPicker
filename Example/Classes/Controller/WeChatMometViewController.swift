@@ -41,6 +41,7 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
                           didFinishSelection result: PickerResult) {
         if isImage {
             imageView.image = result.photoAssets.first?.originalImage
+            isImage = false
         }else {
             pickerController.dismiss(animated: true) {
                 let vc = PickerResultViewController()
@@ -81,15 +82,23 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
             vc.isPublish = true
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true, completion: nil)
+            present(nav, animated: true, completion: nil)
             return
         }
-        isImage = false
-        let config = PhotoTools.getWXPickerConfig(isMoment: true)
+        let config = PhotoTools.getWXPickerConfig(
+            isMoment: true
+        )
         config.maximumSelectedVideoDuration = 60
-        let pickerController = PhotoPickerController(picker: config, delegate: self)
+        let pickerController = PhotoPickerController(
+            picker: config,
+            delegate: self
+        )
         pickerController.autoDismiss = false
-        present(pickerController, animated: true, completion: nil)
+        present(
+            pickerController,
+            animated: true,
+            completion: nil
+        )
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

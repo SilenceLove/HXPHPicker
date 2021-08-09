@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol EditorToolViewDelegate: NSObjectProtocol {
+protocol EditorToolViewDelegate: AnyObject {
     func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions)
     func toolView(didFinishButtonClick toolView: EditorToolView)
 }

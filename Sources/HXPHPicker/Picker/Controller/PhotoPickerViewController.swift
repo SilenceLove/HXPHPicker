@@ -151,11 +151,13 @@ public class PhotoPickerViewController: BaseViewController {
         super.viewDidLayoutSubviews()
         let margin: CGFloat = UIDevice.leftMargin
         collectionView.frame = CGRect(x: margin, y: 0, width: view.width - 2 * margin, height: view.height)
-        var collectionTop: CGFloat
-        if navigationController?.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
-            collectionTop = UIDevice.navigationBarHeight
-        }else {
-            collectionTop = navigationController!.navigationBar.height
+        var collectionTop: CGFloat = UIDevice.navigationBarHeight
+        if let nav = navigationController {
+            if nav.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
+                collectionTop = UIDevice.navigationBarHeight
+            }else {
+                collectionTop = nav.navigationBar.height
+            }
         }
         if let pickerController = pickerController {
             if pickerController.config.albumShowMode == .popup {
@@ -188,13 +190,14 @@ public class PhotoPickerViewController: BaseViewController {
         let itemWidth = (collectionView.width - space * (count - CGFloat(1))) / count
         collectionViewLayout.itemSize = CGSize.init(width: itemWidth, height: itemWidth)
         if orientationDidChange {
-            if pickerController != nil && pickerController!.config.albumShowMode == .popup {
+            if let picker = pickerController,
+               picker.config.albumShowMode == .popup {
                 titleView.updateViewFrame()
             }
             collectionView.reloadData()
             DispatchQueue.main.async {
-                if self.beforeOrientationIndexPath != nil {
-                    self.collectionView.scrollToItem(at: self.beforeOrientationIndexPath!, at: .top, animated: false)
+                if let indexPath = self.beforeOrientationIndexPath {
+                    self.collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
                 }
             }
             orientationDidChange = false

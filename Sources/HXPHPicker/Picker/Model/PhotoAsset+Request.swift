@@ -25,10 +25,16 @@ public extension PhotoAsset {
     func requestImageURL(toFile fileURL:URL? = nil,
                          resultHandler: @escaping AssetURLCompletion) {
         if phAsset == nil {
-            requestLocalImageURL(toFile: fileURL, resultHandler: resultHandler)
+            requestLocalImageURL(
+                toFile: fileURL,
+                resultHandler: resultHandler
+            )
             return
         }
-        requestAssetImageURL(toFile: fileURL, resultHandler: resultHandler)
+        requestAssetImageURL(
+            toFile: fileURL,
+            resultHandler: resultHandler
+        )
     }
     
     /// 获取图片（系统相册获取的是压缩后的，不是原图）
@@ -36,15 +42,23 @@ public extension PhotoAsset {
     func requestImage(completion: ((UIImage?, PhotoAsset) -> Void)?) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
-            completion?(UIImage(contentsOfFile: photoEdit.editedImageURL.path), self)
+            completion?(
+                UIImage(
+                    contentsOfFile: photoEdit.editedImageURL.path
+                ),
+                self
+            )
             return nil
         }
         if let videoEdit = videoEdit {
-            completion?(videoEdit.coverImage, self)
+            completion?(
+                videoEdit.coverImage,
+                self
+            )
             return nil
         }
         #endif
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             requestLocalImage(urlType: .original) { (image, photoAsset) in
                 completion?(image, photoAsset)
             }
@@ -54,12 +68,21 @@ public extension PhotoAsset {
         options.resizeMode = .fast
         options.deliveryMode = .highQualityFormat
         options.isNetworkAccessAllowed = true
-        return AssetManager.requestImageData(for: phAsset!, version: isGifAsset ? .original : .current, iCloudHandler: nil, progressHandler: nil) { (result) in
+        return AssetManager.requestImageData(
+            for: phAsset,
+            version: isGifAsset ? .original : .current,
+            iCloudHandler: nil,
+            progressHandler: nil
+        ) {
+            (result) in
             switch result {
             case .success(let dataResult):
-                var image = UIImage.init(data: dataResult.imageData)
-                if image?.imageOrientation != UIImage.Orientation.up {
-                    image = image?.normalizedImage()
+                var image = UIImage(
+                    data: dataResult.imageData
+                )
+                if let cimage = image,
+                   cimage.imageOrientation != UIImage.Orientation.up {
+                    image = cimage.normalizedImage()
                 }
                 image = image?.scaleImage(toScale: 0.5)
                 completion?(image, self)
@@ -85,13 +108,13 @@ public extension PhotoAsset {
             return nil
         }
         #endif
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             requestLocalImage(urlType: .thumbnail) { (image, photoAsset) in
                 completion?(image, photoAsset, nil)
             }
             return nil
         }
-        return AssetManager.requestThumbnailImage(for: phAsset!, targetWidth: targetWidth) { (image, info) in
+        return AssetManager.requestThumbnailImage(for: phAsset, targetWidth: targetWidth) { (image, info) in
             completion?(image, self, info)
         }
     }
@@ -127,7 +150,7 @@ public extension PhotoAsset {
             return 0
         }
         #endif
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             requestlocalImageData { photoAsset, result in
                 switch result {
                 case .success(let imageResult):
@@ -143,7 +166,8 @@ public extension PhotoAsset {
             version = .original
         }
         downloadStatus = .downloading
-        return AssetManager.requestImageData(for: phAsset!, version: version) { iCloudRequestID in
+        let isGif = phAsset.isImageAnimated
+        return AssetManager.requestImageData(for: phAsset, version: version) { iCloudRequestID in
             iCloudHandler?(self, iCloudRequestID)
         } progressHandler: { progress, error, stop, info in
             self.downloadProgress = progress
@@ -155,7 +179,36 @@ public extension PhotoAsset {
             case .success(let dataResult):
                 self.downloadProgress = 1
                 self.downloadStatus = .succeed
-                resultHandler?(self, .success(.init(imageData: dataResult.imageData, imageOrientation: dataResult.imageOrientation, info: dataResult.info)))
+                let imageData: Data
+                if isGif && self.mediaSubType != .imageAnimated {
+                    if let image = UIImage(data: dataResult.imageData),
+                       let data = PhotoTools.getImageData(for: image) {
+                        imageData = data
+                    }else {
+                        resultHandler?(
+                            self,
+                            .failure(
+                                .init(
+                                    info: nil,
+                                    error: .invalidData
+                                )
+                            )
+                        )
+                        return
+                    }
+                }else {
+                    imageData = dataResult.imageData
+                }
+                resultHandler?(
+                    self,
+                    .success(
+                        .init(
+                            imageData: imageData,
+                            imageOrientation: dataResult.imageOrientation,
+                            info: dataResult.info
+                        )
+                    )
+                )
             case .failure(let error):
                 if AssetManager.assetCancelDownload(for: error.info) {
                     self.downloadStatus = .canceled

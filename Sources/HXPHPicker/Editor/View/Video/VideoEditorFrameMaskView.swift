@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol VideoEditorFrameMaskViewDelegate: NSObjectProtocol {
+protocol VideoEditorFrameMaskViewDelegate: AnyObject {
     func frameMaskView(validRectDidChanged frameMaskView: VideoEditorFrameMaskView)
     func frameMaskView(validRectEndChanged frameMaskView: VideoEditorFrameMaskView)
 }

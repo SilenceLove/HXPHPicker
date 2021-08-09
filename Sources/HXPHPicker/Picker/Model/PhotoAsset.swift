@@ -334,6 +334,13 @@ extension PhotoAsset {
         #endif
         var fileSize = 0
         if let photoAsset = phAsset {
+            if photoAsset.isImageAnimated && mediaSubType != .imageAnimated {
+                if let imageData = PhotoTools.getImageData(for: originalImage) {
+                    fileSize = imageData.count
+                }
+                pFileSize = fileSize
+                return fileSize
+            }
             let assetResources = PHAssetResource.assetResources(for: photoAsset)
             let assetIsLivePhoto = photoAsset.isLivePhoto
             var livePhotoType: PHAssetResourceType = .photo
@@ -419,7 +426,7 @@ extension PhotoAsset {
             return videoEdit.coverImage
         }
         #endif
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             if mediaType == .photo {
                 if let image = localImageAsset?.image {
                     return image
@@ -441,13 +448,17 @@ extension PhotoAsset {
             options.version = .original
         }
         var originalImage: UIImage?
-        AssetManager.requestImageData(for: phAsset!, options: options) { (result) in
+        let isGif = phAsset.isImageAnimated
+        AssetManager.requestImageData(for: phAsset, options: options) { (result) in
             switch result {
             case .success(let dataResult):
-                originalImage = UIImage.init(data: dataResult.imageData)
-                if let imageCount = originalImage?.images?.count, self.mediaSubType != .imageAnimated, self.phAsset!.isImageAnimated, imageCount > 1 {
-                    // 原始图片是动图，但是设置的是不显示动图，所以在这里处理一下
-                    originalImage = originalImage?.images?.first
+                if isGif && self.mediaSubType != .imageAnimated {
+                    let image = UIImage(data: dataResult.imageData)
+                    if let data = PhotoTools.getImageData(for: image) {
+                        originalImage = UIImage(data: data)
+                    }
+                }else {
+                    originalImage = UIImage.init(data: dataResult.imageData)
                 }
             default:
                 break
@@ -767,7 +778,7 @@ extension PhotoAsset {
             return
         }
         #endif
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             resultHandler(.failure(.invalidPHAsset))
             return
         }
@@ -805,8 +816,8 @@ extension PhotoAsset {
             }
             imageFileURL = PhotoTools.getTmpURL(for: suffix)
         }
-        let isGif = phAsset!.isImageAnimated
-        AssetManager.requestImageURL(for: phAsset!, toFile: imageFileURL) { (result) in
+        let isGif = phAsset.isImageAnimated
+        AssetManager.requestImageURL(for: phAsset, toFile: imageFileURL) { (result) in
             switch result {
             case .success(let imageURL):
                 if isGif && self.mediaSubType != .imageAnimated {

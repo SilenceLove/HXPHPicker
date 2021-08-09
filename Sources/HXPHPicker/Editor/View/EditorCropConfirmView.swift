@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol EditorCropConfirmViewDelegate: NSObjectProtocol {
+protocol EditorCropConfirmViewDelegate: AnyObject {
     func cropConfirmView(didFinishButtonClick cropConfirmView: EditorCropConfirmView)
     func cropConfirmView(didResetButtonClick cropConfirmView: EditorCropConfirmView)
     func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView)
@@ -71,7 +71,8 @@ class EditorCropConfirmView: UIView {
     @objc func didCancelButtonClick(button: UIButton) {
         delegate?.cropConfirmView(didCancelButtonClick: self)
     }
-    init(config: CropConfirmViewConfiguration, showReset: Bool = false) {
+    init(config: CropConfirmViewConfiguration,
+         showReset: Bool = false) {
         self.showReset = showReset
         self.config = config
         super.init(frame: .zero)

@@ -1,17 +1,17 @@
 PODS:
-  - HXPHPicker (1.1.7):
-    - HXPHPicker/Full (= 1.1.7)
-  - HXPHPicker/Core (1.1.7)
-  - HXPHPicker/Editor (1.1.7):
+  - HXPHPicker (1.1.8):
+    - HXPHPicker/Full (= 1.1.8)
+  - HXPHPicker/Core (1.1.8)
+  - HXPHPicker/Editor (1.1.8):
     - HXPHPicker/Core
-  - HXPHPicker/Full (1.1.7):
+  - HXPHPicker/Full (1.1.8):
     - HXPHPicker/Lite
     - Kingfisher (~> 6.0)
-  - HXPHPicker/Lite (1.1.7):
+  - HXPHPicker/Lite (1.1.8):
     - HXPHPicker/Core
     - HXPHPicker/Editor
     - HXPHPicker/Picker
-  - HXPHPicker/Picker (1.1.7):
+  - HXPHPicker/Picker (1.1.8):
     - HXPHPicker/Core
   - Kingfisher (6.3.0)
 
@@ -27,7 +27,7 @@ EXTERNAL SOURCES:
     :path: "./"
 
 SPEC CHECKSUMS:
-  HXPHPicker: c5cc5d4e50eabf6bddb0c0c936e8e9083be99b5c
+  HXPHPicker: 58e6184a8c121c6ffbd001addb2f385af0799040
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
 
 PODFILE CHECKSUM: 6fb763575dcbd3bb2c972a390f8c7f76378882ce

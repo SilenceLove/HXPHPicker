@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol PhotoPreviewSelectedViewDelegate: NSObjectProtocol {
+protocol PhotoPreviewSelectedViewDelegate: AnyObject {
     func selectedView(_ selectedView: PhotoPreviewSelectedView, didSelectItemAt photoAsset: PhotoAsset)
 }
 

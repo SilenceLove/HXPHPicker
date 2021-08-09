@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol AlbumViewDelegate: NSObjectProtocol {
+protocol AlbumViewDelegate: AnyObject {
     func albumView(_ albumView: AlbumView, didSelectRowAt assetCollection: PhotoAssetCollection)
 }
 

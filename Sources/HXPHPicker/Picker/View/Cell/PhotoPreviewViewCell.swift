@@ -11,7 +11,7 @@ import Photos
 import PhotosUI
 import ImageIO
 
-protocol PhotoPreviewViewCellDelegate: NSObjectProtocol {
+protocol PhotoPreviewViewCellDelegate: AnyObject {
     func cell(singleTap cell: PhotoPreviewViewCell)
     func cell(longPress cell: PhotoPreviewViewCell)
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell)
