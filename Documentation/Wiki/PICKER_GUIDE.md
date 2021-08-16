@@ -245,10 +245,10 @@ func pickerController(_ pickerController: PhotoPickerController,
 /// 照片编辑器加载贴图标题资源
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController
-///   - photoEditorViewController: 对应的 PhotoEditorViewController
+///   - editorViewController: 对应的 PhotoEditorViewController / VideoEditorViewController
 ///   - loadTitleChartlet: 传入标题数组
 func pickerController(_ pickerController: PhotoPickerController,
-                      loadTitleChartlet photoEditorViewController: PhotoEditorViewController,
+                      loadTitleChartlet editorViewController: UIViewController,
                       response: @escaping EditorTitleChartletResponse) { 
     #if canImport(Kingfisher)
     // 获取默认的贴纸标题数据
@@ -265,12 +265,12 @@ func pickerController(_ pickerController: PhotoPickerController,
 /// 照片编辑器加载贴图资源
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController
-///   - photoEditorViewController: 对应的 PhotoEditorViewController
+///   - editorViewController: 对应的 PhotoEditorViewController / VideoEditorViewController
 ///   - titleChartlet: 对应配置的 title
 ///   - titleIndex: 对应配置的 title 的位置索引
 ///   - response: 传入 title索引 和 贴图数据
 func pickerController(_ pickerController: PhotoPickerController,
-                      loadChartletList photoEditorViewController: PhotoEditorViewController,
+                      loadChartletList editorViewController: UIViewController,
                       titleChartlet: EditorChartlet,
                       titleIndex: Int,
                       response: EditorChartletListResponse) {

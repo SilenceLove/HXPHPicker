@@ -44,12 +44,13 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         titleLabel.textAlignment = .center
         return titleLabel
     }()
-    var config: AlbumListConfiguration?
+    let config: AlbumListConfiguration
     var assetCollectionsArray: [PhotoAssetCollection] = []
     var orientationDidChange : Bool = false
     var beforeOrientationIndexPath: IndexPath?
     var canFetchAssetCollections: Bool = false
-    init() {
+    init(config: AlbumListConfiguration) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) {
@@ -59,7 +60,6 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         super.viewDidLoad()
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
-        config = pickerController!.config.albumList
         title = "返回".localized
         navigationItem.titleView = titleLabel
         let backItem = UIBarButtonItem.init(title: "取消".localized, style: .done, target: self, action: #selector(didCancelItemClick))
@@ -70,9 +70,9 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     }
     func configColor() {
         let isDark = PhotoManager.isDark
-        tableView.backgroundColor = isDark ? config!.backgroundDarkColor : config!.backgroundColor
-        view.backgroundColor = isDark ? config!.backgroundDarkColor : config!.backgroundColor
-        promptLb.textColor = isDark ? config!.limitedStatusPromptDarkColor : config!.limitedStatusPromptColor
+        tableView.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
+        view.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
+        promptLb.textColor = isDark ? config.limitedStatusPromptDarkColor : config.limitedStatusPromptColor
         titleLabel.textColor = isDark ? pickerController?.config.navigationTitleDarkColor : pickerController?.config.navigationTitleColor
     }
     public override func deviceOrientationDidChanged(notify: Notification) {
@@ -89,7 +89,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
                 
                 var cameraAssetCollection = assetCollection
                 if cameraAssetCollection == nil {
-                    cameraAssetCollection = PhotoAssetCollection.init(albumName: self?.config?.emptyAlbumName.localized, coverImage: self?.config!.emptyCoverImageName.image)
+                    cameraAssetCollection = PhotoAssetCollection.init(albumName: self?.config.emptyAlbumName.localized, coverImage: self?.config.emptyCoverImageName.image)
                 }
                 self?.canFetchAssetCollections = true
                 self?.titleLabel.text = "相册".localized
@@ -114,7 +114,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     func reloadTableView(assetCollectionsArray: [PhotoAssetCollection]) {
         self.assetCollectionsArray = assetCollectionsArray
         if self.assetCollectionsArray.isEmpty {
-            let assetCollection = PhotoAssetCollection.init(albumName: self.config?.emptyAlbumName.localized, coverImage: self.config!.emptyCoverImageName.image)
+            let assetCollection = PhotoAssetCollection.init(albumName: self.config.emptyAlbumName.localized, coverImage: self.config.emptyCoverImageName.image)
             self.assetCollectionsArray.append(assetCollection)
         }
         self.tableView.reloadData()
@@ -126,7 +126,10 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         }
     }
     private func pushPhotoPickerController(assetCollection: PhotoAssetCollection?, animated: Bool) {
-        let photoVC = PhotoPickerViewController.init()
+        guard let picker = pickerController else {
+            return
+        }
+        let photoVC = PhotoPickerViewController(config: picker.config.photoList)
         photoVC.assetCollection = assetCollection
         photoVC.showLoading = animated
         navigationController?.pushViewController(photoVC, animated: animated)
@@ -147,7 +150,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         return cell
     }
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return config!.cellHeight
+        return config.cellHeight
     }
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)

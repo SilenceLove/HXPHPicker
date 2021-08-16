@@ -232,12 +232,15 @@ public class PhotoTools {
     ///   - timeRang: 需要裁剪的时间区域
     ///   - presentName: 导出的质量
     ///   - completion: 导出完成
-    public class func exportEditVideo(for avAsset: AVAsset,
-                                      outputURL: URL? = nil,
-                                      timeRang: CMTimeRange,
-                                      presentName: String,
-                                      completion:@escaping (URL?, Error?) -> Void) {
-        if AVAssetExportSession.allExportPresets().contains(presentName) {
+    @discardableResult
+    public class func exportEditVideo(
+        for avAsset: AVAsset,
+        outputURL: URL? = nil,
+        timeRang: CMTimeRange,
+        presentName: String,
+        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
+    {
+        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(presentName) {
             let videoURL = outputURL == nil ? PhotoTools.getVideoTmpURL() : outputURL
             if let exportSession = AVAssetExportSession.init(asset: avAsset, presetName: presentName) {
                 let supportedTypeArray = exportSession.supportedFileTypes
@@ -246,7 +249,7 @@ public class PhotoTools {
                     exportSession.outputFileType = .mp4
                 }else if supportedTypeArray.isEmpty {
                     completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
-                    return
+                    return nil
                 }else {
                     exportSession.outputFileType = supportedTypeArray.first
                 }
@@ -265,13 +268,14 @@ public class PhotoTools {
                         }
                     }
                 })
+                return exportSession
             }else {
                 completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
-                return
+                return nil
             }
         }else {
             completion(nil, PhotoError.error(type: .exportFailed, message: "设备不支持导出：" + presentName))
-            return
+            return nil
         }
     }
     

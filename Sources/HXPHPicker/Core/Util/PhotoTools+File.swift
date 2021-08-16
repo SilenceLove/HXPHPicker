@@ -100,7 +100,7 @@ extension PhotoTools {
                 try fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
             } catch {}
         }
-        cachePath.append(contentsOf: "/" + key.md5() + ".mp4")
+        cachePath.append(contentsOf: "/" + key.md5 + ".mp4")
         return URL.init(fileURLWithPath: cachePath)
     }
     
@@ -111,7 +111,7 @@ extension PhotoTools {
         if !fileManager.fileExists(atPath: cachePath) {
             try? fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
         }
-        cachePath.append(contentsOf: "/" + key.md5() + ".mp3")
+        cachePath.append(contentsOf: "/" + key.md5 + ".mp3")
         return URL.init(fileURLWithPath: cachePath)
     }
     

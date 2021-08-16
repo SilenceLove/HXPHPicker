@@ -13,7 +13,10 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
     func pushPreviewViewController(previewAssets: [PhotoAsset],
                                    currentPreviewIndex: Int,
                                    animated: Bool) {
-        let vc = PhotoPreviewViewController.init()
+        guard let picker = pickerController else {
+            return
+        }
+        let vc = PhotoPreviewViewController(config: picker.config.previewView)
         vc.previewAssets = previewAssets
         vc.currentPreviewIndex = currentPreviewIndex
         vc.delegate = self

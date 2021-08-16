@@ -12,7 +12,7 @@ protocol PhotoEditorBrushColorViewDelegate: AnyObject {
     func brushColorView(didUndoButton colorView: PhotoEditorBrushColorView)
 }
 
-class PhotoEditorBrushColorView: UIView {
+public class PhotoEditorBrushColorView: UIView {
     weak var delegate: PhotoEditorBrushColorViewDelegate?
     var brushColors: [String] = []
     var currentColorIndex: Int = 0 {
@@ -71,7 +71,7 @@ class PhotoEditorBrushColorView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         
         collectionView.frame = bounds
@@ -81,15 +81,15 @@ class PhotoEditorBrushColorView: UIView {
 }
 
 extension PhotoEditorBrushColorView: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         brushColors.count
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoEditorBrushColorViewCellID", for: indexPath) as! PhotoEditorBrushColorViewCell
         cell.colorHex = brushColors[indexPath.item]
         return cell
     }
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         delegate?.brushColorView(self, changedColor: brushColors[indexPath.item])
     }

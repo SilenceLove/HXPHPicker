@@ -51,21 +51,29 @@ public extension PhotoEditorViewControllerDelegate {
     func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {}
     func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {}
     func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {}
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
-                                   loadTitleChartlet response: @escaping EditorTitleChartletResponse) {
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
+    {
         #if canImport(Kingfisher)
         let titles = PhotoTools.defaultTitleChartlet()
         response(titles)
+        #else
+        response([])
         #endif
     }
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
-                                   titleChartlet: EditorChartlet,
-                                   titleIndex: Int,
-                                   loadChartletList response: @escaping EditorChartletListResponse) {
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        titleChartlet: EditorChartlet,
+        titleIndex: Int,
+        loadChartletList response: @escaping EditorChartletListResponse)
+    {
         /// 默认加载这些贴图
         #if canImport(Kingfisher)
         let chartletList = PhotoTools.defaultNetworkChartlet()
         response(titleIndex, chartletList)
+        #else
+        response(titleIndex, [])
         #endif
     }
 }
@@ -94,9 +102,11 @@ open class PhotoEditorViewController: BaseViewController {
     ///   - image: 对应的 UIImage
     ///   - editResult: 上一次编辑结果
     ///   - config: 编辑配置
-    public init(image: UIImage,
-                editResult: PhotoEditResult? = nil,
-                config: PhotoEditorConfiguration) {
+    public init(
+        image: UIImage,
+        editResult: PhotoEditResult? = nil,
+        config: PhotoEditorConfiguration)
+    {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .local
@@ -115,9 +125,11 @@ open class PhotoEditorViewController: BaseViewController {
     ///   - photoAsset: 对应数据的 PhotoAsset
     ///   - editResult: 上一次编辑结果
     ///   - config: 编辑配置
-    public init(photoAsset: PhotoAsset,
-                editResult: PhotoEditResult? = nil,
-                config: PhotoEditorConfiguration) {
+    public init(
+        photoAsset: PhotoAsset,
+        editResult: PhotoEditResult? = nil,
+        config: PhotoEditorConfiguration)
+    {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .picker
@@ -132,16 +144,18 @@ open class PhotoEditorViewController: BaseViewController {
     
     #if canImport(Kingfisher)
     /// 当前编辑的网络图片地址
-    public var networkImageURL: URL?
+    public private(set) var networkImageURL: URL?
     
     /// 编辑网络图片
     /// - Parameters:
     ///   - networkImageURL: 对应的网络地址
     ///   - editResult: 上一次编辑结果
     ///   - config: 编辑配置
-    public init(networkImageURL: URL,
-                editResult: PhotoEditResult? = nil,
-                config: PhotoEditorConfiguration) {
+    public init(
+        networkImageURL: URL,
+        editResult: PhotoEditResult? = nil,
+        config: PhotoEditorConfiguration)
+    {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .network
@@ -162,7 +176,6 @@ open class PhotoEditorViewController: BaseViewController {
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     lazy var imageView: PhotoEditorView = {
         let imageView = PhotoEditorView.init(config: config)
         imageView.editorDelegate = self
@@ -173,6 +186,7 @@ open class PhotoEditorViewController: BaseViewController {
         if state == .cropping {
             return
         }
+        imageView.deselectedSticker()
         func resetOtherOption() {
             if let option = currentToolOption {
                 if option.type == .graffiti {
@@ -202,20 +216,22 @@ open class PhotoEditorViewController: BaseViewController {
             hidenTopView()
         }
     }
-    lazy var cropConfirmView: EditorCropConfirmView = {
+    
+    /// 裁剪确认视图
+    public lazy var cropConfirmView: EditorCropConfirmView = {
         let cropConfirmView = EditorCropConfirmView.init(config: config.cropConfimView, showReset: true)
         cropConfirmView.alpha = 0
         cropConfirmView.isHidden = true
         cropConfirmView.delegate = self
         return cropConfirmView
     }()
-    lazy var toolView: EditorToolView = {
+    public lazy var toolView: EditorToolView = {
         let toolView = EditorToolView.init(config: config.toolView)
         toolView.delegate = self
         return toolView
     }()
     
-    lazy var topView: UIView = {
+    public lazy var topView: UIView = {
         let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
         let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
         cancelBtn.setImage(UIImage.image(for: "hx_editor_back"), for: .normal)
@@ -232,7 +248,7 @@ open class PhotoEditorViewController: BaseViewController {
         }
     }
     
-    lazy var topMaskLayer: CAGradientLayer = {
+    public lazy var topMaskLayer: CAGradientLayer = {
         let layer = CAGradientLayer.init()
         layer.contentsScale = UIScreen.main.scale
         let blackColor = UIColor.black
@@ -248,7 +264,7 @@ open class PhotoEditorViewController: BaseViewController {
         return layer
     }()
     
-    lazy var brushColorView: PhotoEditorBrushColorView = {
+    public lazy var brushColorView: PhotoEditorBrushColorView = {
         let view = PhotoEditorBrushColorView.init(frame: .zero)
         view.delegate = self
         view.brushColors = config.brushColors
@@ -264,7 +280,7 @@ open class PhotoEditorViewController: BaseViewController {
         return view
     }()
     
-    lazy var cropToolView: PhotoEditorCropToolView = {
+    public lazy var cropToolView: PhotoEditorCropToolView = {
         var showRatios = true
         if config.cropping.fixedRatio || config.cropping.isRoundCrop {
             showRatios = false
@@ -741,7 +757,19 @@ extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
 
 extension PhotoEditorViewController: EditorChartletViewDelegate {
     func chartletView(_ chartletView: EditorChartletView, loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
-        delegate?.photoEditorViewController(self, loadTitleChartlet: response)
+        if let editorDelegate = delegate {
+            editorDelegate.photoEditorViewController(
+                self,
+                loadTitleChartlet: response
+            )
+        }else {
+            #if canImport(Kingfisher)
+            let titles = PhotoTools.defaultTitleChartlet()
+            response(titles)
+            #else
+            response([])
+            #endif
+        }
     }
     func chartletView(backClick chartletView: EditorChartletView) {
         singleTap()
@@ -750,10 +778,22 @@ extension PhotoEditorViewController: EditorChartletViewDelegate {
                       titleChartlet: EditorChartlet,
                       titleIndex: Int,
                       loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
-        delegate?.photoEditorViewController(self,
-                                            titleChartlet: titleChartlet,
-                                            titleIndex: titleIndex,
-                                            loadChartletList: response)
+        if let editorDelegate = delegate {
+            editorDelegate.photoEditorViewController(
+                self,
+                titleChartlet: titleChartlet,
+                titleIndex: titleIndex,
+                loadChartletList: response
+            )
+        }else {
+            /// 默认加载这些贴图
+            #if canImport(Kingfisher)
+            let chartletList = PhotoTools.defaultNetworkChartlet()
+            response(titleIndex, chartletList)
+            #else
+            response(titleIndex, [])
+            #endif
+        }
     }
     func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage) {
         let item = EditorStickerItem(image: image, text: nil)

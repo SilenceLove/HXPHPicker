@@ -34,8 +34,10 @@ public extension PickerResult {
     /// - Parameters:
     ///   - imageHandler: 每一次获取image都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
-    func getImage(imageHandler: ((UIImage?, PhotoAsset, Int) -> Void)? = nil,
-                  completionHandler: @escaping ([UIImage]) -> Void) {
+    func getImage(
+        imageHandler: ((UIImage?, PhotoAsset, Int) -> Void)? = nil,
+        completionHandler: @escaping ([UIImage]) -> Void
+    ) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.get.image")
         var images: [UIImage] = []
@@ -62,16 +64,22 @@ public extension PickerResult {
     ///   - exportPreset: 视频质量，默认中等质量
     ///   - videoURLHandler: 每一次获取视频地址都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
-    func getVideoURL(exportPreset: String = AVAssetExportPresetMediumQuality,
-                     videoURLHandler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
-                     completionHandler: @escaping ([URL]) -> Void) {
+    func getVideoURL(
+        exportPreset: String = AVAssetExportPresetMediumQuality,
+        videoURLHandler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
+        completionHandler: @escaping ([URL]) -> Void
+    ) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.get.videoURL")
         var videoURLs: [URL] = []
         for (index, photoAsset) in photoAssets.enumerated() {
-            queue.async(group: group, execute: DispatchWorkItem.init(block: {
+            queue.async(
+                group: group,
+                execute: DispatchWorkItem.init(block: {
                 let semaphore = DispatchSemaphore.init(value: 0)
-                photoAsset.getVideoURL(exportPreset: exportPreset) { result in
+                photoAsset.getVideoURL(
+                    exportPreset: exportPreset)
+                { result in
                     switch result {
                     case .success(let response):
                         videoURLs.append(response.url)
@@ -98,10 +106,14 @@ public extension PickerResult {
     /// - Parameters:
     ///   - options: 获取的类型
     ///   - completion: result
-    func getURLs(options: Options = .any,
-                        completion: @escaping ([URL]) -> Void) {
+    func getURLs(
+        options: Options = .any,
+        completion: @escaping ([URL]) -> Void
+    ) {
         var urls: [URL] = []
-        getURLs(options: options) { result, photoAsset, index in
+        getURLs(
+            options: options
+        ) { result, photoAsset, index in
             switch result {
             case .success(let response):
                 if response.urlType == .local {
@@ -121,14 +133,18 @@ public extension PickerResult {
     ///   - options: 获取的类型
     ///   - handler: 获取到url的回调
     ///   - completionHandler: 全部获取完成
-    func getURLs(options: Options = .any,
-                 urlReceivedHandler handler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
-                 completionHandler: @escaping ([URL]) -> Void) {
+    func getURLs(
+        options: Options = .any,
+        urlReceivedHandler handler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
+        completionHandler: @escaping ([URL]) -> Void
+    ) {
         let group = DispatchGroup.init()
         let queue = DispatchQueue.init(label: "hxphpicker.request.urls")
         var urls: [URL] = []
         for (index, photoAsset) in photoAssets.enumerated() {
-            queue.async(group: group, execute: DispatchWorkItem.init(block: {
+            queue.async(
+                group: group,
+                execute: DispatchWorkItem.init(block: {
                 let semaphore = DispatchSemaphore.init(value: 0)
                 var mediatype: PhotoAsset.MediaType = .photo
                 if options.contains([.photo, .video]) {
@@ -139,7 +155,8 @@ public extension PickerResult {
                     mediatype = .video
                 }
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.mediaSubType == .livePhoto && photoAsset.photoEdit != nil {
+                if photoAsset.mediaSubType == .livePhoto &&
+                    photoAsset.photoEdit != nil {
                     mediatype = .photo
                 }
                 #endif

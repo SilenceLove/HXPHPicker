@@ -224,16 +224,36 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         let inputImage = imageResizerView.imageView.image
         let viewWidth = imageResizerView.imageView.width
         let viewHeight = imageResizerView.imageView.height
+        var drawLayer: CALayer? = nil
+        if imageResizerView.imageView.drawView.count > 0 {
+            drawLayer = imageResizerView.imageView.drawView.layer
+        }
+        var stickerLayer: CALayer? = nil
+        if imageResizerView.imageView.stickerView.count > 0 {
+            stickerLayer = imageResizerView.imageView.stickerView.layer
+        }
+        var mosaicLayer: CALayer? = nil
+        if imageResizerView.imageView.mosaicView.count > 0 {
+            mosaicLayer = imageResizerView.imageView.mosaicView.layer
+        }
         DispatchQueue.global().async {
-            if let imageOptions = self.imageResizerView.cropping(inputImage,
-                                                                 toRect: toRect,
-                                                                 viewWidth: viewWidth,
-                                                                 viewHeight: viewHeight) {
+            let imageOptions = self.imageResizerView.cropping(
+                inputImage,
+                toRect: toRect,
+                mosaicLayer: mosaicLayer,
+                drawLayer: drawLayer,
+                stickerLayer: stickerLayer,
+                viewWidth: viewWidth,
+                viewHeight: viewHeight
+            )
+            if let imageOptions = imageOptions {
                 DispatchQueue.main.async {
-                    let editResult = PhotoEditResult.init(editedImage: imageOptions.0,
-                                                          editedImageURL: imageOptions.1,
-                                                          imageType: imageOptions.2,
-                                                          editedData: self.getEditedData())
+                    let editResult = PhotoEditResult(
+                        editedImage: imageOptions.0,
+                        editedImageURL: imageOptions.1,
+                        imageType: imageOptions.2,
+                        editedData: self.getEditedData()
+                    )
                     completion(editResult)
                 }
             }else {

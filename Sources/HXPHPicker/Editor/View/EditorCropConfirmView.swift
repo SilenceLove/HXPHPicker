@@ -15,11 +15,11 @@ protocol EditorCropConfirmViewDelegate: AnyObject {
 extension EditorCropConfirmViewDelegate {
     func cropConfirmView(didResetButtonClick cropConfirmView: EditorCropConfirmView) {}
 }
-class EditorCropConfirmView: UIView {
+public class EditorCropConfirmView: UIView {
     weak var delegate: EditorCropConfirmViewDelegate?
     var config: CropConfirmViewConfiguration
     var showReset: Bool
-    lazy var maskLayer: CAGradientLayer = {
+    public lazy var maskLayer: CAGradientLayer = {
         let layer = CAGradientLayer.init()
         layer.contentsScale = UIScreen.main.scale
         let blackColor = UIColor.black
@@ -33,7 +33,7 @@ class EditorCropConfirmView: UIView {
         layer.borderWidth = 0.0
         return layer
     }()
-    lazy var cancelButton: UIButton = {
+    public lazy var cancelButton: UIButton = {
         let cancelButton = UIButton.init(type: .custom)
         cancelButton.setTitle("取消".localized, for: .normal)
         cancelButton.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
@@ -42,8 +42,7 @@ class EditorCropConfirmView: UIView {
         cancelButton.addTarget(self, action: #selector(didCancelButtonClick(button:)), for: .touchUpInside)
         return cancelButton
     }()
-    
-    lazy var finishButton: UIButton = {
+    public lazy var finishButton: UIButton = {
         let finishButton = UIButton.init(type: .custom)
         finishButton.setTitle("完成".localized, for: .normal)
         finishButton.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
@@ -52,8 +51,7 @@ class EditorCropConfirmView: UIView {
         finishButton.addTarget(self, action: #selector(didFinishButtonClick(button:)), for: .touchUpInside)
         return finishButton
     }()
-    
-    lazy var resetButton: UIButton = {
+    public lazy var resetButton: UIButton = {
         let resetButton = UIButton.init(type: .custom)
         resetButton.setTitle("还原".localized, for: .normal)
         resetButton.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
@@ -102,7 +100,7 @@ class EditorCropConfirmView: UIView {
             cancelButton.titleEdgeInsets = .zero
         }
     }
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         maskLayer.frame = CGRect(x: 0, y: showReset ? -70 : -10, width: width, height: height + (showReset ? 70 : 10))
         cancelButton.x = UIDevice.leftMargin + 12

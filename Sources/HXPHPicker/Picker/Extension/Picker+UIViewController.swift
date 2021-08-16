@@ -9,7 +9,6 @@
 import UIKit
 
 extension UIViewController {
-    
     var pickerController: PhotoPickerController? {
         get {
             if self.navigationController is PhotoPickerController {
@@ -19,3 +18,47 @@ extension UIViewController {
         }
     }
 }
+public extension HXPickerWrapper where Base: UIViewController {
+    
+    @discardableResult
+    func present(
+        picker config: PickerConfiguration,
+        delegate: PhotoPickerControllerDelegate? = nil,
+        finish: PhotoPickerController.FinishHandler? = nil,
+        cancel: PhotoPickerController.CancelHandler? = nil) -> PhotoPickerController
+    {
+        let pickerController = PhotoPickerController(
+            picker: config,
+            delegate: delegate
+        )
+        pickerController.finishHandler = finish
+        pickerController.cancelHandler = cancel
+        base.present(
+            pickerController,
+            animated: true
+        )
+        return pickerController
+    }
+    
+    
+    @discardableResult
+    func present(
+        preview assets: [PhotoAsset],
+        pageIndex: Int = 0,
+        config: PickerConfiguration,
+        delegate: PhotoPickerControllerDelegate? = nil) -> PhotoPickerController
+    {
+        let previewController = PhotoPickerController(
+            preview: config,
+            currentIndex: pageIndex,
+            delegate: delegate
+        )
+        previewController.selectedAssetArray = assets
+        base.present(
+            previewController,
+            animated: true
+        )
+        return previewController
+    }
+}
+

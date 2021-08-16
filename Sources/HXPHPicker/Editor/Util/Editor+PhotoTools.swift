@@ -73,7 +73,15 @@ extension PhotoTools {
     public class func defaultColors() -> [String] {
         ["#ffffff", "#2B2B2B", "#FA5150", "#FEC200", "#07C160", "#10ADFF", "#6467EF"]
     }
-    
+    class func defaultMusicInfos() -> [VideoEditorMusicInfo] {
+        var infos: [VideoEditorMusicInfo] = []
+        if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"),
+           let lrc = "天外来物".lrc {
+            let info = VideoEditorMusicInfo(audioURL: audioURL, lrc: lrc)
+            infos.append(info)
+        }
+        return infos
+    }
     #if canImport(Kingfisher)
     public class func defaultTitleChartlet() -> [EditorChartlet] {
         let title = EditorChartlet(
@@ -112,24 +120,27 @@ extension PhotoTools {
                 filterName: "怀旧".localized
             ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectInstant",
-                             parameters: [:]
+                image.filter(
+                    name: "CIPhotoEffectInstant",
+                    parameters: [:]
                 )
             },
             PhotoEditorFilterInfo(
                 filterName: "黑白".localized
             ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectNoir",
-                             parameters: [:]
+                image.filter(
+                    name: "CIPhotoEffectNoir",
+                    parameters: [:]
                 )
             },
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
             ) {
                 (image, _, _, _) in
-                image.filter(name: "CIPhotoEffectTonal",
-                             parameters: [:]
+                image.filter(
+                    name: "CIPhotoEffectTonal",
+                    parameters: [:]
                 )
             },
             PhotoEditorFilterInfo(
@@ -236,33 +247,47 @@ extension PhotoTools {
     /// 视频添加背景音乐
     /// - Parameters:
     ///   - videoURL: 视频地址
+    ///   - overlayImage: 贴纸
     ///   - audioURL: 需要添加的音频地址
     ///   - audioVolume: 需要添加的音频音量
     ///   - originalAudioVolume: 视频原始音频音量
     ///   - presentName: 导出质量
     ///   - completion: 添加完成
-    class func videoAddBackgroundMusic(forVideo videoURL: URL,
-                                       audioURL: URL?,
-                                       audioVolume: Float,
-                                       originalAudioVolume: Float,
-                                       presentName: String,
-                                       completion: @escaping (URL?) -> Void) {
+    @discardableResult
+    class func videoAddBackgroundMusic(
+        forVideo videoURL: URL,
+        overlayImage: UIImage?,
+        audioURL: URL?,
+        audioVolume: Float,
+        originalAudioVolume: Float,
+        presentName: String,
+        completion: @escaping (URL?) -> Void) -> AVAssetExportSession?
+    {
         let outputURL = getVideoTmpURL()
         do {
             let mixComposition = AVMutableComposition()
             let videoAsset = AVURLAsset(url: videoURL)
-            let videoTimeRange = CMTimeRangeMake(start: .zero, duration: videoAsset.duration)
-            let compositionVideoTrack = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
-                if let videoTrack = videoAsset.tracks(withMediaType: .video).first {
-                    try compositionVideoTrack?.insertTimeRange(videoTimeRange, of: videoTrack, at: .zero)
-                }
+            let videoTimeRange = CMTimeRangeMake(
+                start: .zero,
+                duration: videoAsset.duration
+            )
+            let compositionVideoTrack = mixComposition.addMutableTrack(
+                withMediaType: .video,
+                preferredTrackID: kCMPersistentTrackID_Invalid
+            )
+            if let videoTrack = videoAsset.tracks(withMediaType: .video).first {
+                compositionVideoTrack?.preferredTransform = videoTrack.preferredTransform
+                try compositionVideoTrack?.insertTimeRange(videoTimeRange, of: videoTrack, at: .zero)
+            }
             
             let audioMix = AVMutableAudioMix()
             var newAudioInputParams: AVMutableAudioMixInputParameters?
             if let audioURL = audioURL {
+                // 添加背景音乐
                 let audioAsset = AVURLAsset(url: audioURL)
                 let newAudioTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
                 if let audioTrack = audioAsset.tracks(withMediaType: .audio).first {
+                    newAudioTrack?.preferredTransform = audioTrack.preferredTransform
                     let audioDuration = audioAsset.duration.seconds
                     let videoDuration = videoAsset.duration.seconds
                     if audioDuration < videoDuration {
@@ -290,6 +315,7 @@ extension PhotoTools {
             
             if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
                 if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
+                    originalVoiceTrack.preferredTransform = audioTrack.preferredTransform
                     try originalVoiceTrack.insertTimeRange(videoTimeRange, of: audioTrack, at: .zero)
                 }
                 let volume: Float = originalAudioVolume
@@ -306,19 +332,66 @@ extension PhotoTools {
                     audioMix.inputParameters = [newAudioInputParams]
                 }
             }
-            if AVAssetExportSession.allExportPresets().contains(presentName) {
+            var addVideoComposition = false
+            let videoComposition = videoFixed(
+                composition: mixComposition,
+                assetOrientation: videoAsset.videoOrientation
+            )
+            if videoComposition.renderSize.width > 0 {
+                addVideoComposition = true
+            }
+            if overlayImage != nil {
+                let renderSize = videoComposition.renderSize
+                let bounds = CGRect(origin: .zero, size: renderSize)
+                let imglayer = CALayer()
+                imglayer.contents = overlayImage?.cgImage
+                imglayer.frame = bounds
+                imglayer.contentsGravity = .resizeAspectFill
+                imglayer.masksToBounds = true
+                
+                /// 这种方式模拟器会崩溃
+                /// https://developer.apple.com/forums/thread/133681
+//                let videolayer = CALayer()
+//                videolayer.frame = bounds
+
+//                let parentLayer = CALayer()
+//                parentLayer.frame = bounds
+//                parentLayer.addSublayer(videolayer)
+//                parentLayer.isGeometryFlipped = true
+//                parentLayer.addSublayer(imglayer)
+                 
+//                let animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videolayer, in: parentLayer)
+//                videoComposition.animationTool = animationTool
+                
+                let watermarkLayerTrackID = videoAsset.unusedTrackID()
+                videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(additionalLayer: imglayer, asTrackID: watermarkLayerTrackID)
+                let watermarkLayerInstruction = AVMutableVideoCompositionLayerInstruction()
+                watermarkLayerInstruction.trackID = watermarkLayerTrackID
+                let videoInstruction = videoComposition.instructions.first as! AVMutableVideoCompositionInstruction
+                let videoLayerInstruction = videoInstruction.layerInstructions.first!
+                videoInstruction.layerInstructions = [watermarkLayerInstruction, videoLayerInstruction]
+                videoComposition.instructions = [videoInstruction]
+                addVideoComposition = true
+            }
+            
+            if AVAssetExportSession.exportPresets(compatibleWith: videoAsset).contains(presentName) {
                 if let exportSession = AVAssetExportSession.init(asset: mixComposition, presetName: presentName) {
-                    let supportedTypeArray = exportSession.supportedFileTypes
                     exportSession.outputURL = outputURL
+                    let supportedTypeArray = exportSession.supportedFileTypes
                     if supportedTypeArray.contains(AVFileType.mp4) {
                         exportSession.outputFileType = .mp4
                     }else if supportedTypeArray.isEmpty {
-                        completion(nil)
-                        return
+                        DispatchQueue.main.async {
+                            completion(nil)
+                        }
+                        return nil
                     }else {
                         exportSession.outputFileType = supportedTypeArray.first
                     }
                     exportSession.shouldOptimizeForNetworkUse = true
+                    if addVideoComposition {
+                        exportSession.videoComposition = videoComposition
+                    }
                     if !audioMix.inputParameters.isEmpty {
                         exportSession.audioMix = audioMix
                     }
@@ -335,12 +408,72 @@ extension PhotoTools {
                             }
                         }
                     })
-                    return
+                    return exportSession
                 }
             }
-            completion(nil)
-        } catch {
+        } catch {  }
+        DispatchQueue.main.async {
             completion(nil)
         }
+        return nil
+    }
+    class func videoFixed(
+        composition: AVMutableComposition,
+        assetOrientation: AVCaptureVideoOrientation,
+        isVideoMirrored:Bool = false) -> AVMutableVideoComposition
+    {
+        let videoComposition = AVMutableVideoComposition(propertiesOf: composition)
+        var renderSize = videoComposition.renderSize
+        // https://stackoverflow.com/a/45013962
+        renderSize = CGSize(width: floor(renderSize.width / 16) * 16, height: floor(renderSize.height / 16) * 16)
+        videoComposition.renderSize = renderSize
+        guard assetOrientation != .landscapeRight else {
+            return videoComposition
+        }
+        guard let videoTrack = composition.tracks(withMediaType: .video).first else {
+            return videoComposition
+        }
+        var translateToCenter: CGAffineTransform
+        var mixedTransform: CGAffineTransform
+        let rotateInstruction = AVMutableVideoCompositionInstruction()
+        rotateInstruction.timeRange = CMTimeRange(start: CMTime.zero, duration: composition.duration)
+        
+        let rotateLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        
+        let naturalSize = videoTrack.naturalSize
+        
+        if assetOrientation == .portrait {
+            // 顺时针旋转90°
+            translateToCenter = CGAffineTransform(translationX: naturalSize.height, y: 0.0)
+            mixedTransform = translateToCenter.rotated(by: CGFloat(Double.pi / 2))
+            
+            videoComposition.renderSize = CGSize(width: naturalSize.height, height: naturalSize.width)
+            rotateLayerInstruction.setTransform(mixedTransform, at: CMTime.zero)
+        } else if assetOrientation == .landscapeLeft {
+            // 顺时针旋转180°
+            translateToCenter = CGAffineTransform(translationX: naturalSize.width, y: naturalSize.height)
+            mixedTransform = translateToCenter.rotated(by: CGFloat(Double.pi))
+            
+            videoComposition.renderSize = CGSize(width: naturalSize.width, height: naturalSize.height)
+            rotateLayerInstruction.setTransform(mixedTransform, at: CMTime.zero)
+        } else if assetOrientation == .portraitUpsideDown {
+            // 顺时针旋转270°
+            translateToCenter = CGAffineTransform(translationX: 0.0, y: naturalSize.width)
+            mixedTransform = translateToCenter.rotated(by: CGFloat((Double.pi / 2) * 3.0))
+            
+            videoComposition.renderSize = CGSize(width: naturalSize.height, height: naturalSize.width)
+            rotateLayerInstruction.setTransform(mixedTransform, at: CMTime.zero)
+        }
+        
+        if isVideoMirrored {
+            // 翻转镜像
+            let mirroredTransform = CGAffineTransform(scaleX: -1.0, y: 1.0).rotated(by: CGFloat(Double.pi/2))
+            rotateLayerInstruction.setTransform(mirroredTransform, at: CMTime.zero)
+        }
+        
+        rotateInstruction.layerInstructions = [rotateLayerInstruction]
+        videoComposition.instructions = [rotateInstruction]
+        
+        return videoComposition
     }
 }

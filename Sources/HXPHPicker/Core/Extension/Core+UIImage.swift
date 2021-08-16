@@ -53,10 +53,11 @@ extension UIImage {
         }
         return self.scaleToFillSize(size: imageSize)
     }
-    func scaleToFillSize(size: CGSize, equalRatio: Bool = false) -> UIImage? {
+    func scaleToFillSize(size: CGSize, equalRatio: Bool = false, scale: CGFloat = 0) -> UIImage? {
         if __CGSizeEqualToSize(self.size, size) {
             return self
         }
+        let scale = scale == 0 ? self.scale : scale
         let rect: CGRect
         if size.width / size.height != width / height && equalRatio {
             let scale = size.width / width
@@ -70,7 +71,7 @@ extension UIImage {
         }else {
             rect = CGRect(origin: .zero, size: size)
         }
-        UIGraphicsBeginImageContextWithOptions(size, false, self.scale)
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
         self.draw(in: rect)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()

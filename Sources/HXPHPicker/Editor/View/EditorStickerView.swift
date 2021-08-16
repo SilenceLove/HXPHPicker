@@ -276,6 +276,7 @@ class EditorStickerView: UIView {
         trashViewDidRemove = false
         trashViewIsVisible = true
         UIView.animate(withDuration: 0.25) {
+            self.trashView.centerX = UIScreen.main.bounds.width * 0.5
             self.trashView.y = UIScreen.main.bounds.height - UIDevice.bottomMargin - 20 - self.trashView.height
             self.trashView.alpha = 1
         } completion: { _ in
@@ -290,6 +291,7 @@ class EditorStickerView: UIView {
         trashViewIsVisible = false
         trashViewDidRemove = true
         UIView.animate(withDuration: 0.25) {
+            self.trashView.centerX = UIScreen.main.bounds.width * 0.5
             self.trashView.y = UIScreen.main.bounds.height
             self.trashView.alpha = 0
             self.selectView?.alpha = 1

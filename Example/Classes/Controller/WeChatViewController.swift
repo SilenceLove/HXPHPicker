@@ -48,9 +48,9 @@ class WeChatViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        tableView.frame = CGRect(x: 0, y: 0, width: view.width, height: view.height - UIDevice.bottomMargin)
+        tableView.frame = CGRect(x: 0, y: 0, width: view.hx.width, height: view.hx.height - UIDevice.bottomMargin)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
-        pickerButton.frame = CGRect(x: 0, y: view.height - UIDevice.bottomMargin - 50, width: view.width, height: 50)
+        pickerButton.frame = CGRect(x: 0, y: view.hx.height - UIDevice.bottomMargin - 50, width: view.hx.width, height: 50)
     }
 }
 
@@ -116,7 +116,7 @@ class WeChatViewCell: UITableViewCell {
     }()
     lazy var playIcon: UIImageView = {
         let view = UIImageView(image: UIImage(named: "hx_picker_cell_video_play"))
-        view.size = CGSize(width: 50, height: 50)
+        view.hx.size = CGSize(width: 50, height: 50)
         return view
     }()
     lazy var stateView: UIView = {
@@ -205,12 +205,16 @@ class WeChatViewCell: UITableViewCell {
             }
             playIcon.isHidden = true
             loadingView.startAnimating()
-            requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2) {
+            let targetWidth = hx.width * 2
+            pictureView.image = nil
+            requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth) {
                 [weak self] image, photoAsset, info in
                 guard let self = self else { return }
                 self.loadingView.stopAnimating()
                 if self.photoAsset == photoAsset {
-                    self.pictureView.image = image
+                    if let image = image {
+                        self.pictureView.image = image
+                    }
                     if photoAsset.mediaType == .video {
                         self.playIcon.isHidden = false
                     }
@@ -229,21 +233,63 @@ class WeChatViewCell: UITableViewCell {
         contentView.addSubview(avatarView)
         contentView.addSubview(pictureView)
         contentView.addSubview(loadingView)
+        if #available(iOS 13.0, *) {
+            let interaction = UIContextMenuInteraction(delegate: self)
+            pictureView.addInteraction(interaction)
+        }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        avatarView.frame = CGRect(x: width - 12 - 50, y: 20, width: 40, height: 40)
-        pictureView.frame = CGRect(origin: .init(x: avatarView.x - 10 - photoAsset.pictureSize.width, y: 20), size: photoAsset.pictureSize)
+        avatarView.frame = CGRect(x: hx.width - 12 - 50, y: 20, width: 40, height: 40)
+        pictureView.frame = CGRect(origin: .init(x: avatarView.hx.x - 10 - photoAsset.pictureSize.width, y: 20), size: photoAsset.pictureSize)
         loadingView.center = pictureView.center
-        playIcon.center = CGPoint(x: pictureView.width * 0.5, y: pictureView.height * 0.5)
-        stateView.frame = CGRect(x: 0, y: pictureView.height - 25, width: pictureView.width, height: 25)
-        stateMaskLayer.frame = CGRect(x: 0, y: -5, width: stateView.width, height: 30)
-        stateLb.frame = CGRect(x: 0, y: stateView.height - 20, width: stateView.width - 5, height: 18)
+        playIcon.center = CGPoint(x: pictureView.hx.width * 0.5, y: pictureView.hx.height * 0.5)
+        stateView.frame = CGRect(x: 0, y: pictureView.hx.height - 25, width: pictureView.hx.width, height: 25)
+        stateMaskLayer.frame = CGRect(x: 0, y: -5, width: stateView.hx.width, height: 30)
+        stateLb.frame = CGRect(x: 0, y: stateView.hx.height - 20, width: stateView.hx.width - 5, height: 18)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+@available(iOS 13.0, *)
+extension WeChatViewCell: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        guard let viewSize = hx.viewController()?.view.hx.size else {
+            return nil
+        }
+        return .init(identifier: nil) {
+            let imageSize = self.photoAsset.imageSize
+            let aspectRatio = imageSize.width / imageSize.height
+            let maxWidth = viewSize.width - UIDevice.leftMargin - UIDevice.rightMargin - 60
+            let maxHeight = UIScreen.main.bounds.height * 0.659
+            var width = imageSize.width
+            var height = imageSize.height
+            if width > maxWidth {
+                width = maxWidth
+                height = min(width / aspectRatio, maxHeight)
+            }
+            if height > maxHeight {
+                height = maxHeight
+                width = min(height * aspectRatio, maxWidth)
+            }
+            width = max(120, width)
+            height = max(120, height)
+            /// 不下载，直接播放
+            PhotoManager.shared.loadNetworkVideoMode = .play
+            let vc = PhotoPeekViewController(self.photoAsset)
+            vc.preferredContentSize = CGSize(width: width, height: height)
+            return vc
+        }
+    }
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        animator.addCompletion { [weak self] in
+            guard let self = self else { return }
+            self.showPicture?(self)
+        }
     }
 }
 

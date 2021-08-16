@@ -66,6 +66,8 @@
 "背景音乐" = "Musik";
 "搜索歌名" = "Cari judul lagu";
 "此歌曲暂无歌词，请您欣赏" = "Tidak ada lirik untuk lagu ini, selamat menikmati";
+"选择" = "Terpilih";
+"取消选择" = "batalkan pilihan";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

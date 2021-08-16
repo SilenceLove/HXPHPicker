@@ -8,11 +8,9 @@
 
 import UIKit
 
-extension UIView {
+extension UIView: HXPickerCompatible {
     var x : CGFloat {
-        get {
-            return frame.origin.x
-        }
+        get { frame.origin.x }
         set {
             var rect = frame
             rect.origin.x = newValue
@@ -20,9 +18,7 @@ extension UIView {
         }
     }
     var y : CGFloat {
-        get {
-            return frame.origin.y
-        }
+        get { frame.origin.y }
         set {
             var rect = frame
             rect.origin.y = newValue
@@ -30,9 +26,7 @@ extension UIView {
         }
     }
     var width : CGFloat {
-        get {
-            return frame.width
-        }
+        get { frame.width }
         set {
             var rect = frame
             rect.size.width = newValue
@@ -40,9 +34,7 @@ extension UIView {
         }
     }
     var height : CGFloat {
-        get {
-            return frame.height
-        }
+        get { frame.height }
         set {
             var rect = frame
             rect.size.height = newValue
@@ -50,9 +42,7 @@ extension UIView {
         }
     }
     var size : CGSize {
-        get {
-            return frame.size
-        }
+        get { frame.size }
         set {
             var rect = frame
             rect.size = newValue
@@ -60,9 +50,7 @@ extension UIView {
         }
     }
     var centerX : CGFloat {
-        get {
-            return center.x
-        }
+        get { center.x }
         set {
             var point = center
             point.x = newValue
@@ -70,9 +58,7 @@ extension UIView {
         }
     }
     var centerY : CGFloat {
-        get {
-            return center.y
-        }
+        get { center.y }
         set {
             var point = center
             point.y = newValue
@@ -109,5 +95,89 @@ extension UIView {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
+    }
+}
+
+public extension HXPickerWrapper where Base: UIView {
+    var x : CGFloat {
+        get { base.x }
+        set { base.x = newValue }
+    }
+    var y : CGFloat {
+        get { base.y }
+        set { base.y = newValue }
+    }
+    var width : CGFloat {
+        get { base.width }
+        set { base.width = newValue }
+    }
+    var height : CGFloat {
+        get { base.height }
+        set { base.height = newValue }
+    }
+    var size : CGSize {
+        get { base.size }
+        set { base.size = newValue }
+    }
+    var centerX : CGFloat {
+        get { base.centerX }
+        set { base.centerX = newValue }
+    }
+    var centerY : CGFloat {
+        get { base.centerY }
+        set { base.centerY = newValue }
+    }
+    
+    func viewController() -> UIViewController? {
+        base.viewController()
+    }
+    
+    func show(
+        text: String? = nil,
+        delayShow: TimeInterval = 0,
+        indicatorType: BaseConfiguration.IndicatorType = .system,
+        animated: Bool = true)
+    {
+        ProgressHUD.showLoading(
+            addedTo: base,
+            text: text,
+            afterDelay: delayShow,
+            animated: animated,
+            indicatorType: indicatorType
+        )
+    }
+    func showWarning(
+        text: String? = nil,
+        delayHide: TimeInterval,
+        animated: Bool = true)
+    {
+        ProgressHUD.showWarning(
+            addedTo: base,
+            text: text,
+            animated: animated,
+            delayHide: delayHide
+        )
+    }
+    func showSuccess(
+        text: String? = nil,
+        delayHide: TimeInterval,
+        animated: Bool = true)
+    {
+        ProgressHUD.showSuccess(
+            addedTo: base,
+            text: text,
+            animated: animated,
+            delayHide: delayHide
+        )
+    }
+    func hide(
+        delay: TimeInterval = 0,
+        animated: Bool = true)
+    {
+        ProgressHUD.hide(
+            forView: base,
+            animated: animated,
+            afterDelay:delay
+        )
     }
 }

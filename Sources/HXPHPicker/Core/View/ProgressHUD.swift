@@ -38,7 +38,7 @@ class ProgressHUD: UIView {
     }()
     
     lazy var indicatorView : UIView = {
-        if PhotoManager.shared.indicatorType == .circle {
+        if indicatorType == .circle {
             let indicatorView = ProgressIndefiniteView(frame: CGRect(origin: .zero, size: CGSize(width: 45, height: 45)))
             indicatorView.startAnimating()
             return indicatorView
@@ -69,12 +69,20 @@ class ProgressHUD: UIView {
         return tickView
     }()
     
+    /// 加载指示器类型
+    let indicatorType: BaseConfiguration.IndicatorType
+    
     var text : String?
     var finished : Bool = false
     var showDelayTimer : Timer?
     var hideDelayTimer : Timer?
     
-    init(addedTo view: UIView, mode: Mode) {
+    init(
+        addedTo view: UIView,
+        mode: Mode,
+        indicatorType : BaseConfiguration.IndicatorType = .system)
+    {
+        self.indicatorType = indicatorType
         self.mode = mode
         super.init(frame: view.bounds)
         initView()
@@ -220,13 +228,27 @@ class ProgressHUD: UIView {
         return showLoading(addedTo: view, text: text, afterDelay: 0, animated: animated)
     }
     @discardableResult
-    class func showLoading(addedTo view: UIView?, text: String?, afterDelay: TimeInterval , animated: Bool) -> ProgressHUD? {
-        if view == nil {
-            return nil
+    class func showLoading(
+        addedTo view: UIView?,
+        text: String?,
+        afterDelay: TimeInterval ,
+        animated: Bool,
+        indicatorType: BaseConfiguration.IndicatorType? = nil) -> ProgressHUD?
+    {
+        guard let view = view else { return nil }
+        let type: BaseConfiguration.IndicatorType
+        if let indicatorType = indicatorType {
+            type = indicatorType
+        }else {
+            type = PhotoManager.shared.indicatorType
         }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: .indicator)
+        let progressView = ProgressHUD(
+            addedTo: view,
+            mode: .indicator,
+            indicatorType: type
+        )
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
-        view!.addSubview(progressView)
+        view.addSubview(progressView)
         return progressView
     }
     class func showWarning(addedTo view: UIView?, text: String?, animated: Bool, delayHide: TimeInterval) {
@@ -234,24 +256,20 @@ class ProgressHUD: UIView {
         self.hide(forView: view, animated: animated, afterDelay: delayHide)
     }
     class func showWarning(addedTo view: UIView?, text: String?, afterDelay: TimeInterval , animated: Bool) {
-        if view == nil {
-            return
-        }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: .image)
+        guard let view = view else { return }
+        let progressView = ProgressHUD.init(addedTo: view, mode: .image)
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
-        view!.addSubview(progressView)
+        view.addSubview(progressView)
     }
     class func showSuccess(addedTo view: UIView?, text: String?, animated: Bool, delayHide: TimeInterval) {
         self.showSuccess(addedTo: view, text: text, afterDelay: 0, animated: animated)
         self.hide(forView: view, animated: animated, afterDelay: delayHide)
     }
     class func showSuccess(addedTo view: UIView?, text: String?, afterDelay: TimeInterval , animated: Bool) {
-        if view == nil {
-            return
-        }
-        let progressView = ProgressHUD.init(addedTo: view!, mode: .success)
+        guard let view = view else { return }
+        let progressView = ProgressHUD.init(addedTo: view, mode: .success)
         progressView.showHUD(text: text, animated: animated, afterDelay: afterDelay)
-        view!.addSubview(progressView)
+        view.addSubview(progressView)
     }
     
     class func hide(forView view:UIView? ,animated: Bool) {
@@ -259,10 +277,8 @@ class ProgressHUD: UIView {
     }
     
     class func hide(forView view:UIView? ,animated: Bool ,afterDelay: TimeInterval) {
-        if view == nil {
-            return
-        }
-        for subView in view!.subviews {
+        guard let view = view else { return }
+        for subView in view.subviews {
             if subView is ProgressHUD {
                 (subView as! ProgressHUD).hide(withAnimated: animated, afterDelay: afterDelay)
             }

@@ -174,7 +174,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let flowLayout: UICollectionViewFlowLayout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
-        let itemWidth = Int((view.width - 24 - CGFloat(row_Count - 1))) / row_Count
+        let itemWidth = Int((view.hx.width - 24 - CGFloat(row_Count - 1))) / row_Count
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth)
         flowLayout.minimumInteritemSpacing = 1
         flowLayout.minimumLineSpacing = 1
@@ -192,10 +192,10 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     func configCollectionViewHeight() {
         let rowCount = getCollectionViewrowCount()
         beforeRowCount = rowCount
-        let itemWidth = Int((view.width - 24 - CGFloat(row_Count - 1))) / row_Count
+        let itemWidth = Int((view.hx.width - 24 - CGFloat(row_Count - 1))) / row_Count
         var heightConstraint = CGFloat(rowCount * itemWidth + rowCount)
-        if heightConstraint > view.height - UIDevice.navigationBarHeight - 20 - 150 {
-            heightConstraint = view.height - UIDevice.navigationBarHeight - 20 - 150
+        if heightConstraint > view.hx.height - UIDevice.navigationBarHeight - 20 - 150 {
+            heightConstraint = view.hx.height - UIDevice.navigationBarHeight - 20 - 150
         }
         collectionViewHeightConstraint.constant = heightConstraint
     }
@@ -286,10 +286,14 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     @IBAction func didRequestSelectedAssetURL(_ sender: Any) {
         let total = selectedAssets.count
         if total == 0 {
-            ProgressHUD.showWarning(addedTo: self.view, text: "请先选择资源", animated: true, delay: 1.5)
+            view.hx.showWarning(
+                text: "请先选择资源",
+                delayHide: 1.5,
+                animated: true
+            )
             return
         }
-        ProgressHUD.showLoading(addedTo: self.view, animated: true)
+        view.hx.show(animated: true)
         let result = PickerResult(photoAssets: selectedAssets, isOriginal: false)
         result.getURLs { result, photoAsset, index in
             print("第" + String(index + 1) + "个")
@@ -311,8 +315,8 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                 break
             }
         } completionHandler: { urls in
-            ProgressHUD.hide(forView: self.view, animated: false)
-            ProgressHUD.showSuccess(addedTo: self.view, text: "获取完成", animated: true, delay: 1.5)
+            self.view.hx.hide(animated: false)
+            self.view.hx.showSuccess(text: "获取完成", delayHide: 1.5, animated: true)
         }
     }
     
@@ -408,22 +412,22 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
     func previewLongPressClick(photoAsset: PhotoAsset, photoBrowser: PhotoBrowser) {
         let alert = UIAlertController(title: "长按事件", message: nil, preferredStyle: .actionSheet)
         alert.addAction(.init(title: "保存", style: .default, handler: { alertAction in
-            ProgressHUD.showLoading(addedTo: photoBrowser.view, animated: true)
+            photoBrowser.view.hx.show(animated: true)
             func saveImage(_ image: UIImage) {
                 AssetManager.saveSystemAlbum(forImage: image) { phAsset in
                     if phAsset != nil {
-                        ProgressHUD.showSuccess(addedTo: photoBrowser.view, text: "保存成功", animated: true, delay: 1.5)
+                        photoBrowser.view.hx.showSuccess(text: "保存成功", delayHide: 1.5, animated: true)
                     }else {
-                        ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                        photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
                     }
                 }
             }
             func saveVideo(_ videoURL: URL) {
                 AssetManager.saveSystemAlbum(forVideoURL: videoURL) { phAsset in
                     if phAsset != nil {
-                        ProgressHUD.showSuccess(addedTo: photoBrowser.view, text: "保存成功", animated: true, delay: 1.5)
+                        photoBrowser.view.hx.showSuccess(text: "保存成功", delayHide: 1.5, animated: true)
                     }else {
-                        ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                        photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
                     }
                 }
             }
@@ -433,11 +437,11 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                     if response.mediaType == .photo {
                         if response.urlType == .network {
                             PhotoTools.downloadNetworkImage(with: response.url, options: [], completionHandler: { image in
-                                ProgressHUD.hide(forView: photoBrowser.view, animated: true)
+                                photoBrowser.view.hx.hide(animated: true)
                                 if let image = image {
                                     saveImage(image)
                                 }else {
-                                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                                    photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
                                 }
                             })
                         }else {
@@ -447,11 +451,11 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                     }else {
                         if response.urlType == .network {
                             PhotoManager.shared.downloadTask(with: response.url, progress: nil) { videoURL, error, _ in
-                                ProgressHUD.hide(forView: photoBrowser.view, animated: true)
+                                photoBrowser.view.hx.hide(animated: true)
                                 if let videoURL = videoURL {
                                     saveVideo(videoURL)
                                 }else {
-                                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                                    photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
                                 }
                             }
                         }else {
@@ -459,8 +463,8 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
                         }
                     }
                 case .failure(_):
-                    ProgressHUD.hide(forView: photoBrowser.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: photoBrowser.view, text: "保存失败", animated: true, delay: 1.5)
+                    photoBrowser.view.hx.hide(animated: true)
+                    photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
                 }
             }
         }))
@@ -472,7 +476,7 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
             let pop = alert.popoverPresentationController
             pop?.permittedArrowDirections = .any
             pop?.sourceView = photoBrowser.view
-            pop?.sourceRect = CGRect(x: photoBrowser.view.width * 0.5, y: photoBrowser.view.height, width: 0, height: 0)
+            pop?.sourceRect = CGRect(x: photoBrowser.view.hx.width * 0.5, y: photoBrowser.view.hx.height, width: 0, height: 0)
         }
         photoBrowser.present(alert, animated: true, completion: nil)
     }
@@ -582,8 +586,8 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
     }
     func pickerController(_ pickerController: PhotoPickerController, viewControllersWillAppear viewController: UIViewController) {
         if pickerController.isPreviewAsset {
-            let navHeight = viewController.navigationController?.navigationBar.height ?? 0
-            viewController.navigationController?.navigationBar.setBackgroundImage(UIImage.gradualShadowImage(CGSize(width: view.width, height: UIDevice.isAllIPhoneX ? navHeight + 54 : navHeight + 30)), for: .default)
+            let navHeight = viewController.navigationController?.navigationBar.hx.height ?? 0
+            viewController.navigationController?.navigationBar.setBackgroundImage(UIImage.gradualShadowImage(CGSize(width: view.hx.width, height: UIDevice.isAllIPhoneX ? navHeight + 54 : navHeight + 30)), for: .default)
         }
     }
     func pickerController(_ pickerController: PhotoPickerController, previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int) {
@@ -620,7 +624,9 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
             }
         }
     }
-    func pickerController(_ pickerController: PhotoPickerController, loadTitleChartlet photoEditorViewController: PhotoEditorViewController, response: @escaping ([EditorChartlet]) -> Void) {
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadTitleChartlet editorViewController: UIViewController,
+                          response: @escaping ([EditorChartlet]) -> Void) {
         // 模仿延迟加加载数据
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             var titles = PhotoTools.defaultTitleChartlet()
@@ -629,7 +635,11 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
             response(titles)
         }
     }
-    func pickerController(_ pickerController: PhotoPickerController, loadChartletList photoEditorViewController: PhotoEditorViewController, titleChartlet: EditorChartlet, titleIndex: Int, response: @escaping (Int, [EditorChartlet]) -> Void) {
+    func pickerController(_ pickerController: PhotoPickerController,
+                          loadChartletList editorViewController: UIViewController,
+                          titleChartlet: EditorChartlet,
+                          titleIndex: Int,
+                          response: @escaping (Int, [EditorChartlet]) -> Void) {
         if titleIndex == 0 {
             response(titleIndex, PhotoTools.defaultNetworkChartlet())
         }else {
@@ -721,7 +731,7 @@ class ResultViewCell: PhotoPickerViewCell {
     lazy var deleteButton: UIButton = {
         let deleteButton = UIButton.init(type: .custom)
         deleteButton.setImage(UIImage.init(named: "hx_compose_delete"), for: .normal)
-        deleteButton.size = deleteButton.currentImage?.size ?? .zero
+        deleteButton.hx.size = deleteButton.currentImage?.size ?? .zero
         deleteButton.addTarget(self, action: #selector(didDeleteButtonClick), for: .touchUpInside)
         return deleteButton
     }()
@@ -733,7 +743,7 @@ class ResultViewCell: PhotoPickerViewCell {
     }
     override func requestThumbnailImage() {
         // 因为这里的cell不会很多，重新设置 targetWidth，使图片更加清晰
-        super.requestThumbnailImage(targetWidth: width * UIScreen.main.scale)
+        super.requestThumbnailImage(targetWidth: hx.width * UIScreen.main.scale)
     }
     @objc func didDeleteButtonClick() {
         resultDelegate?.cell?(didDeleteButton: self)
@@ -750,6 +760,6 @@ class ResultViewCell: PhotoPickerViewCell {
     
     override func layoutView() {
         super.layoutView()
-        deleteButton.x = width - deleteButton.width
+        deleteButton.hx.x = hx.width - deleteButton.hx.width
     }
 }

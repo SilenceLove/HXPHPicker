@@ -64,13 +64,13 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let itemWidth = Int((view.width - 24 - CGFloat(row_Count - 1))) / row_Count
+        let itemWidth = Int((view.hx.width - 24 - CGFloat(row_Count - 1))) / row_Count
         flowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth)
         flowLayout.minimumInteritemSpacing = 1
         flowLayout.minimumLineSpacing = 1
         flowLayout.sectionInset = UIEdgeInsets(top: 20, left: 12, bottom: 20, right: 12)
         let collectionViewY = navigationController?.navigationBar.frame.maxY ?? UIDevice.navigationBarHeight
-        collectionView.frame = CGRect(x: 0, y: collectionViewY, width: view.width, height: view.height - collectionViewY)
+        collectionView.frame = CGRect(x: 0, y: collectionViewY, width: view.hx.width, height: view.hx.height - collectionViewY)
     }
     
     // MARK: UICollectionViewDataSource
@@ -110,7 +110,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         guard let cell = collectionView.cellForItem(at: indexPath) as? ResultViewCell else {
             return nil
         }
-        let viewSize = view.size
+        let viewSize = view.hx.size
         return .init(
             identifier: indexPath as NSCopying
         ) {

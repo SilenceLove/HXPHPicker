@@ -95,11 +95,11 @@ class EditorChartletView: UIView {
     }()
     var previewView: EditorChartletPreviewView?
     var previewIndex: Int = -1
-    let config: PhotoEditorConfiguration.ChartletConfig
+    let config: EditorChartletConfig
     var titles: [EditorChartletTitle] = []
     var selectedTitleIndex: Int = 0
     var configTitles: [EditorChartlet] = []
-    init(config: PhotoEditorConfiguration.ChartletConfig) {
+    init(config: EditorChartletConfig) {
         self.config = config
         super.init(frame: .zero)
         setupTitles(config.titles)
@@ -418,22 +418,20 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
         let cell = collectionView.cellForItem(at: indexPath) as! EditorChartletViewCell
-        #if canImport(Kingfisher)
         if let image = cell.chartlet.image {
             delegate?.listCell(self, didSelectImage: image)
-        }else if let url = cell.chartlet.url {
-            PhotoTools.downloadNetworkImage(with: url, options: [.backgroundDecode], completionHandler:  { [weak self] (image) in
-                guard let self = self else { return }
-                if let image = image {
-                    self.delegate?.listCell(self, didSelectImage: image)
-                }
-            })
+        }else {
+            #if canImport(Kingfisher)
+            if let url = cell.chartlet.url, cell.downloadCompletion {
+                PhotoTools.downloadNetworkImage(with: url, options: [.backgroundDecode], completionHandler:  { [weak self] (image) in
+                    guard let self = self else { return }
+                    if let image = image {
+                        self.delegate?.listCell(self, didSelectImage: image)
+                    }
+                })
+            }
+            #endif
         }
-        #else
-        if let image = cell.chartlet.image {
-            delegate?.listCell(self, didSelectImage: image)
-        }
-        #endif
     }
     
     override func layoutSubviews() {
@@ -465,6 +463,8 @@ class EditorChartletViewCell: UICollectionViewCell {
         view.clipsToBounds = true
         return view
     }()
+    
+    var downloadCompletion = false
     
     var titleChartlet: EditorChartletTitle! {
         didSet {
@@ -502,15 +502,24 @@ class EditorChartletViewCell: UICollectionViewCell {
     }
     
     func setupImage(image: UIImage?, url: URL? = nil) {
+        downloadCompletion = false
         imageView.image = nil
         #if canImport(Kingfisher)
         if let image = image {
             imageView.image = image
+            downloadCompletion = true
         }else if let url = url {
             imageView.kf.indicatorType = .activity
             (imageView.kf.indicator?.view as? UIActivityIndicatorView)?.color = .white
             let processor = DownsamplingImageProcessor(size: CGSize(width: width * 2, height: height * 2))
-            imageView.kf.setImage(with: url, options: [.cacheOriginalImage, .processor(processor), .backgroundDecode])
+            imageView.kf.setImage(with: url, options: [.cacheOriginalImage, .processor(processor), .backgroundDecode]) { [weak self] result in
+                switch result {
+                case .success(_):
+                    self?.downloadCompletion = true
+                default:
+                    break
+                }
+            }
         }
         #else
         if let image = image {

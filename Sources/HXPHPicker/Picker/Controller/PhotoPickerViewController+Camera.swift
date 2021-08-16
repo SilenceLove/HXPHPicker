@@ -14,10 +14,9 @@ import Photos
 extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func presentCameraViewController() {
-        if let pickerController = pickerController {
-            if !pickerController.shouldPresentCamera() {
-                return
-            }
+        guard let pickerController = pickerController,
+              pickerController.shouldPresentCamera() else {
+            return
         }
         let imagePickerController = CameraViewController.init()
         imagePickerController.sourceType = .camera
@@ -30,10 +29,10 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         if !config.camera.mediaTypes.isEmpty {
             mediaTypes = config.camera.mediaTypes
         }else {
-            if pickerController!.config.selectOptions.isPhoto {
+            if pickerController.config.selectOptions.isPhoto {
                 mediaTypes.append(kUTTypeImage as String)
             }
-            if pickerController!.config.selectOptions.isVideo {
+            if pickerController.config.selectOptions.isVideo {
                 mediaTypes.append(kUTTypeMovie as String)
             }
         }

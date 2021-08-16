@@ -37,11 +37,17 @@ public struct VideoEditResult {
     /// 裁剪数据
     public let cropData: VideoCropData?
     
-    public init(editedURL: URL,
-                cropData: VideoCropData?,
-                videoSoundVolume: Float,
-                backgroundMusicURL: URL?,
-                backgroundMusicVolume: Float) {
+    /// 贴纸数据
+    let stickerData: EditorStickerData?
+    
+    init(
+        editedURL: URL,
+        cropData: VideoCropData?,
+        videoSoundVolume: Float,
+        backgroundMusicURL: URL?,
+        backgroundMusicVolume: Float,
+        stickerData: EditorStickerData?)
+    {
         editedFileSize = editedURL.fileSize
         
         videoDuration = PhotoTools.getVideoDuration(videoURL: editedURL)
@@ -52,6 +58,7 @@ public struct VideoEditResult {
         self.videoSoundVolume = videoSoundVolume
         self.backgroundMusicURL = backgroundMusicURL
         self.backgroundMusicVolume = backgroundMusicVolume
+        self.stickerData = stickerData
     }
 }
 
@@ -77,11 +84,13 @@ public struct VideoCropData: Codable {
     /// 2：validWidth ，裁剪框的宽度
     public let cropRectData: CropData
     
-    public init(startTime: TimeInterval,
-                endTime: TimeInterval,
-                preferredTimescale: Int32,
-                cropingData: CropData,
-                cropRectData: CropData) {
+    public init(
+        startTime: TimeInterval,
+        endTime: TimeInterval,
+        preferredTimescale: Int32,
+        cropingData: CropData,
+        cropRectData: CropData)
+    {
         self.startTime = startTime
         self.endTime = endTime
         self.preferredTimescale = preferredTimescale
@@ -108,6 +117,7 @@ extension VideoEditResult: Codable {
         case backgroundMusicURL
         case backgroundMusicVolume
         case cropData
+        case stickerData
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -124,6 +134,7 @@ extension VideoEditResult: Codable {
         backgroundMusicURL = try container.decodeIfPresent(URL.self, forKey: .backgroundMusicURL)
         backgroundMusicVolume = try container.decode(Float.self, forKey: .backgroundMusicVolume)
         cropData = try container.decode(VideoCropData.self, forKey: .cropData)
+        stickerData = try container.decode(EditorStickerData.self, forKey: .stickerData)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -136,6 +147,7 @@ extension VideoEditResult: Codable {
         try container.encode(backgroundMusicURL, forKey: .backgroundMusicURL)
         try container.encode(backgroundMusicVolume, forKey: .backgroundMusicVolume)
         try container.encode(cropData, forKey: .cropData)
+        try container.encode(stickerData, forKey: .stickerData)
         
         if let image = coverImage {
             if #available(iOS 11.0, *) {

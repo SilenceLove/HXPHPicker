@@ -128,6 +128,9 @@ class EditorStickerContentView: UIView {
     init(item: EditorStickerItem) {
         self.item = item
         super.init(frame: item.frame)
+        if item.text != nil {
+            imageView.layer.shadowColor = UIColor.black.withAlphaComponent(0.8).cgColor
+        }
         addSubview(imageView)
     }
     func update(item: EditorStickerItem) {
@@ -150,7 +153,8 @@ class EditorStickerContentView: UIView {
 
 extension EditorStickerContentView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        if otherGestureRecognizer.delegate is PhotoEditorViewController {
+        if otherGestureRecognizer.delegate is PhotoEditorViewController ||
+            otherGestureRecognizer.delegate is VideoEditorViewController {
             return false
         }
         if otherGestureRecognizer is UITapGestureRecognizer || gestureRecognizer is UITapGestureRecognizer {

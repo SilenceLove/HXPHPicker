@@ -56,6 +56,10 @@ public extension PHAsset {
                 }
             }
         }else if mediaType == PHAssetMediaType.video {
+            if let isICloud = self.value(forKey: "isCloudPlaceholder") as? Bool,
+               isICloud {
+                return true
+            }
             let resourceArray = PHAssetResource.assetResources(for: self)
             let bIsLocallayAvailable = resourceArray.first?.value(forKey: "locallyAvailable") as? Bool ?? true
             if !bIsLocallayAvailable {

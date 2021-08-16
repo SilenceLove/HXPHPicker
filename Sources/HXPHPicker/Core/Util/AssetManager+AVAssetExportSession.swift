@@ -85,16 +85,20 @@ public extension AssetManager {
     class func exportVideoURL(forVideo asset: PHAsset,
                               toFile fileURL:URL,
                               exportPreset: String,
+                              exportSession: ((AVAssetExportSession) -> Void)? = nil,
                               completionHandler: @escaping (Result<URL, AssetManager.AVAssetError>) -> Void) {
         requestAVAsset(for: asset, iCloudHandler: nil, progressHandler: nil) { (result) in
             switch result {
             case .success(let avResult):
-                self.exportVideoURL(forVideo: avResult.avAsset, toFile: fileURL, exportPreset: exportPreset) { videoURL, error in
+                let session = self.exportVideoURL(forVideo: avResult.avAsset, toFile: fileURL, exportPreset: exportPreset) { videoURL, error in
                     if let videoURL = videoURL {
                         completionHandler(.success(videoURL))
                     }else {
                         completionHandler(.failure(.init(info: avResult.info, error: .exportFailed(error))))
                     }
+                }
+                if let session = session {
+                    exportSession?(session)
                 }
             case .failure(let error):
                 completionHandler(.failure(error))
@@ -102,10 +106,13 @@ public extension AssetManager {
         }
     }
     
-    class func exportVideoURL(forVideo avAsset: AVAsset,
-                              toFile fileURL:URL,
-                              exportPreset: String,
-                              completionHandler: @escaping (URL?, Error?) -> Void) {
+    @discardableResult
+    class func exportVideoURL(
+        forVideo avAsset: AVAsset,
+        toFile fileURL:URL,
+        exportPreset: String,
+        completionHandler: @escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
+    {
         var presetName = exportPreset
         let presets = AVAssetExportSession.exportPresets(compatibleWith: avAsset)
         if !presets.contains(exportPreset) {
@@ -132,5 +139,9 @@ public extension AssetManager {
                 }
             }
         })
+        if exportSession == nil {
+            completionHandler(nil, exportSession?.error)
+        }
+        return exportSession
     }
 }

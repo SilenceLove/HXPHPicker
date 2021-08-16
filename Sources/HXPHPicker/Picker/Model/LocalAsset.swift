@@ -25,16 +25,27 @@ public struct LocalImageAsset {
 }
 
 public struct LocalVideoAsset {
+    
+    /// 视频本地地址
     public let videoURL: URL
-    /// 封面
+    
+    /// 视频封面
     public var image: UIImage?
+    
+    /// 视频时长
     public var duration: TimeInterval
+    
+    /// 视频尺寸
+    public let videoSize: CGSize
+    
     public init(videoURL: URL,
                 coverImage: UIImage? = nil,
-                duration: TimeInterval = 0) {
+                duration: TimeInterval = 0,
+                videoSize: CGSize = .zero) {
         self.videoURL = videoURL
         self.image = coverImage
         self.duration = duration
+        self.videoSize = videoSize
     }
 }
 
@@ -76,6 +87,7 @@ extension LocalVideoAsset: Codable {
         case videoURL
         case image
         case duration
+        case videoSize
     }
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -86,6 +98,7 @@ extension LocalVideoAsset: Codable {
            image = nil
         }
         duration = try container.decode(TimeInterval.self, forKey: .duration)
+        videoSize = try container.decode(CGSize.self, forKey: .videoSize)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -100,5 +113,6 @@ extension LocalVideoAsset: Codable {
             }
         }
         try container.encode(duration, forKey: .duration)
+        try container.encode(videoSize, forKey: .videoSize)
     }
 }

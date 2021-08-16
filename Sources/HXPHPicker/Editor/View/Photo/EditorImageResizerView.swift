@@ -916,32 +916,34 @@ class EditorImageResizerView: UIView {
         rect = CGRect(x: rect.minX * scrollView.zoomScale, y: rect.minY * scrollView.zoomScale, width: rect.width * scrollView.zoomScale, height: rect.height * scrollView.zoomScale)
         return rect
     }
-    func cropping(_ inputImage: UIImage?, toRect cropRect: CGRect, viewWidth: CGFloat, viewHeight: CGFloat) -> (UIImage, URL, PhotoEditResult.ImageType)? {
+    func cropping(
+        _ inputImage: UIImage?,
+        toRect cropRect: CGRect,
+        mosaicLayer: CALayer?,
+        drawLayer: CALayer?,
+        stickerLayer: CALayer?,
+        viewWidth: CGFloat,
+        viewHeight: CGFloat) -> (UIImage, URL, PhotoEditResult.ImageType)?
+    {
         if var inputImage = inputImage {
             var otherImages: [UIImage] = []
-            if imageView.mosaicView.count > 0 {
-                DispatchQueue.main.sync {
-                    if let image = self.imageView.mosaicView.layer.convertedToImage() {
-                        otherImages.append(image)
-                    }
-                    self.imageView.mosaicView.layer.contents = nil
+            if let mosaicLayer = mosaicLayer {
+                if let image = mosaicLayer.convertedToImage() {
+                    otherImages.append(image)
                 }
+                mosaicLayer.contents = nil
             }
-            if imageView.drawView.count > 0 {
-                DispatchQueue.main.sync {
-                    if let image = self.imageView.drawView.layer.convertedToImage() {
-                        otherImages.append(image)
-                    }
-                    self.imageView.drawView.layer.contents = nil
+            if let drawLayer = drawLayer {
+                if let image = drawLayer.convertedToImage() {
+                    otherImages.append(image)
                 }
+                drawLayer.contents = nil
             }
-            DispatchQueue.main.sync {
-                if self.imageView.stickerView.count > 0 {
-                    if let image = self.imageView.stickerView.layer.convertedToImage() {
-                        otherImages.append(image)
-                    }
-                    self.imageView.stickerView.layer.contents = nil
+            if let stickerLayer = stickerLayer {
+                if let image = stickerLayer.convertedToImage() {
+                    otherImages.append(image)
                 }
+                stickerLayer.contents = nil
             }
             var otherImage: UIImage? = nil
             if !otherImages.isEmpty {

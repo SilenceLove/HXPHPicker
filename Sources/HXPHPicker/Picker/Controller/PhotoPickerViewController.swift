@@ -12,13 +12,14 @@ import AVFoundation
 import Photos
 
 public class PhotoPickerViewController: BaseViewController {
-    init() {
+    let config: PhotoListConfiguration
+    init(config: PhotoListConfiguration) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    var config: PhotoListConfiguration!
     var assetCollection: PhotoAssetCollection!
     var assets: [PhotoAsset] = []
     var swipeSelectBeganIndexPath: IndexPath?
@@ -298,7 +299,8 @@ extension PhotoPickerViewController {
         }
     }
     func fetchPhotoAssets() {
-        pickerController!.fetchPhotoAssets(assetCollection: assetCollection) { [weak self] (photoAssets, photoAsset) in
+        pickerController!.fetchPhotoAssets(assetCollection: assetCollection) {
+            [weak self] (photoAssets, photoAsset) in
             self?.canAddCamera = true
             self?.assets = photoAssets
             self?.setupEmptyView()
@@ -346,7 +348,6 @@ extension PhotoPickerViewController {
     func configData() {
         isMultipleSelect = pickerController!.config.selectMode == .multiple
         videoLoadSingleCell = pickerController!.singleVideo
-        config = pickerController!.config.photoList
         updateTitle()
     }
     func configColor() {

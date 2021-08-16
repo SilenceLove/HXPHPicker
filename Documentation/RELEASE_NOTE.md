@@ -1,5 +1,40 @@
 # 更新日志
 
+## 1.1.9
+
+### 新增
+
+- Picker
+  - 快速跳转方法`func present(picker config: PickerConfiguration,delegate: PhotoPickerControllerDelegate? = nil,finishHandler: PhotoPickerController.FinishHandler? = nil,cancelHandler: PhotoPickerController.CancelHandler? = nil) -> PhotoPickerController`
+  - 加载贴图代理修改``
+- Editor
+  - 视频添加贴纸和文字
+
+### 优化
+
+- Core
+  - 一些细节优化
+- Picker
+  - 列表`cell`移除所有编辑数据时隐藏编辑标示
+- Editor
+  - `delegate`为`nil`时，加载贴图、音乐逻辑优化
+  
+### 不兼容修改
+
+```
+/// 新的加载贴图标题资源
+func pickerController(_ pickerController: PhotoPickerController,
+                      loadTitleChartlet editorViewController: UIViewController,
+                      response: @escaping EditorTitleChartletResponse)
+
+/// 新的加载贴图资源
+func pickerController(_ pickerController: PhotoPickerController,
+                        loadChartletList editorViewController: UIViewController,
+                        titleChartlet: EditorChartlet,
+                        titleIndex: Int,
+                        response: @escaping EditorChartletListResponse)
+```
+
 ## 1.1.8
 
 ### 新增

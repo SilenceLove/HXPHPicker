@@ -53,6 +53,18 @@ extension VideoEditorViewController {
     
     func assetRequestComplete() {
         videoSize = PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)?.size ?? view.size
+        if let stickerData = editResult?.stickerData {
+            let playerFrame: CGRect
+            if UIDevice.isPad {
+                playerFrame = PhotoTools.transformImageSize(videoSize, toViewSize: view.size, directions: [.horizontal])
+            }else {
+                playerFrame = PhotoTools.transformImageSize(videoSize, to: view)
+            }
+            playerView.stickerView.setStickerData(
+                stickerData: stickerData,
+                viewSize: playerFrame.size
+            )
+        }
         playerView.avAsset = avAsset
         playerView.configAsset()
         cropView.avAsset = avAsset

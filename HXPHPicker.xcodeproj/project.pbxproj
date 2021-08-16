@@ -17,6 +17,7 @@
 		7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */; };
 		7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */; };
 		7B35F34A26B28BEC007EBD79 /* VideoEditorSearchMusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B35F34926B28BEC007EBD79 /* VideoEditorSearchMusicView.swift */; };
+		7B36D7BB26C614A80084DADB /* Editor+AVAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B36D7BA26C614A80084DADB /* Editor+AVAsset.swift */; };
 		7B3C290E266F62B600F0622F /* Picker+PhotoAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3C290D266F62B600F0622F /* Picker+PhotoAsset.swift */; };
 		7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D040E264E0F91002EB37C /* Core+DispatchQueue.swift */; };
 		7B4338CE2601CC5A0074C723 /* PickerColorConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4338CD2601CC5A0074C723 /* PickerColorConfigurationViewController.swift */; };
@@ -213,14 +214,14 @@
 		7BBBD5CF25AEFE9200301DCC /* EditorToolViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB057125A942EA00B39BE5 /* EditorToolViewCell.swift */; };
 		7BBBD5D025AEFE9200301DCC /* Editor+PhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058825A959D100B39BE5 /* Editor+PhotoTools.swift */; };
 		7BBBD5D225AEFE9F00301DCC /* HXPHPicker.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 7B73D6A1259C88A90045DA42 /* HXPHPicker.bundle */; };
-		7BBBD5DB25AF178600301DCC /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD5DA25AF178600301DCC /* UIView+Extension.swift */; };
 		7BBBD5DE25AF17B500301DCC /* UIDevice+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD5DD25AF17B500301DCC /* UIDevice+Extension.swift */; };
 		7BBBD5EA25AF1C4500301DCC /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD5E925AF1C4500301DCC /* UIFont+Extension.swift */; };
 		7BBBD5F125AF1D0F00301DCC /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */; };
-		7BC230DC25B1743A00434BBB /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC230DB25B1743A00434BBB /* ProgressHUD.swift */; };
-		7BC230E025B174A800434BBB /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC230DF25B174A800434BBB /* String+Extension.swift */; };
 		7BC4CF282660C93700B2FBB7 /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A1B88CE8E4B4FE1AA36BCC /* Pods_Example.framework */; };
 		7BC4CF292660C93700B2FBB7 /* Pods_Example.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D3A1B88CE8E4B4FE1AA36BCC /* Pods_Example.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */; };
+		7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */; };
+		7BCF087426CA3F5A008C8C0E /* Core+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */; };
 		7BDAE9BC26803AB000DF0362 /* VideoEditorMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDAE9BB26803AB000DF0362 /* VideoEditorMusic.swift */; };
 		7BDC310E2685D90C0060BC24 /* Editor+UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDC310D2685D90C0060BC24 /* Editor+UIImage.swift */; };
 		7BEA744426BA38600065FC35 /* PhotoPeekViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEA744326BA38600065FC35 /* PhotoPeekViewController.swift */; };
@@ -279,6 +280,7 @@
 		7B2A0C0B25A7189F00E949FD /* Picker+PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PhotoTools.swift"; sourceTree = "<group>"; };
 		7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMometViewController.swift; sourceTree = "<group>"; };
 		7B35F34926B28BEC007EBD79 /* VideoEditorSearchMusicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorSearchMusicView.swift; sourceTree = "<group>"; };
+		7B36D7BA26C614A80084DADB /* Editor+AVAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Editor+AVAsset.swift"; sourceTree = "<group>"; };
 		7B3C290D266F62B600F0622F /* Picker+PhotoAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+PhotoAsset.swift"; sourceTree = "<group>"; };
 		7B3D040E264E0F91002EB37C /* Core+DispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+DispatchQueue.swift"; sourceTree = "<group>"; };
 		7B4338CD2601CC5A0074C723 /* PickerColorConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerColorConfigurationViewController.swift; sourceTree = "<group>"; };
@@ -461,13 +463,13 @@
 		7BBBD54B25AEFC6200301DCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7BBBD54D25AEFC6200301DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7BBBD56425AEFDD600301DCC /* HXPHPicker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HXPHPicker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7BBBD5DA25AF178600301DCC /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5DD25AF17B500301DCC /* UIDevice+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5E925AF1C4500301DCC /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5FC25AF1EA300301DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = Sources/Info.plist; sourceTree = SOURCE_ROOT; };
-		7BC230DB25B1743A00434BBB /* ProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
-		7BC230DF25B174A800434BBB /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextConfig.swift; sourceTree = "<group>"; };
+		7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletConfig.swift; sourceTree = "<group>"; };
+		7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIViewController.swift"; sourceTree = "<group>"; };
 		7BDAE9BB26803AB000DF0362 /* VideoEditorMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorMusic.swift; sourceTree = "<group>"; };
 		7BDC310D2685D90C0060BC24 /* Editor+UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Editor+UIImage.swift"; sourceTree = "<group>"; };
 		7BEA744326BA38600065FC35 /* PhotoPeekViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPeekViewController.swift; sourceTree = "<group>"; };
@@ -814,6 +816,7 @@
 				7B73D687259C88A90045DA42 /* Core+UIFont.swift */,
 				7B73D683259C88A90045DA42 /* Core+UIImage.swift */,
 				7B73D686259C88A90045DA42 /* Core+UIView.swift */,
+				7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */,
 				7B76CA22269EBCD000F5590E /* Core+CALayer.swift */,
 				7B2A0BE925A705E900E949FD /* Core+Dictionary.swift */,
 				7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */,
@@ -948,11 +951,9 @@
 		7BBBD5D825AF176B00301DCC /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				7BBBD5DA25AF178600301DCC /* UIView+Extension.swift */,
 				7BBBD5DD25AF17B500301DCC /* UIDevice+Extension.swift */,
 				7BBBD5E925AF1C4500301DCC /* UIFont+Extension.swift */,
 				7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */,
-				7BC230DF25B174A800434BBB /* String+Extension.swift */,
 				7B824AC32600588E00767331 /* Core+UIColor.swift */,
 				7B824AC92600600E00767331 /* RowTypeRule.swift */,
 			);
@@ -962,7 +963,6 @@
 		7BC230DA25B1742C00434BBB /* View */ = {
 			isa = PBXGroup;
 			children = (
-				7BC230DB25B1743A00434BBB /* ProgressHUD.swift */,
 				7B824AC02600559800767331 /* CustomPickerCellView.swift */,
 				7B824AD726007BB000767331 /* ConfigurationViewCell.swift */,
 			);
@@ -973,6 +973,7 @@
 			isa = PBXGroup;
 			children = (
 				7BDC310D2685D90C0060BC24 /* Editor+UIImage.swift */,
+				7B36D7BA26C614A80084DADB /* Editor+AVAsset.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1054,6 +1055,8 @@
 				7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */,
 				7BEB058C25A9851C00B39BE5 /* EditorToolViewConfiguration.swift */,
 				7BEB059225A9934500B39BE5 /* CropConfirmViewConfiguration.swift */,
+				7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */,
+				7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -1248,8 +1251,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BBBD5DB25AF178600301DCC /* UIView+Extension.swift in Sources */,
-				7BC230E025B174A800434BBB /* String+Extension.swift in Sources */,
 				7B4338D1260200840074C723 /* EditorConfigurationViewController.swift in Sources */,
 				7B824AD826007BB000767331 /* ConfigurationViewCell.swift in Sources */,
 				7B842B1D2654B71500F11CAD /* AvatarPickerConfigurationViewController.swift in Sources */,
@@ -1267,7 +1268,6 @@
 				7BA9562A26BE384F004587FA /* PhotoBrowserViewController.swift in Sources */,
 				7B824AC12600559800767331 /* CustomPickerCellView.swift in Sources */,
 				7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */,
-				7BC230DC25B1743A00434BBB /* ProgressHUD.swift in Sources */,
 				7BBBD54025AEFC5F00301DCC /* AppDelegate.swift in Sources */,
 				7B824AD12600762C00767331 /* PickerConfigurationViewController.swift in Sources */,
 			);
@@ -1335,6 +1335,7 @@
 				7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */,
 				7B80FA95268EBE76003C7B35 /* PhotoEditorDrawView.swift in Sources */,
 				7B80FAA7268F12F7003C7B35 /* Editor+UIImageView.swift in Sources */,
+				7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */,
 				7BBBD58A25AEFE9100301DCC /* Core+Bundle.swift in Sources */,
 				7BBBD58B25AEFE9100301DCC /* Core+String.swift in Sources */,
 				7BBBD58C25AEFE9100301DCC /* Core+UIColor.swift in Sources */,
@@ -1408,6 +1409,7 @@
 				7B6ACE2326575AFA003704BE /* ImageContentType.swift in Sources */,
 				7BBBD5B625AEFE9200301DCC /* PhotoPreviewVideoView.swift in Sources */,
 				7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */,
+				7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */,
 				7BBBD5B725AEFE9200301DCC /* PickerTypes.swift in Sources */,
 				7B540AEB26663D560042DD68 /* PhotoTools+File.swift in Sources */,
 				7BAAD30C2605D59F005C36B7 /* PhotoEditorConfiguration.swift in Sources */,
@@ -1420,6 +1422,7 @@
 				7B76CA27269EBF7F00F5590E /* PhotoEditorViewController+Export.swift in Sources */,
 				7B80FA90268EBE76003C7B35 /* EditorImageResizerControlView.swift in Sources */,
 				7BBBD5BD25AEFE9200301DCC /* Picker+UIViewController.swift in Sources */,
+				7B36D7BB26C614A80084DADB /* Editor+AVAsset.swift in Sources */,
 				7B8E7F7B26705D0800F4A3FD /* AssetManager+AVAssetExportSession.swift in Sources */,
 				7B64A9C2268C02320002109E /* SelectBoxConfiguration.swift in Sources */,
 				7B4CA1CC265B9521009FEC18 /* NetworkAsset.swift in Sources */,
@@ -1437,6 +1440,7 @@
 				7BBBD5C325AEFE9200301DCC /* EditorToolViewConfiguration.swift in Sources */,
 				7BBBD5C425AEFE9200301DCC /* CropConfirmViewConfiguration.swift in Sources */,
 				7BBBD5C525AEFE9200301DCC /* EditorController.swift in Sources */,
+				7BCF087426CA3F5A008C8C0E /* Core+UIViewController.swift in Sources */,
 				7BDAE9BC26803AB000DF0362 /* VideoEditorMusic.swift in Sources */,
 				7BBBD5C625AEFE9200301DCC /* PhotoEditorViewController.swift in Sources */,
 				7BBBD5C725AEFE9200301DCC /* VideoEditorViewController.swift in Sources */,
@@ -1601,7 +1605,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1629,7 +1633,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -1659,7 +1663,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -1693,7 +1697,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.1.8;
+				MARKETING_VERSION = 1.1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

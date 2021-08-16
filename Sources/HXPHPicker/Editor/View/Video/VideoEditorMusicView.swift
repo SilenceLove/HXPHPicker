@@ -37,6 +37,7 @@ class VideoEditorMusicView: UIView {
         view.layer.cornerRadius = 15
         view.layer.masksToBounds = true
         view.contentView.addSubview(searchButton)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         return view
     }()
     lazy var searchButton: UIButton = {

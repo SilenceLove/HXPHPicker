@@ -41,6 +41,12 @@ public class PhotoListConfiguration {
     /// 每个照片之间的间隙
     public var spacing : CGFloat = 1
     
+    /// 允许 Haptic Touch 预览，iOS13 以上
+    public var allowHapticTouchPreview: Bool = true
+    
+    /// Haptic Touch 预览时允许添加菜案，iOS13 以上
+    public var allowAddMenuElements: Bool = true
+    
     /// 允许滑动选择
     public var allowSwipeToSelect: Bool = true
     

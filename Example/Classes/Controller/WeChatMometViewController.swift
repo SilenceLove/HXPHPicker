@@ -8,7 +8,7 @@
 import UIKit
 import HXPHPicker
 
-class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate {
+class WeChatMometViewController: UIViewController {
     var isImage = false
     lazy var imageView: UIImageView = {
         let view = UIImageView(image: .init(named: "wx_head_icon"))
@@ -29,33 +29,7 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
         config.photoEditor.cropping.fixedRatio = true
         config.photoEditor.fixedCropState = true
         
-        let pickerController = PhotoPickerController(
-            picker: config,
-            delegate: self
-        )
-        
-        present(pickerController, animated: true, completion: nil)
-    }
-    
-    func pickerController(_ pickerController: PhotoPickerController,
-                          didFinishSelection result: PickerResult) {
-        if isImage {
-            imageView.image = result.photoAssets.first?.originalImage
-            isImage = false
-        }else {
-            pickerController.dismiss(animated: true) {
-                let vc = PickerResultViewController()
-                vc.isPublish = true
-                vc.selectedAssets = result.photoAssets
-                vc.isOriginal = result.isOriginal
-                let nav = UINavigationController(rootViewController: vc)
-                nav.modalPresentationStyle = .fullScreen
-                self.present(nav, animated: true, completion: nil)
-            }
-        }
-    }
-    func pickerController(didCancel pickerController: PhotoPickerController) {
-        pickerController.dismiss(animated: true, completion: nil)
+        presentPicker(config)
     }
     var localCachePath: String {
         var cachePath = PhotoTools.getSystemCacheFolderPath()
@@ -89,19 +63,38 @@ class WeChatMometViewController: UIViewController, PhotoPickerControllerDelegate
             isMoment: true
         )
         config.maximumSelectedVideoDuration = 60
-        let pickerController = PhotoPickerController(
-            picker: config,
-            delegate: self
-        )
+        presentPicker(config)
+    }
+    func presentPicker(_ config: PickerConfiguration) {
+        let pickerController = hx.present(
+            picker: config
+        ) {
+            [weak self] result, picker in
+            guard let self = self else { return }
+            let completion: (() -> Void)?
+            if self.isImage {
+                self.imageView.image = result.photoAssets.first?.originalImage
+                self.isImage = false
+                completion = nil
+            }else {
+                completion = {
+                    let vc = PickerResultViewController()
+                    vc.isPublish = true
+                    vc.selectedAssets = result.photoAssets
+                    vc.isOriginal = result.isOriginal
+                    let nav = UINavigationController(rootViewController: vc)
+                    nav.modalPresentationStyle = .fullScreen
+                    self.present(nav, animated: true)
+                }
+            }
+            picker.dismiss(animated: true, completion: completion)
+        } cancel: { picker in
+            picker.dismiss(animated: true)
+        }
         pickerController.autoDismiss = false
-        present(
-            pickerController,
-            animated: true,
-            completion: nil
-        )
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        imageView.frame = CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0, width: view.width, height: view.width)
+        imageView.frame = CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0, width: view.hx.width, height: view.hx.width)
     }
 }

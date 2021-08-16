@@ -12,8 +12,10 @@ public struct VideoEditorMusicInfo {
     public let audioURL: URL
     /// 歌词lrc内容(包含歌名和歌手名的话会显示)
     public let lrc: String
-    public init(audioURL: URL,
-                lrc: String) {
+    public init(
+        audioURL: URL,
+        lrc: String)
+    {
         self.audioURL = audioURL
         self.lrc = lrc
     }

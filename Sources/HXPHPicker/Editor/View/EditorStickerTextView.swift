@@ -8,7 +8,7 @@
 import UIKit
 
 class EditorStickerTextView: UIView {
-    let config: PhotoEditorConfiguration.TextConfig
+    let config: EditorTextConfig
     lazy var textView: UITextView = {
         let textView = UITextView()
         textView.backgroundColor = .clear
@@ -88,7 +88,7 @@ class EditorStickerTextView: UIView {
     var keyboardFrame: CGRect = .zero
     var maxIndex: Int = 0
     
-    init(config: PhotoEditorConfiguration.TextConfig,
+    init(config: EditorTextConfig,
          stickerText: EditorStickerText?) {
         self.config = config
         self.stickerText = stickerText

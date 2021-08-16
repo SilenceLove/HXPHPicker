@@ -68,6 +68,9 @@ public struct NetworkVideoAsset {
     /// 图片文件大小
     public var fileSize: Int
     
+    /// 视频尺寸
+    public let videoSize: CGSize
+    
     #if canImport(Kingfisher)
     /// 视频封面网络地址
     public var coverImageURL: URL?
@@ -76,22 +79,26 @@ public struct NetworkVideoAsset {
                 duration: TimeInterval = 0,
                 fileSize: Int = 0,
                 coverImage: UIImage? = nil,
+                videoSize: CGSize = .zero,
                 coverImageURL: URL? = nil) {
         self.videoURL = videoURL
         self.duration = duration
         self.fileSize = fileSize
-        self.coverImageURL = coverImageURL
         self.coverImage = coverImage
+        self.videoSize = videoSize
+        self.coverImageURL = coverImageURL
     }
     #else
     public init(videoURL: URL,
                 duration: TimeInterval = 0,
                 fileSize: Int = 0,
-                coverImage: UIImage? = nil) {
+                coverImage: UIImage? = nil,
+                videoSize: CGSize = .zero) {
         self.videoURL = videoURL
         self.duration = duration
         self.fileSize = fileSize
         self.coverImage = coverImage
+        self.videoSize = videoSize
     }
     #endif
 }
@@ -102,6 +109,7 @@ extension NetworkVideoAsset: Codable {
         case duration
         case coverImage
         case fileSize
+        case videoSize
         #if canImport(Kingfisher)
         case coverImageURL
         #endif
@@ -116,6 +124,7 @@ extension NetworkVideoAsset: Codable {
             coverImage = nil
         }
         fileSize = try container.decode(Int.self, forKey: .fileSize)
+        videoSize = try container.decode(CGSize.self, forKey: .videoSize)
         #if canImport(Kingfisher)
         coverImageURL = try container.decodeIfPresent(URL.self, forKey: .coverImageURL)
         #endif
@@ -134,6 +143,7 @@ extension NetworkVideoAsset: Codable {
             }
         }
         try container.encode(fileSize, forKey: .fileSize)
+        try container.encode(videoSize, forKey: .videoSize)
         #if canImport(Kingfisher)
         try container.encode(coverImageURL, forKey: .coverImageURL)
         #endif

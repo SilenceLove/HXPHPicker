@@ -14,11 +14,11 @@ open class PhotoPickerController: UINavigationController {
     public weak var pickerDelegate : PhotoPickerControllerDelegate?
     
     /// 相关配置
-    public var config : PickerConfiguration!
+    public let config : PickerConfiguration
     
     /// 当前被选择的资源对应的 PhotoAsset 对象数组
     /// 外部预览时的资源数据
-    public var selectedAssetArray: [PhotoAsset] = [] { didSet { configSelectedArray() } }
+    public var selectedAssetArray: [PhotoAsset] = [] { didSet { setupSelectedArray() } }
     
     /// 是否选中了原图
     public var isOriginal: Bool = false
@@ -71,7 +71,8 @@ open class PhotoPickerController: UINavigationController {
     /// 获取预览界面当前显示的 image 视图
     /// - Returns: 对应的 UIImageView
     public func getCurrentPreviewImageView() -> UIImageView? {
-        if let previewVC = previewViewController(), let cell = previewVC.getCell(for: previewVC.currentPreviewIndex) {
+        if let previewVC = previewViewController(),
+           let cell = previewVC.getCell(for: previewVC.currentPreviewIndex) {
             return cell.scrollContentView.imageView
         }
         return nil
@@ -91,18 +92,22 @@ open class PhotoPickerController: UINavigationController {
     }
     
     /// 当前处于的外部预览
-    public var isPreviewAsset: Bool = false
+    public let isPreviewAsset: Bool
     
     /// 选择资源初始化
     /// - Parameter config: 相关配置
-    public convenience init(picker config: PickerConfiguration,
-                            delegate: PhotoPickerControllerDelegate? = nil) {
+    public convenience init(
+        picker config: PickerConfiguration,
+        delegate: PhotoPickerControllerDelegate? = nil)
+    {
         self.init(config: config, delegate: delegate)
     }
     /// 选择资源初始化
     /// - Parameter config: 相关配置
-    public init(config: PickerConfiguration,
-                delegate: PhotoPickerControllerDelegate? = nil) {
+    public init(
+        config: PickerConfiguration,
+        delegate: PhotoPickerControllerDelegate? = nil)
+    {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -112,15 +117,27 @@ open class PhotoPickerController: UINavigationController {
             config.selectOptions.isPhoto && config.selectOptions.isVideo {
             singleVideo = true
         }
+        isPreviewAsset = false
         super.init(nibName: nil, bundle: nil)
         pickerDelegate = delegate
         var photoVC : UIViewController
         if config.albumShowMode == .normal {
-            photoVC = AlbumViewController.init()
+            photoVC = AlbumViewController(config: config.albumList)
         }else {
-            photoVC = PhotoPickerViewController.init()
+            photoVC = PhotoPickerViewController(config: config.photoList)
         }
         self.viewControllers = [photoVC]
+    }
+    /// 选择资源初始化
+    /// - Parameter config: 相关配置
+    public convenience init(
+        config: PickerConfiguration,
+        finish: FinishHandler? = nil,
+        cancel: CancelHandler? = nil)
+    {
+        self.init(config: config)
+        self.finishHandler = finish
+        self.cancelHandler = cancel
     }
     
     /// 外部预览资源初始化
@@ -128,17 +145,19 @@ open class PhotoPickerController: UINavigationController {
     ///   - config: 相关配置
     ///   - currentIndex: 当前预览的下标
     ///   - modalPresentationStyle: 默认 custom 样式，框架自带动画效果
-    public init(preview config: PickerConfiguration,
-                currentIndex: Int,
-                modalPresentationStyle: UIModalPresentationStyle = .custom,
-                delegate: PhotoPickerControllerDelegate? = nil) {
+    public init(
+        preview config: PickerConfiguration,
+        currentIndex: Int,
+        modalPresentationStyle: UIModalPresentationStyle = .custom,
+        delegate: PhotoPickerControllerDelegate? = nil)
+    {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
         isPreviewAsset = true
         super.init(nibName: nil, bundle: nil)
         pickerDelegate = delegate
-        let vc = PhotoPreviewViewController.init()
+        let vc = PhotoPreviewViewController(config: config.previewView)
         vc.isExternalPreview = true
         vc.currentPreviewIndex = currentIndex
         self.viewControllers = [vc]
@@ -148,6 +167,12 @@ open class PhotoPickerController: UINavigationController {
             modalPresentationCapturesStatusBarAppearance = true
         }
     }
+    
+    public typealias FinishHandler = (PickerResult, PhotoPickerController) -> Void
+    public typealias CancelHandler = (PhotoPickerController) -> Void
+    
+    public var finishHandler: FinishHandler?
+    public var cancelHandler: CancelHandler?
     
     
     // MARK: -
@@ -447,7 +472,9 @@ extension PhotoPickerController {
             var photoAssets = [PhotoAsset]()
             photoAssets.reserveCapacity(assetCollection?.count ?? 0)
             var lastAsset: PhotoAsset?
-            assetCollection?.enumerateAssets(usingBlock: { (photoAsset) in
+            assetCollection?.enumerateAssets(usingBlock: {
+                [weak self] (photoAsset) in
+                guard let self = self else { return }
                 if self.selectOptions.contains(.gifPhoto) {
                     if photoAsset.phAsset!.isImageAnimated {
                         photoAsset.mediaSubType = .imageAnimated
@@ -504,7 +531,9 @@ extension PhotoPickerController {
         #if HXPICKER_ENABLE_EDITOR
         removeAllEditedPhotoAsset()
         #endif
-        pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal))
+        let result = PickerResult.init(photoAssets: selectedAssetArray, isOriginal: isOriginal)
+        finishHandler?(result, self)
+        pickerDelegate?.pickerController(self, didFinishSelection: result)
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
@@ -513,7 +542,9 @@ extension PhotoPickerController {
         #if HXPICKER_ENABLE_EDITOR
         removeAllEditedPhotoAsset()
         #endif
-        pickerDelegate?.pickerController(self, didFinishSelection: PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal))
+        let result = PickerResult.init(photoAssets: [photoAsset], isOriginal: isOriginal)
+        finishHandler?(result, self)
+        pickerDelegate?.pickerController(self, didFinishSelection: result)
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
@@ -526,6 +557,7 @@ extension PhotoPickerController {
         }
         editedPhotoAssetArray.removeAll()
         #endif
+        cancelHandler?(self)
         pickerDelegate?.pickerController(didCancel: self)
         if autoDismiss {
             dismiss(animated: true, completion: nil)
@@ -953,7 +985,7 @@ extension PhotoPickerController {
             view.addSubview(deniedView)
         }
     }
-    private func configSelectedArray() {
+    private func setupSelectedArray() {
         if isPreviewAsset {
             for photoAsset in selectedAssetArray {
                 photoAsset.isSelected = true

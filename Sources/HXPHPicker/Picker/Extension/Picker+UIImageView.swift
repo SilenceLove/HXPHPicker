@@ -105,7 +105,6 @@ extension UIImageView {
                     }
                     .set(to: self)
         }
-        
         return kf.setImage(with: url, placeholder: placeholderImage, options: options, progressBlock: progressBlock) { (result) in
             switch result {
             case .success(let value):

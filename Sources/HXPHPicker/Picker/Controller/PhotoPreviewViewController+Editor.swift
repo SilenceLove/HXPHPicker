@@ -51,15 +51,47 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
     }
-    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
-        if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, loadTitleChartlet: photoEditorViewController, response: response)
+    public func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            #if canImport(Kingfisher)
+            let titles = PhotoTools.defaultTitleChartlet()
+            response(titles)
+            #else
+            response([])
+            #endif
+            return
         }
+        pickerDelegate.pickerController(
+            pickerController,
+            loadTitleChartlet: photoEditorViewController,
+            response: response
+        )
     }
-    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, titleChartlet: EditorChartlet, titleIndex: Int, loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
-        if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, loadChartletList: photoEditorViewController, titleChartlet: titleChartlet, titleIndex: titleIndex, response: response)
+    public func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        titleChartlet: EditorChartlet,
+        titleIndex: Int,
+        loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            #if canImport(Kingfisher)
+            let chartletList = PhotoTools.defaultNetworkChartlet()
+            response(titleIndex, chartletList)
+            #else
+            response(titleIndex, [])
+            #endif
+            return
         }
+        pickerDelegate.pickerController(
+            pickerController,
+            loadChartletList: photoEditorViewController,
+            titleChartlet: titleChartlet,
+            titleIndex: titleIndex,
+            response: response
+        )
     }
     public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {
         
@@ -67,6 +99,50 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
 }
 // MARK: VideoEditorViewControllerDelegate
 extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
+    {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            #if canImport(Kingfisher)
+            let titles = PhotoTools.defaultTitleChartlet()
+            response(titles)
+            #else
+            response([])
+            #endif
+            return
+        }
+        pickerDelegate.pickerController(
+            pickerController,
+            loadTitleChartlet: videoEditorViewController,
+            response: response
+        )
+    }
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        titleChartlet: EditorChartlet,
+        titleIndex: Int,
+        loadChartletList response: @escaping EditorChartletListResponse)
+    {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            #if canImport(Kingfisher)
+            let chartletList = PhotoTools.defaultNetworkChartlet()
+            response(titleIndex, chartletList)
+            #else
+            response(titleIndex, [])
+            #endif
+            return
+        }
+        pickerDelegate.pickerController(
+            pickerController,
+            loadChartletList: videoEditorViewController,
+            titleChartlet: titleChartlet,
+            titleIndex: titleIndex,
+            response: response
+        )
+    }
     public func videoEditorViewController(shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool {
         if let pickerController = pickerController,
            let shouldClick = pickerController.pickerDelegate?.pickerController(pickerController, videoEditorShouldClickMusicTool: videoEditorViewController) {
@@ -74,22 +150,51 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         return true
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
-        if let pickerController = pickerController,
-           let showLoading = pickerController.pickerDelegate?.pickerController(pickerController, videoEditor: videoEditorViewController, loadMusic: completionHandler) {
-            return showLoading
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            completionHandler(PhotoTools.defaultMusicInfos())
+            return false
         }
-        return false
+        return pickerDelegate.pickerController(
+            pickerController,
+            videoEditor: videoEditorViewController,
+            loadMusic: completionHandler
+        )
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didSearch text: String?, completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
-        if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, videoEditor: videoEditorViewController, didSearch: text, completionHandler: completionHandler)
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        didSearch text: String?,
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            completionHandler([], false)
+            return
         }
+        pickerDelegate.pickerController(
+            pickerController,
+            videoEditor: videoEditorViewController,
+            didSearch: text,
+            completionHandler: completionHandler
+        )
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMore text: String?, completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
-        if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, videoEditor: videoEditorViewController, loadMore: text, completionHandler: completionHandler)
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadMore text: String?,
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        guard let pickerController = pickerController,
+              let pickerDelegate = pickerController.pickerDelegate else {
+            completionHandler([], false)
+            return
         }
+        pickerDelegate.pickerController(
+            pickerController,
+            videoEditor: videoEditorViewController,
+            loadMore: text,
+            completionHandler: completionHandler
+        )
     }
     public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
         let photoAsset = videoEditorViewController.photoAsset!

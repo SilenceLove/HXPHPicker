@@ -36,10 +36,12 @@ public extension PhotoAsset {
             public let videoURL: URL
         }
         
-        init(url: URL,
-             urlType: URLType,
-             mediaType: PhotoAsset.MediaType,
-             livePhoto: LivePhotoResult? = nil) {
+        init(
+            url: URL,
+            urlType: URLType,
+            mediaType: PhotoAsset.MediaType,
+            livePhoto: LivePhotoResult? = nil)
+        {
             self.url = url
             self.urlType = urlType
             self.mediaType = mediaType
@@ -49,7 +51,9 @@ public extension PhotoAsset {
     
     /// 获取url
     ///   - completion: result 
-    func getAssetURL(completion: @escaping AssetURLCompletion) {
+    func getAssetURL(
+        completion: @escaping AssetURLCompletion)
+    {
         if mediaType == .photo {
             if mediaSubType == .livePhoto {
                 getLivePhotoURL(
@@ -69,7 +73,9 @@ public extension PhotoAsset {
     
     /// 获取图片url
     ///   - completion: result
-    func getImageURL(completion: @escaping AssetURLCompletion) {
+    func getImageURL(
+        completion: @escaping AssetURLCompletion)
+    {
         #if canImport(Kingfisher)
         if isNetworkAsset {
             getNetworkImageURL(
@@ -87,8 +93,10 @@ public extension PhotoAsset {
     /// - Parameters:
     ///   - exportPreset: 导出质量，不传获取的就是原始视频
     ///   - completion: result
-    func getVideoURL(exportPreset: String? = nil,
-                     completion: @escaping AssetURLCompletion) {
+    func getVideoURL(
+        exportPreset: String? = nil,
+        completion: @escaping AssetURLCompletion)
+    {
         if isNetworkAsset {
             getNetworkVideoURL(
                 resultHandler: completion
@@ -101,7 +109,9 @@ public extension PhotoAsset {
         )
     }
     
-    func getLivePhotoURL(completion: @escaping AssetURLCompletion) {
+    func getLivePhotoURL(
+        completion: @escaping AssetURLCompletion)
+    {
         requestLivePhotoURL(
             completion: completion
         )

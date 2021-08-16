@@ -33,33 +33,41 @@ extension PhotoAsset {
         let simplify: Simplify
         #if HXPICKER_ENABLE_EDITOR
             #if canImport(Kingfisher)
-            simplify = Simplify(phLocalIdentifier: phAsset?.localIdentifier,
-                                localImageAsset: localImageAsset,
-                                localVideoAsset: localVideoAsset,
-                                networkVideoAsset: networkVideoAsset,
-                                networkImageAsset: networkImageAsset,
-                                photoEdit: photoEdit,
-                                videoEdit: videoEdit)
+            simplify = Simplify(
+                phLocalIdentifier: phAsset?.localIdentifier,
+                localImageAsset: localImageAsset,
+                localVideoAsset: localVideoAsset,
+                networkVideoAsset: networkVideoAsset,
+                networkImageAsset: networkImageAsset,
+                photoEdit: photoEdit,
+                videoEdit: videoEdit
+            )
             #else
-            simplify = Simplify(phLocalIdentifier: phAsset?.localIdentifier,
-                                localImageAsset: localImageAsset,
-                                localVideoAsset: localVideoAsset,
-                                networkVideoAsset: networkVideoAsset,
-                                photoEdit: photoEdit,
-                                videoEdit: videoEdit)
+            simplify = Simplify(
+                phLocalIdentifier: phAsset?.localIdentifier,
+                localImageAsset: localImageAsset,
+                localVideoAsset: localVideoAsset,
+                networkVideoAsset: networkVideoAsset,
+                photoEdit: photoEdit,
+                videoEdit: videoEdit
+            )
             #endif
         #else
             #if canImport(Kingfisher)
-            simplify = Simplify(phLocalIdentifier: phAsset?.localIdentifier,
-                                localImageAsset: localImageAsset,
-                                localVideoAsset: localVideoAsset,
-                                networkVideoAsset: networkVideoAsset,
-                                networkImageAsset: networkImageAsset)
+            simplify = Simplify(
+                phLocalIdentifier: phAsset?.localIdentifier,
+                localImageAsset: localImageAsset,
+                localVideoAsset: localVideoAsset,
+                networkVideoAsset: networkVideoAsset,
+                networkImageAsset: networkImageAsset
+            )
             #else
-            simplify = Simplify(phLocalIdentifier: phAsset?.localIdentifier,
-                                localImageAsset: localImageAsset,
-                                localVideoAsset: localVideoAsset,
-                                networkVideoAsset: networkVideoAsset)
+            simplify = Simplify(
+                phLocalIdentifier: phAsset?.localIdentifier,
+                localImageAsset: localImageAsset,
+                localVideoAsset: localVideoAsset,
+                networkVideoAsset: networkVideoAsset
+            )
             #endif
         #endif
         let encoder = JSONEncoder()

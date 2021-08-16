@@ -485,15 +485,21 @@ extension PhotoAsset {
         }else {
             if let localImage = localImageAsset?.image {
                 size = localImage.size
-            }else if let localImageData = localImageAsset?.imageData, let image = UIImage.init(data: localImageData) {
+            }else if let localImageData = localImageAsset?.imageData,
+                     let image = UIImage.init(data: localImageData) {
                 size = image.size
-            }else if let imageURL = localImageAsset?.imageURL, let image = UIImage.init(contentsOfFile: imageURL.path) {
+            }else if let imageURL = localImageAsset?.imageURL,
+                     let image = UIImage.init(contentsOfFile: imageURL.path) {
                 localImageAsset?.image = image
                 size = image.size
+            }else if let videoSize = localVideoAsset?.videoSize {
+                size = videoSize
             }else if let localImage = localVideoAsset?.image {
                 size = localImage.size
             }else if let networkVideo = networkVideoAsset {
-                if let image = networkVideo.coverImage {
+                if !networkVideo.videoSize.equalTo(.zero) {
+                    size = networkVideo.videoSize
+                }else if let image = networkVideo.coverImage {
                     size = image.size
                 }else {
                     let key = networkVideo.videoURL.absoluteString
@@ -843,6 +849,7 @@ extension PhotoAsset {
     
     func requestAssetVideoURL(toFile fileURL:URL? = nil,
                               exportPreset: String? = nil,
+                              exportSession: ((AVAssetExportSession) -> Void)? = nil,
                               resultHandler: @escaping AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit {
@@ -864,7 +871,12 @@ extension PhotoAsset {
         }
         let toFile = fileURL == nil ? PhotoTools.getVideoTmpURL() : fileURL!
         if let exportPreset = exportPreset {
-            AssetManager.exportVideoURL(forVideo: phAsset, toFile: toFile, exportPreset: exportPreset) { (result) in
+            AssetManager.exportVideoURL(
+                forVideo: phAsset,
+                toFile: toFile,
+                exportPreset: exportPreset,
+                exportSession: exportSession)
+            { (result) in
                 switch result {
                 case .success(let videoURL):
                     resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))

@@ -18,6 +18,12 @@ open class VideoEditorConfiguration: EditorConfiguration {
     /// 当编辑控制器默认状态是裁剪状态时是否必须裁剪视频
     public var mustBeTailored: Bool = true
     
+    /// 贴图配置
+    public lazy var chartlet: EditorChartletConfig = .init()
+    
+    /// 文本
+    public lazy var text: EditorTextConfig = .init()
+    
     /// 配乐配置
     public lazy var music: MusicConfig = .init()
     
@@ -45,11 +51,23 @@ open class VideoEditorConfiguration: EditorConfiguration {
     /// 工具视图配置
     public lazy var toolView: EditorToolViewConfiguration = {
         let config = EditorToolViewConfiguration.init()
-        let musicOption = EditorToolOptions.init(imageName: "hx_editor_tools_music",
-                                                 type: .music)
-        let cropOption = EditorToolOptions.init(imageName: "hx_editor_video_crop",
-                                                type: .cropping) 
-        config.toolOptions = [musicOption, cropOption]
+        let chartlet = EditorToolOptions(
+            imageName: "hx_editor_photo_tools_emoji",
+            type: .chartlet
+        )
+        let text = EditorToolOptions(
+            imageName: "hx_editor_photo_tools_text",
+            type: .text
+        )
+        let music = EditorToolOptions.init(
+            imageName: "hx_editor_tools_music",
+            type: .music
+        )
+        let crop = EditorToolOptions.init(
+            imageName: "hx_editor_video_crop",
+            type: .cropping
+        )
+        config.toolOptions = [chartlet, text, music, crop]
         return config
     }()
     

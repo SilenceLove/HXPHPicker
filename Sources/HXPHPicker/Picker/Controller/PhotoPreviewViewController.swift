@@ -19,7 +19,7 @@ protocol PhotoPreviewViewControllerDelegate: AnyObject {
 public class PhotoPreviewViewController: BaseViewController {
     
     weak var delegate: PhotoPreviewViewControllerDelegate?
-    var config : PreviewViewConfiguration!
+    let config : PreviewViewConfiguration
     var currentPreviewIndex : Int = 0
     var orientationDidChange : Bool = false
     var statusBarShouldBeHidden : Bool = false
@@ -87,7 +87,8 @@ public class PhotoPreviewViewController: BaseViewController {
     }()
     var requestPreviewTimer: Timer?
     
-    init() {
+    init(config : PreviewViewConfiguration) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) {
@@ -132,7 +133,6 @@ public class PhotoPreviewViewController: BaseViewController {
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
         view.clipsToBounds = true
-        config = pickerController!.config.previewView
         initView()
     }
     public override func deviceOrientationDidChanged(notify: Notification) {
@@ -487,12 +487,12 @@ extension PhotoPreviewViewController {
     }
     
     func updateSelectBox(_ isSelected: Bool, photoAsset: PhotoAsset) {
-        let boxWidth = config!.selectBox.size.width
-        let boxHeight = config!.selectBox.size.height
+        let boxWidth = config.selectBox.size.width
+        let boxHeight = config.selectBox.size.height
         if isSelected {
             if config.selectBox.style == .number {
                 let text = String(format: "%d", arguments: [photoAsset.selectIndex + 1])
-                let font = UIFont.mediumPingFang(ofSize: config!.selectBox.titleFontSize)
+                let font = UIFont.mediumPingFang(ofSize: config.selectBox.titleFontSize)
                 let textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))
                 var textWidth = text.width(ofFont: font, maxHeight: textHeight)
                 selectBoxControl.textSize = CGSize(width: textWidth, height: textHeight)

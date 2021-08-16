@@ -100,7 +100,7 @@ extension PhotoTools {
     }
     class func cameraPreviewImageURL() -> URL {
         var cachePath = getImageCacheFolderPath()
-        cachePath.append(contentsOf: "/" + "cameraPreviewImage".md5())
+        cachePath.append(contentsOf: "/" + "cameraPreviewImage".md5)
         return URL(fileURLWithPath: cachePath)
     }
     class func isCacheCameraPreviewImage() -> Bool {
@@ -117,7 +117,7 @@ extension PhotoTools {
                     try fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
                 }
                 let imageCacheURL = cameraPreviewImageURL()
-                if !fileManager.fileExists(atPath: imageCacheURL.path) {
+                if fileManager.fileExists(atPath: imageCacheURL.path) {
                     try fileManager.removeItem(at: imageCacheURL)
                 }
                 try data.write(to: cameraPreviewImageURL())
@@ -242,6 +242,7 @@ extension PhotoTools {
             config.maximumSelectedVideoCount = 0
             config.allowSelectedTogether = true
         }
+        let wxColor = "#07C160".color
         config.selectOptions = [.gifPhoto, .video]
         config.albumShowMode = .popup
         config.appearanceStyle = .normal
@@ -258,7 +259,7 @@ extension PhotoTools {
         config.albumList.albumNameColor = .white
         config.albumList.photoCountColor = .white
         config.albumList.separatorLineColor = "#434344".color.withAlphaComponent(0.6)
-        config.albumList.tickColor = "#07C160".color
+        config.albumList.tickColor = wxColor
         
         config.photoList.backgroundColor = "#2E2F30".color
         config.photoList.cancelPosition = .left
@@ -269,7 +270,7 @@ extension PhotoTools {
         config.photoList.titleView.arrowColor = "#2E2F30".color
         
         config.photoList.cell.targetWidth = 250
-        config.photoList.cell.selectBox.selectedBackgroundColor = "#07C160".color
+        config.photoList.cell.selectBox.selectedBackgroundColor = wxColor
         config.photoList.cell.selectBox.titleColor = .white
         
         config.photoList.cameraCell.cameraImageName = "hx_picker_photoList_photograph_white"
@@ -281,11 +282,11 @@ extension PhotoTools {
         config.photoList.bottomView.originalSelectBox.backgroundColor = .clear
         config.photoList.bottomView.originalSelectBox.borderColor = .white
         config.photoList.bottomView.originalSelectBox.tickColor = .white
-        config.photoList.bottomView.originalSelectBox.selectedBackgroundColor = "#07C160".color
+        config.photoList.bottomView.originalSelectBox.selectedBackgroundColor = wxColor
         config.photoList.bottomView.originalLoadingStyle = .white
         
         config.photoList.bottomView.finishButtonTitleColor = .white
-        config.photoList.bottomView.finishButtonBackgroundColor = "#07C160".color
+        config.photoList.bottomView.finishButtonBackgroundColor = wxColor
         config.photoList.bottomView.finishButtonDisableBackgroundColor = "#666666".color.withAlphaComponent(0.3)
         
         config.photoList.bottomView.promptTitleColor = UIColor.white.withAlphaComponent(0.6)
@@ -299,7 +300,7 @@ extension PhotoTools {
         config.previewView.cancelPosition = .left
         config.previewView.backgroundColor = .black
         config.previewView.selectBox.tickColor = .white
-        config.previewView.selectBox.selectedBackgroundColor = "#07C160".color
+        config.previewView.selectBox.selectedBackgroundColor = wxColor
         
         config.previewView.bottomView.barStyle = .black
         
@@ -307,36 +308,37 @@ extension PhotoTools {
         config.previewView.bottomView.originalSelectBox.backgroundColor = .clear
         config.previewView.bottomView.originalSelectBox.borderColor = .white
         config.previewView.bottomView.originalSelectBox.tickColor = .white
-        config.previewView.bottomView.originalSelectBox.selectedBackgroundColor = "#07C160".color
+        config.previewView.bottomView.originalSelectBox.selectedBackgroundColor = wxColor
         config.previewView.bottomView.originalLoadingStyle = .white
         
         config.previewView.bottomView.finishButtonTitleColor = .white
-        config.previewView.bottomView.finishButtonBackgroundColor = "#07C160".color
+        config.previewView.bottomView.finishButtonBackgroundColor = wxColor
         config.previewView.bottomView.finishButtonDisableBackgroundColor = "#666666".color.withAlphaComponent(0.3)
         
-        config.previewView.bottomView.selectedViewTickColor = "#07C160".color
+        config.previewView.bottomView.selectedViewTickColor = wxColor
         
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white
         config.videoEditor.cropping.maximumVideoCroppingTime = 15
-        config.videoEditor.cropView.finishButtonBackgroundColor = "#07C160".color
-        config.videoEditor.cropView.finishButtonDarkBackgroundColor = "#07C160".color
-        config.videoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
-        config.videoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
-        config.videoEditor.toolView.toolSelectedColor = "#07C160".color
-        config.videoEditor.toolView.musicSelectedColor = "#07C160".color
-        config.videoEditor.music.tintColor = "#07C160".color
+        config.videoEditor.cropView.finishButtonBackgroundColor = wxColor
+        config.videoEditor.cropView.finishButtonDarkBackgroundColor = wxColor
+        config.videoEditor.toolView.finishButtonBackgroundColor = wxColor
+        config.videoEditor.toolView.finishButtonDarkBackgroundColor = wxColor
+        config.videoEditor.toolView.toolSelectedColor = wxColor
+        config.videoEditor.toolView.musicSelectedColor = wxColor
+        config.videoEditor.music.tintColor = wxColor
+        config.videoEditor.text.tintColor = wxColor
         
-        config.photoEditor.toolView.toolSelectedColor = "#07C160".color
-        config.photoEditor.toolView.finishButtonBackgroundColor = "#07C160".color
-        config.photoEditor.toolView.finishButtonDarkBackgroundColor = "#07C160".color
-        config.photoEditor.cropConfimView.finishButtonBackgroundColor = "#07C160".color
-        config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = "#07C160".color
-        config.photoEditor.cropping.aspectRatioSelectedColor = "#07C160".color
+        config.photoEditor.toolView.toolSelectedColor = wxColor
+        config.photoEditor.toolView.finishButtonBackgroundColor = wxColor
+        config.photoEditor.toolView.finishButtonDarkBackgroundColor = wxColor
+        config.photoEditor.cropConfimView.finishButtonBackgroundColor = wxColor
+        config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = wxColor
+        config.photoEditor.cropping.aspectRatioSelectedColor = wxColor
         config.photoEditor.filter = .init(infos: defaultFilters(),
-                                                selectedColor: "#07C160".color)
-        config.photoEditor.text.tintColor =  "#07C160".color
+                                                selectedColor: wxColor)
+        config.photoEditor.text.tintColor = wxColor
         #endif
         
         config.notAuthorized.closeButtonImageName = "hx_picker_notAuthorized_close_dark"
@@ -344,7 +346,7 @@ extension PhotoTools {
         config.notAuthorized.titleColor = .white
         config.notAuthorized.subTitleColor = .white
         config.notAuthorized.jumpButtonTitleColor = .white
-        config.notAuthorized.jumpButtonBackgroundColor = "#07C160".color
+        config.notAuthorized.jumpButtonBackgroundColor = wxColor
         
         return config
     }
