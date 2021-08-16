@@ -6,7 +6,6 @@
 
 - Picker
   - 快速跳转方法`func present(picker config: PickerConfiguration,delegate: PhotoPickerControllerDelegate? = nil,finishHandler: PhotoPickerController.FinishHandler? = nil,cancelHandler: PhotoPickerController.CancelHandler? = nil) -> PhotoPickerController`
-  - 加载贴图代理修改``
 - Editor
   - 视频添加贴纸和文字
 
