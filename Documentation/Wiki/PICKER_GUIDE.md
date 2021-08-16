@@ -242,7 +242,7 @@ func pickerController(_ pickerController: PhotoPickerController,
 ### 配置照片编辑器贴纸标题数据
 
 ```swift
-/// 照片编辑器加载贴图标题资源
+/// 照片/视频 编辑器加载贴图标题资源
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController
 ///   - editorViewController: 对应的 PhotoEditorViewController / VideoEditorViewController
@@ -262,7 +262,7 @@ func pickerController(_ pickerController: PhotoPickerController,
 ### 配置照片编辑器贴纸数据
 
 ```swift
-/// 照片编辑器加载贴图资源
+/// 照片/视频 编辑器加载贴图资源
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController
 ///   - editorViewController: 对应的 PhotoEditorViewController / VideoEditorViewController

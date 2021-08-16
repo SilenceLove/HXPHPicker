@@ -260,6 +260,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 menus.append(select)
             }
             
+            #if HXPICKER_ENABLE_EDITOR
             let options: PickerAssetOptions
             if photoAsset.mediaType == .photo {
                 options = .photo
@@ -279,6 +280,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 }
                 menus.append(edit)
             }
+            #endif
             
             return .init(
                 children: menus
