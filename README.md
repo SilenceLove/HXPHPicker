@@ -60,7 +60,7 @@
 
 - iOS 10.0+
 - Xcode 12.0+
-- Swift 5.3+
+- Swift 5.4+
 
 ## 安装
 
@@ -158,10 +158,10 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
-| [v1.1.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#119) | 2021-08-16 | 12.5.1 | 5.3 | 10.0+ |
-| [v1.1.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#117) | 2021-08-06 | 12.5.1 | 5.3 | 10.0+ |
-| [v1.1.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#116) | 2021-08-02 | 12.5.1 | 5.3 | 10.0+ |
-| [v1.1.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#115) | 2021-07-28 | 12.5.1 | 5.3 | 10.0+ |
+| [v1.1.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#119) | 2021-08-16 | 12.5.1 | 5.4.2 | 10.0+ |
+| [v1.1.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#117) | 2021-08-06 | 12.5.1 | 5.4.2 | 10.0+ |
+| [v1.1.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#116) | 2021-08-02 | 12.5.1 | 5.4.2 | 10.0+ |
+| [v1.1.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#115) | 2021-07-28 | 12.5.1 | 5.4.2 | 10.0+ |
 
 ## 版权协议
 
