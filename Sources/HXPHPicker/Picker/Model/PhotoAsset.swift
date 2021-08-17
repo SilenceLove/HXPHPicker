@@ -475,7 +475,7 @@ extension PhotoAsset {
             return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
         }
         #endif
-        let size : CGSize
+        let size: CGSize
         if let phAsset = phAsset {
             if phAsset.pixelWidth == 0 || phAsset.pixelHeight == 0 {
                 size = CGSize(width: 200, height: 200)
@@ -492,7 +492,8 @@ extension PhotoAsset {
                      let image = UIImage.init(contentsOfFile: imageURL.path) {
                 localImageAsset?.image = image
                 size = image.size
-            }else if let videoSize = localVideoAsset?.videoSize {
+            }else if let videoSize = localVideoAsset?.videoSize,
+                     !videoSize.equalTo(.zero) {
                 size = videoSize
             }else if let localImage = localVideoAsset?.image {
                 size = localImage.size
