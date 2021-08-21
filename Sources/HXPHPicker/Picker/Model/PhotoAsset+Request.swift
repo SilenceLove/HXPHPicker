@@ -310,16 +310,29 @@ public extension PhotoAsset {
     /// 网络视频如果在本地有缓存则会返回本地地址，如果没有缓存则为ni
     /// - Parameters:
     ///   - fileURL: 指定视频地址
-    ///   - exportPreset: 导出质量，不传则获取的是原始视频地址
+    ///   - exportPreset: 视频分辨率，不传获取的就是原始视频
+    ///   - videoQuality: 视频质量[0-10]
     ///   - resultHandler: 获取结果
-    func requestVideoURL(toFile fileURL:URL? = nil,
-                         exportPreset: String? = nil,
-                         resultHandler: @escaping AssetURLCompletion) {
+    func requestVideoURL(
+        toFile fileURL:URL? = nil,
+        exportPreset: ExportPreset? = nil,
+        videoQuality: Int = 5,
+        exportSession: ((AVAssetExportSession) -> Void)? = nil,
+        resultHandler: @escaping AssetURLCompletion) {
         if phAsset == nil {
-            requestLocalVideoURL(toFile: fileURL, resultHandler: resultHandler)
+            requestLocalVideoURL(
+                toFile: fileURL,
+                resultHandler: resultHandler
+            )
             return
         }
-        requestAssetVideoURL(toFile: fileURL, exportPreset: exportPreset, resultHandler: resultHandler)
+        requestAssetVideoURL(
+            toFile: fileURL,
+            exportPreset: exportPreset,
+            videoQuality: videoQuality,
+            exportSession: exportSession,
+            resultHandler: resultHandler
+        )
     }
     
     /// 请求AVAsset，如果资源在iCloud上会自动下载。如果需要更细节的处理请查看 PHAssetManager+Asset

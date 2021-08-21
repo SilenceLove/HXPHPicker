@@ -16,96 +16,59 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     func toolView(didFinishButtonClick toolView: EditorToolView) {
         playerView.stickerView.deselectedSticker()
         let hasSticker = playerView.stickerView.count > 0
-        let stickerLayer = playerView.stickerView.layer
+        let timeRang: CMTimeRange
         if let startTime = playerView.playStartTime,
            let endTime = playerView.playEndTime {
-            ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
-            exportSession = PhotoTools.exportEditVideo(
-                for: avAsset,
-                timeRang: CMTimeRange(start: startTime, end: endTime),
-                presentName: config.exportPresetName)
-            { [weak self] (videoURL, error) in
-                guard let self = self else {
-                    return
-                }
-                if let videoURL = videoURL {
-                    if self.backgroundMusicPath != nil ||
-                        self.playerView.player.volume == 0 ||
-                        hasSticker {
-                        self.addBackgroundMusic(
-                            forVideo: videoURL,
-                            hasSticker: hasSticker,
-                            stickerLayer: stickerLayer
-                        )
-                        return
-                    }
-                    self.editFinishCallBack(videoURL)
-                    self.backAction()
-                }else {
-                    self.showErrorHUD()
-                }
-            }
+            timeRang = CMTimeRange(start: startTime, end: endTime)
         }else {
-            if backgroundMusicPath != nil ||
-                playerView.player.volume == 0 ||
-                hasSticker {
-                ProgressHUD.showLoading(addedTo: view, text: "视频导出中".localized, animated: true)
-                let videoURL = PhotoTools.getVideoTmpURL()
-                if FileManager.default.fileExists(atPath: videoURL.path) {
-                    try? FileManager.default.removeItem(at: videoURL)
-                }
-                exportSession = AssetManager.exportVideoURL(
-                    forVideo: avAsset,
-                    toFile: videoURL,
-                    exportPreset: config.exportPresetName)
-                { [weak self] (url, error) in
-                    if let url = url {
-                        self?.addBackgroundMusic(
-                            forVideo: url,
-                            hasSticker: hasSticker,
-                            stickerLayer: stickerLayer
-                        )
-                    }else {
-                        self?.showErrorHUD()
-                    }
-                }
-                return
-            }
-            delegate?.videoEditorViewController(didFinishWithUnedited: self)
-            backAction()
+            timeRang = .zero
         }
+        let hasAudio: Bool
+        if backgroundMusicPath != nil || playerView.player.volume < 1 {
+            hasAudio = true
+        }else {
+            hasAudio = false
+        }
+        if hasAudio || timeRang != .zero || hasSticker {
+            let stickerInfos = playerView.stickerView.getStickerInfo()
+            ProgressHUD.showLoading(
+                addedTo: view,
+                text: "视频导出中".localized,
+                animated: true
+            )
+            exportVideoURL(
+                timeRang: timeRang,
+                hasSticker: hasSticker,
+                stickerInfos: stickerInfos
+            )
+            return
+        }
+        delegate?.videoEditorViewController(didFinishWithUnedited: self)
+        backAction()
     }
-    func addBackgroundMusic(
-        forVideo videoURL: URL,
+    func exportVideoURL(
+        timeRang: CMTimeRange,
         hasSticker: Bool,
-        stickerLayer: CALayer)
+        stickerInfos: [EditorStickerInfo])
     {
         DispatchQueue.global().async {
             var audioURL: URL?
             if let musicPath = self.backgroundMusicPath {
                 audioURL = URL(fileURLWithPath: musicPath)
             }
-            var overlayImages: [UIImage] = []
-            if hasSticker {
-                if let image = stickerLayer.convertedToImage() {
-                    overlayImages.append(image)
-                }
-                stickerLayer.contents = nil
-            }
-            var overlayImage: UIImage? = nil
-            if !overlayImages.isEmpty {
-                overlayImage = UIImage.merge(images: overlayImages)
-            }
-            self.exportSession = PhotoTools.videoAddBackgroundMusic(
-                forVideo: videoURL,
-                overlayImage: overlayImage,
+            self.exportSession = PhotoTools.exportEditVideo(
+                for: self.avAsset,
+                outputURL: self.config.videoExportURL,
+                timeRang: timeRang,
+                stickerInfos: stickerInfos,
                 audioURL: audioURL,
                 audioVolume: self.backgroundMusicVolume,
                 originalAudioVolume: self.playerView.player.volume,
-                presentName: self.config.exportPresetName)
-            { [weak self] (url) in
-                if let url = url {
-                    self?.editFinishCallBack(url)
+                exportPreset: self.config.exportPreset,
+                videoQuality: self.config.videoQuality)
+            {  [weak self] videoURL, error in
+                if let videoURL = videoURL {
+                    self?.editFinishCallBack(videoURL)
                     self?.backAction()
                 }else {
                     self?.showErrorHUD()
@@ -269,7 +232,7 @@ extension VideoEditorViewController: EditorStickerTextViewControllerDelegate {
     }
     
     func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerText: EditorStickerText) {
-        let item = EditorStickerItem(image: stickerText.image, text: stickerText)
+        let item = EditorStickerItem(image: stickerText.image, imageData:nil, text: stickerText)
         playerView.stickerView.add(sticker: item, isSelected: false)
     }
 }

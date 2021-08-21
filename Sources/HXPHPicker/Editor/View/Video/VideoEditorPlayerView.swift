@@ -15,6 +15,7 @@ protocol VideoEditorPlayerViewDelegate: AnyObject {
     func playerView(beganDrag playerView: VideoEditorPlayerView)
     func playerView(endDrag playerView: VideoEditorPlayerView)
     func playerView(_ playerView: VideoEditorPlayerView, updateStickerText item: EditorStickerItem)
+    func playerView(didRemoveAudio playerView: VideoEditorPlayerView)
 }
 
 class VideoEditorPlayerView: VideoPlayerView {
@@ -178,5 +179,9 @@ extension VideoEditorPlayerView: EditorStickerViewDelegate {
     
     func stickerView(_ stickerView: EditorStickerView, updateStickerText item: EditorStickerItem) {
         delegate?.playerView(self, updateStickerText: item)
+    }
+    
+    func stickerView(didRemoveAudio stickerView: EditorStickerView) {
+        delegate?.playerView(didRemoveAudio: self)
     }
 }

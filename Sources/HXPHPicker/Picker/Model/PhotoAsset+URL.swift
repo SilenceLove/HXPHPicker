@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 public extension PhotoAsset {
     
@@ -91,10 +92,14 @@ public extension PhotoAsset {
     
     /// 获取视频url
     /// - Parameters:
-    ///   - exportPreset: 导出质量，不传获取的就是原始视频
+    ///   - exportPreset: 视频分辨率，不传获取的就是原始视频
+    ///   - videoQuality: 视频质量[0-10]
+    ///   - exportSession: 导出视频时对应的 AVAssetExportSession
     ///   - completion: result
     func getVideoURL(
-        exportPreset: String? = nil,
+        exportPreset: ExportPreset? = nil,
+        videoQuality: Int = 6,
+        exportSession: ((AVAssetExportSession) -> Void)? = nil,
         completion: @escaping AssetURLCompletion)
     {
         if isNetworkAsset {
@@ -105,6 +110,8 @@ public extension PhotoAsset {
         }
         requestVideoURL(
             exportPreset: exportPreset,
+            videoQuality: videoQuality,
+            exportSession: exportSession,
             resultHandler: completion
         )
     }

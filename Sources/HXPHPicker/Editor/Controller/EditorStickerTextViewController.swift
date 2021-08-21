@@ -71,7 +71,7 @@ class EditorStickerTextViewController: BaseViewController {
         if let image = textView.textImage(), !textView.text.isEmpty {
             let stickerText = EditorStickerText(image: image, text: textView.text, textColor: textView.currentSelectedColor, showBackgroud: textView.showBackgroudColor)
             if stickerItem != nil {
-                let stickerItem = EditorStickerItem(image: image, text: stickerText)
+                let stickerItem = EditorStickerItem(image: image, imageData: nil, text: stickerText)
                 delegate?.stickerTextViewController(self, didFinish: stickerItem)
             }else {
                 delegate?.stickerTextViewController(self, didFinish: stickerText)

@@ -27,7 +27,14 @@ public extension AssetManager {
                                            progressHandler: PHAssetVideoProgressHandler?,
                                            resultHandler: @escaping (AVAssetExportSession?, [AnyHashable : Any]?, Bool) -> Void) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current
-        return requestExportSession(forVideo: asset, exportPreset: exportPreset, version: version, deliveryMode: deliveryMode, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (exportSession, info) in
+        return requestExportSession(
+            forVideo: asset,
+            exportPreset: exportPreset,
+            version: version,
+            deliveryMode: deliveryMode,
+            isNetworkAccessAllowed: false,
+            progressHandler: progressHandler)
+        { (exportSession, info) in
             DispatchQueue.main.async {
                 if self.assetDownloadFinined(for: info) {
                     resultHandler(exportSession, info, true)
@@ -53,13 +60,15 @@ public extension AssetManager {
     
     /// 获取 AVAssetExportSession
     @discardableResult
-    class func requestExportSession(forVideo asset: PHAsset,
-                                    exportPreset: String,
-                                    version: PHVideoRequestOptionsVersion,
-                                    deliveryMode: PHVideoRequestOptionsDeliveryMode,
-                                    isNetworkAccessAllowed: Bool,
-                                    progressHandler: PHAssetVideoProgressHandler?,
-                                    resultHandler: @escaping AVAssetExportSessionResultHandler) -> PHImageRequestID {
+    class func requestExportSession(
+        forVideo asset: PHAsset,
+        exportPreset: String,
+        version: PHVideoRequestOptionsVersion,
+        deliveryMode: PHVideoRequestOptionsDeliveryMode,
+        isNetworkAccessAllowed: Bool,
+        progressHandler: PHAssetVideoProgressHandler?,
+        resultHandler: @escaping AVAssetExportSessionResultHandler) -> PHImageRequestID
+    {
         let options = PHVideoRequestOptions.init()
         options.version = version
         options.deliveryMode = deliveryMode
@@ -71,11 +80,12 @@ public extension AssetManager {
     
     /// 获取 AVAssetExportSession
     @discardableResult
-    class func requestExportSession(forVideo asset: PHAsset,
-                                           options: PHVideoRequestOptions,
-                                           exportPreset: String,
-                                           resultHandler: @escaping AVAssetExportSessionResultHandler) -> PHImageRequestID {
-        
+    class func requestExportSession(
+        forVideo asset: PHAsset,
+        options: PHVideoRequestOptions,
+        exportPreset: String,
+        resultHandler: @escaping AVAssetExportSessionResultHandler) -> PHImageRequestID
+    {
         return PHImageManager.default().requestExportSession(forVideo: asset,
                                                              options: options,
                                                              exportPreset: exportPreset, resultHandler:
@@ -84,13 +94,19 @@ public extension AssetManager {
     
     class func exportVideoURL(forVideo asset: PHAsset,
                               toFile fileURL:URL,
-                              exportPreset: String,
+                              exportPreset: ExportPreset,
+                              videoQuality: Int,
                               exportSession: ((AVAssetExportSession) -> Void)? = nil,
                               completionHandler: @escaping (Result<URL, AssetManager.AVAssetError>) -> Void) {
         requestAVAsset(for: asset, iCloudHandler: nil, progressHandler: nil) { (result) in
             switch result {
             case .success(let avResult):
-                let session = self.exportVideoURL(forVideo: avResult.avAsset, toFile: fileURL, exportPreset: exportPreset) { videoURL, error in
+                let session = self.exportVideoURL(
+                    forVideo: avResult.avAsset,
+                    toFile: fileURL,
+                    exportPreset: exportPreset,
+                    videoQuality: videoQuality)
+                { videoURL, error in
                     if let videoURL = videoURL {
                         completionHandler(.success(videoURL))
                     }else {
@@ -110,12 +126,13 @@ public extension AssetManager {
     class func exportVideoURL(
         forVideo avAsset: AVAsset,
         toFile fileURL:URL,
-        exportPreset: String,
+        exportPreset: ExportPreset,
+        videoQuality: Int,
         completionHandler: @escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
     {
-        var presetName = exportPreset
+        var presetName = exportPreset.name
         let presets = AVAssetExportSession.exportPresets(compatibleWith: avAsset)
-        if !presets.contains(exportPreset) {
+        if !presets.contains(presetName) {
             if presets.contains(AVAssetExportPresetHighestQuality) {
                 presetName = AVAssetExportPresetHighestQuality
             }else if presets.contains(AVAssetExportPreset1280x720) {
@@ -128,6 +145,13 @@ public extension AssetManager {
         exportSession?.outputURL = fileURL
         exportSession?.shouldOptimizeForNetworkUse = true
         exportSession?.outputFileType = .mp4
+        if videoQuality > 0 {
+            exportSession?.fileLengthLimit = PhotoTools.exportSessionFileLengthLimit(
+                seconds: avAsset.duration.seconds,
+                exportPreset: exportPreset,
+                videoQuality: videoQuality
+            )
+        }
         exportSession?.exportAsynchronously(completionHandler: {
             DispatchQueue.main.async {
                 switch exportSession?.status {

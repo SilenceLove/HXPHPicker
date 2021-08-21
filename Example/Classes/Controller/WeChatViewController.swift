@@ -148,7 +148,7 @@ class WeChatViewCell: UITableViewCell {
     }()
     lazy var pictureView: UIImageView = {
         let view = UIImageView()
-        view.backgroundColor = UIColor(hexString: "dadada")
+        view.backgroundColor = UIColor(hexString: "#dadada")
         view.layer.cornerRadius = 5
         view.layer.masksToBounds = true
         view.contentMode = .scaleAspectFill
@@ -229,7 +229,7 @@ class WeChatViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        backgroundColor = UIColor(hexString: "eeeeee")
+        backgroundColor = UIColor(hexString: "#eeeeee")
         contentView.addSubview(avatarView)
         contentView.addSubview(pictureView)
         contentView.addSubview(loadingView)

@@ -19,7 +19,8 @@ extension UIImageView {
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
-        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil) -> Kingfisher.DownloadTask? {
+        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil) -> Kingfisher.DownloadTask?
+    {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = asset.photoEdit {
             if urlType == .thumbnail {
@@ -132,8 +133,10 @@ extension UIImageView {
         }
     }
     #else
-    func setVideoCoverImage(for asset: PhotoAsset,
-                            completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil) {
+    func setVideoCoverImage(
+        for asset: PhotoAsset,
+        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil)
+    {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = asset.videoEdit {
             completionHandler?(videoEdit.coverImage, asset)
@@ -171,6 +174,36 @@ extension UIImageView {
             }
             completionHandler?(image, asset)
         }
+    }
+    #endif
+}
+
+extension ImageView {
+    
+    #if canImport(Kingfisher)
+    @discardableResult
+    func setImage(
+        for asset: PhotoAsset,
+        urlType: DonwloadURLType,
+        progressBlock: DownloadProgressBlock? = nil,
+        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil) -> Kingfisher.DownloadTask?
+    {
+        imageView.setImage(
+            for: asset,
+            urlType: urlType,
+            progressBlock: progressBlock,
+            completionHandler: completionHandler
+        )
+    }
+    #else
+    func setVideoCoverImage(
+        for asset: PhotoAsset,
+        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil)
+    {
+        imageView.setVideoCoverImage(
+            for: asset,
+            completionHandler: completionHandler
+        )
     }
     #endif
 }

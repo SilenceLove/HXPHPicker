@@ -49,6 +49,22 @@ extension PhotoTools {
         return nil
     }
     
+    class func checkNetworkURL(for url: URL) -> Bool {
+        if checkLocalURL(for: url.path) {
+            return false
+        }
+        if let scheme = url.scheme {
+            if scheme == "http" || scheme == "https" {
+                return true
+            }
+        }
+        return UIApplication.shared.canOpenURL(url)
+    }
+    
+    class func checkLocalURL(for path: String) -> Bool {
+        FileManager.default.fileExists(atPath: path)
+    }
+    
     class func getFrameDuration(from gifInfo: [String: Any]?) -> TimeInterval {
         let defaultFrameDuration = 0.1
         guard let gifInfo = gifInfo else { return defaultFrameDuration }
@@ -77,7 +93,11 @@ extension PhotoTools {
         var infos: [VideoEditorMusicInfo] = []
         if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"),
            let lrc = "天外来物".lrc {
-            let info = VideoEditorMusicInfo(audioURL: audioURL, lrc: lrc)
+            let info = VideoEditorMusicInfo(
+                audioURL: audioURL,
+                lrc: lrc,
+                urlType: .network
+            )
             infos.append(info)
         }
         return infos
@@ -244,146 +264,72 @@ extension PhotoTools {
         return nil
     }
     
-    /// 视频添加背景音乐
+    /// 导出编辑视频
     /// - Parameters:
-    ///   - videoURL: 视频地址
-    ///   - overlayImage: 贴纸
+    ///   - avAsset: 视频对应的 AVAsset 数据
+    ///   - outputURL: 指定视频导出的地址，为nil时默认为临时目录
+    ///   - timeRang: 需要裁剪的时间区域，没有传 .zero
+    ///   - stickerInfos: 贴纸数组
     ///   - audioURL: 需要添加的音频地址
     ///   - audioVolume: 需要添加的音频音量
     ///   - originalAudioVolume: 视频原始音频音量
-    ///   - presentName: 导出质量
-    ///   - completion: 添加完成
+    ///   - exportPreset: 导出的分辨率
+    ///   - videoQuality: 导出的质量
+    ///   - completion: 导出完成
     @discardableResult
-    class func videoAddBackgroundMusic(
-        forVideo videoURL: URL,
-        overlayImage: UIImage?,
+    class func exportEditVideo(
+        for avAsset: AVAsset,
+        outputURL: URL? = nil,
+        timeRang: CMTimeRange,
+        stickerInfos: [EditorStickerInfo],
         audioURL: URL?,
         audioVolume: Float,
         originalAudioVolume: Float,
-        presentName: String,
-        completion: @escaping (URL?) -> Void) -> AVAssetExportSession?
+        exportPreset: ExportPreset,
+        videoQuality: Int,
+        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
     {
-        let outputURL = getVideoTmpURL()
-        do {
-            let mixComposition = AVMutableComposition()
-            let videoAsset = AVURLAsset(url: videoURL)
-            let videoTimeRange = CMTimeRangeMake(
-                start: .zero,
-                duration: videoAsset.duration
-            )
-            let compositionVideoTrack = mixComposition.addMutableTrack(
-                withMediaType: .video,
-                preferredTrackID: kCMPersistentTrackID_Invalid
-            )
-            if let videoTrack = videoAsset.tracks(withMediaType: .video).first {
-                compositionVideoTrack?.preferredTransform = videoTrack.preferredTransform
-                try compositionVideoTrack?.insertTimeRange(videoTimeRange, of: videoTrack, at: .zero)
-            }
-            
-            let audioMix = AVMutableAudioMix()
-            var newAudioInputParams: AVMutableAudioMixInputParameters?
-            if let audioURL = audioURL {
-                // 添加背景音乐
-                let audioAsset = AVURLAsset(url: audioURL)
-                let newAudioTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
-                if let audioTrack = audioAsset.tracks(withMediaType: .audio).first {
-                    newAudioTrack?.preferredTransform = audioTrack.preferredTransform
-                    let audioDuration = audioAsset.duration.seconds
-                    let videoDuration = videoAsset.duration.seconds
-                    if audioDuration < videoDuration {
-                        let audioTimeRange = CMTimeRangeMake(start: .zero, duration: audioAsset.duration)
-                        let divisor = Int(videoDuration / audioDuration)
-                        var atTime: CMTime = .zero
-                        for index in 0..<divisor {
-                            try newAudioTrack?.insertTimeRange(audioTimeRange, of: audioTrack, at: atTime)
-                            atTime = CMTimeMakeWithSeconds(Double(index + 1) * audioDuration, preferredTimescale: audioAsset.duration.timescale)
-                        }
-                        let remainder = videoDuration.truncatingRemainder(dividingBy: audioDuration)
-                        if remainder > 0 {
-                            let seconds = videoDuration - audioDuration * Double(divisor)
-                            try newAudioTrack?.insertTimeRange(CMTimeRange(start: .zero, duration: CMTimeMakeWithSeconds(seconds, preferredTimescale: audioAsset.duration.timescale)), of: audioTrack, at: atTime)
-                        }
-                    }else {
-                        let audioTimeRange = CMTimeRangeMake(start: .zero, duration: videoTimeRange.duration)
-                        try newAudioTrack?.insertTimeRange(audioTimeRange, of: audioTrack, at: .zero)
-                    }
-                }
-                newAudioInputParams = AVMutableAudioMixInputParameters(track: newAudioTrack)
-                newAudioInputParams?.setVolumeRamp(fromStartVolume: audioVolume, toEndVolume: audioVolume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
-                newAudioInputParams?.trackID =  newAudioTrack?.trackID ?? kCMPersistentTrackID_Invalid
-            }
-            
-            if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
-                if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
-                    originalVoiceTrack.preferredTransform = audioTrack.preferredTransform
-                    try originalVoiceTrack.insertTimeRange(videoTimeRange, of: audioTrack, at: .zero)
-                }
-                let volume: Float = originalAudioVolume
-                let originalAudioInputParams = AVMutableAudioMixInputParameters(track: originalVoiceTrack)
-                originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
-                originalAudioInputParams.trackID = originalVoiceTrack.trackID
-                if let newAudioInputParams = newAudioInputParams {
-                    audioMix.inputParameters = [newAudioInputParams, originalAudioInputParams]
+        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
+            do {
+                let videoURL = outputURL ?? PhotoTools.getVideoTmpURL()
+                let mixComposition = try mixComposition(
+                    for: avAsset
+                )
+                let audioMix = try audioMix(
+                    for: avAsset,
+                    mixComposition: mixComposition,
+                    timeRang: timeRang,
+                    audioURL: audioURL,
+                    audioVolume: audioVolume,
+                    originalAudioVolume: originalAudioVolume
+                )
+                var addVideoComposition = false
+                let animationBeginTime: CFTimeInterval
+                if timeRang == .zero {
+                    animationBeginTime = AVCoreAnimationBeginTimeAtZero
                 }else {
-                    audioMix.inputParameters = [originalAudioInputParams]
+                    animationBeginTime = timeRang.start.seconds == 0 ? AVCoreAnimationBeginTimeAtZero : timeRang.start.seconds
                 }
-            }else {
-                if let newAudioInputParams = newAudioInputParams {
-                    audioMix.inputParameters = [newAudioInputParams]
+                let videoComposition = videoComposition(
+                    for: avAsset,
+                    mixComposition: mixComposition,
+                    stickerInfos: stickerInfos,
+                    animationBeginTime: animationBeginTime,
+                    videoDuration: timeRang == .zero ? avAsset.duration.seconds : timeRang.duration.seconds
+                )
+                if videoComposition.renderSize.width > 0 {
+                    addVideoComposition = true
                 }
-            }
-            var addVideoComposition = false
-            let videoComposition = videoFixed(
-                composition: mixComposition,
-                assetOrientation: videoAsset.videoOrientation
-            )
-            if videoComposition.renderSize.width > 0 {
-                addVideoComposition = true
-            }
-            if overlayImage != nil {
-                let renderSize = videoComposition.renderSize
-                let bounds = CGRect(origin: .zero, size: renderSize)
-                let imglayer = CALayer()
-                imglayer.contents = overlayImage?.cgImage
-                imglayer.frame = bounds
-                imglayer.contentsGravity = .resizeAspectFill
-                imglayer.masksToBounds = true
-                
-                /// 这种方式模拟器会崩溃
-                /// https://developer.apple.com/forums/thread/133681
-//                let videolayer = CALayer()
-//                videolayer.frame = bounds
-
-//                let parentLayer = CALayer()
-//                parentLayer.frame = bounds
-//                parentLayer.addSublayer(videolayer)
-//                parentLayer.isGeometryFlipped = true
-//                parentLayer.addSublayer(imglayer)
-                 
-//                let animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videolayer, in: parentLayer)
-//                videoComposition.animationTool = animationTool
-                
-                let watermarkLayerTrackID = videoAsset.unusedTrackID()
-                videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(additionalLayer: imglayer, asTrackID: watermarkLayerTrackID)
-                let watermarkLayerInstruction = AVMutableVideoCompositionLayerInstruction()
-                watermarkLayerInstruction.trackID = watermarkLayerTrackID
-                let videoInstruction = videoComposition.instructions.first as! AVMutableVideoCompositionInstruction
-                let videoLayerInstruction = videoInstruction.layerInstructions.first!
-                videoInstruction.layerInstructions = [watermarkLayerInstruction, videoLayerInstruction]
-                videoComposition.instructions = [videoInstruction]
-                addVideoComposition = true
-            }
-            
-            if AVAssetExportSession.exportPresets(compatibleWith: videoAsset).contains(presentName) {
-                if let exportSession = AVAssetExportSession.init(asset: mixComposition, presetName: presentName) {
-                    exportSession.outputURL = outputURL
+                if let exportSession = AVAssetExportSession(
+                    asset: mixComposition,
+                    presetName: exportPreset.name)
+                {
                     let supportedTypeArray = exportSession.supportedFileTypes
+                    exportSession.outputURL = videoURL
                     if supportedTypeArray.contains(AVFileType.mp4) {
                         exportSession.outputFileType = .mp4
                     }else if supportedTypeArray.isEmpty {
-                        DispatchQueue.main.async {
-                            completion(nil)
-                        }
+                        completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
                         return nil
                     }else {
                         exportSession.outputFileType = supportedTypeArray.first
@@ -395,28 +341,296 @@ extension PhotoTools {
                     if !audioMix.inputParameters.isEmpty {
                         exportSession.audioMix = audioMix
                     }
+                    if timeRang != .zero {
+                        exportSession.timeRange = timeRang
+                    }
+                    if videoQuality > 0 {
+                        exportSession.fileLengthLimit = exportSessionFileLengthLimit(
+                            seconds: avAsset.duration.seconds,
+                            exportPreset: exportPreset,
+                            videoQuality: videoQuality
+                        )
+                    }
                     exportSession.exportAsynchronously(completionHandler: {
                         DispatchQueue.main.async {
                             switch exportSession.status {
                             case .completed:
-                                completion(outputURL)
+                                completion(videoURL, nil)
                                 break
                             case .failed, .cancelled:
-                                completion(nil)
+                                completion(nil, exportSession.error)
                                 break
                             default: break
                             }
                         }
                     })
                     return exportSession
+                }else {
+                    completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
+                    return nil
+                }
+            } catch {
+                completion(nil, PhotoError.error(type: .exportFailed, message: "导出失败：" + error.localizedDescription))
+                return nil
+            }
+        }else {
+            completion(nil, PhotoError.error(type: .exportFailed, message: "设备不支持导出：" + exportPreset.name))
+            return nil
+        }
+    }
+    
+    class func mixComposition(
+        for videoAsset: AVAsset) throws -> AVMutableComposition
+    {
+        let mixComposition = AVMutableComposition()
+        guard let videoTrack = videoAsset.tracks(withMediaType: .video).first else {
+            throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)
+        }
+        let videoTimeRange = CMTimeRangeMake(
+            start: .zero,
+            duration: videoTrack.timeRange.duration
+        )
+        let compositionVideoTrack = mixComposition.addMutableTrack(
+            withMediaType: .video,
+            preferredTrackID: kCMPersistentTrackID_Invalid
+        )
+        if let videoTrack = videoAsset.tracks(withMediaType: .video).first {
+            compositionVideoTrack?.preferredTransform = videoTrack.preferredTransform
+            try compositionVideoTrack?.insertTimeRange(
+                videoTimeRange,
+                of: videoTrack,
+                at: .zero
+            )
+        }
+        return mixComposition
+    }
+    
+    class func audioMix(
+        for videoAsset: AVAsset,
+        mixComposition: AVMutableComposition,
+        timeRang: CMTimeRange,
+        audioURL: URL?,
+        audioVolume: Float,
+        originalAudioVolume: Float) throws -> AVMutableAudioMix
+    {
+        guard let videoTrack = videoAsset.tracks(withMediaType: .video).first else {
+            throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)
+        }
+        let videoTimeRange = CMTimeRangeMake(
+            start: .zero,
+            duration: videoTrack.timeRange.duration
+        )
+        let audioMix = AVMutableAudioMix()
+        var newAudioInputParams: AVMutableAudioMixInputParameters?
+        if let audioURL = audioURL {
+            // 添加背景音乐
+            let audioAsset = AVURLAsset(
+                url: audioURL
+            )
+            let newAudioTrack = mixComposition.addMutableTrack(
+                withMediaType: .audio,
+                preferredTrackID: kCMPersistentTrackID_Invalid
+            )
+            if let audioTrack = audioAsset.tracks(withMediaType: .audio).first {
+                newAudioTrack?.preferredTransform = audioTrack.preferredTransform
+                let audioDuration = audioAsset.duration.seconds
+                let videoDuration: Double
+                let startTime: Double
+                if timeRang == .zero {
+                    startTime = 0
+                    videoDuration = videoAsset.duration.seconds
+                }else {
+                    startTime = timeRang.start.seconds
+                    videoDuration = timeRang.duration.seconds
+                }
+                if audioDuration < videoDuration {
+                    let audioTimeRange = CMTimeRangeMake(
+                        start: .zero,
+                        duration: audioTrack.timeRange.duration
+                    )
+                    let divisor = Int(videoDuration / audioDuration)
+                    var atTime = CMTimeMakeWithSeconds(
+                        startTime,
+                        preferredTimescale: audioAsset.duration.timescale
+                    )
+                    for index in 0..<divisor {
+                        try newAudioTrack?.insertTimeRange(
+                            audioTimeRange,
+                            of: audioTrack,
+                            at: atTime
+                        )
+                        atTime = CMTimeMakeWithSeconds(
+                            startTime + Double(index + 1) * audioDuration,
+                            preferredTimescale: audioAsset.duration.timescale
+                        )
+                    }
+                    let remainder = videoDuration.truncatingRemainder(
+                        dividingBy: audioDuration
+                    )
+                    if remainder > 0 {
+                        let seconds = videoDuration - audioDuration * Double(divisor)
+                        try newAudioTrack?.insertTimeRange(
+                            CMTimeRange(
+                                start: .zero,
+                                duration: CMTimeMakeWithSeconds(
+                                    seconds,
+                                    preferredTimescale: audioAsset.duration.timescale
+                                )
+                            ),
+                            of: audioTrack,
+                            at: atTime
+                        )
+                    }
+                }else {
+                    let audioTimeRange: CMTimeRange
+                    let atTime: CMTime
+                    if timeRang != .zero {
+                        audioTimeRange = CMTimeRangeMake(
+                            start: .zero,
+                            duration: timeRang.duration
+                        )
+                        atTime = timeRang.start
+                    }else {
+                        audioTimeRange = CMTimeRangeMake(
+                            start: .zero,
+                            duration: videoTimeRange.duration
+                        )
+                        atTime = .zero
+                    }
+                    try newAudioTrack?.insertTimeRange(
+                        audioTimeRange,
+                        of: audioTrack,
+                        at: atTime
+                    )
                 }
             }
-        } catch {  }
-        DispatchQueue.main.async {
-            completion(nil)
+            newAudioInputParams = AVMutableAudioMixInputParameters(
+                track: newAudioTrack
+            )
+            newAudioInputParams?.setVolumeRamp(
+                fromStartVolume: audioVolume,
+                toEndVolume: audioVolume,
+                timeRange: CMTimeRangeMake(
+                    start: .zero,
+                    duration: videoAsset.duration
+                )
+            )
+            newAudioInputParams?.trackID =  newAudioTrack?.trackID ?? kCMPersistentTrackID_Invalid
         }
-        return nil
+        
+        if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+            if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
+                originalVoiceTrack.preferredTransform = audioTrack.preferredTransform
+                try originalVoiceTrack.insertTimeRange(videoTimeRange, of: audioTrack, at: .zero)
+            }
+            let volume: Float = originalAudioVolume
+            let originalAudioInputParams = AVMutableAudioMixInputParameters(track: originalVoiceTrack)
+            originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
+            originalAudioInputParams.trackID = originalVoiceTrack.trackID
+            if let newAudioInputParams = newAudioInputParams {
+                audioMix.inputParameters = [newAudioInputParams, originalAudioInputParams]
+            }else {
+                audioMix.inputParameters = [originalAudioInputParams]
+            }
+        }else {
+            if let newAudioInputParams = newAudioInputParams {
+                audioMix.inputParameters = [newAudioInputParams]
+            }
+        }
+        return audioMix
     }
+    
+    class func videoComposition(
+        for videoAsset: AVAsset,
+        mixComposition: AVMutableComposition,
+        stickerInfos: [EditorStickerInfo],
+        animationBeginTime: CFTimeInterval,
+        videoDuration: TimeInterval) -> AVMutableVideoComposition
+    {
+        let videoComposition = videoFixed(
+            composition: mixComposition,
+            assetOrientation: videoAsset.videoOrientation
+        )
+        if !stickerInfos.isEmpty {
+            let renderSize = videoComposition.renderSize
+            let bounds = CGRect(origin: .zero, size: renderSize)
+            let overlaylayer = CALayer()
+            for info in stickerInfos {
+                let center = CGPoint(x: info.centerScale.x * bounds.width, y: bounds.height - info.centerScale.y * bounds.height)
+                let size = CGSize(width: info.sizeScale.width * bounds.width, height: info.sizeScale.height * bounds.height)
+                var transform = CATransform3DMakeScale(info.scale, info.scale, 1)
+                transform = CATransform3DRotate(transform, info.angel, 0, 0, -1)
+                if let music = info.music,
+                   let subMusic = music.music{
+                    let textLayer = textAnimationLayer(
+                        music: subMusic,
+                        size: size,
+                        fontSize: music.fontSizeScale * bounds.width,
+                        animationScale: bounds.width / info.viewSize.width,
+                        animationSize: CGSize(
+                            width: music.animationSizeScale.width * bounds.width,
+                            height: music.animationSizeScale.height * bounds.height
+                        ),
+                        beginTime: animationBeginTime,
+                        videoDuration: videoDuration)
+                    textLayer.frame = CGRect(origin: .zero, size: size)
+                    textLayer.transform = transform
+                    textLayer.position = center
+                    overlaylayer.addSublayer(textLayer)
+                }else {
+                    let imageLayer = animationLayer(
+                        image: info.image,
+                        beginTime: animationBeginTime,
+                        videoDuration: videoDuration
+                    )
+                    imageLayer.frame = CGRect(origin: .zero, size: size)
+                    imageLayer.transform = transform
+                    imageLayer.position = center
+//                    imageLayer.contents = info.image.cgImage
+//                    if let keyframeAnimation = gifAnimation(for: info.image, beginTime: animationBeginTime, videoDuration: videoDuration) {
+//                        imageLayer.add(keyframeAnimation, forKey: nil)
+//                    }
+                    imageLayer.shadowColor = UIColor.black.withAlphaComponent(0.6).cgColor
+                    imageLayer.shadowOpacity = 0.5
+                    imageLayer.shadowOffset = CGSize(width: 0, height: -1)
+                    overlaylayer.addSublayer(imageLayer)
+                }
+            }
+            overlaylayer.frame = bounds
+            
+            /// 这种方式模拟器会崩溃
+            /// https://developer.apple.com/forums/thread/133681
+//            let videolayer = CALayer()
+//            videolayer.frame = bounds
+//
+//            let parentLayer = CALayer()
+//            parentLayer.frame = bounds
+//            parentLayer.isGeometryFlipped = true
+//            parentLayer.addSublayer(videolayer)
+//            parentLayer.addSublayer(overlaylayer)
+//
+//            let animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videolayer, in: parentLayer)
+//            videoComposition.animationTool = animationTool
+
+            
+            let watermarkLayerTrackID = videoAsset.unusedTrackID()
+            videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(
+                additionalLayer: overlaylayer,
+                asTrackID: watermarkLayerTrackID
+            )
+            let watermarkLayerInstruction = AVMutableVideoCompositionLayerInstruction()
+            watermarkLayerInstruction.trackID = watermarkLayerTrackID
+            let videoInstruction = videoComposition.instructions.first as! AVMutableVideoCompositionInstruction
+            let videoLayerInstruction = videoInstruction.layerInstructions.first!
+            videoInstruction.layerInstructions = [
+                watermarkLayerInstruction,
+                videoLayerInstruction
+            ]
+            videoComposition.instructions = [videoInstruction]
+        }
+        return videoComposition
+    }
+    
     class func videoFixed(
         composition: AVMutableComposition,
         assetOrientation: AVCaptureVideoOrientation,
@@ -476,4 +690,208 @@ extension PhotoTools {
         
         return videoComposition
     }
+    class func textAnimationLayer(
+        music: VideoEditorMusic,
+        size: CGSize,
+        fontSize: CGFloat,
+        animationScale: CGFloat,
+        animationSize: CGSize,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval) -> CALayer
+    {
+        var textSize = size
+        let bgLayer = CALayer()
+        for (index, lyric) in music.lyrics.enumerated() {
+            let textLayer = CATextLayer()
+            textLayer.string = lyric.lyric
+            let font = UIFont.boldSystemFont(ofSize: fontSize)
+            let lyricHeight = lyric.lyric.height(ofFont: font, maxWidth: size.width)
+            if textSize.height < lyricHeight {
+                textSize.height = lyricHeight + 1
+            }
+            textLayer.font = font
+            textLayer.fontSize = fontSize
+            textLayer.isWrapped = true
+            textLayer.truncationMode = .end
+            textLayer.contentsScale = UIScreen.main.scale
+            textLayer.alignmentMode = .left
+            textLayer.foregroundColor = UIColor.white.cgColor
+            textLayer.frame = CGRect(origin: .zero, size: textSize)
+            if index > 0 || lyric.startTime > 0 {
+                textLayer.opacity = 0
+            }else {
+                textLayer.opacity = 1
+            }
+            bgLayer.addSublayer(textLayer)
+            if lyric.startTime > videoDuration {
+                continue
+            }
+            let startAnimation: CABasicAnimation?
+            if index > 0 || lyric.startTime > 0 {
+                startAnimation = CABasicAnimation(keyPath: "opacity")
+                startAnimation?.fromValue = 0
+                startAnimation?.toValue = 1
+                startAnimation?.duration = 0.01
+                if lyric.startTime == 0 {
+                    startAnimation?.beginTime = beginTime
+                }else {
+                    startAnimation?.beginTime = beginTime + lyric.startTime
+                }
+                startAnimation?.isRemovedOnCompletion = false
+                startAnimation?.fillMode = .forwards
+            }else {
+                startAnimation = nil
+            }
+            
+            if lyric.endTime + 0.01 > videoDuration {
+                if let start = startAnimation {
+                    textLayer.add(start, forKey: nil)
+                }
+                continue
+            }
+            let endAnimation = CABasicAnimation(keyPath: "opacity")
+            endAnimation.fromValue = 1
+            endAnimation.toValue = 0
+            endAnimation.duration = 0.01
+            if lyric.endTime == 0 {
+                endAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
+            }else {
+                if lyric.endTime + 0.01 < videoDuration {
+                    endAnimation.beginTime = beginTime + lyric.endTime
+                }else {
+                    endAnimation.beginTime = beginTime + videoDuration
+                }
+            }
+            endAnimation.isRemovedOnCompletion = false
+            endAnimation.fillMode = .forwards
+            
+            if let time = music.time, time < videoDuration {
+                let group = CAAnimationGroup()
+                if let start = startAnimation {
+                    group.animations = [start, endAnimation]
+                }else {
+                    group.animations = [endAnimation]
+                }
+                group.beginTime = beginTime
+                group.isRemovedOnCompletion = false
+                group.fillMode = .forwards
+                group.duration = time
+                group.repeatCount = MAXFLOAT
+                textLayer.add(group, forKey: nil)
+            }else {
+                if let start = startAnimation {
+                    textLayer.add(start, forKey: nil)
+                }
+                textLayer.add(endAnimation, forKey: nil)
+            }
+        }
+        let animationLayer = VideoEditorMusicAnimationLayer(
+            hexColor: "#ffffff",
+            scale: animationScale
+        )
+        animationLayer.animationBeginTime = beginTime
+        animationLayer.frame = CGRect(
+            x: 2 * animationScale,
+            y: textSize.height + 8 * animationScale,
+            width: animationSize.width,
+            height: animationSize.height
+        )
+        animationLayer.startAnimation()
+        bgLayer.shadowColor = UIColor.black.withAlphaComponent(0.6).cgColor
+        bgLayer.shadowOpacity = 0.5
+        bgLayer.shadowOffset = CGSize(width: 0, height: -1)
+        bgLayer.addSublayer(animationLayer)
+        return bgLayer
+    }
+    class func animationLayer(
+        image: UIImage,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval) -> CALayer
+    {
+        let animationLayer = CALayer()
+        animationLayer.contents = image.cgImage
+        guard let gifResult = image.animateCGImageFrame() else {
+            return animationLayer
+        }
+        let frames = gifResult.0
+        if frames.isEmpty {
+            return animationLayer
+        }
+        let delayTimes = gifResult.1
+//        let totalTime = gifResult.2
+         
+        var currentTime: Double = 0
+        var animations = [CAAnimation]()
+        for (index, frame) in frames.enumerated() {
+            let delayTime = delayTimes[index]
+            let animation = CABasicAnimation(keyPath: "contents")
+            animation.toValue = frame
+            animation.duration = 0.001
+            animation.beginTime = AVCoreAnimationBeginTimeAtZero + currentTime
+            animation.isRemovedOnCompletion = false
+            animation.fillMode = .forwards
+            animations.append(animation)
+            currentTime += delayTime
+            if currentTime + 0.01 > videoDuration {
+                break
+            }
+        }
+        
+        let group = CAAnimationGroup()
+        group.animations = animations
+        group.beginTime = beginTime
+        group.isRemovedOnCompletion = false
+        group.fillMode = .forwards
+        group.duration = currentTime + 0.01
+        group.repeatCount = MAXFLOAT
+        animationLayer.add(group, forKey: nil)
+        return animationLayer
+    }
+//    class func gifAnimation(
+//        for image: UIImage,
+//        beginTime: CFTimeInterval,
+//        videoDuration: TimeInterval) -> CAKeyframeAnimation?
+//    {
+//        guard let gifResult = image.animateCGImageFrame() else {
+//            return nil
+//        }
+//        let frames = gifResult.0
+//        let delayTimes = gifResult.1
+//        let totalTime = gifResult.2
+//
+//        var keyTimes: [NSNumber] = []
+//        var currentTime: Double = 0
+//        for delayTime in delayTimes {
+//            let number = NSNumber(value: currentTime / totalTime)
+//            keyTimes.append(number)
+//            currentTime += delayTime
+//            if currentTime > videoDuration {
+//                break
+//            }
+//        }
+//
+//        let animation = CAKeyframeAnimation(keyPath: "contents")
+//        animation.keyTimes = keyTimes
+//        animation.values = frames
+//        animation.fillMode = .forwards
+//        animation.timingFunction = .init(name: .linear)
+//        animation.duration = min(totalTime, videoDuration)
+//        animation.repeatCount = MAXFLOAT
+//        animation.beginTime = beginTime
+//        animation.isRemovedOnCompletion = false
+//        return animation
+//    }
 }
+
+/// 这种取消隐式动画都没效果
+//class VideoAnimationLayer: CALayer {
+//    func action(for layer: CALayer, forKey event: String) -> CAAction? {
+//        NSNull()
+//    }
+//    override func action(forKey event: String) -> CAAction? {
+//        NSNull()
+//    }
+//    override class func defaultAction(forKey event: String) -> CAAction? {
+//        NSNull()
+//    }
+//}

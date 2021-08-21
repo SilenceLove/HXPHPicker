@@ -51,6 +51,9 @@ extension VideoEditorViewController: VideoEditorPlayerViewDelegate {
         nav.modalPresentationStyle = config.text.modalPresentationStyle
         present(nav, animated: true, completion: nil)
     }
+    func playerView(didRemoveAudio playerView: VideoEditorPlayerView) {
+        musicView.showLyricButton.isSelected = false
+    }
 }
 
 extension VideoEditorViewController: EditorChartletViewDelegate {
@@ -101,8 +104,8 @@ extension VideoEditorViewController: EditorChartletViewDelegate {
         }
     }
     
-    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage) {
-        let item = EditorStickerItem(image: image, text: nil)
+    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage, imageData: Data?) {
+        let item = EditorStickerItem(image: image, imageData: imageData, text: nil)
         playerView.stickerView.add(sticker: item, isSelected: false)
         singleTap()
     }

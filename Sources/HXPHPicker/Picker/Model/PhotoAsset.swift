@@ -849,7 +849,8 @@ extension PhotoAsset {
     }
     
     func requestAssetVideoURL(toFile fileURL:URL? = nil,
-                              exportPreset: String? = nil,
+                              exportPreset: ExportPreset? = nil,
+                              videoQuality: Int = 5,
                               exportSession: ((AVAssetExportSession) -> Void)? = nil,
                               resultHandler: @escaping AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
@@ -876,6 +877,7 @@ extension PhotoAsset {
                 forVideo: phAsset,
                 toFile: toFile,
                 exportPreset: exportPreset,
+                videoQuality: videoQuality,
                 exportSession: exportSession)
             { (result) in
                 switch result {

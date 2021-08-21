@@ -35,9 +35,9 @@
     - [x] 马赛克
     - [x] 滤镜
 - [x] 编辑视频（支持网络资源）
-    - [x] 贴纸
+    - [x] 贴纸（支持GIF）
     - [x] 文字
-    - [x] 配乐
+    - [x] 配乐（支持歌词字幕）
     - [x] 裁剪
 - [x] 相册展现方式
     - [x] 单独列表
@@ -59,7 +59,7 @@
 ## <a id="要求"></a> 要求
 
 - iOS 10.0+
-- Xcode 12.0+
+- Xcode 12.5+
 - Swift 5.4+
 
 ## 安装
@@ -70,7 +70,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.1.9"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.2.0"))
 ]
 ```
 

@@ -8,9 +8,15 @@ import UIKit
 import AVFoundation
 
 open class VideoEditorConfiguration: EditorConfiguration {
-     
-    /// 导出的质量
-    public var exportPresetName: String = AVAssetExportPresetHighestQuality
+    
+    /// 视频导出的分辨率
+    public var exportPreset: ExportPreset = .ratio_960x540
+    
+    /// 视频导出的质量[0-10]
+    public var videoQuality: Int = 6
+    
+    /// 视频导出的地址，默认在tmp下
+    public var videoExportURL: URL?
     
     /// 编辑控制器的默认状态
     public var defaultState: VideoEditorViewController.State = .normal
@@ -24,7 +30,7 @@ open class VideoEditorConfiguration: EditorConfiguration {
     /// 文本
     public lazy var text: EditorTextConfig = .init()
     
-    /// 配乐配置
+    /// 音乐配置
     public lazy var music: MusicConfig = .init()
     
     public class MusicConfig {
@@ -36,7 +42,9 @@ open class VideoEditorConfiguration: EditorConfiguration {
         public var placeholder: String = ""
         /// 配乐信息
         /// 也可通过代理回调设置
-        /// func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool
+        /// func videoEditorViewController(
+        /// _ videoEditorViewController: VideoEditorViewController,
+        ///  loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool
         public var infos: [VideoEditorMusicInfo] = []
         
         public init() { }
@@ -71,12 +79,14 @@ open class VideoEditorConfiguration: EditorConfiguration {
         return config
     }()
     
-    
     func mutableCopy() -> Any {
-        let config = VideoEditorConfiguration.init()
-        config.exportPresetName = exportPresetName
+        let config = VideoEditorConfiguration()
+        config.exportPreset = exportPreset
+        config.videoQuality = videoQuality
         config.defaultState = defaultState
         config.mustBeTailored = mustBeTailored
+        config.chartlet = chartlet
+        config.text = text
         config.music = music
         config.cropping = cropping
         config.cropView = cropView

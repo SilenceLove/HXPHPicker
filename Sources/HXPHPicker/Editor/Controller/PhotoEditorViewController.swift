@@ -275,7 +275,10 @@ open class PhotoEditorViewController: BaseViewController {
     }()
     var showChartlet: Bool = false
     lazy var chartletView: EditorChartletView = {
-        let view = EditorChartletView(config: config.chartlet)
+        let view = EditorChartletView(
+            config: config.chartlet,
+            editorType: .photo
+        )
         view.delegate = self
         return view
     }()
@@ -750,7 +753,11 @@ extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
     }
     
     func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerText: EditorStickerText) {
-        let item = EditorStickerItem(image: stickerText.image, text: stickerText)
+        let item = EditorStickerItem(
+            image: stickerText.image,
+            imageData: nil,
+            text: stickerText
+        )
         imageView.addSticker(item: item, isSelected: false)
     }
 }
@@ -795,8 +802,8 @@ extension PhotoEditorViewController: EditorChartletViewDelegate {
             #endif
         }
     }
-    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage) {
-        let item = EditorStickerItem(image: image, text: nil)
+    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage, imageData: Data?) {
+        let item = EditorStickerItem(image: image, imageData: imageData, text: nil)
         imageView.addSticker(item: item, isSelected: false)
         singleTap()
     }

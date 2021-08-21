@@ -51,6 +51,7 @@ class WeChatMometViewController: UIViewController {
     }
     
     @objc func didPublishClick() {
+        isImage = false
         if FileManager.default.fileExists(atPath: localURL.path)  {
             let vc = PickerResultViewController()
             vc.isPublish = true
@@ -74,7 +75,6 @@ class WeChatMometViewController: UIViewController {
             let completion: (() -> Void)?
             if self.isImage {
                 self.imageView.image = result.photoAssets.first?.originalImage
-                self.isImage = false
                 completion = nil
             }else {
                 completion = {

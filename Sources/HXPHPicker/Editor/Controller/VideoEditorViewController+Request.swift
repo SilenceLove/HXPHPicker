@@ -64,6 +64,10 @@ extension VideoEditorViewController {
                 stickerData: stickerData,
                 viewSize: playerFrame.size
             )
+            musicView.showLyricButton.isSelected = stickerData.showLyric
+            if stickerData.showLyric {
+                otherMusic = stickerData.items[stickerData.LyricIndex].item.music
+            }
         }
         playerView.avAsset = avAsset
         playerView.configAsset()

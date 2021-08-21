@@ -286,6 +286,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         cropSize = .zero
         updateImageViewFrame()
         imageResizerView.updateBaseConfig()
+        cancelCropping(false)
     }
     
     func undoAllDraw() {

@@ -300,6 +300,10 @@ open class VideoEditorViewController: BaseViewController {
     var firstPlay: Bool = false
     var firstLayoutSubviews: Bool = true
     var videoSize: CGSize = .zero
+    
+    /// 不是在音乐列表选中的音乐数据（不包括搜索）
+    var otherMusic: VideoEditorMusic?
+    
     lazy var scrollView : ScrollView = {
         let scrollView = ScrollView.init()
         scrollView.showsHorizontalScrollIndicator = false
@@ -435,7 +439,10 @@ open class VideoEditorViewController: BaseViewController {
     
     var showChartlet: Bool = false
     lazy var chartletView: EditorChartletView = {
-        let view = EditorChartletView(config: config.chartlet)
+        let view = EditorChartletView(
+            config: config.chartlet,
+            editorType: .video
+        )
         view.delegate = self
         return view
     }()

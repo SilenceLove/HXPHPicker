@@ -9,11 +9,30 @@ import UIKit
 
 // MARK: VideoEditorMusicViewDelegate
 extension VideoEditorViewController: VideoEditorMusicViewDelegate {
+    func musicView(_ musicView: VideoEditorMusicView, didShowLyricButton isSelected: Bool, music: VideoEditorMusic?) {
+        playerView.stickerView.removeAudioView()
+        if !isSelected {
+            return
+        }
+        let item = EditorStickerItem(
+            image: UIImage(),
+            imageData: nil,
+            text: nil,
+            music: music ?? otherMusic,
+            videoSize: playerFrame.size
+        )
+        if item.music == nil {
+            return
+        }
+        playerView.stickerView.add(sticker: item, isSelected: false)
+    }
     func musicView(_ musicView: VideoEditorMusicView, didSelectMusic audioPath: String?) {
         backgroundMusicPath = audioPath
+        otherMusic = nil
     }
     func musicView(deselectMusic musicView: VideoEditorMusicView) {
         backgroundMusicPath = nil
+        playerView.stickerView.removeAudioView()
     }
     func musicView(didSearchButton musicView: VideoEditorMusicView) {
         searchMusicView.searchView.becomeFirstResponder()
@@ -39,10 +58,13 @@ extension VideoEditorViewController: VideoEditorSearchMusicViewDelegate {
     func searchMusicView(didFinishClick searchMusicView: VideoEditorSearchMusicView) {
         hideSearchMusicView(deselect: false)
     }
-    func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, didSelectItem audioPath: String?) {
+    func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, didSelectItem audioPath: String?, music: VideoEditorMusic) {
         musicView.reset()
         musicView.backgroundButton.isSelected = true
+        musicView(musicView, didShowLyricButton: true, music: music)
+        musicView.showLyricButton.isSelected = true
         backgroundMusicPath = audioPath
+        otherMusic = music
     }
     func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, didSearch text: String?, completion: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
         delegate?.videoEditorViewController(self, didSearch: text, completionHandler: completion)
@@ -53,6 +75,9 @@ extension VideoEditorViewController: VideoEditorSearchMusicViewDelegate {
     func searchMusicView(deselectItem searchMusicView: VideoEditorSearchMusicView) {
         backgroundMusicPath = nil
         musicView.backgroundButton.isSelected = false
+        musicView(musicView, didShowLyricButton: false, music: nil)
+        musicView.showLyricButton.isSelected = false
+        otherMusic = nil
     }
     func hideSearchMusicView(deselect: Bool = true) {
         searchMusicView.endEditing(true)

@@ -172,49 +172,57 @@ extension EditorConfigurationViewController: VideoEditorViewControllerDelegate {
         let lyricUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: nil)!
         let lrc1 = try! String(contentsOfFile: lyricUrl1.path)
         let music1 = VideoEditorMusicInfo.init(audioURL: URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3")!,
-                                               lrc: lrc1)
+                                               lrc: lrc1,
+                                               urlType: .network)
         musics.append(music1)
         let audioUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: "mp3")!
         let lyricUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: nil)!
         let lrc2 = try! String(contentsOfFile: lyricUrl2.path)
         let music2 = VideoEditorMusicInfo.init(audioURL: audioUrl2,
-                                               lrc: lrc2)
+                                               lrc: lrc2,
+                                               urlType: .network)
         musics.append(music2)
         let audioUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
         let lyricUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
         let lrc3 = try! String(contentsOfFile: lyricUrl3.path)
         let music3 = VideoEditorMusicInfo.init(audioURL: audioUrl3,
-                                               lrc: lrc3)
+                                               lrc: lrc3,
+                                               urlType: .network)
         musics.append(music3)
         let audioUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: "mp3")!
         let lyricUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: nil)!
         let lrc4 = try! String(contentsOfFile: lyricUrl4.path)
         let music4 = VideoEditorMusicInfo.init(audioURL: audioUrl4,
-                                               lrc: lrc4)
+                                               lrc: lrc4,
+                                               urlType: .network)
         musics.append(music4)
         let audioUrl5 = Bundle.main.url(forResource: "无赖", withExtension: "mp3")!
         let lyricUrl5 = Bundle.main.url(forResource: "无赖", withExtension: nil)!
         let lrc5 = try! String(contentsOfFile: lyricUrl5.path)
         let music5 = VideoEditorMusicInfo.init(audioURL: audioUrl5,
-                                               lrc: lrc5)
+                                               lrc: lrc5,
+                                               urlType: .network)
         musics.append(music5)
         let audioUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: "mp3")!
         let lyricUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: nil)!
         let lrc6 = try! String(contentsOfFile: lyricUrl6.path)
         let music6 = VideoEditorMusicInfo.init(audioURL: audioUrl6,
-                                               lrc: lrc6)
+                                               lrc: lrc6,
+                                               urlType: .network)
         musics.append(music6)
         let audioUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3")!
         let lyricUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: nil)!
         let lrc7 = try! String(contentsOfFile: lyricUrl7.path)
         let music7 = VideoEditorMusicInfo.init(audioURL: audioUrl7,
-                                               lrc: lrc7)
+                                               lrc: lrc7,
+                                               urlType: .network)
         musics.append(music7)
         let audioUrl8 = Bundle.main.url(forResource: "爱你", withExtension: "mp3")!
         let lyricUrl8 = Bundle.main.url(forResource: "爱你", withExtension: nil)!
         let lrc8 = try! String(contentsOfFile: lyricUrl8.path)
         let music8 = VideoEditorMusicInfo.init(audioURL: audioUrl8,
-                                               lrc: lrc8)
+                                               lrc: lrc8,
+                                               urlType: .network)
         musics.append(music8)
         return musics
     }
@@ -311,13 +319,19 @@ extension EditorConfigurationViewController {
         if let rowType = rowType as? videoEditorRow {
             switch rowType {
             case .exportPresetName:
-                switch videoConfig.exportPresetName {
-                case AVAssetExportPresetLowQuality:
+                switch videoConfig.exportPreset {
+                case .lowQuality:
                     return "LowQuality"
-                case AVAssetExportPresetMediumQuality:
+                case .mediumQuality:
                     return "MediumQuality"
-                default:
+                case .highQuality:
                     return "HighestQuality"
+                case .ratio_640x480:
+                    return "640x480"
+                case .ratio_960x540:
+                    return "960x540"
+                case .ratio_1280x720:
+                    return "1280x720"
                 }
             case .defaultState:
                 return videoConfig.defaultState.title
@@ -424,11 +438,11 @@ extension EditorConfigurationViewController {
                 let index = titles.firstIndex(of: action.title!)!
                 switch index {
                 case 0:
-                    self.videoConfig.exportPresetName = AVAssetExportPresetLowQuality
+                    self.videoConfig.exportPreset = .lowQuality
                 case 1:
-                    self.videoConfig.exportPresetName = AVAssetExportPresetMediumQuality
+                    self.videoConfig.exportPreset = .mediumQuality
                 case 2:
-                    self.videoConfig.exportPresetName = AVAssetExportPresetHighestQuality
+                    self.videoConfig.exportPreset = .highQuality
                 default:
                     break
                 }

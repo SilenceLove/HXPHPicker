@@ -175,6 +175,83 @@ extension PhotoTools {
         }
     }
     
+    /// 导出编辑视频
+    /// - Parameters:
+    ///   - avAsset: 视频对应的 AVAsset 数据
+    ///   - outputURL: 指定视频导出的地址，为nil时默认为临时目录
+    ///   - timeRang: 需要裁剪的时间区域
+    ///   - overlayImage: 贴纸
+    ///   - audioURL: 需要添加的音频地址
+    ///   - audioVolume: 需要添加的音频音量
+    ///   - originalAudioVolume: 视频原始音频音量
+    ///   - presentName: 导出的质量
+    ///   - completion: 导出完成
+    @discardableResult
+    public class func exportEditVideo(
+        for avAsset: AVAsset,
+        outputURL: URL? = nil,
+        startTime: TimeInterval,
+        endTime: TimeInterval,
+        exportPreset: ExportPreset = .ratio_960x540,
+        videoQuality: Int = 5,
+        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
+    {
+        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
+            let videoURL = outputURL == nil ? PhotoTools.getVideoTmpURL() : outputURL
+            if let exportSession = AVAssetExportSession(
+                asset: avAsset,
+                presetName: exportPreset.name)
+            {
+                let timescale = avAsset.duration.timescale
+                let start = CMTime(value: CMTimeValue(startTime * TimeInterval(timescale)), timescale: timescale)
+                let end = CMTime(value: CMTimeValue(endTime * TimeInterval(timescale)), timescale: timescale)
+                let timeRang = CMTimeRange(start: start, end: end)
+                
+                let supportedTypeArray = exportSession.supportedFileTypes
+                exportSession.outputURL = videoURL
+                if supportedTypeArray.contains(AVFileType.mp4) {
+                    exportSession.outputFileType = .mp4
+                }else if supportedTypeArray.isEmpty {
+                    completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
+                    return nil
+                }else {
+                    exportSession.outputFileType = supportedTypeArray.first
+                }
+                exportSession.shouldOptimizeForNetworkUse = true
+                if timeRang != .zero {
+                    exportSession.timeRange = timeRang
+                }
+                if videoQuality > 0 {
+                    exportSession.fileLengthLimit = exportSessionFileLengthLimit(
+                        seconds: avAsset.duration.seconds,
+                        exportPreset: exportPreset,
+                        videoQuality: videoQuality
+                    )
+                }
+                exportSession.exportAsynchronously(completionHandler: {
+                    DispatchQueue.main.async {
+                        switch exportSession.status {
+                        case .completed:
+                            completion(videoURL, nil)
+                            break
+                        case .failed, .cancelled:
+                            completion(nil, exportSession.error)
+                            break
+                        default: break
+                        }
+                    }
+                })
+                return exportSession
+            }else {
+                completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
+                return nil
+            }
+        }else {
+            completion(nil, PhotoError.error(type: .exportFailed, message: "设备不支持导出：" + exportPreset.name))
+            return nil
+        }
+    }
+    
     public class func getVideoDuration(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, TimeInterval) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?

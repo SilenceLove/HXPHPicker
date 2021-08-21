@@ -957,6 +957,7 @@ class EditorImageResizerView: UIView {
                 crop_Rect.size.width *= scale
                 crop_Rect.size.height *= scale
             }
+            
             if let option = inputImage.animateImageFrame() {
                 var images = [UIImage]()
                 var delays = [Double]()

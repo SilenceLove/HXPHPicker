@@ -250,7 +250,7 @@ extension UIImage {
         }
         return self
     }
-    func animateImageFrame() -> ([UIImage], [Double], Double)? {
+    func animateCGImageFrame() -> ([CGImage], [Double], Double)? {
         #if canImport(Kingfisher)
         if let imageData = kf.gifRepresentation() {
 //            let info: [String: Any] = [
@@ -262,7 +262,7 @@ extension UIImage {
             }
             let frameCount = CGImageSourceGetCount(imageSource)
             
-            var images = [UIImage]()
+            var images = [CGImage]()
             var delays = [Double]()
             var gifDuration = 0.0
             
@@ -279,14 +279,27 @@ extension UIImage {
                     delay = PhotoTools.getFrameDuration(from: imageSource, at: i)
                     gifDuration += delay
                 }
-                let image = UIImage.init(cgImage: imageRef, scale: 1, orientation: .up)
-                images.append(image)
+                images.append(imageRef)
                 delays.append(delay)
             }
             return (images, delays, gifDuration)
         }
         #endif
         return nil
+    }
+    func animateImageFrame() -> ([UIImage], [Double], Double)? {
+        guard let data = animateCGImageFrame() else { return nil }
+        
+        let cgImages = data.0
+        let delays = data.1
+        let gifDuration = data.2
+        
+        var images: [UIImage] = []
+        for imageRef in cgImages {
+            let image = UIImage.init(cgImage: imageRef, scale: 1, orientation: .up)
+            images.append(image)
+        }
+        return (images, delays, gifDuration)
     }
     func merge(images: [UIImage], scale: CGFloat = UIScreen.main.scale) -> UIImage? {
         if images.isEmpty {

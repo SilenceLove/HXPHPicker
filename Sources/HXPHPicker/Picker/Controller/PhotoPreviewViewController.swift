@@ -19,11 +19,16 @@ protocol PhotoPreviewViewControllerDelegate: AnyObject {
 public class PhotoPreviewViewController: BaseViewController {
     
     weak var delegate: PhotoPreviewViewControllerDelegate?
-    let config : PreviewViewConfiguration
-    var currentPreviewIndex : Int = 0
+    public let config : PreviewViewConfiguration
+    /// 当前预览的位置索引
+    public var currentPreviewIndex : Int = 0
+    /// 预览的资源数组
+    public var previewAssets : [PhotoAsset] = []
+    /// 是否是外部预览
+    public var isExternalPreview: Bool = false
+    
     var orientationDidChange : Bool = false
     var statusBarShouldBeHidden : Bool = false
-    var previewAssets : [PhotoAsset] = []
     var videoLoadSingleCell = false
     var viewDidAppear: Bool = false
     var firstLayoutSubviews: Bool = true
@@ -70,7 +75,6 @@ public class PhotoPreviewViewController: BaseViewController {
         
         return collectionView
     }()
-    var isExternalPreview: Bool = false
     var isMultipleSelect : Bool = false
     var allowLoadPhotoLibrary: Bool = true
     lazy var bottomView : PhotoPickerBottomView = {

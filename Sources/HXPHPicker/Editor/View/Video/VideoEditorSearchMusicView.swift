@@ -11,7 +11,8 @@ protocol VideoEditorSearchMusicViewDelegate: AnyObject {
     func searchMusicView(didCancelClick searchMusicView: VideoEditorSearchMusicView)
     func searchMusicView(didFinishClick searchMusicView: VideoEditorSearchMusicView)
     func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView,
-                         didSelectItem audioPath: String?)
+                         didSelectItem audioPath: String?,
+                         music: VideoEditorMusic)
     func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView,
                          didSearch text: String?,
                          completion: @escaping ([VideoEditorMusicInfo], Bool) -> Void)
@@ -289,12 +290,12 @@ extension VideoEditorSearchMusicView: UICollectionViewDataSource, UICollectionVi
             }
         }
         let cell = collectionView.cellForItem(at: indexPath) as! VideoEditorMusicViewCell
-        cell.playMusic { [weak self] path in
+        cell.playMusic { [weak self] path, music  in
             guard let self = self else { return }
             let shake = UIImpactFeedbackGenerator(style: .light)
             shake.prepare()
             shake.impactOccurred()
-            self.delegate?.searchMusicView(self, didSelectItem: path)
+            self.delegate?.searchMusicView(self, didSelectItem: path, music: music)
         }
         currentSelectItem = indexPath.item
         finishButton.isEnabled = true
@@ -358,13 +359,15 @@ extension VideoEditorSearchMusicView: UICollectionViewDataSource, UICollectionVi
 extension VideoEditorSearchMusicView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         endEditing(true)
+        let text = textField.text
         isLoadMore = false
         stopLoading()
         removeNoMore()
         deselect()
         clearData()
+        textField.text = text
         startLoading(isMore: false)
-        delegate?.searchMusicView(self, didSearch: textField.text, completion: {
+        delegate?.searchMusicView(self, didSearch: text, completion: {
             [weak self] musicInfos, hasMore in
             guard let self = self else { return }
             self.stopLoading()

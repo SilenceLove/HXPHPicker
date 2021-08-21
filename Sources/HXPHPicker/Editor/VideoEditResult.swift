@@ -133,8 +133,8 @@ extension VideoEditResult: Codable {
         videoSoundVolume = try container.decode(Float.self, forKey: .videoSoundVolume)
         backgroundMusicURL = try container.decodeIfPresent(URL.self, forKey: .backgroundMusicURL)
         backgroundMusicVolume = try container.decode(Float.self, forKey: .backgroundMusicVolume)
-        cropData = try container.decode(VideoCropData.self, forKey: .cropData)
-        stickerData = try container.decode(EditorStickerData.self, forKey: .stickerData)
+        cropData = try container.decodeIfPresent(VideoCropData.self, forKey: .cropData)
+        stickerData = try container.decodeIfPresent(EditorStickerData.self, forKey: .stickerData)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -146,17 +146,17 @@ extension VideoEditResult: Codable {
         try container.encode(videoSoundVolume, forKey: .videoSoundVolume)
         try container.encode(backgroundMusicURL, forKey: .backgroundMusicURL)
         try container.encode(backgroundMusicVolume, forKey: .backgroundMusicVolume)
-        try container.encode(cropData, forKey: .cropData)
-        try container.encode(stickerData, forKey: .stickerData)
+        try container.encodeIfPresent(cropData, forKey: .cropData)
+        try container.encodeIfPresent(stickerData, forKey: .stickerData)
         
         if let image = coverImage {
             if #available(iOS 11.0, *) {
                 let imageData = try NSKeyedArchiver.archivedData(withRootObject: image, requiringSecureCoding: false)
-                try container.encode(imageData, forKey: .coverImage)
+                try container.encodeIfPresent(imageData, forKey: .coverImage)
             } else {
                 // Fallback on earlier versions
                 let imageData = NSKeyedArchiver.archivedData(withRootObject: image)
-                try container.encode(imageData, forKey: .coverImage)
+                try container.encodeIfPresent(imageData, forKey: .coverImage)
             }
         }
     }

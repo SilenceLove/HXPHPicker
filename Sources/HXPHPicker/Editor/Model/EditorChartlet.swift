@@ -13,19 +13,25 @@ public typealias EditorChartletListResponse = (Int, [EditorChartlet]) -> Void
 
 public struct EditorChartlet {
     
-    /// 贴图对应的 UIImage 对象
+    /// 贴图对应的 UIImage 对象, 视频支持gif
     public let image: UIImage?
     
+    public let imageData: Data?
+    
     #if canImport(Kingfisher)
-    /// 贴图对应的 网络地址
+    /// 贴图对应的 网络地址（视频支持gif)
     public let url: URL?
     #endif
     
     public let ext: Any?
     
-    public init(image: UIImage?,
-                ext: Any? = nil) {
+    public init(
+        image: UIImage?,
+        imageData: Data? = nil,
+        ext: Any? = nil)
+    {
         self.image = image
+        self.imageData = imageData
         self.ext = ext
         #if canImport(Kingfisher)
         url = nil
@@ -33,11 +39,14 @@ public struct EditorChartlet {
     }
     
     #if canImport(Kingfisher)
-    public init(url: URL?,
-                ext: Any? = nil) {
+    public init(
+        url: URL?,
+        ext: Any? = nil)
+    {
         self.url = url
         self.ext = ext
         image = nil
+        imageData = nil
     }
     #endif
 }

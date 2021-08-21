@@ -34,6 +34,7 @@ extension PhotoManager: AVAudioPlayerDelegate {
     
     public func stopPlayMusic() {
         audioPlayer?.stop()
+        audioPlayer?.delegate = nil
         audioPlayer = nil
         audioPlayFinish = nil
     }

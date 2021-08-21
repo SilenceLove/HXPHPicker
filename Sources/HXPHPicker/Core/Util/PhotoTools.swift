@@ -204,89 +204,20 @@ public class PhotoTools {
         }
     }
     
-    /// 导出编辑视频
-    /// - Parameters:
-    ///   - avAsset: 视频对应的 AVAsset 数据
-    ///   - outputURL: 指定视频导出的地址，为nil时默认为临时目录
-    ///   - startTime: 需要裁剪的开始时间
-    ///   - endTime: 需要裁剪的结束时间
-    ///   - presentName: 导出的质量
-    ///   - completion: 导出完成
-    public class func exportEditVideo(for avAsset: AVAsset,
-                                      outputURL: URL? = nil,
-                                      startTime: TimeInterval,
-                                      endTime: TimeInterval,
-                                      presentName: String,
-                                      completion:@escaping (URL?, Error?) -> Void) {
-        let timescale = avAsset.duration.timescale
-        let start = CMTime(value: CMTimeValue(startTime * TimeInterval(timescale)), timescale: timescale)
-        let end = CMTime(value: CMTimeValue(endTime * TimeInterval(timescale)), timescale: timescale)
-        let timeRang = CMTimeRange(start: start, end: end)
-        exportEditVideo(for: avAsset, outputURL: outputURL, timeRang: timeRang, presentName: presentName, completion: completion)
-    }
-    
-    /// 导出编辑视频
-    /// - Parameters:
-    ///   - avAsset: 视频对应的 AVAsset 数据
-    ///   - outputURL: 指定视频导出的地址，为nil时默认为临时目录
-    ///   - timeRang: 需要裁剪的时间区域
-    ///   - presentName: 导出的质量
-    ///   - completion: 导出完成
-    @discardableResult
-    public class func exportEditVideo(
-        for avAsset: AVAsset,
-        outputURL: URL? = nil,
-        timeRang: CMTimeRange,
-        presentName: String,
-        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
-    {
-        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(presentName) {
-            let videoURL = outputURL == nil ? PhotoTools.getVideoTmpURL() : outputURL
-            if let exportSession = AVAssetExportSession.init(asset: avAsset, presetName: presentName) {
-                let supportedTypeArray = exportSession.supportedFileTypes
-                exportSession.outputURL = videoURL
-                if supportedTypeArray.contains(AVFileType.mp4) {
-                    exportSession.outputFileType = .mp4
-                }else if supportedTypeArray.isEmpty {
-                    completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
-                    return nil
-                }else {
-                    exportSession.outputFileType = supportedTypeArray.first
-                }
-                exportSession.shouldOptimizeForNetworkUse = true
-                exportSession.timeRange = timeRang
-                exportSession.exportAsynchronously(completionHandler: {
-                    DispatchQueue.main.async {
-                        switch exportSession.status {
-                        case .completed:
-                            completion(videoURL, nil)
-                            break
-                        case .failed, .cancelled:
-                            completion(nil, exportSession.error)
-                            break
-                        default: break
-                        }
-                    }
-                })
-                return exportSession
-            }else {
-                completion(nil, PhotoError.error(type: .exportFailed, message: "不支持导出该类型视频"))
-                return nil
-            }
-        }else {
-            completion(nil, PhotoError.error(type: .exportFailed, message: "设备不支持导出：" + presentName))
-            return nil
-        }
-    }
-    
     #if canImport(Kingfisher)
-    public class func downloadNetworkImage(with url: URL,
-                                           options: KingfisherOptionsInfo,
-                                           progressBlock: DownloadProgressBlock? = nil,
-                                           completionHandler: ((UIImage?) -> Void)? = nil) {
+    public class func downloadNetworkImage(
+        with url: URL,
+        cancelOrigianl: Bool = true,
+        options: KingfisherOptionsInfo,
+        progressBlock: DownloadProgressBlock? = nil,
+        completionHandler: ((UIImage?) -> Void)? = nil)
+    {
         let key = url.cacheKey
         if ImageCache.default.isCached(forKey: key) {
-            ImageCache.default.retrieveImage(forKey: key) { (result) in
+            ImageCache.default.retrieveImage(
+                forKey: key,
+                options: options)
+            { (result) in
                 switch result {
                 case .success(let value):
                     completionHandler?(value.image)
@@ -300,11 +231,15 @@ public class PhotoTools {
             switch result {
             case .success(let value):
                 if let gifImage = DefaultImageProcessor.default.process(item: .data(value.originalData), options: .init([]))  {
-                    ImageCache.default.store(gifImage, original: value.originalData, forKey: key)
+                    if cancelOrigianl {
+                        ImageCache.default.store(gifImage, original: value.originalData, forKey: key)
+                    }
                     completionHandler?(gifImage)
                     return
                 }
-                ImageCache.default.store(value.image, original: value.originalData, forKey: key)
+                if cancelOrigianl {
+                    ImageCache.default.store(value.image, original: value.originalData, forKey: key)
+                }
                 completionHandler?(value.image)
             case .failure(_):
                 completionHandler?(nil)
@@ -388,6 +323,26 @@ public class PhotoTools {
             rectY = (viewSize.height - size.height) * 0.5
         }
         return CGRect(x: (viewSize.width - size.width) * 0.5, y: rectY, width: size.width, height: size.height)
+    }
+    
+    class func exportSessionFileLengthLimit(
+        seconds: Double,
+        exportPreset: ExportPreset,
+        videoQuality: Int) -> Int64
+    {
+        if videoQuality > 0 {
+            var ratioParam: Double = 0
+            if exportPreset == .ratio_640x480 {
+                ratioParam = 0.02
+            }else if exportPreset == .ratio_960x540 {
+                ratioParam = 0.04
+            }else if exportPreset == .ratio_1280x720 {
+                ratioParam = 0.08
+            }
+            let quality = Double(min(videoQuality, 10))
+            return Int64(seconds * ratioParam * quality * 1000 * 1000)
+        }
+        return 0
     }
 }
 

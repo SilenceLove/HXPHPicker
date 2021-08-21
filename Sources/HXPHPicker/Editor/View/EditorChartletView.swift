@@ -18,7 +18,7 @@ protocol EditorChartletViewDelegate: AnyObject {
                       titleChartlet: EditorChartlet,
                       titleIndex: Int,
                       loadChartletList response: @escaping EditorChartletListResponse)
-    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage)
+    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage, imageData: Data?)
 }
 
 class EditorChartletView: UIView {
@@ -93,14 +93,19 @@ class EditorChartletView: UIView {
         view.addGestureRecognizer(longPress)
         return view
     }()
+    let editorType: EditorController.EditorType
     var previewView: EditorChartletPreviewView?
     var previewIndex: Int = -1
     let config: EditorChartletConfig
     var titles: [EditorChartletTitle] = []
     var selectedTitleIndex: Int = 0
     var configTitles: [EditorChartlet] = []
-    init(config: EditorChartletConfig) {
+    init(
+        config: EditorChartletConfig,
+        editorType: EditorController.EditorType)
+    {
         self.config = config
+        self.editorType = editorType
         super.init(frame: .zero)
         setupTitles(config.titles)
         addSubview(bgView)
@@ -158,15 +163,28 @@ class EditorChartletView: UIView {
                 let touchCenter = CGPoint(x: rect.midX, y: rect.midY)
                 #if canImport(Kingfisher)
                 if let image = cell.chartlet.image {
-                    previewView = EditorChartletPreviewView(image: image, touch: touchCenter, touchView: cell.size)
+                    previewView = EditorChartletPreviewView(
+                        image: image,
+                        touch: touchCenter,
+                        touchView: cell.size
+                    )
                     keyWindow?.addSubview(previewView!)
                 }else if let url = cell.chartlet.url {
-                    previewView = EditorChartletPreviewView(imageURL: url, touch: touchCenter, touchView: cell.size)
+                    previewView = EditorChartletPreviewView(
+                        imageURL: url,
+                        editorType: editorType,
+                        touch: touchCenter,
+                        touchView: cell.size
+                    )
                     keyWindow?.addSubview(previewView!)
                 }
                 #else
                 if let image = cell.chartlet.image {
-                    previewView = EditorChartletPreviewView(image: image, touch: touchCenter, touchView: cell.size)
+                    previewView = EditorChartletPreviewView(
+                        image: image,
+                        touch: touchCenter,
+                        touchView: cell.size
+                    )
                     keyWindow?.addSubview(previewView!)
                 }
                 #endif
@@ -212,11 +230,13 @@ extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelega
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == titleView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewCellTitleID", for: indexPath) as! EditorChartletViewCell
+            cell.editorType = editorType
             let titleChartlet = titles[indexPath.item]
             cell.titleChartlet = titleChartlet
             return cell
         }else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewListCell_ID", for: indexPath) as! EditorChartletViewListCell
+            cell.editorType = editorType
             cell.rowCount = config.rowCount
             cell.delegate = self
             return cell
@@ -336,13 +356,13 @@ extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelega
         }
         requestData(index: 0)
     }
-    func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage) {
-        delegate?.chartletView(self, didSelectImage: image)
+    func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage, imageData: Data?) {
+        delegate?.chartletView(self, didSelectImage: image, imageData: imageData)
     }
 }
 
 protocol EditorChartletViewListCellDelegate: AnyObject {
-    func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage)
+    func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage, imageData: Data?)
 }
 
 class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -379,6 +399,7 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
             resetOffset()
         }
     }
+    var editorType: EditorController.EditorType = .photo
     
     func resetOffset() {
         collectionView.contentOffset = CGPoint(x: -collectionView.contentInset.left, y: -collectionView.contentInset.top)
@@ -403,6 +424,7 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewListCellID", for: indexPath) as! EditorChartletViewCell
+        cell.editorType = editorType
         cell.chartlet = chartletList[indexPath.item]
         return cell
     }
@@ -418,15 +440,44 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
         let cell = collectionView.cellForItem(at: indexPath) as! EditorChartletViewCell
-        if let image = cell.chartlet.image {
-            delegate?.listCell(self, didSelectImage: image)
+        if var image = cell.chartlet.image {
+            let imageData: Data?
+            if editorType == .photo {
+                if let count = image.images?.count,
+                   let img = image.images?.first,
+                   count > 0 {
+                    image = img
+                }
+                imageData = nil
+            }else {
+                imageData = cell.chartlet.imageData
+            }
+            delegate?.listCell(
+                self,
+                didSelectImage: image,
+                imageData: imageData
+            )
         }else {
             #if canImport(Kingfisher)
             if let url = cell.chartlet.url, cell.downloadCompletion {
-                PhotoTools.downloadNetworkImage(with: url, options: [.backgroundDecode], completionHandler:  { [weak self] (image) in
+                let options: KingfisherOptionsInfo = []
+                PhotoTools.downloadNetworkImage(
+                    with: url,
+                    cancelOrigianl: false,
+                    options: options,
+                    completionHandler: { [weak self] (image) in
                     guard let self = self else { return }
                     if let image = image {
-                        self.delegate?.listCell(self, didSelectImage: image)
+                        if self.editorType == .photo {
+                            if let data = image.kf.gifRepresentation(),
+                               let img = UIImage(data: data) {
+                                self.delegate?.listCell(self, didSelectImage: img, imageData: nil)
+                                return
+                            }
+                            self.delegate?.listCell(self, didSelectImage: image, imageData: nil)
+                            return
+                        }
+                        self.delegate?.listCell(self, didSelectImage: image, imageData: image.kf.gifRepresentation())
                     }
                 })
             }
@@ -457,13 +508,12 @@ class EditorChartletViewCell: UICollectionViewCell {
         return view
     }()
     
-    lazy var imageView: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .scaleAspectFit
-        view.clipsToBounds = true
+    lazy var imageView: ImageView = {
+        let view = ImageView()
+        view.imageView.contentMode = .scaleAspectFit
         return view
     }()
-    
+    var editorType: EditorController.EditorType = .photo
     var downloadCompletion = false
     
     var titleChartlet: EditorChartletTitle! {
@@ -509,10 +559,28 @@ class EditorChartletViewCell: UICollectionViewCell {
             imageView.image = image
             downloadCompletion = true
         }else if let url = url {
-            imageView.kf.indicatorType = .activity
-            (imageView.kf.indicator?.view as? UIActivityIndicatorView)?.color = .white
-            let processor = DownsamplingImageProcessor(size: CGSize(width: width * 2, height: height * 2))
-            imageView.kf.setImage(with: url, options: [.cacheOriginalImage, .processor(processor), .backgroundDecode]) { [weak self] result in
+            imageView.my.kf.indicatorType = .activity
+            (imageView.my.kf.indicator?.view as? UIActivityIndicatorView)?.color = .white
+            let processor = DownsamplingImageProcessor(
+                size: CGSize(
+                    width: width * 2,
+                    height: height * 2
+                )
+            )
+            let options: KingfisherOptionsInfo
+            if url.isGif && editorType == .video {
+                options = []
+            }else {
+                options = [
+                    .cacheOriginalImage,
+                    .processor(processor),
+                    .backgroundDecode
+                ]
+            }
+            imageView.my.kf.setImage(
+                with: url,
+                options: options)
+            { [weak self] result in
                 switch result {
                 case .success(_):
                     self?.downloadCompletion = true

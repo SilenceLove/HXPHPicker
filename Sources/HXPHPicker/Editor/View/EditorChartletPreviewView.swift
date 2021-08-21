@@ -11,10 +11,8 @@ import Kingfisher
 #endif
 
 class EditorChartletPreviewView: UIView {
-    lazy var imageView: UIImageView = {
-        let view = UIImageView(image: image)
-        view.contentMode = .scaleAspectFill
-        view.clipsToBounds = true
+    lazy var imageView: ImageView = {
+        let view = ImageView()
         return view
     }()
     lazy var bgLayer: CAShapeLayer = {
@@ -39,10 +37,16 @@ class EditorChartletPreviewView: UIView {
         super.init(frame: .zero)
         setupFrame(imageSize: image.size)
         layer.addSublayer(bgLayer)
+        imageView.image = image
         addSubview(imageView)
     }
     #if canImport(Kingfisher)
-    init(imageURL: URL, touch center: CGPoint, touchView viewSize: CGSize) {
+    init(
+        imageURL: URL,
+        editorType: EditorController.EditorType,
+        touch center: CGPoint,
+        touchView viewSize: CGSize)
+    {
         image = nil
         touchCenter = center
         touchViewSize = viewSize
@@ -50,8 +54,26 @@ class EditorChartletPreviewView: UIView {
         setupFrame(imageSize: CGSize(width: 200, height: 200))
         layer.addSublayer(bgLayer)
         addSubview(imageView)
-        imageView.kf.indicatorType = .activity
-        imageView.kf.setImage(with: imageURL, options: []) {[weak self] result in
+        imageView.my.kf.indicatorType = .activity
+        let options: KingfisherOptionsInfo
+        if imageURL.isGif && editorType == .video {
+            options = []
+        }else {
+            let processor = DownsamplingImageProcessor(
+                size: CGSize(
+                    width: width * 2,
+                    height: height * 2
+                )
+            )
+            options = [
+                .processor(processor),
+                .backgroundDecode
+            ]
+        }
+        imageView.my.kf.setImage(
+            with: imageURL,
+            options: options)
+        { [weak self] result in
             switch result {
             case .success(let imageResult):
                 self?.image = imageResult.image

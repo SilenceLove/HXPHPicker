@@ -18,11 +18,14 @@ public class CameraConfiguration {
     /// 视频最大录制时长
     public var videoMaximumDuration: TimeInterval = 60
     
-    /// 视频质量
+    /// 拍摄时的视频质量
     public var videoQuality: UIImagePickerController.QualityType = .typeHigh
     
+    /// 视频编辑裁剪导出的分辨率
+    public var editExportPreset: ExportPreset = .ratio_960x540
+    
     /// 视频编辑裁剪导出的质量
-    public var videoEditExportQuality: String = AVAssetExportPresetHighestQuality
+    public var editVideoQuality: Int = 6
     
     /// 默认使用后置相机
     public var cameraDevice: UIImagePickerController.CameraDevice = .rear

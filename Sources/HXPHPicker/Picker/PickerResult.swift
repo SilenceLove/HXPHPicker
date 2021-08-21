@@ -20,8 +20,10 @@ public struct PickerResult {
     /// - Parameters:
     ///   - photoAssets: 对应 PhotoAsset 数据的数组
     ///   - isOriginal: 是否原图
-    public init(photoAssets: [PhotoAsset],
-                isOriginal: Bool) {
+    public init(
+        photoAssets: [PhotoAsset],
+        isOriginal: Bool)
+    {
         self.photoAssets = photoAssets
         self.isOriginal = isOriginal
     }
@@ -61,11 +63,15 @@ public extension PickerResult {
     
     /// 获取视频地址
     /// - Parameters:
-    ///   - exportPreset: 视频质量，默认中等质量
+    ///   - exportPreset: 视频分辨率 默认960x540
+    ///   - videoQuality: 视频质量[0-10]
+    ///   - exportSession: 导出视频时对应的 AVAssetExportSession   
     ///   - videoURLHandler: 每一次获取视频地址都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
     func getVideoURL(
-        exportPreset: String = AVAssetExportPresetMediumQuality,
+        exportPreset: ExportPreset = .ratio_960x540,
+        videoQuality: Int = 4,
+        exportSession: ((AVAssetExportSession, PhotoAsset, Int) -> Void)? = nil,
         videoURLHandler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
@@ -78,7 +84,11 @@ public extension PickerResult {
                 execute: DispatchWorkItem.init(block: {
                 let semaphore = DispatchSemaphore.init(value: 0)
                 photoAsset.getVideoURL(
-                    exportPreset: exportPreset)
+                    exportPreset: exportPreset,
+                    videoQuality: videoQuality,
+                    exportSession: { session in
+                        exportSession?(session, photoAsset, index)
+                    })
                 { result in
                     switch result {
                     case .success(let response):

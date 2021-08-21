@@ -224,7 +224,13 @@ class GIFImageView: UIImageView {
 
     /// 动态改变图片动画帧
     @objc fileprivate func changeKeyFrame() {
-        if superview == nil || !(superview is PhotoPreviewContentView) {
+        if superview == nil {
+            displayLink?.invalidate()
+            gifImage = nil
+            return
+        }else if let view = superview,
+                 let photoClass = NSClassFromString("PhotoPreviewContentView"),
+                 view.isKind(of: photoClass) {
             displayLink?.invalidate()
             gifImage = nil
             return

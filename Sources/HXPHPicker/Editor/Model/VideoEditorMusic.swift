@@ -8,20 +8,37 @@
 import UIKit
 
 public struct VideoEditorMusicInfo {
+    
+    public enum URLType: Int, Codable {
+        case unknown
+        case local
+        case network
+    }
+    
     /// 音频文件本地/网络地址(MP3格式)
     public let audioURL: URL
+    
     /// 歌词lrc内容(包含歌名和歌手名的话会显示)
+    /// 内容必须有 t_time 如: [t_time:(00:38)] 音频时长
+    /// 每段歌词必须包含时间点 [00:00.000]
+    /// 如果不包含的话那么显示歌词功能将会出错
     public let lrc: String
+    
+    /// 地址类型
+    public let urlType: URLType
+    
     public init(
         audioURL: URL,
-        lrc: String)
+        lrc: String,
+        urlType: URLType = .unknown)
     {
         self.audioURL = audioURL
         self.lrc = lrc
+        self.urlType = urlType
     }
 }
 
-class VideoEditorMusic: Equatable {
+class VideoEditorMusic: Equatable, Codable {
     let audioURL: URL
     let lrc: String
     init(audioURL: URL,
@@ -32,7 +49,9 @@ class VideoEditorMusic: Equatable {
     
     var isLoading: Bool = false
     var isSelected: Bool = false
+    var urlType: VideoEditorMusicInfo.URLType = .unknown
     
+    var localAudioPath: String?
     var metaData: [String: String] = [:]
     var lyrics: [VideoEditorLyric] = []
     var lyricIsEmpty = false
@@ -128,8 +147,24 @@ class VideoEditorMusic: Equatable {
             lyrics.append(.init(lyric: "此歌曲暂无歌词，请您欣赏".localized))
         }
     }
+     
+    func lyric(atTime time: TimeInterval) -> VideoEditorLyric? {
+        if lyricIsEmpty {
+            return .init(lyric: "此歌曲暂无歌词，请您欣赏".localized)
+        }
+        for lyric in lyrics {
+            if lyric.second.isEmpty || lyric.second == "60000:50:00" {
+                continue
+            }
+            if time >= lyric.startTime
+                && time <= lyric.endTime {
+                return lyric
+            }
+        }
+        return nil
+    }
     
-    func lyric(at range: NSRange) -> [VideoEditorLyric] {
+    func lyric(atRange range: NSRange) -> [VideoEditorLyric] {
         if range.location == NSNotFound || lyrics.isEmpty {
             return []
         }
@@ -145,15 +180,15 @@ class VideoEditorMusic: Equatable {
         }
         return Array(lyrics[loc..<(loc + len)])
     }
-    func lyric(at line: Int) -> VideoEditorLyric? {
-        return lyric(at: NSMakeRange(line, 1)).first
+    func lyric(atLine line: Int) -> VideoEditorLyric? {
+        return lyric(atRange: NSMakeRange(line, 1)).first
     }
     public static func == (lhs: VideoEditorMusic, rhs: VideoEditorMusic) -> Bool {
         lhs === rhs
     }
 }
 
-class VideoEditorLyric: Equatable {
+class VideoEditorLyric: Equatable, Codable {
     
     /// 歌词
     let lyric: String

@@ -62,9 +62,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                 let startTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingStart")] as? TimeInterval
                 let endTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingEnd")] as? TimeInterval
                 let videoURL: URL? = info[.mediaURL] as? URL
-                if startTime != nil && endTime != nil && videoURL != nil {
-                    let avAsset = AVAsset.init(url: videoURL!)
-                    PhotoTools.exportEditVideo(for: avAsset, startTime: startTime!, endTime: endTime!, presentName: self.config.camera.videoEditExportQuality) { (url, error) in
+                if let startTime = startTime, let endTime = endTime, let videoURL = videoURL  {
+                    let avAsset = AVAsset.init(url: videoURL)
+                    PhotoTools.exportEditVideo(
+                        for: avAsset,
+                        startTime: startTime,
+                        endTime: endTime,
+                        exportPreset: self.config.camera.editExportPreset,
+                        videoQuality: self.config.camera.editVideoQuality)
+                    { (url, error) in
                         if let url = url, error == nil {
                             if self.config.saveSystemAlbum {
                                 self.saveSystemAlbum(for: url, mediaType: .video)

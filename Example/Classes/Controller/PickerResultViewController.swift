@@ -88,7 +88,6 @@ class PickerResultViewController: UIViewController, UICollectionViewDataSource, 
         if isPublish {
             title = "Moment"
             let publishBtn = UIBarButtonItem.init(title: "发布", style:    .done, target: self, action: #selector(didPublishBtnClick))
-            
             navigationItem.rightBarButtonItems = [publishBtn]
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消", style: .done, target: self, action: #selector(didCancelButtonClick))
             
@@ -558,6 +557,13 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
+        result.getVideoURL { session, photoAsset, index in
+            print("\n", session, "\n", index)
+        } videoURLHandler: { result, photoAsset, index in
+            print("\n", index)
+        } completionHandler: { urls in
+            print("\n", urls)
+        }
 
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {
@@ -632,6 +638,8 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
             var titles = PhotoTools.defaultTitleChartlet()
             let localTitleChartlet = EditorChartlet(image: UIImage(named: "hx_sticker_cover"))
             titles.append(localTitleChartlet)
+            let gifTitleChartlet = EditorChartlet(url: URL(string: "https://gifimage.net/wp-content/uploads/2017/11/gif-button-2.gif"))
+            titles.append(gifTitleChartlet)
             response(titles)
         }
     }
@@ -642,21 +650,24 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
                           response: @escaping (Int, [EditorChartlet]) -> Void) {
         if titleIndex == 0 {
             response(titleIndex, PhotoTools.defaultNetworkChartlet())
-        }else {
-            let chartlet1 = EditorChartlet(image: UIImage(named: "hx_sticker_chongya"))
-            let chartlet2 = EditorChartlet(image: UIImage(named: "hx_sticker_haoxinqing"))
-            let chartlet3 = EditorChartlet(image: UIImage(named: "hx_sticker_housailei"))
-            let chartlet4 = EditorChartlet(image: UIImage(named: "hx_sticker_jintianfenkeai"))
-            let chartlet5 = EditorChartlet(image: UIImage(named: "hx_sticker_keaibiaoq"))
-            let chartlet6 = EditorChartlet(image: UIImage(named: "hx_sticker_kehaixing"))
-            let chartlet7 = EditorChartlet(image: UIImage(named: "hx_sticker_saihong"))
-            let chartlet8 = EditorChartlet(image: UIImage(named: "hx_sticker_wow"))
-            let chartlet9 = EditorChartlet(image: UIImage(named: "hx_sticker_woxiangfazipai"))
-            let chartlet10 = EditorChartlet(image: UIImage(named: "hx_sticker_xiaochuzhujiao"))
-            let chartlet11 = EditorChartlet(image: UIImage(named: "hx_sticker_yuanqimanman"))
-            let chartlet12 = EditorChartlet(image: UIImage(named: "hx_sticker_yuanqishaonv"))
-            let chartlet13 = EditorChartlet(image: UIImage(named: "hx_sticker_zaizaijia"))
+        }else if titleIndex == 1 {
+            
+            let chartlet1 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_chongya", ofType: "png")!))
+            let chartlet2 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_haoxinqing", ofType: "png")!))
+            let chartlet3 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_housailei", ofType: "png")!))
+            let chartlet4 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_jintianfenkeai", ofType: "png")!))
+            let chartlet5 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_keaibiaoq", ofType: "png")!))
+            let chartlet6 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_kehaixing", ofType: "png")!))
+            let chartlet7 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_saihong", ofType: "png")!))
+            let chartlet8 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_wow", ofType: "png")!))
+            let chartlet9 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_woxiangfazipai", ofType: "png")!))
+            let chartlet10 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_xiaochuzhujiao", ofType: "png")!))
+            let chartlet11 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_yuanqimanman", ofType: "png")!))
+            let chartlet12 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_yuanqishaonv", ofType: "png")!))
+            let chartlet13 = EditorChartlet(image: UIImage(contentsOfFile: Bundle.main.path(forResource: "hx_sticker_zaizaijia", ofType: "png")!))
             response(titleIndex, [chartlet1, chartlet2, chartlet3, chartlet4, chartlet5, chartlet6, chartlet7, chartlet8, chartlet9, chartlet10, chartlet11, chartlet12, chartlet13])
+        }else {
+            response(titleIndex, gifChartlet())
         }
     }
     func pickerController(_ pickerController: PhotoPickerController, videoEditor videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
@@ -665,52 +676,75 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         let lyricUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: nil)!
         let lrc1 = try! String(contentsOfFile: lyricUrl1.path)
         let music1 = VideoEditorMusicInfo.init(audioURL: audioUrl1,
-                                               lrc: lrc1)
+                                               lrc: lrc1,
+                                               urlType: .network)
         musics.append(music1)
         let audioUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: "mp3")!
         let lyricUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: nil)!
         let lrc2 = try! String(contentsOfFile: lyricUrl2.path)
         let music2 = VideoEditorMusicInfo.init(audioURL: audioUrl2,
-                                               lrc: lrc2)
+                                               lrc: lrc2,
+                                               urlType: .network)
         musics.append(music2)
         let audioUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
         let lyricUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
         let lrc3 = try! String(contentsOfFile: lyricUrl3.path)
         let music3 = VideoEditorMusicInfo.init(audioURL: audioUrl3,
-                                               lrc: lrc3)
+                                               lrc: lrc3,
+                                               urlType: .network)
         musics.append(music3)
         let audioUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: "mp3")!
         let lyricUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: nil)!
         let lrc4 = try! String(contentsOfFile: lyricUrl4.path)
         let music4 = VideoEditorMusicInfo.init(audioURL: audioUrl4,
-                                               lrc: lrc4)
+                                               lrc: lrc4,
+                                               urlType: .network)
         musics.append(music4)
         let audioUrl5 = Bundle.main.url(forResource: "无赖", withExtension: "mp3")!
         let lyricUrl5 = Bundle.main.url(forResource: "无赖", withExtension: nil)!
         let lrc5 = try! String(contentsOfFile: lyricUrl5.path)
         let music5 = VideoEditorMusicInfo.init(audioURL: audioUrl5,
-                                               lrc: lrc5)
+                                               lrc: lrc5,
+                                               urlType: .network)
         musics.append(music5)
         let audioUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: "mp3")!
         let lyricUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: nil)!
         let lrc6 = try! String(contentsOfFile: lyricUrl6.path)
         let music6 = VideoEditorMusicInfo.init(audioURL: audioUrl6,
-                                               lrc: lrc6)
+                                               lrc: lrc6,
+                                               urlType: .network)
         musics.append(music6)
         let audioUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3")!
         let lyricUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: nil)!
         let lrc7 = try! String(contentsOfFile: lyricUrl7.path)
         let music7 = VideoEditorMusicInfo.init(audioURL: audioUrl7,
-                                               lrc: lrc7)
+                                               lrc: lrc7,
+                                               urlType: .network)
         musics.append(music7)
         let audioUrl8 = Bundle.main.url(forResource: "爱你", withExtension: "mp3")!
         let lyricUrl8 = Bundle.main.url(forResource: "爱你", withExtension: nil)!
         let lrc8 = try! String(contentsOfFile: lyricUrl8.path)
         let music8 = VideoEditorMusicInfo.init(audioURL: audioUrl8,
-                                               lrc: lrc8)
+                                               lrc: lrc8,
+                                               urlType: .network)
         musics.append(music8)
         completionHandler(musics)
         return false
+    }
+    
+    func gifChartlet() -> [EditorChartlet] {
+        var gifs: [EditorChartlet] = []
+        gifs.append(.init(url: URL(string: "https://img95.699pic.com/photo/40112/1849.gif_wh860.gif")))
+        gifs.append(.init(url: URL(string: "https://img95.699pic.com/photo/40112/1680.gif_wh860.gif")))
+        gifs.append(.init(url: URL(string: "https://img95.699pic.com/photo/40110/3660.gif_wh860.gif")))
+        gifs.append(.init(url: URL(string: "https://pic.qqtn.com/up/2017-10/2017102615224886590.gif")))
+        gifs.append(.init(url: URL(string: "https://img.99danji.com/uploadfile/2021/0220/20210220103405450.gif")))
+        gifs.append(.init(url: URL(string: "https://imgo.youxihezi.net/img2021/2/20/11/2021022051733236.gif")))
+        gifs.append(.init(url: URL(string: "https://qqpublic.qpic.cn/qq_public/0/0-2868806511-17879434A38D4DCC1A378F9528C76152/0?fmt=gif&size=136&h=431&w=480&ppv=1.gif")))
+        gifs.append(.init(url: URL(string: "http://qqpublic.qpic.cn/qq_public/0/0-464434317-3A491192B7B04D124C793264F3E7DAE4/0?fmt=gif&size=335&h=361&w=450&ppv=1.gif")))
+        gifs.append(.init(url: URL(string: "http://pic.qqtn.com/up/2017-5/2017053118074857711.gif")))
+        gifs.append(.init(url: URL(string: "https://pic.diydoutu.com/bq/1493.gif")))
+        return gifs
     }
 }
 

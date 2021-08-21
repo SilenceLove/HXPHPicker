@@ -28,16 +28,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     weak var delegate: PhotoPreviewContentViewDelete?
     
-    lazy var imageView: UIImageView = {
-        var imageView: UIImageView
-        #if canImport(Kingfisher)
-        imageView = AnimatedImageView.init()
-        #else
-        imageView = GIFImageView.init()
-        #endif
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        return imageView
+    lazy var imageView: ImageView = {
+        let view = ImageView()
+        return view
     }()
     @available(iOS 9.1, *)
     lazy var livePhotoView: PHLivePhotoView = {
@@ -108,13 +101,17 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 showLoadingView(text: "正在下载".localized)
             }
         }
-        imageView.setImage(for: photoAsset, urlType: .original) { [weak self] (receivedData, totolData) in
+        imageView.setImage(
+            for: photoAsset,
+            urlType: .original)
+        { [weak self] (receivedData, totolData) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
                 let percentage = Double(receivedData) / Double(totolData)
                 self.requestUpdateProgress(progress: percentage, isICloud: false)
             }
-        } completionHandler: { [weak self] (image, error, photoAsset) in
+        } completionHandler:
+        { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
                 self.requestNetworkCompletion = true
@@ -284,7 +281,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 }
             }
             #else
-            let gifImageView = imageView as! GIFImageView
+            let gifImageView = imageView.my
             if photoAsset.mediaSubType.isGif && gifImageView.gifImage != nil {
                 gifImageView.startAnimating()
             }else {
@@ -608,52 +605,4 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-
-
-fileprivate extension UIImageView {
-    #if canImport(Kingfisher)
-    var my: AnimatedImageView {
-        self as! AnimatedImageView
-    }
-    #else
-    var my: GIFImageView {
-        self as! GIFImageView
-    }
-    #endif
-    
-    func setImage(_ img: UIImage) {
-        #if canImport(Kingfisher)
-        let image = DefaultImageProcessor.default.process(item: .image(img), options: .init([]))
-        my.image = image
-        #else
-        my.image = img
-        #endif
-    }
-    
-    func setImageData(_ imageData: Data) {
-        #if canImport(Kingfisher)
-        let image = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))
-        my.image = image
-        #else
-        let image = GIFImage.init(data: imageData)
-        my.gifImage = image
-        #endif
-    }
-    
-    func startAnimatedImage() {
-        #if canImport(Kingfisher)
-        my.startAnimating()
-        #else
-        my.setupDisplayLink()
-        #endif
-    }
-    func stopAnimatedImage() {
-        #if canImport(Kingfisher)
-        my.stopAnimating()
-        #else
-        my.displayLink?.invalidate()
-        my.gifImage = nil
-        #endif
-    }
 }
