@@ -291,17 +291,13 @@ extension PhotoTools {
     {
         if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
             do {
+                guard let videoTrack = avAsset.tracks(withMediaType: .video).first else {
+                    throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)
+                }
                 let videoURL = outputURL ?? PhotoTools.getVideoTmpURL()
                 let mixComposition = try mixComposition(
-                    for: avAsset
-                )
-                let audioMix = try audioMix(
                     for: avAsset,
-                    mixComposition: mixComposition,
-                    timeRang: timeRang,
-                    audioURL: audioURL,
-                    audioVolume: audioVolume,
-                    originalAudioVolume: originalAudioVolume
+                    videoTrack: videoTrack
                 )
                 var addVideoComposition = false
                 let animationBeginTime: CFTimeInterval
@@ -310,16 +306,26 @@ extension PhotoTools {
                 }else {
                     animationBeginTime = timeRang.start.seconds == 0 ? AVCoreAnimationBeginTimeAtZero : timeRang.start.seconds
                 }
-                let videoComposition = videoComposition(
+                let videoComposition = try videoComposition(
                     for: avAsset,
+                    videoTrack: videoTrack,
                     mixComposition: mixComposition,
                     stickerInfos: stickerInfos,
                     animationBeginTime: animationBeginTime,
-                    videoDuration: timeRang == .zero ? avAsset.duration.seconds : timeRang.duration.seconds
+                    videoDuration: timeRang == .zero ? videoTrack.timeRange.duration.seconds : timeRang.duration.seconds
                 )
                 if videoComposition.renderSize.width > 0 {
                     addVideoComposition = true
                 }
+                let audioMix = try audioMix(
+                    for: avAsset,
+                    videoTrack: videoTrack,
+                    mixComposition: mixComposition,
+                    timeRang: timeRang,
+                    audioURL: audioURL,
+                    audioVolume: audioVolume,
+                    originalAudioVolume: originalAudioVolume
+                )
                 if let exportSession = AVAssetExportSession(
                     asset: mixComposition,
                     presetName: exportPreset.name)
@@ -380,12 +386,10 @@ extension PhotoTools {
     }
     
     class func mixComposition(
-        for videoAsset: AVAsset) throws -> AVMutableComposition
+        for videoAsset: AVAsset,
+        videoTrack: AVAssetTrack) throws -> AVMutableComposition
     {
         let mixComposition = AVMutableComposition()
-        guard let videoTrack = videoAsset.tracks(withMediaType: .video).first else {
-            throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)
-        }
         let videoTimeRange = CMTimeRangeMake(
             start: .zero,
             duration: videoTrack.timeRange.duration
@@ -394,31 +398,28 @@ extension PhotoTools {
             withMediaType: .video,
             preferredTrackID: kCMPersistentTrackID_Invalid
         )
-        if let videoTrack = videoAsset.tracks(withMediaType: .video).first {
-            compositionVideoTrack?.preferredTransform = videoTrack.preferredTransform
-            try compositionVideoTrack?.insertTimeRange(
-                videoTimeRange,
-                of: videoTrack,
-                at: .zero
-            )
-        }
+        compositionVideoTrack?.preferredTransform = videoTrack.preferredTransform
+        try compositionVideoTrack?.insertTimeRange(
+            videoTimeRange,
+            of: videoTrack,
+            at: .zero
+        )
         return mixComposition
     }
     
     class func audioMix(
         for videoAsset: AVAsset,
+        videoTrack: AVAssetTrack,
         mixComposition: AVMutableComposition,
         timeRang: CMTimeRange,
         audioURL: URL?,
         audioVolume: Float,
         originalAudioVolume: Float) throws -> AVMutableAudioMix
     {
-        guard let videoTrack = videoAsset.tracks(withMediaType: .video).first else {
-            throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)
-        }
+        let duration = videoTrack.timeRange.duration
         let videoTimeRange = CMTimeRangeMake(
             start: .zero,
-            duration: videoTrack.timeRange.duration
+            duration: duration
         )
         let audioMix = AVMutableAudioMix()
         var newAudioInputParams: AVMutableAudioMixInputParameters?
@@ -438,7 +439,7 @@ extension PhotoTools {
                 let startTime: Double
                 if timeRang == .zero {
                     startTime = 0
-                    videoDuration = videoAsset.duration.seconds
+                    videoDuration = duration.seconds
                 }else {
                     startTime = timeRang.start.seconds
                     videoDuration = timeRang.duration.seconds
@@ -512,7 +513,7 @@ extension PhotoTools {
                 toEndVolume: audioVolume,
                 timeRange: CMTimeRangeMake(
                     start: .zero,
-                    duration: videoAsset.duration
+                    duration: duration
                 )
             )
             newAudioInputParams?.trackID =  newAudioTrack?.trackID ?? kCMPersistentTrackID_Invalid
@@ -525,7 +526,7 @@ extension PhotoTools {
             }
             let volume: Float = originalAudioVolume
             let originalAudioInputParams = AVMutableAudioMixInputParameters(track: originalVoiceTrack)
-            originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: videoAsset.duration))
+            originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: duration))
             originalAudioInputParams.trackID = originalVoiceTrack.trackID
             if let newAudioInputParams = newAudioInputParams {
                 audioMix.inputParameters = [newAudioInputParams, originalAudioInputParams]
@@ -542,12 +543,15 @@ extension PhotoTools {
     
     class func videoComposition(
         for videoAsset: AVAsset,
+        videoTrack: AVAssetTrack,
         mixComposition: AVMutableComposition,
         stickerInfos: [EditorStickerInfo],
         animationBeginTime: CFTimeInterval,
-        videoDuration: TimeInterval) -> AVMutableVideoComposition
+        videoDuration: TimeInterval) throws -> AVMutableVideoComposition
     {
-        let videoComposition = videoFixed(
+        let videoComposition = try videoFixed(
+            videoAsset: videoAsset,
+            videoTrack: videoTrack,
             composition: mixComposition,
             assetOrientation: videoAsset.videoOrientation
         )
@@ -632,25 +636,25 @@ extension PhotoTools {
     }
     
     class func videoFixed(
+        videoAsset: AVAsset,
+        videoTrack: AVAssetTrack,
         composition: AVMutableComposition,
         assetOrientation: AVCaptureVideoOrientation,
-        isVideoMirrored:Bool = false) -> AVMutableVideoComposition
+        isVideoMirrored:Bool = false) throws -> AVMutableVideoComposition
     {
         let videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         var renderSize = videoComposition.renderSize
         // https://stackoverflow.com/a/45013962
         renderSize = CGSize(width: floor(renderSize.width / 16) * 16, height: floor(renderSize.height / 16) * 16)
         videoComposition.renderSize = renderSize
+        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 60)
         guard assetOrientation != .landscapeRight else {
-            return videoComposition
-        }
-        guard let videoTrack = composition.tracks(withMediaType: .video).first else {
             return videoComposition
         }
         var translateToCenter: CGAffineTransform
         var mixedTransform: CGAffineTransform
         let rotateInstruction = AVMutableVideoCompositionInstruction()
-        rotateInstruction.timeRange = CMTimeRange(start: CMTime.zero, duration: composition.duration)
+        rotateInstruction.timeRange = CMTimeRange(start: CMTime.zero, duration: videoTrack.timeRange.duration)
         
         let rotateLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
         

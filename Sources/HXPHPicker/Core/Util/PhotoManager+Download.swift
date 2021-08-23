@@ -21,8 +21,10 @@ extension PhotoManager: URLSessionDownloadDelegate {
             if let fileURL = fileURL,
                videoURL.absoluteString != fileURL.absoluteString {
                 PhotoTools.copyFile(at: videoURL, to: fileURL)
+                completionHandler(fileURL, nil, ext)
+            }else {
+                completionHandler(videoURL, nil, ext)
             }
-            completionHandler(fileURL, nil, ext)
             return URLSessionDownloadTask()
         }
         if key.hasSuffix("mp3") && PhotoTools.isCached(forAudio: key) {
@@ -30,8 +32,10 @@ extension PhotoManager: URLSessionDownloadDelegate {
             if let fileURL = fileURL,
                audioURL.absoluteString != fileURL.absoluteString {
                 PhotoTools.copyFile(at: audioURL, to: fileURL)
+                completionHandler(fileURL, nil, ext)
+            }else {
+                completionHandler(audioURL, nil, ext)
             }
-            completionHandler(fileURL, nil, ext)
             return URLSessionDownloadTask()
         }
         if let fileURL = fileURL {
