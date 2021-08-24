@@ -30,8 +30,7 @@ public struct VideoEditorMusicInfo {
     public init(
         audioURL: URL,
         lrc: String,
-        urlType: URLType = .unknown)
-    {
+        urlType: URLType = .unknown) {
         self.audioURL = audioURL
         self.lrc = lrc
         self.urlType = urlType
@@ -58,7 +57,12 @@ class VideoEditorMusic: Equatable, Codable {
     var songName: String? { metaData["ti"] }
     var singer: String? { metaData["ar"] }
     var time: TimeInterval? {
-        if let time = metaData["t_time"]?.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "") {
+        if let time = metaData["t_time"]?.replacingOccurrences(
+            of: "(",
+            with: "").replacingOccurrences(
+                of: ")",
+                with: ""
+            ) {
             return PhotoTools.getVideoTime(forVideo: time)
         }else if let lastLyric = lyrics.last {
             return lastLyric.startTime + 5
@@ -83,7 +87,7 @@ class VideoEditorMusic: Equatable, Codable {
             }
             var isTag = false
             for tag in tags {
-                if metaData[tag] == nil {
+                if metaData[tag] == nil { // swiftlint:disable:this for_where
                     let prefix = "[" + tag + ":"
                     if line.hasPrefix(prefix) && line.hasSuffix("]") {
                         let loc = prefix.count
@@ -98,15 +102,23 @@ class VideoEditorMusic: Equatable, Codable {
             if isTag {
                 continue
             }
-            if let reg1 = regular1, let reg2 = regular2 {
-                let matches = reg1.matches(in: line, options: .reportProgress, range: NSMakeRange(0, line.count))
-                
-                let modifyString = reg2.stringByReplacingMatches(in: line, options: .reportProgress, range: NSMakeRange(0, line.count), withTemplate: "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if let reg1 = regular1,
+               let reg2 = regular2 {
+                let matches = reg1.matches(
+                    in: line,
+                    options: .reportProgress,
+                    range: NSRange(location: 0, length: line.count)
+                )
+                let modifyString = reg2.stringByReplacingMatches(
+                    in: line,
+                    options: .reportProgress,
+                    range: NSRange(location: 0, length: line.count),
+                    withTemplate: ""
+                ).trimmingCharacters(in: .whitespacesAndNewlines)
                 for result in matches {
                     if result.range.location == NSNotFound {
                         continue
                     }
-                    
                     var sec = line[result.range.location...(result.range.location + result.range.length - 1)]
                     sec = sec.replacingOccurrences(of: "[", with: "")
                     sec = sec.replacingOccurrences(of: "]", with: "")
@@ -131,7 +143,12 @@ class VideoEditorMusic: Equatable, Codable {
         for (index, lyric) in sorted.enumerated() {
             first = lyric
             if index + 1 >= sorted.count {
-                if let time = metaData["t_time"]?.replacingOccurrences(of: "(", with: "").replacingOccurrences(of: ")", with: "") {
+                if let time = metaData["t_time"]?.replacingOccurrences(
+                    of: "(",
+                    with: "").replacingOccurrences(
+                        of: ")",
+                        with: ""
+                    ) {
                     first?.update(second: time, isEnd: true)
                 }else {
                     first?.update(second: "60000:50:00", isEnd: true)
@@ -181,7 +198,7 @@ class VideoEditorMusic: Equatable, Codable {
         return Array(lyrics[loc..<(loc + len)])
     }
     func lyric(atLine line: Int) -> VideoEditorLyric? {
-        return lyric(atRange: NSMakeRange(line, 1)).first
+        lyric(atRange: NSRange(location: line, length: 1)).first
     }
     public static func == (lhs: VideoEditorMusic, rhs: VideoEditorMusic) -> Bool {
         lhs === rhs

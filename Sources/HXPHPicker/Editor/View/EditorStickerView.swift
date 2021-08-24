@@ -167,7 +167,16 @@ class EditorStickerView: UIView {
             }
             pScale = min(ratio * width / itemView.width, ratio * height / itemView.height)
         }else if item.text != nil {
-            pScale = min(min(self.width * self.scale - 40, itemView.width) / itemView.width, min(self.height * self.scale - 40, itemView.height) / itemView.height)
+            pScale = min(
+                min(
+                    self.width * self.scale - 40,
+                    itemView.width
+                ) / itemView.width,
+                min(
+                    self.height * self.scale - 40,
+                    itemView.height
+                ) / itemView.height
+            )
         }else {
             pScale = 1
         }
@@ -226,19 +235,27 @@ class EditorStickerView: UIView {
             return
         }
         let arg = itemView.radian - currentItemArg
-        if superview == UIApplication.shared.keyWindow{
+        if superview == UIApplication.shared.keyWindow {
             let rect = superview.convert(itemView.frame, to: self)
             itemView.frame = rect
         }
         addSubview(itemView)
         if mirrorType == .none {
-            itemView.update(pinchScale: itemView.pinchScale, rotation: itemView.radian - currentItemDegrees, isMirror: true)
+            itemView.update(
+                pinchScale: itemView.pinchScale,
+                rotation: itemView.radian - currentItemDegrees,
+                isMirror: true
+            )
         }else {
-            itemView.update(pinchScale: itemView.pinchScale, rotation: beforeItemArg + arg, isMirror: true)
+            itemView.update(
+                pinchScale: itemView.pinchScale,
+                rotation: beforeItemArg + arg,
+                isMirror: true
+            )
         }
     }
     
-    func windowAdd(itemView : EditorStickerItemView) {
+    func windowAdd(itemView: EditorStickerItemView) {
         beforeItemArg = itemView.radian
         addWindowCompletion = true
         let radians = angleRadians()
@@ -253,9 +270,17 @@ class EditorStickerView: UIView {
                 itemView.update(pinchScale: itemView.pinchScale, rotation: itemView.radian + radians, isMirror: true)
             }else {
                 if angle.truncatingRemainder(dividingBy: 180) != 0 {
-                    itemView.update(pinchScale: itemView.pinchScale, rotation: itemView.radian + radians, isMirror: true)
+                    itemView.update(
+                        pinchScale: itemView.pinchScale,
+                        rotation: itemView.radian + radians,
+                        isMirror: true
+                    )
                 }else {
-                    itemView.update(pinchScale: itemView.pinchScale, rotation: itemView.radian - radians, isMirror: true)
+                    itemView.update(
+                        pinchScale: itemView.pinchScale,
+                        rotation: itemView.radian - radians,
+                        isMirror: true
+                    )
                 }
             }
         }
@@ -375,8 +400,16 @@ class EditorStickerView: UIView {
             itemView.mirrorType = itemData.mirrorType
             itemView.superMirrorType = itemData.superMirrorType
             itemView.superAngle = itemData.superAngel
-            itemView.update(pinchScale: itemData.pinchScale, rotation: itemData.rotation, isInitialize: true, isMirror: true)
-            itemView.center = CGPoint(x: viewSize.width * itemData.centerScale.x, y: viewSize.height * itemData.centerScale.y)
+            itemView.update(
+                pinchScale: itemData.pinchScale,
+                rotation: itemData.rotation,
+                isInitialize: true,
+                isMirror: true
+            )
+            itemView.center = CGPoint(
+                x: viewSize.width * itemData.centerScale.x,
+                y: viewSize.height * itemData.centerScale.y
+            )
         }
     }
     func getStickerInfo() -> [EditorStickerInfo] {

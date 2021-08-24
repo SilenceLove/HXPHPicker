@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 public typealias EditorTitleChartletResponse = ([EditorChartlet]) -> Void
 public typealias EditorChartletListResponse = (Int, [EditorChartlet]) -> Void
 
@@ -50,7 +49,6 @@ public struct EditorChartlet {
     }
     #endif
 }
-
 
 class EditorChartletTitle {
     

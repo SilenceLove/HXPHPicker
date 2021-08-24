@@ -42,8 +42,8 @@ open class EditorController: UINavigationController {
         image: UIImage,
         editResult: PhotoEditResult? = nil,
         config: PhotoEditorConfiguration,
-        delegate: PhotoEditorViewControllerDelegate? = nil)
-    {
+        delegate: PhotoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -65,8 +65,8 @@ open class EditorController: UINavigationController {
         imageData: Data,
         editResult: PhotoEditResult? = nil,
         config: PhotoEditorConfiguration,
-        delegate: PhotoEditorViewControllerDelegate? = nil)
-    {
+        delegate: PhotoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -130,8 +130,8 @@ open class EditorController: UINavigationController {
         avAsset: AVAsset,
         editResult: VideoEditResult? = nil,
         config: VideoEditorConfiguration,
-        delegate: VideoEditorViewControllerDelegate? = nil)
-    {
+        delegate: VideoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -153,8 +153,8 @@ open class EditorController: UINavigationController {
         networkVideoURL: URL,
         editResult: VideoEditResult? = nil,
         config: VideoEditorConfiguration,
-        delegate: VideoEditorViewControllerDelegate? = nil)
-    {
+        delegate: VideoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -177,8 +177,8 @@ open class EditorController: UINavigationController {
         photoAsset: PhotoAsset,
         editResult: VideoEditResult? = nil,
         config: VideoEditorConfiguration,
-        delegate: VideoEditorViewControllerDelegate? = nil)
-    {
+        delegate: VideoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .video
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -200,8 +200,8 @@ open class EditorController: UINavigationController {
         photoAsset: PhotoAsset,
         editResult: PhotoEditResult? = nil,
         config: PhotoEditorConfiguration,
-        delegate: PhotoEditorViewControllerDelegate? = nil)
-    {
+        delegate: PhotoEditorViewControllerDelegate? = nil
+    ) {
         editorType = .photo
         self.config = config
         super.init(nibName: nil, bundle: nil)

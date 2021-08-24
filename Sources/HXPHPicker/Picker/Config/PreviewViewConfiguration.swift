@@ -20,10 +20,10 @@ public class PreviewViewConfiguration {
     }
     
     /// 背景颜色
-    public lazy var backgroundColor : UIColor = .white
+    public lazy var backgroundColor: UIColor = .white
     
     /// 暗黑风格下背景颜色
-    public lazy var backgroundDarkColor : UIColor = .black
+    public lazy var backgroundDarkColor: UIColor = .black
     
     /// 选择框配置
     public lazy var selectBox: SelectBoxConfiguration = .init()

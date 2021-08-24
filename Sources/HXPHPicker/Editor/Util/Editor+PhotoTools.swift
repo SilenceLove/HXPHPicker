@@ -19,11 +19,15 @@ extension PhotoTools {
         }
         let frameCount = images.count
         let imageURL = getImageTmpURL(.gif)
-        guard let destination = CGImageDestinationCreateWithURL(imageURL as CFURL, kUTTypeGIF as CFString, frameCount, nil) else {
+        guard let destination = CGImageDestinationCreateWithURL(
+                imageURL as CFURL,
+                kUTTypeGIF as CFString,
+                frameCount, nil
+        ) else {
             return nil
         }
         let gifProperty = [
-            kCGImagePropertyGIFDictionary : [
+            kCGImagePropertyGIFDictionary: [
                 kCGImagePropertyGIFHasGlobalColorMap: true,
                 kCGImagePropertyColorModel: kCGImagePropertyColorModelRGB,
                 kCGImagePropertyDepth: 8,
@@ -34,8 +38,8 @@ extension PhotoTools {
         for (index, image) in images.enumerated() {
             let delay = delays[index]
             let framePreperty = [
-                kCGImagePropertyGIFDictionary : [
-                    kCGImagePropertyGIFDelayTime : delay
+                kCGImagePropertyGIFDictionary: [
+                    kCGImagePropertyGIFDelayTime: delay
                 ]
             ]
             if let cgImage = image.cgImage {
@@ -91,7 +95,7 @@ extension PhotoTools {
     }
     class func defaultMusicInfos() -> [VideoEditorMusicInfo] {
         var infos: [VideoEditorMusicInfo] = []
-        if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"),
+        if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"), // swiftlint:disable:this line_length
            let lrc = "天外来物".lrc {
             let info = VideoEditorMusicInfo(
                 audioURL: audioURL,
@@ -129,8 +133,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "老电影".localized,
                 defaultValue: 1
-            ) {
-                (image, lastImage, value, event) in
+            ) { (image, lastImage, value, event) in
                 if event == .touchUpInside {
                     return oldMovie(image, value: value)
                 }
@@ -138,8 +141,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "怀旧".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectInstant",
                     parameters: [:]
@@ -147,8 +149,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "黑白".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectNoir",
                     parameters: [:]
@@ -156,8 +157,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectTonal",
                     parameters: [:]
@@ -166,8 +166,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
                 defaultValue: 0.5
-            ) {
-                (image, lastImage, value, event) in
+            ) { (image, lastImage, value, event) in
                 if event == .touchUpInside {
                     return image.filter(
                         name: "CIGaussianBlur",
@@ -180,8 +179,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "岁月".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectTransfer",
                     parameters: [:]
@@ -189,8 +187,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "单色".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectMono",
                     parameters: [:]
@@ -198,8 +195,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "褪色".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectFade",
                     parameters: [:]
@@ -207,8 +203,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "冲印".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectProcess",
                     parameters: [:]
@@ -216,8 +211,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "铬黄".localized
-            ) {
-                (image, _, _, _) in
+            ) { (image, _, _, _) in
                 image.filter(
                     name: "CIPhotoEffectChrome",
                     parameters: [:]
@@ -233,7 +227,14 @@ extension PhotoTools {
         sepiaToneFilter.setValue(inputImage, forKey: kCIInputImageKey)
         sepiaToneFilter.setValue(value, forKey: kCIInputIntensityKey)
         let whiteSpecksFilter = CIFilter(name: "CIColorMatrix")!
-        whiteSpecksFilter.setValue(CIFilter(name: "CIRandomGenerator")!.outputImage!.cropped(to: inputImage.extent), forKey: kCIInputImageKey)
+        whiteSpecksFilter.setValue(
+            CIFilter(
+                name: "CIRandomGenerator"
+            )!.outputImage!.cropped(
+                to: inputImage.extent
+            ),
+            forKey: kCIInputImageKey
+        )
         whiteSpecksFilter.setValue(CIVector(x: 0, y: 1, z: 0, w: 0), forKey: "inputRVector")
         whiteSpecksFilter.setValue(CIVector(x: 0, y: 1, z: 0, w: 0), forKey: "inputGVector")
         whiteSpecksFilter.setValue(CIVector(x: 0, y: 1, z: 0, w: 0), forKey: "inputBVector")
@@ -242,8 +243,20 @@ extension PhotoTools {
         sourceOverCompositingFilter.setValue(whiteSpecksFilter.outputImage, forKey: kCIInputBackgroundImageKey)
         sourceOverCompositingFilter.setValue(sepiaToneFilter.outputImage, forKey: kCIInputImageKey)
         let affineTransformFilter = CIFilter(name: "CIAffineTransform")!
-        affineTransformFilter.setValue(CIFilter(name: "CIRandomGenerator")!.outputImage!.cropped(to: inputImage.extent), forKey: kCIInputImageKey)
-        affineTransformFilter.setValue(NSValue(cgAffineTransform: CGAffineTransform(scaleX: 1.5, y: 25)), forKey: kCIInputTransformKey)
+        affineTransformFilter.setValue(
+            CIFilter(
+                name: "CIRandomGenerator"
+            )!.outputImage!.cropped(
+                to: inputImage.extent
+            ),
+            forKey: kCIInputImageKey
+        )
+        affineTransformFilter.setValue(
+            NSValue(
+                cgAffineTransform: CGAffineTransform(scaleX: 1.5, y: 25)
+            ),
+            forKey: kCIInputTransformKey
+        )
         let darkScratchesFilter = CIFilter(name: "CIColorMatrix")!
         darkScratchesFilter.setValue(affineTransformFilter.outputImage, forKey: kCIInputImageKey)
         darkScratchesFilter.setValue(CIVector(x: 4, y: 0, z: 0, w: 0), forKey: "inputRVector")
@@ -287,8 +300,8 @@ extension PhotoTools {
         originalAudioVolume: Float,
         exportPreset: ExportPreset,
         videoQuality: Int,
-        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
-    {
+        completion:@escaping (URL?, Error?) -> Void
+    ) -> AVAssetExportSession? {
         if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
             do {
                 guard let videoTrack = avAsset.tracks(withMediaType: .video).first else {
@@ -304,7 +317,9 @@ extension PhotoTools {
                 if timeRang == .zero {
                     animationBeginTime = AVCoreAnimationBeginTimeAtZero
                 }else {
-                    animationBeginTime = timeRang.start.seconds == 0 ? AVCoreAnimationBeginTimeAtZero : timeRang.start.seconds
+                    animationBeginTime = timeRang.start.seconds == 0 ?
+                        AVCoreAnimationBeginTimeAtZero :
+                        timeRang.start.seconds
                 }
                 let videoComposition = try videoComposition(
                     for: avAsset,
@@ -328,8 +343,8 @@ extension PhotoTools {
                 )
                 if let exportSession = AVAssetExportSession(
                     asset: mixComposition,
-                    presetName: exportPreset.name)
-                {
+                    presetName: exportPreset.name
+                ) {
                     let supportedTypeArray = exportSession.supportedFileTypes
                     exportSession.outputURL = videoURL
                     if supportedTypeArray.contains(AVFileType.mp4) {
@@ -362,10 +377,8 @@ extension PhotoTools {
                             switch exportSession.status {
                             case .completed:
                                 completion(videoURL, nil)
-                                break
                             case .failed, .cancelled:
                                 completion(nil, exportSession.error)
-                                break
                             default: break
                             }
                         }
@@ -387,8 +400,8 @@ extension PhotoTools {
     
     class func mixComposition(
         for videoAsset: AVAsset,
-        videoTrack: AVAssetTrack) throws -> AVMutableComposition
-    {
+        videoTrack: AVAssetTrack
+    ) throws -> AVMutableComposition {
         let mixComposition = AVMutableComposition()
         let videoTimeRange = CMTimeRangeMake(
             start: .zero,
@@ -414,8 +427,8 @@ extension PhotoTools {
         timeRang: CMTimeRange,
         audioURL: URL?,
         audioVolume: Float,
-        originalAudioVolume: Float) throws -> AVMutableAudioMix
-    {
+        originalAudioVolume: Float
+    ) throws -> AVMutableAudioMix {
         let duration = videoTrack.timeRange.duration
         let videoTimeRange = CMTimeRangeMake(
             start: .zero,
@@ -519,14 +532,24 @@ extension PhotoTools {
             newAudioInputParams?.trackID =  newAudioTrack?.trackID ?? kCMPersistentTrackID_Invalid
         }
         
-        if let originalVoiceTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+        if let originalVoiceTrack = mixComposition.addMutableTrack(
+            withMediaType: .audio,
+            preferredTrackID: kCMPersistentTrackID_Invalid
+        ) {
             if let audioTrack = videoAsset.tracks(withMediaType: .audio).first {
                 originalVoiceTrack.preferredTransform = audioTrack.preferredTransform
                 try originalVoiceTrack.insertTimeRange(videoTimeRange, of: audioTrack, at: .zero)
             }
             let volume: Float = originalAudioVolume
             let originalAudioInputParams = AVMutableAudioMixInputParameters(track: originalVoiceTrack)
-            originalAudioInputParams.setVolumeRamp(fromStartVolume: volume, toEndVolume: volume, timeRange: CMTimeRangeMake(start: .zero, duration: duration))
+            originalAudioInputParams.setVolumeRamp(
+                fromStartVolume: volume,
+                toEndVolume: volume,
+                timeRange: CMTimeRangeMake(
+                    start: .zero,
+                    duration: duration
+                )
+            )
             originalAudioInputParams.trackID = originalVoiceTrack.trackID
             if let newAudioInputParams = newAudioInputParams {
                 audioMix.inputParameters = [newAudioInputParams, originalAudioInputParams]
@@ -547,8 +570,8 @@ extension PhotoTools {
         mixComposition: AVMutableComposition,
         stickerInfos: [EditorStickerInfo],
         animationBeginTime: CFTimeInterval,
-        videoDuration: TimeInterval) throws -> AVMutableVideoComposition
-    {
+        videoDuration: TimeInterval
+    ) throws -> AVMutableVideoComposition {
         let videoComposition = try videoFixed(
             videoAsset: videoAsset,
             videoTrack: videoTrack,
@@ -560,12 +583,18 @@ extension PhotoTools {
             let bounds = CGRect(origin: .zero, size: renderSize)
             let overlaylayer = CALayer()
             for info in stickerInfos {
-                let center = CGPoint(x: info.centerScale.x * bounds.width, y: bounds.height - info.centerScale.y * bounds.height)
-                let size = CGSize(width: info.sizeScale.width * bounds.width, height: info.sizeScale.height * bounds.height)
+                let center = CGPoint(
+                    x: info.centerScale.x * bounds.width,
+                    y: bounds.height - info.centerScale.y * bounds.height
+                )
+                let size = CGSize(
+                    width: info.sizeScale.width * bounds.width,
+                    height: info.sizeScale.height * bounds.height
+                )
                 var transform = CATransform3DMakeScale(info.scale, info.scale, 1)
                 transform = CATransform3DRotate(transform, info.angel, 0, 0, -1)
                 if let music = info.music,
-                   let subMusic = music.music{
+                   let subMusic = music.music {
                     let textLayer = textAnimationLayer(
                         music: subMusic,
                         size: size,
@@ -590,10 +619,6 @@ extension PhotoTools {
                     imageLayer.frame = CGRect(origin: .zero, size: size)
                     imageLayer.transform = transform
                     imageLayer.position = center
-//                    imageLayer.contents = info.image.cgImage
-//                    if let keyframeAnimation = gifAnimation(for: info.image, beginTime: animationBeginTime, videoDuration: videoDuration) {
-//                        imageLayer.add(keyframeAnimation, forKey: nil)
-//                    }
                     imageLayer.shadowColor = UIColor.black.withAlphaComponent(0.6).cgColor
                     imageLayer.shadowOpacity = 0.5
                     imageLayer.shadowOffset = CGSize(width: 0, height: -1)
@@ -613,10 +638,12 @@ extension PhotoTools {
 //            parentLayer.addSublayer(videolayer)
 //            parentLayer.addSublayer(overlaylayer)
 //
-//            let animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videolayer, in: parentLayer)
+//            let animationTool = AVVideoCompositionCoreAnimationTool(
+//                postProcessingAsVideoLayer: videolayer,
+//                in: parentLayer
+//            )
 //            videoComposition.animationTool = animationTool
 
-            
             let watermarkLayerTrackID = videoAsset.unusedTrackID()
             videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(
                 additionalLayer: overlaylayer,
@@ -640,8 +667,8 @@ extension PhotoTools {
         videoTrack: AVAssetTrack,
         composition: AVMutableComposition,
         assetOrientation: AVCaptureVideoOrientation,
-        isVideoMirrored:Bool = false) throws -> AVMutableVideoComposition
-    {
+        isVideoMirrored: Bool = false
+    ) throws -> AVMutableVideoComposition {
         let videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         var renderSize = videoComposition.renderSize
         // https://stackoverflow.com/a/45013962
@@ -701,8 +728,8 @@ extension PhotoTools {
         animationScale: CGFloat,
         animationSize: CGSize,
         beginTime: CFTimeInterval,
-        videoDuration: TimeInterval) -> CALayer
-    {
+        videoDuration: TimeInterval
+    ) -> CALayer {
         var textSize = size
         let bgLayer = CALayer()
         for (index, lyric) in music.lyrics.enumerated() {
@@ -810,8 +837,8 @@ extension PhotoTools {
     class func animationLayer(
         image: UIImage,
         beginTime: CFTimeInterval,
-        videoDuration: TimeInterval) -> CALayer
-    {
+        videoDuration: TimeInterval
+    ) -> CALayer {
         let animationLayer = CALayer()
         animationLayer.contents = image.cgImage
         guard let gifResult = image.animateCGImageFrame() else {
@@ -822,7 +849,6 @@ extension PhotoTools {
             return animationLayer
         }
         let delayTimes = gifResult.1
-//        let totalTime = gifResult.2
          
         var currentTime: Double = 0
         var animations = [CAAnimation]()
@@ -851,51 +877,5 @@ extension PhotoTools {
         animationLayer.add(group, forKey: nil)
         return animationLayer
     }
-//    class func gifAnimation(
-//        for image: UIImage,
-//        beginTime: CFTimeInterval,
-//        videoDuration: TimeInterval) -> CAKeyframeAnimation?
-//    {
-//        guard let gifResult = image.animateCGImageFrame() else {
-//            return nil
-//        }
-//        let frames = gifResult.0
-//        let delayTimes = gifResult.1
-//        let totalTime = gifResult.2
-//
-//        var keyTimes: [NSNumber] = []
-//        var currentTime: Double = 0
-//        for delayTime in delayTimes {
-//            let number = NSNumber(value: currentTime / totalTime)
-//            keyTimes.append(number)
-//            currentTime += delayTime
-//            if currentTime > videoDuration {
-//                break
-//            }
-//        }
-//
-//        let animation = CAKeyframeAnimation(keyPath: "contents")
-//        animation.keyTimes = keyTimes
-//        animation.values = frames
-//        animation.fillMode = .forwards
-//        animation.timingFunction = .init(name: .linear)
-//        animation.duration = min(totalTime, videoDuration)
-//        animation.repeatCount = MAXFLOAT
-//        animation.beginTime = beginTime
-//        animation.isRemovedOnCompletion = false
-//        return animation
-//    }
-}
 
-/// 这种取消隐式动画都没效果
-//class VideoAnimationLayer: CALayer {
-//    func action(for layer: CALayer, forKey event: String) -> CAAction? {
-//        NSNull()
-//    }
-//    override func action(forKey event: String) -> CAAction? {
-//        NSNull()
-//    }
-//    override class func defaultAction(forKey event: String) -> CAAction? {
-//        NSNull()
-//    }
-//}
+}

@@ -45,13 +45,13 @@ open class AlbumViewCell: UITableViewCell {
     }()
     
     /// 选中时的背景视图
-    public lazy var selectedBgView : UIView = {
+    public lazy var selectedBgView: UIView = {
         let selectedBgView = UIView.init()
         return selectedBgView
     }()
     
     /// 配置
-    public var config : AlbumListConfiguration? {
+    public var config: AlbumListConfiguration? {
         didSet {
             albumNameLb.font = config?.albumNameFont
             photoCountLb.font = config?.photoCountFont
@@ -116,7 +116,7 @@ open class AlbumViewCell: UITableViewCell {
     }
     /// 布局，重写此方法修改布局
     open func layoutView() {
-        let coverMargin : CGFloat = 5
+        let coverMargin: CGFloat = 5
         let coverWidth = height - (coverMargin * 2)
         albumCoverView.frame = CGRect(x: coverMargin, y: coverMargin, width: coverWidth, height: coverWidth)
         

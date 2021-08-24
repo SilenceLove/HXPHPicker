@@ -50,7 +50,12 @@ class WeChatViewController: UIViewController {
         super.viewDidLayoutSubviews()
         tableView.frame = CGRect(x: 0, y: 0, width: view.hx.width, height: view.hx.height - UIDevice.bottomMargin)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
-        pickerButton.frame = CGRect(x: 0, y: view.hx.height - UIDevice.bottomMargin - 50, width: view.hx.width, height: 50)
+        pickerButton.frame = CGRect(
+            x: 0,
+            y: view.hx.height - UIDevice.bottomMargin - 50,
+            width: view.hx.width,
+            height: 50
+        )
     }
 }
 
@@ -59,18 +64,19 @@ extension WeChatViewController: UITableViewDataSource, UITableViewDelegate {
         photoAssets.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "WeChatViewCellID") as! WeChatViewCell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "WeChatViewCellID"
+        ) as! WeChatViewCell
         cell.photoAsset = photoAssets[indexPath.row]
-        cell.showPicture = {
-            [weak self] myCell in
+        cell.showPicture = { [weak self] myCell in
             guard let self = self,
                   let myIndexPath = self.tableView.indexPath(for: myCell)
             else { return }
             PhotoBrowser.show(
                 self.photoAssets,
                 pageIndex: myIndexPath.row,
-                transitionalImage: myCell.pictureView.image) {
-                index in
+                transitionalImage: myCell.pictureView.image
+            ) { index in
                 let indexPath = IndexPath(
                     row: index,
                     section: 0
@@ -90,13 +96,15 @@ extension WeChatViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension WeChatViewController: PhotoPickerControllerDelegate {
-    func pickerController(_ pickerController: PhotoPickerController,
-                            didFinishSelection result: PickerResult) {
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        didFinishSelection result: PickerResult
+    ) {
         if result.photoAssets.isEmpty {
             return
         }
         var indexPaths: [IndexPath] = []
-        for (index, _) in result.photoAssets.enumerated() {
+        for index in 0..<result.photoAssets.count {
             indexPaths.append(IndexPath(row: photoAssets.count + index, section: 0))
         }
         photoAssets.append(contentsOf: result.photoAssets)
@@ -207,8 +215,9 @@ class WeChatViewCell: UITableViewCell {
             loadingView.startAnimating()
             let targetWidth = hx.width * 2
             pictureView.image = nil
-            requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth) {
-                [weak self] image, photoAsset, info in
+            requestID = photoAsset.requestThumbnailImage(
+                targetWidth: targetWidth
+            ) { [weak self] image, photoAsset, info in
                 guard let self = self else { return }
                 self.loadingView.stopAnimating()
                 if self.photoAsset == photoAsset {
@@ -242,7 +251,13 @@ class WeChatViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         avatarView.frame = CGRect(x: hx.width - 12 - 50, y: 20, width: 40, height: 40)
-        pictureView.frame = CGRect(origin: .init(x: avatarView.hx.x - 10 - photoAsset.pictureSize.width, y: 20), size: photoAsset.pictureSize)
+        pictureView.frame = CGRect(
+            origin: .init(
+                x: avatarView.hx.x - 10 - photoAsset.pictureSize.width,
+                y: 20
+            ),
+            size: photoAsset.pictureSize
+        )
         loadingView.center = pictureView.center
         playIcon.center = CGPoint(x: pictureView.hx.width * 0.5, y: pictureView.hx.height * 0.5)
         stateView.frame = CGRect(x: 0, y: pictureView.hx.height - 25, width: pictureView.hx.width, height: 25)
@@ -257,7 +272,10 @@ class WeChatViewCell: UITableViewCell {
 
 @available(iOS 13.0, *)
 extension WeChatViewCell: UIContextMenuInteractionDelegate {
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
         guard let viewSize = hx.viewController()?.view.hx.size else {
             return nil
         }
@@ -278,14 +296,17 @@ extension WeChatViewCell: UIContextMenuInteractionDelegate {
             }
             width = max(120, width)
             height = max(120, height)
-            /// 不下载，直接播放
+            // 不下载，直接播放
             PhotoManager.shared.loadNetworkVideoMode = .play
             let vc = PhotoPeekViewController(self.photoAsset)
             vc.preferredContentSize = CGSize(width: width, height: height)
             return vc
         }
     }
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+        animator: UIContextMenuInteractionCommitAnimating) {
         animator.addCompletion { [weak self] in
             guard let self = self else { return }
             self.showPicture?(self)

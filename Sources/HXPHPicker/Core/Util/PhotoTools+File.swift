@@ -35,7 +35,7 @@ extension PhotoTools {
         var folderSize = 0
         childFiles?.forEach({ (fileName) in
             let fileAbsolutePath = path + "/" + fileName
-            folderSize = folderSize + fileSize(atPath: fileAbsolutePath)
+            folderSize += fileSize(atPath: fileAbsolutePath)
         })
         return folderSize
     }
@@ -172,7 +172,9 @@ extension PhotoTools {
     }
     
     @discardableResult
-    class func write(toFile fileURL:URL? = nil, image: UIImage?) -> URL? {
+    class func write(
+        toFile fileURL: URL? = nil,
+        image: UIImage?) -> URL? {
         if let imageData = getImageData(for: image) {
             return write(toFile: fileURL, imageData: imageData)
         }
@@ -180,7 +182,9 @@ extension PhotoTools {
     }
     
     @discardableResult
-    class func write(toFile fileURL:URL? = nil, imageData: Data) -> URL? {
+    class func write(
+        toFile fileURL: URL? = nil,
+        imageData: Data) -> URL? {
         let imageURL = fileURL == nil ? getImageTmpURL(imageData.isGif ? .gif : .jpg) : fileURL!
         do {
             if FileManager.default.fileExists(atPath: imageURL.path) {

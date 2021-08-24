@@ -33,7 +33,12 @@ class PickerColorConfigurationViewController: UITableViewController {
         tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(ConfigurationViewCell.self, forCellReuseIdentifier: ConfigurationViewCell.reuseIdentifier)
         tableView.tableFooterView = UIView(frame: .zero)
-        navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "确定", style: .done, target: self, action: #selector(backClick))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "确定",
+            style: .done,
+            target: self,
+            action: #selector(backClick)
+        )
     }
     
     @objc func backClick() {
@@ -51,7 +56,10 @@ class PickerColorConfigurationViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ConfigurationViewCell.reuseIdentifier, for: indexPath) as! ConfigurationViewCell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: ConfigurationViewCell.reuseIdentifier,
+            for: indexPath
+        ) as! ConfigurationViewCell
         let rowType = ColorConfigSection.allCases[indexPath.section].allRowCase[indexPath.row]
         cell.setupColorData(rowType, getRowColor(rowType))
         return cell
@@ -69,7 +77,9 @@ class PickerColorConfigurationViewController: UITableViewController {
     }
 }
 extension PickerColorConfigurationViewController {
+    // swiftlint:disable cyclomatic_complexity
     func getRowColor(_ rowType: ConfigRowTypeRule) -> UIColor? {
+        // swiftlint:enable cyclomatic_complexity
         if let pickerRwoType = rowType as? PickerColorConfigRow {
             switch pickerRwoType {
             case .navigationViewBackgroundColor:
@@ -194,7 +204,9 @@ extension PickerColorConfigurationViewController {
 }
 extension PickerColorConfigurationViewController: UIColorPickerViewControllerDelegate {
     @available(iOS 14.0, *)
+    // swiftlint:disable cyclomatic_complexity
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        // swiftlint:enable cyclomatic_complexity
         if let indexPath = currentSelectedIndexPath {
             let rowType = ColorConfigSection.allCases[indexPath.section].allRowCase[indexPath.row]
             let color = viewController.selectedColor
@@ -372,7 +384,9 @@ extension PickerColorConfigurationViewController {
             return "." + self.rawValue
         }
         
-        func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
+        func getFunction<T>(
+            _ controller: T
+        ) -> ((IndexPath) -> Void) where T: UIViewController {
             guard let controller = controller as? PickerColorConfigurationViewController else { return { _ in } }
             return controller.changedColorAction(_: )
         }
@@ -437,7 +451,9 @@ extension PickerColorConfigurationViewController {
             return ".albumList" + self.rawValue
         }
         
-        func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
+        func getFunction<T>(
+            _ controller: T
+        ) -> ((IndexPath) -> Void) where T: UIViewController {
             guard let controller = controller as? PickerColorConfigurationViewController else { return { _ in } }
             return controller.changedColorAction(_: )
         }
@@ -523,7 +539,9 @@ extension PickerColorConfigurationViewController {
             return "." + self.rawValue
         }
         
-        func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
+        func getFunction<T>(
+            _ controller: T
+        ) -> ((IndexPath) -> Void) where T: UIViewController {
             guard let controller = controller as? PickerColorConfigurationViewController else { return { _ in } }
             return controller.changedColorAction(_: )
         }
@@ -580,10 +598,11 @@ extension PickerColorConfigurationViewController {
             return "." + self.rawValue
         }
         
-        func getFunction<T>(_ controller: T) -> ((IndexPath) -> Void) where T : UIViewController {
+        func getFunction<T>(
+            _ controller: T
+        ) -> ((IndexPath) -> Void) where T: UIViewController {
             guard let controller = controller as? PickerColorConfigurationViewController else { return { _ in } }
             return controller.changedColorAction(_: )
         }
     }
 }
-

@@ -10,7 +10,10 @@ import UIKit
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
 // MARK: PhotoEditorViewControllerDelegate
 extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
-    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {
+    public func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        didFinish result: PhotoEditResult
+    ) {
         let photoAsset = photoEditorViewController.photoAsset!
         photoAsset.photoEdit = result
         if isExternalPreview {
@@ -33,7 +36,7 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
     public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
         let photoAsset = photoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.photoEdit != nil
-        photoAsset.photoEdit = nil;
+        photoAsset.photoEdit = nil
         if beforeHasEdit {
             pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
         }
@@ -101,8 +104,8 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
 extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
-    {
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    ) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             #if canImport(Kingfisher)
@@ -123,8 +126,8 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         _ videoEditorViewController: VideoEditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse)
-    {
+        loadChartletList response: @escaping EditorChartletListResponse
+    ) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             #if canImport(Kingfisher)
@@ -143,16 +146,22 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
             response: response
         )
     }
-    public func videoEditorViewController(shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool {
+    public func videoEditorViewController(
+        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
+    ) -> Bool {
         if let pickerController = pickerController,
-           let shouldClick = pickerController.pickerDelegate?.pickerController(pickerController, videoEditorShouldClickMusicTool: videoEditorViewController) {
+           let shouldClick = pickerController.pickerDelegate?.pickerController(
+            pickerController,
+            videoEditorShouldClickMusicTool: videoEditorViewController
+           ) {
             return shouldClick
         }
         return true
     }
     public func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
+    ) -> Bool {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler(PhotoTools.defaultMusicInfos())
@@ -167,7 +176,8 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
         didSearch text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    ) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler([], false)
@@ -196,7 +206,10 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        didFinish result: VideoEditResult
+    ) {
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result
         if isExternalPreview {
@@ -219,7 +232,7 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
         let photoAsset = videoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.videoEdit != nil
-        photoAsset.videoEdit = nil;
+        photoAsset.videoEdit = nil
         if beforeHasEdit {
             pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
         }

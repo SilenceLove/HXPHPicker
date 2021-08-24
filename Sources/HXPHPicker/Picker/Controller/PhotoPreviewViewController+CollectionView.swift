@@ -14,19 +14,31 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
         return previewAssets.count
     }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         let photoAsset = previewAssets[indexPath.item]
         let cell: PhotoPreviewViewCell
         if photoAsset.mediaType == .photo {
             if photoAsset.mediaSubType == .livePhoto {
-                cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PreviewLivePhotoViewCell.self), for: indexPath) as! PreviewLivePhotoViewCell
+                cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: NSStringFromClass(PreviewLivePhotoViewCell.self),
+                    for: indexPath
+                ) as! PreviewLivePhotoViewCell
                 let livePhotoCell = cell as! PreviewLivePhotoViewCell
                 livePhotoCell.livePhotoPlayType = config.livePhotoPlayType
             }else {
-                cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PreviewPhotoViewCell.self), for: indexPath) as! PreviewPhotoViewCell
+                cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: NSStringFromClass(PreviewPhotoViewCell.self),
+                    for: indexPath
+                ) as! PreviewPhotoViewCell
             }
         }else {
-            cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PreviewVideoViewCell.self), for: indexPath) as! PreviewVideoViewCell
+            cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: NSStringFromClass(PreviewVideoViewCell.self),
+                for: indexPath
+            ) as! PreviewVideoViewCell
             let videoCell = cell as! PreviewVideoViewCell
             videoCell.videoPlayType = config.videoPlayType
             videoCell.statusBarShouldBeHidden = statusBarShouldBeHidden
@@ -39,14 +51,22 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
 // MARK: UICollectionViewDelegate
 extension PhotoPreviewViewController: UICollectionViewDelegate {
     
-    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        willDisplay cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
         let myCell = cell as! PhotoPreviewViewCell
         myCell.scrollContentView.startAnimatedImage()
         if myCell.photoAsset.mediaType == .video {
             myCell.scrollView.zoomScale = 1
         }
     }
-    public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        didEndDisplaying cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
         let myCell = cell as! PhotoPreviewViewCell
         myCell.cancelRequest()
     }
@@ -77,7 +97,10 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
                     selectBoxControl.isSelected = photoAsset.isSelected
                 }
             }
-            if !firstLayoutSubviews && config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) && config.showBottomView {
+            if !firstLayoutSubviews &&
+                config.bottomView.showSelectedView &&
+                (isMultipleSelect || isExternalPreview) &&
+                config.showBottomView {
                 bottomView.selectedView.scrollTo(photoAsset: photoAsset)
             }
             #if HXPICKER_ENABLE_EDITOR
@@ -141,19 +164,31 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             }
         }
         if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, previewSingleClick: cell.photoAsset, atIndex: currentPreviewIndex)
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewSingleClick: cell.photoAsset,
+                atIndex: currentPreviewIndex
+            )
         }
     }
     func cell(longPress cell: PhotoPreviewViewCell) {
         if let pickerController = pickerController {
-            pickerController.pickerDelegate?.pickerController(pickerController, previewLongPressClick: cell.photoAsset, atIndex: currentPreviewIndex)
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewLongPressClick: cell.photoAsset,
+                atIndex: currentPreviewIndex
+            )
         }
     }
     
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
         if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
-            pickerController.pickerDelegate?.pickerController(pickerController, previewNetworkImageDownloadSuccess: photoCell.photoAsset, atIndex: index)
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewNetworkImageDownloadSuccess: photoCell.photoAsset,
+                atIndex: index
+            )
         }
         delegate?.previewViewController(self, networkImagedownloadSuccess: photoCell.photoAsset)
         if config.showBottomView {
@@ -165,7 +200,11 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
         if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
-            pickerController.pickerDelegate?.pickerController(pickerController, previewNetworkImageDownloadFailed: photoCell.photoAsset, atIndex: index)
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewNetworkImageDownloadFailed: photoCell.photoAsset,
+                atIndex: index
+            )
         }
         #endif
     }

@@ -15,11 +15,11 @@ public extension AssetManager {
         public let imageData: Data
         public let dataUTI: String
         public let imageOrientation: UIImage.Orientation
-        public let info: [AnyHashable : Any]?
+        public let info: [AnyHashable: Any]?
     }
     
     struct ImageDataError: Error {
-        public let info: [AnyHashable : Any]?
+        public let info: [AnyHashable: Any]?
         public let error: AssetError
     }
     
@@ -31,35 +31,52 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     /// - Returns: 请求ID
     @discardableResult
-    class func requestImageData(for asset: PHAsset,
-                                version: PHImageRequestOptionsVersion,
-                                iCloudHandler: ((PHImageRequestID) -> Void)?,
-                                progressHandler: PHAssetImageProgressHandler?,
-                                resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
-        return requestImageData(for: asset, version: version, isNetworkAccessAllowed: false, progressHandler: progressHandler) { (result) in
+    class func requestImageData(
+        for asset: PHAsset,
+        version: PHImageRequestOptionsVersion,
+        iCloudHandler: ((PHImageRequestID) -> Void)?,
+        progressHandler: PHAssetImageProgressHandler?,
+        resultHandler: @escaping ImageDataResultHandler
+    ) -> PHImageRequestID {
+        return requestImageData(
+            for: asset,
+            version: version,
+            isNetworkAccessAllowed: false,
+            progressHandler: progressHandler
+        ) { (result) in
             DispatchQueue.main.async {
                 switch result {
                 case .failure(let error):
                     switch error.error {
                     case .needSyncICloud:
-                        let iCloudRequestID = self.requestImageData(for: asset, version: version, isNetworkAccessAllowed: true, progressHandler: progressHandler, resultHandler: { (result) in
+                        let iCloudRequestID = self.requestImageData(
+                            for: asset,
+                            version: version,
+                            isNetworkAccessAllowed: true,
+                            progressHandler: progressHandler,
+                            resultHandler: { (result) in
                             DispatchQueue.main.async {
                                 switch result {
                                 case .success(_):
                                     resultHandler(result)
                                 case .failure(let error):
-                                    resultHandler(.failure(.init(info: error.info, error: .syncICloudFailed(error.info))))
+                                    resultHandler(
+                                        .failure(
+                                            .init(
+                                                info: error.info,
+                                                error: .syncICloudFailed(error.info)
+                                            )
+                                        )
+                                    )
                                 }
                             }
                         })
                         iCloudHandler?(iCloudRequestID)
                     default:
                         resultHandler(.failure(error))
-                        break
                     }
                 default:
                     resultHandler(result)
-                    break
                 }
             }
         }
@@ -67,48 +84,68 @@ public extension AssetManager {
     
     /// 请求imageData，注意处理 HEIC格式
     @discardableResult
-    class func requestImageData(for asset: PHAsset,
-                                version: PHImageRequestOptionsVersion,
-                                isNetworkAccessAllowed: Bool,
-                                progressHandler: PHAssetImageProgressHandler?,
-                                resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
+    class func requestImageData(
+        for asset: PHAsset,
+        version: PHImageRequestOptionsVersion,
+        isNetworkAccessAllowed: Bool,
+        progressHandler: PHAssetImageProgressHandler?,
+        resultHandler: @escaping ImageDataResultHandler
+    ) -> PHImageRequestID {
         let options = PHImageRequestOptions.init()
         options.version = version
         options.resizeMode = .fast
         options.isNetworkAccessAllowed = isNetworkAccessAllowed
         options.progressHandler = progressHandler
-        return requestImageData(for: asset, options: options, resultHandler: resultHandler)
+        return requestImageData(
+            for: asset,
+            options: options,
+            resultHandler: resultHandler
+        )
     }
     /// 请求imageData，注意处理 HEIC格式
     @discardableResult
-    class func requestImageData(for asset: PHAsset,
-                                options: PHImageRequestOptions,
-                                resultHandler: @escaping ImageDataResultHandler) -> PHImageRequestID {
+    class func requestImageData(
+        for asset: PHAsset,
+        options: PHImageRequestOptions,
+        resultHandler: @escaping ImageDataResultHandler
+    ) -> PHImageRequestID {
         if #available(iOS 13, *) {
-            return PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in
-                var sureOrientation : UIImage.Orientation;
-                if (imageOrientation == .up) {
-                    sureOrientation = .up;
-                } else if (imageOrientation == .upMirrored) {
-                    sureOrientation = .upMirrored;
-                } else if (imageOrientation == .down) {
-                    sureOrientation = .down;
-                } else if (imageOrientation == .downMirrored) {
-                    sureOrientation = .downMirrored;
-                } else if (imageOrientation == .left) {
-                    sureOrientation = .left;
-                } else if (imageOrientation == .leftMirrored) {
-                    sureOrientation = .leftMirrored;
-                } else if (imageOrientation == .right) {
-                    sureOrientation = .right;
-                } else if (imageOrientation == .rightMirrored) {
-                    sureOrientation = .rightMirrored;
+            return PHImageManager.default().requestImageDataAndOrientation(
+                for: asset,
+                options: options
+            ) { (imageData, dataUTI, imageOrientation, info) in
+                var sureOrientation: UIImage.Orientation
+                if imageOrientation == .up {
+                    sureOrientation = .up
+                } else if imageOrientation == .upMirrored {
+                    sureOrientation = .upMirrored
+                } else if imageOrientation == .down {
+                    sureOrientation = .down
+                } else if imageOrientation == .downMirrored {
+                    sureOrientation = .downMirrored
+                } else if imageOrientation == .left {
+                    sureOrientation = .left
+                } else if imageOrientation == .leftMirrored {
+                    sureOrientation = .leftMirrored
+                } else if imageOrientation == .right {
+                    sureOrientation = .right
+                } else if imageOrientation == .rightMirrored {
+                    sureOrientation = .rightMirrored
                 } else {
-                    sureOrientation = .up;
+                    sureOrientation = .up
                 }
                 func result() {
                     if let imageData = imageData, self.assetDownloadFinined(for: info) {
-                        resultHandler(.success(.init(imageData: imageData, dataUTI: dataUTI!, imageOrientation: sureOrientation, info: info)))
+                        resultHandler(
+                            .success(
+                                .init(
+                                    imageData: imageData,
+                                    dataUTI: dataUTI!,
+                                    imageOrientation: sureOrientation,
+                                    info: info
+                                )
+                            )
+                        )
                         return
                     }
                     
@@ -128,10 +165,22 @@ public extension AssetManager {
             }
         } else {
             // Fallback on earlier versions
-            return PHImageManager.default().requestImageData(for: asset, options: options) { (imageData, dataUTI, imageOrientation, info) in
+            return PHImageManager.default().requestImageData(
+                for: asset,
+                options: options
+            ) { (imageData, dataUTI, imageOrientation, info) in
                 func result() {
                     if let imageData = imageData {
-                        resultHandler(.success(.init(imageData: imageData, dataUTI: dataUTI!, imageOrientation: imageOrientation, info: info)))
+                        resultHandler(
+                            .success(
+                                .init(
+                                    imageData: imageData,
+                                    dataUTI: dataUTI!,
+                                    imageOrientation: imageOrientation,
+                                    info: info
+                                )
+                            )
+                        )
                         return
                     }
                     if let inICloud = info?.inICloud, inICloud {

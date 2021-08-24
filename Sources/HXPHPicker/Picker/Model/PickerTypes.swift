@@ -166,18 +166,24 @@ public extension PhotoAsset {
 }
 
 public enum AlbumShowMode: Int {
-    case normal = 0         //!< 正常展示
-    case popup = 1          //!< 弹出展示
+    /// 正常展示
+    case normal = 0
+    /// 弹出展示
+    case popup = 1
 }
 
 public extension PhotoPickerViewController {
     enum CancelType {
-        case text   //!< 文本
-        case image  //!< 图片
+        /// 文本
+        case text
+        /// 图片
+        case image
     }
     enum CancelPosition {
-        case left   //!< 左边
-        case right  //!< 右边
+        /// 左边
+        case left
+        /// 右边
+        case right
     }
 }
 

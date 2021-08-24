@@ -84,15 +84,45 @@ public class EditorCropConfirmView: UIView {
     }
     func configColor() {
         let isDark = PhotoManager.isDark
-        finishButton.setTitleColor(isDark ? config.finishButtonTitleDarkColor : config.finishButtonTitleColor, for: .normal)
-        finishButton.setBackgroundImage(UIImage.image(for: isDark ? config.finishButtonDarkBackgroundColor : config.finishButtonBackgroundColor, havingSize: .zero), for: .normal)
+        finishButton.setTitleColor(
+            isDark ? config.finishButtonTitleDarkColor : config.finishButtonTitleColor,
+            for: .normal
+        )
+        finishButton.setBackgroundImage(
+            UIImage.image(
+                for: isDark ? config.finishButtonDarkBackgroundColor : config.finishButtonBackgroundColor,
+                havingSize: .zero
+            ),
+            for: .normal
+        )
         if showReset {
-            resetButton.setTitleColor(isDark ? config.resetButtonTitleDarkColor : config.resetButtonTitleColor, for: .normal)
-            resetButton.setTitleColor(resetButton.titleColor(for: .normal)?.withAlphaComponent(0.4), for: .disabled)
-            resetButton.setBackgroundImage(UIImage.image(for: isDark ? config.resetButtonDarkBackgroundColor : config.resetButtonBackgroundColor, havingSize: .zero), for: .normal)
+            resetButton.setTitleColor(
+                isDark ? config.resetButtonTitleDarkColor : config.resetButtonTitleColor,
+                for: .normal
+            )
+            resetButton.setTitleColor(
+                resetButton.titleColor(for: .normal)?.withAlphaComponent(0.4),
+                for: .disabled
+            )
+            resetButton.setBackgroundImage(
+                UIImage.image(
+                    for: isDark ? config.resetButtonDarkBackgroundColor : config.resetButtonBackgroundColor,
+                    havingSize: .zero
+                ),
+                for: .normal
+            )
         }
-        cancelButton.setTitleColor(isDark ? config.cancelButtonTitleDarkColor : config.cancelButtonTitleColor, for: .normal)
-        cancelButton.setBackgroundImage(UIImage.image(for: isDark ? config.cancelButtonDarkBackgroundColor : config.cancelButtonBackgroundColor, havingSize: .zero), for: .normal)
+        cancelButton.setTitleColor(
+            isDark ? config.cancelButtonTitleDarkColor : config.cancelButtonTitleColor,
+            for: .normal
+        )
+        cancelButton.setBackgroundImage(
+            UIImage.image(
+                for: isDark ? config.cancelButtonDarkBackgroundColor : config.cancelButtonBackgroundColor,
+                havingSize: .zero
+            ),
+            for: .normal
+        )
         if (isDark && config.cancelButtonDarkBackgroundColor == nil) ||
             (!isDark && config.cancelButtonBackgroundColor == nil) {
             cancelButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 5)
@@ -104,7 +134,9 @@ public class EditorCropConfirmView: UIView {
         super.layoutSubviews()
         maskLayer.frame = CGRect(x: 0, y: showReset ? -70 : -10, width: width, height: height + (showReset ? 70 : 10))
         cancelButton.x = UIDevice.leftMargin + 12
-        var cancelWidth = (cancelButton.currentTitle?.width(ofFont: cancelButton.titleLabel!.font, maxHeight: 33) ?? 0) + 20
+        var cancelWidth = (cancelButton.currentTitle?.width(
+                            ofFont: cancelButton.titleLabel!.font,
+                            maxHeight: 33) ?? 0) + 20
         if cancelWidth < 60 {
             cancelWidth = 60
         }
@@ -112,7 +144,9 @@ public class EditorCropConfirmView: UIView {
         cancelButton.height = 33
         cancelButton.centerY = 25
         
-        var finishWidth = (finishButton.currentTitle?.width(ofFont: finishButton.titleLabel!.font, maxHeight: 33) ?? 0) + 20
+        var finishWidth = (finishButton.currentTitle?.width(
+                            ofFont: finishButton.titleLabel!.font,
+                            maxHeight: 33) ?? 0) + 20
         if finishWidth < 60 {
             finishWidth = 60
         }
@@ -122,7 +156,9 @@ public class EditorCropConfirmView: UIView {
         finishButton.centerY = 25
         
         if showReset {
-            var resetWidth = (resetButton.currentTitle?.width(ofFont: resetButton.titleLabel!.font, maxHeight: 33) ?? 0) + 20
+            var resetWidth = (resetButton.currentTitle?.width(
+                                ofFont: resetButton.titleLabel!.font,
+                                maxHeight: 33) ?? 0) + 20
             if resetWidth < 60 {
                 resetWidth = 60
             }

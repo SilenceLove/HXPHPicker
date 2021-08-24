@@ -46,8 +46,8 @@ public struct VideoEditResult {
         videoSoundVolume: Float,
         backgroundMusicURL: URL?,
         backgroundMusicVolume: Float,
-        stickerData: EditorStickerData?)
-    {
+        stickerData: EditorStickerData?
+    ) {
         editedFileSize = editedURL.fileSize
         
         videoDuration = PhotoTools.getVideoDuration(videoURL: editedURL)
@@ -89,8 +89,8 @@ public struct VideoCropData: Codable {
         endTime: TimeInterval,
         preferredTimescale: Int32,
         cropingData: CropData,
-        cropRectData: CropData)
-    {
+        cropRectData: CropData
+    ) {
         self.startTime = startTime
         self.endTime = endTime
         self.preferredTimescale = preferredTimescale

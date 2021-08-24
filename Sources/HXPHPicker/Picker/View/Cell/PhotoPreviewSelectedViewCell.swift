@@ -62,7 +62,9 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
             }
             #endif
         }else {
-            requestID = photoAsset.requestThumbnailImage(targetWidth: width * 2, completion: { [weak self] (image, asset, info) in
+            requestID = photoAsset.requestThumbnailImage(
+                targetWidth: width * 2,
+                completion: { [weak self] (image, asset, info) in
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
                 if self.photoAsset == asset {

@@ -69,7 +69,12 @@ class EditorStickerItemView: UIView {
         let rect = CGRect(x: 0, y: 0, width: item.frame.width, height: item.frame.height)
         super.init(frame: rect)
         let margin = itemMargin / scale
-        externalBorder.frame = CGRect(x: -margin * 0.5, y: -margin * 0.5, width: width + margin, height: height + margin)
+        externalBorder.frame = CGRect(
+            x: -margin * 0.5,
+            y: -margin * 0.5,
+            width: width + margin,
+            height: height + margin
+        )
         layer.addSublayer(externalBorder)
         addSubview(contentView)
 //        if item.text != nil {
@@ -103,7 +108,10 @@ class EditorStickerItemView: UIView {
             let pinchGR = UIPinchGestureRecognizer(target: self, action: #selector(contentViewPinchClick(pinchGR:)))
             contentView.addGestureRecognizer(pinchGR)
         }
-        let rotationGR = UIRotationGestureRecognizer(target: self, action: #selector(contentViewRotationClick(rotationGR:)))
+        let rotationGR = UIRotationGestureRecognizer(
+            target: self,
+            action: #selector(contentViewRotationClick(rotationGR:))
+        )
         contentView.addGestureRecognizer(rotationGR)
     }
     
@@ -148,7 +156,10 @@ class EditorStickerItemView: UIView {
             if let moveToCenter = delegate?.stickerItemView(self, moveToCenter: rect), !isDelete {
                 let keyWindow = UIApplication.shared.keyWindow
                 if let view = keyWindow, moveToCenter,
-                   let viewCenter = superview?.convert(CGPoint(x: view.width * 0.5, y: view.height * 0.5), from: view){
+                   let viewCenter = superview?.convert(
+                    CGPoint(x: view.width * 0.5, y: view.height * 0.5),
+                    from: view
+                   ) {
                     UIView.animate(withDuration: 0.25) {
                         self.center = viewCenter
                     }
@@ -302,7 +313,12 @@ class EditorStickerItemView: UIView {
         frame = rect
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        externalBorder.frame = CGRect(x: -margin * 0.5, y: -margin * 0.5, width: width + margin, height: height + margin)
+        externalBorder.frame = CGRect(
+            x: -margin * 0.5,
+            y: -margin * 0.5,
+            width: width + margin,
+            height: height + margin
+        )
         CATransaction.commit()
         
         contentView.center = CGPoint(x: rect.width * 0.5, y: rect.height * 0.5)
@@ -362,8 +378,12 @@ class EditorStickerItemView: UIView {
         self.frame = frame
         self.center = center
         let margin = itemMargin / scale
-        externalBorder.frame = CGRect(x: -margin * 0.5, y: -margin * 0.5, width: width + margin, height: height + margin)
-        
+        externalBorder.frame = CGRect(
+            x: -margin * 0.5,
+            y: -margin * 0.5,
+            width: width + margin,
+            height: height + margin
+        )
         contentView.transform = .identity
         transform = .identity
         

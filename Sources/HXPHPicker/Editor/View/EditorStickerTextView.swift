@@ -34,7 +34,11 @@ class EditorStickerTextView: UIView {
     }()
     var currentSelectedIndex: Int = 0 {
         didSet {
-            collectionView.scrollToItem(at: IndexPath(item: currentSelectedIndex, section: 0), at: .centeredHorizontally, animated: true)
+            collectionView.scrollToItem(
+                at: IndexPath(item: currentSelectedIndex, section: 0),
+                at: .centeredHorizontally,
+                animated: true
+            )
         }
     }
     var currentSelectedColor: UIColor = .clear
@@ -71,11 +75,14 @@ class EditorStickerTextView: UIView {
         if #available(iOS 11.0, *) {
             collectionView.contentInsetAdjustmentBehavior = .never
         }
-        collectionView.register(PhotoEditorBrushColorViewCell.self, forCellWithReuseIdentifier: "EditorStickerTextViewCellID")
+        collectionView.register(
+            PhotoEditorBrushColorViewCell.self,
+            forCellWithReuseIdentifier: "EditorStickerTextViewCellID"
+        )
         return collectionView
     }()
     
-    var typingAttributes: [NSAttributedString.Key : Any] = [:]
+    var typingAttributes: [NSAttributedString.Key: Any] = [:]
     var stickerText: EditorStickerText?
     
     var showBackgroudColor: Bool = false
@@ -142,14 +149,22 @@ class EditorStickerTextView: UIView {
                     }
                     currentSelectedColor = color
                     currentSelectedIndex = index
-                    collectionView.selectItem(at: IndexPath(item: currentSelectedIndex, section: 0), animated: true, scrollPosition: .centeredHorizontally)
+                    collectionView.selectItem(
+                        at: IndexPath(item: currentSelectedIndex, section: 0),
+                        animated: true,
+                        scrollPosition: .centeredHorizontally
+                    )
                 }
             }else {
                 if index == 0 {
                     changeTextColor(color: color)
                     currentSelectedColor = color
                     currentSelectedIndex = index
-                    collectionView.selectItem(at: IndexPath(item: currentSelectedIndex, section: 0), animated: true, scrollPosition: .centeredHorizontally)
+                    collectionView.selectItem(
+                        at: IndexPath(item: currentSelectedIndex, section: 0),
+                        animated: true,
+                        scrollPosition: .centeredHorizontally
+                    )
                 }
             }
         }
@@ -159,8 +174,18 @@ class EditorStickerTextView: UIView {
     }
     
     func addKeyboardNotificaition() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppearance), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDismiss), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillAppearance),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillDismiss),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
     
     @objc func keyboardWillAppearance(notifi: Notification) {
@@ -189,8 +214,22 @@ class EditorStickerTextView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12 + UIDevice.rightMargin)
-        textButton.frame = CGRect(x: UIDevice.leftMargin, y: height - (keyboardFrame.equalTo(.zero) ?  UIDevice.bottomMargin + 50 : 50 + keyboardFrame.height), width: 50, height: 50)
-        collectionView.frame = CGRect(x: textButton.frame.maxX, y: textButton.y, width: width - textButton.width, height: 50)
+        textButton.frame = CGRect(
+            x: UIDevice.leftMargin,
+            y: height - (
+                keyboardFrame.equalTo(.zero) ?
+                    UIDevice.bottomMargin + 50 :
+                    50 + keyboardFrame.height
+            ),
+            width: 50,
+            height: 50
+        )
+        collectionView.frame = CGRect(
+            x: textButton.frame.maxX,
+            y: textButton.y,
+            width: width - textButton.width,
+            height: 50
+        )
         textView.frame = CGRect(x: 10, y: 0, width: width - 20, height: textButton.y)
     }
     
@@ -226,8 +265,8 @@ extension EditorStickerTextView {
         if rectArray.count < 2 {
             return
         }
-        for (index, _) in rectArray.enumerated() {
-            if index > 0 {
+        for index in 0..<rectArray.count {
+            if index > 0 { // swiftlint:disable:this for_where
                 maxIndex = index
                 processRect(index: index)
             }
@@ -279,8 +318,9 @@ extension EditorStickerTextView {
             processRect(index: index - 1)
         }
     }
-    
+    // swiftlint:disable function_body_length
     func drawBackgroundPath(rects: [CGRect]) -> UIBezierPath {
+        // swiftlint:enable function_body_length
         self.rectArray = rects
         preProccess()
         let path = UIBezierPath()
@@ -297,30 +337,76 @@ extension EditorStickerTextView {
                 bezierPath = .init()
                 startPoint = CGPoint(x: loctionX, y: loctionY + layerRadius)
                 bezierPath?.move(to: startPoint)
-                bezierPath?.addArc(withCenter: CGPoint(x: loctionX + layerRadius, y: loctionY + layerRadius), radius: layerRadius, startAngle: CGFloat.pi, endAngle: 1.5 * CGFloat.pi, clockwise: true)
+                bezierPath?.addArc(
+                    withCenter: CGPoint(
+                        x: loctionX + layerRadius,
+                        y: loctionY + layerRadius
+                    ),
+                    radius: layerRadius,
+                    startAngle: CGFloat.pi,
+                    endAngle: 1.5 * CGFloat.pi,
+                    clockwise: true
+                )
                 bezierPath?.addLine(to: CGPoint(x: rect.maxX - layerRadius, y: loctionY))
-                bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX - layerRadius, y: loctionY + layerRadius), radius: layerRadius, startAngle: 1.5 * CGFloat.pi, endAngle: 0, clockwise: true)
+                bezierPath?.addArc(
+                    withCenter: CGPoint(
+                        x: rect.maxX - layerRadius,
+                        y: loctionY + layerRadius
+                    ),
+                    radius: layerRadius,
+                    startAngle: 1.5 * CGFloat.pi,
+                    endAngle: 0,
+                    clockwise: true
+                )
             }else {
                 let lastRect = rectArray[index - 1]
                 var nextRect: CGRect?
                 if lastRect.maxX > rect.maxX {
                     if index + 1 < rectArray.count {
                         nextRect = rectArray[index + 1]
-                        if nextRect!.width > blankWidth && nextRect!.maxX > rect.maxX{
+                        if nextRect!.width > blankWidth &&
+                            nextRect!.maxX > rect.maxX {
                             half = true
                         }
                     }
                     if half {
                         let radius = (nextRect!.minY - lastRect.maxY) / 2
                         let centerY = nextRect!.minY - radius
-                        bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX + radius, y: centerY), radius: radius, startAngle: -CGFloat.pi * 0.5, endAngle: -CGFloat.pi * 1.5, clockwise: false)
+                        bezierPath?.addArc(
+                            withCenter: CGPoint(
+                                x: rect.maxX + radius,
+                                y: centerY
+                            ),
+                            radius: radius,
+                            startAngle: -CGFloat.pi * 0.5,
+                            endAngle: -CGFloat.pi * 1.5,
+                            clockwise: false
+                        )
                     }else {
-                        bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX + layerRadius, y: lastRect.maxY + layerRadius), radius: layerRadius, startAngle: -CGFloat.pi * 0.5, endAngle: -CGFloat.pi, clockwise: false)
+                        bezierPath?.addArc(
+                            withCenter: CGPoint(
+                                x: rect.maxX + layerRadius,
+                                y: lastRect.maxY + layerRadius
+                            ),
+                            radius: layerRadius,
+                            startAngle: -CGFloat.pi * 0.5,
+                            endAngle: -CGFloat.pi,
+                            clockwise: false
+                        )
                     }
                 }else if lastRect.maxX == rect.maxX {
                     bezierPath?.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - layerRadius))
                 }else {
-                    bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX - layerRadius, y: rect.minY + layerRadius), radius: layerRadius, startAngle: CGFloat.pi * 1.5, endAngle: 0, clockwise: true)
+                    bezierPath?.addArc(
+                        withCenter: CGPoint(
+                            x: rect.maxX - layerRadius,
+                            y: rect.minY + layerRadius
+                        ),
+                        radius: layerRadius,
+                        startAngle: CGFloat.pi * 1.5,
+                        endAngle: 0,
+                        clockwise: true
+                    )
                 }
             }
             var hasNext = false
@@ -330,10 +416,28 @@ extension EditorStickerTextView {
                     if rect.maxX > nextRect.maxX {
                         let point = CGPoint(x: rect.maxX, y: rect.maxY - layerRadius)
                         if let currentPoint = bezierPath?.currentPoint, point.equalTo(currentPoint) {
-                            bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX - layerRadius, y: rect.maxY - layerRadius), radius: layerRadius, startAngle: 0, endAngle: CGFloat.pi * 0.5, clockwise: true)
+                            bezierPath?.addArc(
+                                withCenter: CGPoint(
+                                    x: rect.maxX - layerRadius,
+                                    y: rect.maxY - layerRadius
+                                ),
+                                radius: layerRadius,
+                                startAngle: 0,
+                                endAngle: CGFloat.pi * 0.5,
+                                clockwise: true
+                            )
                         }else {
                             bezierPath?.addLine(to: point)
-                            bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX - layerRadius, y: rect.maxY - layerRadius), radius: layerRadius, startAngle: 0, endAngle: CGFloat.pi * 0.5, clockwise: true)
+                            bezierPath?.addArc(
+                                withCenter: CGPoint(
+                                    x: rect.maxX - layerRadius,
+                                    y: rect.maxY - layerRadius
+                                ),
+                                radius: layerRadius,
+                                startAngle: 0,
+                                endAngle: CGFloat.pi * 0.5,
+                                clockwise: true
+                            )
                         }
                         bezierPath?.addLine(to: CGPoint(x: nextRect.maxX + layerRadius, y: rect.maxY))
                     }else if rect.maxX == nextRect.maxX {
@@ -342,22 +446,63 @@ extension EditorStickerTextView {
                         if !half {
                             let point = CGPoint(x: rect.maxX, y: nextRect.minY - layerRadius)
                             if let currentPoint = bezierPath?.currentPoint, point.equalTo(currentPoint) {
-                                bezierPath?.addArc(withCenter: CGPoint(x: currentPoint.x + layerRadius, y: currentPoint.y), radius: layerRadius, startAngle: -CGFloat.pi, endAngle: -CGFloat.pi * 1.5, clockwise: false)
+                                bezierPath?.addArc(
+                                    withCenter: CGPoint(
+                                        x: currentPoint.x + layerRadius,
+                                        y: currentPoint.y
+                                    ),
+                                    radius: layerRadius,
+                                    startAngle: -CGFloat.pi,
+                                    endAngle: -CGFloat.pi * 1.5,
+                                    clockwise: false
+                                )
                             }else {
                                 bezierPath?.addLine(to: point)
-                                bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX + layerRadius, y: nextRect.minY - layerRadius), radius: layerRadius, startAngle: -CGFloat.pi, endAngle: -CGFloat.pi * 1.5, clockwise: false)
+                                bezierPath?.addArc(
+                                    withCenter: CGPoint(
+                                        x: rect.maxX + layerRadius,
+                                        y: nextRect.minY - layerRadius
+                                    ),
+                                    radius: layerRadius,
+                                    startAngle: -CGFloat.pi,
+                                    endAngle: -CGFloat.pi * 1.5,
+                                    clockwise: false
+                                )
                             }
                         }
-                        bezierPath?.addLine(to: CGPoint(x: nextRect.maxX - layerRadius, y: nextRect.minY))
+                        bezierPath?.addLine(
+                            to: CGPoint(
+                                x: nextRect.maxX - layerRadius,
+                                y: nextRect.minY
+                            )
+                        )
                     }
                     hasNext = true
                 }
             }
             if !hasNext {
                 bezierPath?.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - layerRadius))
-                bezierPath?.addArc(withCenter: CGPoint(x: rect.maxX - layerRadius, y: rect.maxY - layerRadius), radius: layerRadius, startAngle: 0, endAngle: CGFloat.pi * 0.5, clockwise: true)
+                bezierPath?.addArc(
+                    withCenter: CGPoint(
+                        x: rect.maxX - layerRadius,
+                        y: rect.maxY - layerRadius
+                    ),
+                    radius: layerRadius,
+                    startAngle: 0,
+                    endAngle: CGFloat.pi * 0.5,
+                    clockwise: true
+                )
                 bezierPath?.addLine(to: CGPoint(x: rect.minX + layerRadius, y: rect.maxY))
-                bezierPath?.addArc(withCenter: CGPoint(x: rect.minX + layerRadius, y: rect.maxY - layerRadius), radius: layerRadius, startAngle: CGFloat.pi * 0.5, endAngle: CGFloat.pi, clockwise: true)
+                bezierPath?.addArc(
+                    withCenter: CGPoint(
+                        x: rect.minX + layerRadius,
+                        y: rect.maxY - layerRadius
+                    ),
+                    radius: layerRadius,
+                    startAngle: CGFloat.pi * 0.5,
+                    endAngle: CGFloat.pi,
+                    clockwise: true
+                )
                 bezierPath?.addLine(to: CGPoint(x: rect.minX, y: startPoint.y))
                 if let bezierPath = bezierPath {
                     path.append(bezierPath)
@@ -401,9 +546,19 @@ extension EditorStickerTextView {
                 }
             }
             if !nextIsEmpty || lastLineIsEmpty {
-                usedRect = CGRect(x: usedRect.minX - 6, y: usedRect.minY - 8, width: usedRect.width + 12, height: usedRect.height + 8)
+                usedRect = CGRect(
+                    x: usedRect.minX - 6,
+                    y: usedRect.minY - 8,
+                    width: usedRect.width + 12,
+                    height: usedRect.height + 8
+                )
             }else {
-                usedRect = CGRect(x: usedRect.minX - 6, y: usedRect.minY - 8, width: usedRect.width + 12, height: usedRect.height + 16)
+                usedRect = CGRect(
+                    x: usedRect.minX - 6,
+                    y: usedRect.minY - 8,
+                    width: usedRect.width + 12,
+                    height: usedRect.height + 16
+                )
             }
             rectArray.append(usedRect)
         }
@@ -423,7 +578,12 @@ extension EditorStickerTextView {
                     textLayer = createTextBackgroundLayer(path: path.cgPath)
                     CATransaction.begin()
                     CATransaction.setDisableActions(true)
-                    textLayer?.frame = CGRect(x: 15, y: 15, width: path.bounds.width, height: textView.contentSize.height)
+                    textLayer?.frame = CGRect(
+                        x: 15,
+                        y: 15,
+                        width: path.bounds.width,
+                        height: textView.contentSize.height
+                    )
                     CATransaction.commit()
                     subView.layer.insertSublayer(textLayer!, at: 0)
                     return
@@ -477,7 +637,11 @@ extension EditorStickerTextView: UITextViewDelegate {
 }
 
 extension EditorStickerTextView: NSLayoutManagerDelegate {
-    func layoutManager(_ layoutManager: NSLayoutManager, didCompleteLayoutFor textContainer: NSTextContainer?, atEnd layoutFinishedFlag: Bool) {
+    func layoutManager(
+        _ layoutManager: NSLayoutManager,
+        didCompleteLayoutFor textContainer: NSTextContainer?,
+        atEnd layoutFinishedFlag: Bool
+    ) {
         if layoutFinishedFlag {
             drawTextBackgroudColor()
         }
@@ -488,8 +652,14 @@ extension EditorStickerTextView: UICollectionViewDataSource, UICollectionViewDel
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         config.colors.count
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorStickerTextViewCellID", for: indexPath) as! PhotoEditorBrushColorViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "EditorStickerTextViewCellID",
+            for: indexPath
+        ) as! PhotoEditorBrushColorViewCell
         cell.colorHex = config.colors[indexPath.item]
         return cell
     }

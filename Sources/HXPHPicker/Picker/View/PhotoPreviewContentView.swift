@@ -53,7 +53,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var requestNetworkCompletion: Bool = false
     var networkVideoLoading: Bool = false
     
-    var videoPlayType: PhotoPreviewViewController.PlayType = .normal  {
+    var videoPlayType: PhotoPreviewViewController.PlayType = .normal {
         didSet {
             if type == .video {
                 videoView.videoPlayType = videoPlayType
@@ -64,7 +64,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var currentLoadAssetLocalIdentifier: String?
     var photoAsset: PhotoAsset! {
         didSet {
-            requestFailed(info: [PHImageCancelledKey : 1], isICloud: false)
+            requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
             setAnimatedImageCompletion = false
             switch photoAsset.mediaSubType {
             case .livePhoto:
@@ -82,7 +82,12 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 break
             }
             requestNetworkCompletion = true
-            requestID = photoAsset.requestThumbnailImage(targetWidth: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height), completion: { [weak self] (image, asset, info) in
+            requestID = photoAsset.requestThumbnailImage(
+                targetWidth: min(
+                    UIScreen.main.bounds.width,
+                    UIScreen.main.bounds.height
+                ),
+                completion: { [weak self] (image, asset, info) in
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
                 if let image = image,
@@ -103,15 +108,14 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
         imageView.setImage(
             for: photoAsset,
-            urlType: .original)
-        { [weak self] (receivedData, totolData) in
+            urlType: .original
+        ) { [weak self] (receivedData, totolData) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
                 let percentage = Double(receivedData) / Double(totolData)
                 self.requestUpdateProgress(progress: percentage, isICloud: false)
             }
-        } completionHandler:
-        { [weak self] (image, error, photoAsset) in
+        } completionHandler: { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
                 self.requestNetworkCompletion = true
@@ -182,8 +186,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
             networkVideoLoading = true
             PhotoManager.shared.downloadTask(
-                with: videoURL) {
-                [weak self] (progress, task) in
+                with: videoURL
+            ) { [weak self] (progress, task) in
                 self?.requestUpdateProgress(progress: progress, isICloud: false)
             } completionHandler: { [weak self] (url, error, _) in
                 guard let self = self else { return }
@@ -200,7 +204,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                     self.networkVideoRequestCompletion(url)
                 }else {
                     if let error = error as NSError?, error.code == NSURLErrorCancelled {
-                        self.requestFailed(info: [PHImageCancelledKey : 1], isICloud: false)
+                        self.requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
                     }else {
                         self.requestFailed(info: nil, isICloud: false)
                     }
@@ -258,11 +262,15 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             return
         }
         var canRequest = true
-        if let localIdentifier = currentLoadAssetLocalIdentifier, localIdentifier == photoAsset.phAsset?.localIdentifier {
+        if let localIdentifier = currentLoadAssetLocalIdentifier,
+           localIdentifier == photoAsset.phAsset?.localIdentifier {
             canRequest = false
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             if loadingView == nil {
-                loadingView = ProgressHUD.showLoading(addedTo: hudSuperview(), text: "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)", animated: true)
+                loadingView = ProgressHUD.showLoading(
+                    addedTo: hudSuperview(),
+                    text: "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)",
+                    animated: true)
             }
         }else {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -381,8 +389,10 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             return
         }
         #endif
-        let targetSize : CGSize = size
-        requestID = photoAsset.requestLivePhoto(targetSize: targetSize, iCloudHandler: { [weak self] (asset, requestID) in
+        let targetSize: CGSize = size
+        requestID = photoAsset.requestLivePhoto(
+            targetSize: targetSize,
+            iCloudHandler: { [weak self] (asset, requestID) in
             guard let self = self else { return }
             if asset == self.photoAsset {
                 self.requestShowDonwloadICloudHUD(iCloudRequestID: requestID)
@@ -475,7 +485,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         resetLoadingState()
         ProgressHUD.hide(forView: hudSuperview(), animated: true)
     }
-    func requestFailed(info: [AnyHashable : Any]?, isICloud: Bool) {
+    func requestFailed(info: [AnyHashable: Any]?, isICloud: Bool) {
         loadingView?.removeFromSuperview()
         resetLoadingState()
         if let info = info, !info.isCancel {
@@ -526,7 +536,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         if photoAsset.mediaType == .video {
             if photoAsset.isNetworkAsset && !requestNetworkCompletion {
                 cancelRequest()
-                requestFailed(info: [PHImageCancelledKey : 1], isICloud: false)
+                requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
             }else {
                 videoView.stopPlay()
             }
@@ -577,7 +587,10 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             imageView.stopAnimatedImage()
         }
     }
-    func livePhotoView(_ livePhotoView: PHLivePhotoView, didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle) {
+    func livePhotoView(
+        _ livePhotoView: PHLivePhotoView,
+        didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle
+    ) {
         if livePhotoPlayType == .auto {
             livePhotoView.startPlayback(with: .full)
         }

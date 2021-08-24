@@ -17,11 +17,15 @@ public extension AssetManager {
     /// - Parameters:
     ///   - asset: 对应的 PHAsset 数据
     ///   - resultHandler: 获取结果
-    class func requestVideoURL(for asset: PHAsset,
-                               exportPreset: ExportPreset = .ratio_960x540,
-                               videoQuality: Int = 5,
-                               resultHandler: @escaping VideoURLResultHandler) {
-        requestAVAsset(for: asset) { (reqeustID) in
+    class func requestVideoURL(
+        for asset: PHAsset,
+        exportPreset: ExportPreset = .ratio_960x540,
+        videoQuality: Int = 5,
+        resultHandler: @escaping VideoURLResultHandler
+    ) {
+        requestAVAsset(
+            for: asset
+        ) { (reqeustID) in
         } progressHandler: { (progress, error, stop, info) in
         } resultHandler: { (_) in
             self.requestVideoURL(
@@ -41,8 +45,8 @@ public extension AssetManager {
         mp4Format asset: PHAsset,
         exportPreset: ExportPreset = .ratio_960x540,
         videoQuality: Int = 5,
-        resultHandler: @escaping VideoURLResultHandler)
-    {
+        resultHandler: @escaping VideoURLResultHandler
+    ) {
         let videoURL = PhotoTools.getVideoTmpURL()
         requestVideoURL(
             for: asset,
@@ -60,11 +64,11 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     class func requestVideoURL(
         for asset: PHAsset,
-        toFile fileURL:URL,
+        toFile fileURL: URL,
         exportPreset: ExportPreset = .ratio_960x540,
         videoQuality: Int = 6,
-        resultHandler: @escaping VideoURLResultHandler)
-    {
+        resultHandler: @escaping VideoURLResultHandler
+    ) {
         asset.checkAdjustmentStatus { (isAdjusted) in
             if isAdjusted {
                 self.requestAVAsset(for: asset, iCloudHandler: nil, progressHandler: nil) { (result) in
@@ -76,7 +80,10 @@ public extension AssetManager {
                             resultHandler(.success(fileURL))
                         }else {
                             let presetName = exportPreset.name
-                            guard let exportSession = AVAssetExportSession.init(asset: avAsset, presetName: presetName)  else {
+                            guard let exportSession = AVAssetExportSession(
+                                    asset: avAsset,
+                                    presetName: presetName
+                            ) else {
                                 resultHandler(.failure(.exportFailed(nil)))
                                 return
                             }
@@ -113,7 +120,7 @@ public extension AssetManager {
                         videoResource = resource
                     }
                 }
-                if videoResource == nil {
+                guard let videoResource = videoResource else {
                     resultHandler(.failure(.assetResourceIsEmpty))
                     return
                 }
@@ -124,7 +131,11 @@ public extension AssetManager {
                 let videoURL = fileURL
                 let options = PHAssetResourceRequestOptions.init()
                 options.isNetworkAccessAllowed = true
-                PHAssetResourceManager.default().writeData(for: videoResource!, toFile: videoURL, options: options) { (error) in
+                PHAssetResourceManager.default().writeData(
+                    for: videoResource,
+                    toFile: videoURL,
+                    options: options
+                ) { (error) in
                     DispatchQueue.main.async {
                         if error == nil {
                             resultHandler(.success(videoURL))

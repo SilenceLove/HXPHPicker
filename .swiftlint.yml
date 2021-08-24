@@ -1,0 +1,29 @@
+disabled_rules:
+  - trailing_whitespace
+  - explicit_init
+  - statement_position
+  - identifier_name
+  - unused_closure_parameter
+  - multiple_closures_with_trailing_closure
+  - type_body_length
+  - function_parameter_count
+  - for_where
+  - nesting
+  - force_cast
+
+excluded:
+  - Carthage
+  - Pods
+  - Package.swift
+  
+force_try: warning
+    
+function_body_length:
+    warning: 100
+    error: 150
+    
+file_length:
+    warning: 1000
+    error: 1500
+    
+cyclomatic_complexity: 25

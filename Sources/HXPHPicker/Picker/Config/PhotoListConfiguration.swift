@@ -14,10 +14,10 @@ public class PhotoListConfiguration {
     public lazy var titleView: AlbumTitleViewConfiguration = .init()
     
     /// 背景颜色
-    public lazy var backgroundColor : UIColor = .white
+    public lazy var backgroundColor: UIColor = .white
     
     /// 暗黑风格下背景颜色
-    public lazy var backgroundDarkColor : UIColor = "#2E2F30".color
+    public lazy var backgroundDarkColor: UIColor = "#2E2F30".color
     
     /// 取消按钮的配置只有当 albumShowMode = .popup 时有效
     /// 取消按钮类型
@@ -33,13 +33,13 @@ public class PhotoListConfiguration {
     public var cancelDarkImageName: String = "hx_picker_photolist_cancel"
     
     /// 每行显示数量
-    public var rowNumber : Int = UIDevice.isPad ? 5 : 4
+    public var rowNumber: Int = UIDevice.isPad ? 5 : 4
     
     /// 横屏时每行显示数量
-    public var landscapeRowNumber : Int = 7
+    public var landscapeRowNumber: Int = 7
     
     /// 每个照片之间的间隙
-    public var spacing : CGFloat = 1
+    public var spacing: CGFloat = 1
     
     /// 允许 Haptic Touch 预览，iOS13 以上
     public var allowHapticTouchPreview: Bool = true
@@ -87,7 +87,7 @@ public class PhotoListConfiguration {
     public var customAlbumName: String?
     
     /// 没有资源时展示的相关配置
-    public lazy var emptyView : EmptyViewConfiguration = .init()
+    public lazy var emptyView: EmptyViewConfiguration = .init()
     
     public init() { }
 }

@@ -30,8 +30,8 @@ public struct PhotoEditorFilterInfo {
     public init(
         filterName: String,
         defaultValue: Float = -1,
-        filterHandler: @escaping PhotoEditorFilterHandler)
-    {
+        filterHandler: @escaping PhotoEditorFilterHandler
+    ) {
         self.filterName = filterName
         self.defaultValue = defaultValue
         self.filterHandler = filterHandler
@@ -45,8 +45,8 @@ class PhotoEditorFilter: Equatable, Codable {
     
     init(
         filterName: String,
-        defaultValue: Float)
-    {
+        defaultValue: Float
+    ) {
         self.filterName = filterName
         self.defaultValue = defaultValue
     }
@@ -57,8 +57,8 @@ class PhotoEditorFilter: Equatable, Codable {
     
     static func == (
         lhs: PhotoEditorFilter,
-        rhs: PhotoEditorFilter) -> Bool
-    {
+        rhs: PhotoEditorFilter
+    ) -> Bool {
         lhs === rhs
     }
 }

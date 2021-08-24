@@ -10,11 +10,13 @@ import UIKit
 extension PhotoManager: URLSessionDownloadDelegate {
     
     @discardableResult
-    public func downloadTask(with url: URL,
-                             toFile fileURL: URL? = nil,
-                             ext: Any? = nil,
-                             progress: ((Double, URLSessionDownloadTask) -> Void)? = nil,
-                             completionHandler: @escaping (URL?, Error?, Any?) -> Void) -> URLSessionDownloadTask {
+    public func downloadTask(
+        with url: URL,
+        toFile fileURL: URL? = nil,
+        ext: Any? = nil,
+        progress: ((Double, URLSessionDownloadTask) -> Void)? = nil,
+        completionHandler: @escaping (URL?, Error?, Any?) -> Void
+    ) -> URLSessionDownloadTask {
         let key = url.absoluteString
         if key.hasSuffix("mp4") && PhotoTools.isCached(forVideo: key) {
             let videoURL = PhotoTools.getVideoCacheURL(for: key)
@@ -83,7 +85,13 @@ extension PhotoManager: URLSessionDownloadDelegate {
         downloadTasks.removeValue(forKey: key)
     }
     
-    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+    public func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
         let responseURL = downloadTask.currentRequest!.url!
         let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         let progressHandler = downloadProgresss[responseURL.absoluteString]
@@ -92,7 +100,11 @@ extension PhotoManager: URLSessionDownloadDelegate {
         }
     }
     
-    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+    public func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
         let responseURL = downloadTask.currentRequest!.url!
         let key = responseURL.absoluteString
         let completionHandler = downloadCompletions[key]
@@ -132,7 +144,11 @@ extension PhotoManager: URLSessionDownloadDelegate {
         removeTask(responseURL)
     }
     
-    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
         let responseURL = task.currentRequest!.url!
         let key = responseURL.absoluteString
         let ext = downloadExts[key]

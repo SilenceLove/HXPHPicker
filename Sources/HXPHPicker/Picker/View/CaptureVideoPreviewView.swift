@@ -29,8 +29,13 @@ class CaptureVideoPreviewView: UIView {
     }()
     lazy var videoOutput: AVCaptureVideoDataOutput = {
         let videoOutput = AVCaptureVideoDataOutput()
-        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.hxphpicker.camerapreview"))
+        videoOutput.videoSettings = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        ]
+        videoOutput.setSampleBufferDelegate(
+            self,
+            queue: DispatchQueue(label: "com.hxphpicker.camerapreview")
+        )
         videoOutput.alwaysDiscardsLateVideoFrames = true
         return videoOutput
     }()
@@ -126,7 +131,11 @@ class CaptureVideoPreviewView: UIView {
 }
 
 extension CaptureVideoPreviewView: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
         if isCell && canAddOutput {
             if let image = createImage(from: sampleBuffer)?.rotation(to: .right) {
                 PhotoManager.shared.cameraPreviewImage = image
@@ -148,7 +157,6 @@ extension CaptureVideoPreviewView: AVCaptureVideoDataOutputSampleBufferDelegate 
         guard CVPixelBufferGetPixelFormatType(imageBuffer) == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange else {
             return nil
         }
-
 
         guard CVPixelBufferLockBaseAddress(imageBuffer, .readOnly) == kCVReturnSuccess else {
             return nil
@@ -251,7 +259,8 @@ extension CaptureVideoPreviewView: AVCaptureVideoDataOutputSampleBufferDelegate 
                 return nil
         }
 
-        // core foundation objects are automatically memory mananged. no need to call CGContextRelease() or CGColorSpaceRelease()
+        // core foundation objects are automatically memory mananged.
+        // no need to call CGContextRelease() or CGColorSpaceRelease()
         guard let context = CGContext(
             data: argbBuffer.data,
             width: Int(argbBuffer.width),

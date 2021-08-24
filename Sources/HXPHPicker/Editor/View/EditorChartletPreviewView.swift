@@ -45,8 +45,8 @@ class EditorChartletPreviewView: UIView {
         imageURL: URL,
         editorType: EditorController.EditorType,
         touch center: CGPoint,
-        touchView viewSize: CGSize)
-    {
+        touchView viewSize: CGSize
+    ) {
         image = nil
         touchCenter = center
         touchViewSize = viewSize
@@ -72,8 +72,8 @@ class EditorChartletPreviewView: UIView {
         }
         imageView.my.kf.setImage(
             with: imageURL,
-            options: options)
-        { [weak self] result in
+            options: options
+        ) { [weak self] result in
             switch result {
             case .success(let imageResult):
                 self?.image = imageResult.image
@@ -107,7 +107,7 @@ class EditorChartletPreviewView: UIView {
         var x: CGFloat = center.x - width * 0.5
         if x + width + UIDevice.rightMargin + 10 > screenWidth {
             x = center.x + viewSize.width * 0.5 - width
-        }else if x < UIDevice.leftMargin + 10  {
+        }else if x < UIDevice.leftMargin + 10 {
             x = center.x - viewSize.width * 0.5
         }
         var y: CGFloat = center.y - viewSize.height * 0.5 - height
@@ -123,7 +123,7 @@ class EditorChartletPreviewView: UIView {
                 y = center.y - height * 0.5
                 x = center.x - viewSize.width * 0.5 - width
                 triangleMove = CGPoint(x: width, y: height * 0.5)
-                if x < UIDevice.leftMargin + 10  {
+                if x < UIDevice.leftMargin + 10 {
                     x = center.x + viewSize.width * 0.5
                     triangleMove = CGPoint(x: 0, y: height * 0.5)
                     horizontalType = 1

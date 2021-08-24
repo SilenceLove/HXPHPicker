@@ -81,8 +81,8 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         public let selectedColor: UIColor
         public init(
             infos: [PhotoEditorFilterInfo],
-            selectedColor: UIColor = .systemTintColor)
-        {
+            selectedColor: UIColor = .systemTintColor
+        ) {
             self.infos = infos
             self.selectedColor = selectedColor
         }
@@ -104,13 +104,11 @@ open class PhotoEditorConfiguration: EditorConfiguration {
         public init(
             mosaicWidth: CGFloat,
             mosaiclineWidth: CGFloat,
-            smearWidth: CGFloat)
-        {
+            smearWidth: CGFloat
+        ) {
             self.mosaicWidth = mosaicWidth
             self.mosaiclineWidth = mosaiclineWidth
             self.smearWidth = smearWidth
         }
     }
 }
-
-

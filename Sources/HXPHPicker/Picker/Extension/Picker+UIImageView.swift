@@ -19,8 +19,8 @@ extension UIImageView {
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
-        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil) -> Kingfisher.DownloadTask?
-    {
+        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
+    ) -> Kingfisher.DownloadTask? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = asset.photoEdit {
             if urlType == .thumbnail {
@@ -49,14 +49,16 @@ extension UIImageView {
             kf.indicatorType = .activity
         }
         var url = URL(string: "")
-        var placeholderImage: UIImage? = nil
+        var placeholderImage: UIImage?
         var options: KingfisherOptionsInfo = []
         var loadVideoCover: Bool = false
         if let imageAsset = asset.networkImageAsset {
             url = isThumbnail ? imageAsset.thumbnailURL : imageAsset.originalURL
             placeholderImage = UIImage.image(for: imageAsset.placeholder)
             let processor = DownsamplingImageProcessor(size: imageAsset.thumbnailSize)
-            options = isThumbnail ? [.onlyLoadFirstFrame, .processor(processor), .cacheOriginalImage] : [.backgroundDecode]
+            options = isThumbnail ?
+                [.onlyLoadFirstFrame, .processor(processor), .cacheOriginalImage] :
+                [.backgroundDecode]
         }else if let videoAsset = asset.networkVideoAsset {
             if let coverImage = videoAsset.coverImage {
                 image = coverImage
@@ -86,11 +88,6 @@ extension UIImageView {
             url = videoAsset.videoURL
         }
         if loadVideoCover {
-//            let generator = AVAssetImageGenerator(asset: .init(url: url!))
-//            generator.appliesPreferredTrackTransform = true
-//            generator.requestedTimeToleranceBefore = .zero
-//            generator.requestedTimeToleranceAfter = .zero
-//            let provider = AVAssetImageDataProvider(assetImageGenerator: generator, time: .init(seconds: 0.15, preferredTimescale: 600))
             let provider = AVAssetImageDataProvider(assetURL: url!, seconds: 0.15)
             return KF.dataProvider(provider)
                     .onSuccess { (result) in
@@ -106,13 +103,18 @@ extension UIImageView {
                     }
                     .set(to: self)
         }
-        return kf.setImage(with: url, placeholder: placeholderImage, options: options, progressBlock: progressBlock) { (result) in
+        return kf.setImage(
+            with: url,
+            placeholder: placeholderImage,
+            options: options,
+            progressBlock: progressBlock
+        ) { (result) in
             switch result {
             case .success(let value):
                 switch asset.mediaSubType {
                 case .networkImage(_):
                     if asset.localImageAsset == nil {
-                        let localImageAsset = LocalImageAsset.init(image: value.image)
+                        let localImageAsset = LocalImageAsset(image: value.image)
                         asset.localImageAsset = localImageAsset
                     }
                     asset.networkImageAsset?.imageSize = value.image.size
@@ -135,15 +137,15 @@ extension UIImageView {
     #else
     func setVideoCoverImage(
         for asset: PhotoAsset,
-        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil)
-    {
+        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil
+    ) {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = asset.videoEdit {
             completionHandler?(videoEdit.coverImage, asset)
             return
         }
         #endif
-        var videoURL: URL? = nil
+        var videoURL: URL?
         if let videoAsset = asset.networkVideoAsset {
             if let coverImage = videoAsset.coverImage {
                 completionHandler?(coverImage, asset)
@@ -186,8 +188,8 @@ extension ImageView {
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
-        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil) -> Kingfisher.DownloadTask?
-    {
+        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
+    ) -> Kingfisher.DownloadTask? {
         imageView.setImage(
             for: asset,
             urlType: urlType,
@@ -198,8 +200,8 @@ extension ImageView {
     #else
     func setVideoCoverImage(
         for asset: PhotoAsset,
-        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil)
-    {
+        completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil
+    ) {
         imageView.setVideoCoverImage(
             for: asset,
             completionHandler: completionHandler

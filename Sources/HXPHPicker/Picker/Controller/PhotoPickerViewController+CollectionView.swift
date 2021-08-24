@@ -10,11 +10,18 @@ import UIKit
 // MARK: UICollectionViewDataSource
 extension PhotoPickerViewController: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        config.allowAddCamera && canAddCamera && pickerController != nil ? assets.count + 1 : assets.count
+        config.allowAddCamera &&
+            canAddCamera &&
+            pickerController != nil ? assets.count + 1 : assets.count
     }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if let pickerController = pickerController, config.allowAddCamera, canAddCamera {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        if let pickerController = pickerController,
+           config.allowAddCamera,
+           canAddCamera {
             if !pickerController.config.reverseOrder {
                 if indexPath.item == assets.count {
                     return cameraCell
@@ -27,10 +34,19 @@ extension PhotoPickerViewController: UICollectionViewDataSource {
         }
         let cell: PhotoPickerBaseViewCell
         let photoAsset = getPhotoAsset(for: indexPath.item)
-        if pickerController?.config.selectMode == .single || (photoAsset.mediaType == .video && videoLoadSingleCell) {
-            cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PhotoPickerViewCell.classForCoder()), for: indexPath) as! PhotoPickerBaseViewCell
+        if pickerController?.config.selectMode == .single ||
+            (photoAsset.mediaType == .video && videoLoadSingleCell) {
+            cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier:
+                    NSStringFromClass(PhotoPickerViewCell.classForCoder()),
+                for: indexPath
+            ) as! PhotoPickerBaseViewCell
         }else {
-            cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(PhotoPickerSelectableViewCell.classForCoder()), for: indexPath) as! PhotoPickerBaseViewCell
+            cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier:
+                    NSStringFromClass(PhotoPickerSelectableViewCell.classForCoder()),
+                for: indexPath
+            ) as! PhotoPickerBaseViewCell
         }
         cell.delegate = self
         cell.config = config.cell
@@ -42,25 +58,48 @@ extension PhotoPickerViewController: UICollectionViewDataSource {
 // MARK: UICollectionViewDelegate
 extension PhotoPickerViewController: UICollectionViewDelegate {
     
-    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let pickerController = pickerController, let myCell: PhotoPickerBaseViewCell = cell as? PhotoPickerBaseViewCell {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        willDisplay cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
+        if let pickerController = pickerController,
+           let myCell: PhotoPickerBaseViewCell = cell as? PhotoPickerBaseViewCell {
             let photoAsset = getPhotoAsset(for: indexPath.item)
-            if !photoAsset.isSelected && config.cell.showDisableMask && pickerController.config.maximumSelectedVideoFileSize == 0  &&
+            if !photoAsset.isSelected &&
+                config.cell.showDisableMask &&
+                pickerController.config.maximumSelectedVideoFileSize == 0 &&
                 pickerController.config.maximumSelectedPhotoFileSize == 0 {
-                myCell.canSelect = pickerController.canSelectAsset(for: photoAsset, showHUD: false)
+                myCell.canSelect = pickerController.canSelectAsset(
+                    for: photoAsset,
+                    showHUD: false
+                )
             }else {
                 myCell.canSelect = true
             }
         }
     }
-    public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        didEndDisplaying cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
         let myCell: PhotoPickerBaseViewCell? = cell as? PhotoPickerBaseViewCell
         myCell?.cancelRequest()
     }
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        didSelectItem(indexPath: indexPath, animated: true)
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        didSelectItem(
+            indexPath: indexPath,
+            animated: true
+        )
     }
-    func didSelectItem(indexPath: IndexPath, animated: Bool) {
+    func didSelectItem(
+        indexPath: IndexPath,
+        animated: Bool
+    ) {
         if navigationController?.topViewController != self {
             return
         }
@@ -70,7 +109,12 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
         if cell is PickerCamerViewCell {
             if !UIImagePickerController.isSourceTypeAvailable(.camera) {
-                ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "相机不可用!".localized, animated: true, delayHide: 1.5)
+                ProgressHUD.showWarning(
+                    addedTo: self.navigationController?.view,
+                    text: "相机不可用!".localized,
+                    animated: true,
+                    delayHide: 1.5
+                )
                 return
             }
             AssetManager.requestCameraAccess { (granted) in
@@ -144,8 +188,10 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
     }
     @discardableResult
-    func openPhotoEditor(photoAsset: PhotoAsset,
-                         animated: Bool = true) -> Bool {
+    func openPhotoEditor(
+        photoAsset: PhotoAsset,
+        animated: Bool = true
+    ) -> Bool {
         guard let pickerController = pickerController,
               photoAsset.mediaType == .photo else {
             return false
@@ -159,7 +205,11 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             config.languageType = pickerController.config.languageType
             config.appearanceStyle = pickerController.config.appearanceStyle
             config.indicatorType = pickerController.config.indicatorType
-            let photoEditorVC = PhotoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.photoEdit, config: config)
+            let photoEditorVC = PhotoEditorViewController(
+                photoAsset: photoAsset,
+                editResult: photoAsset.photoEdit,
+                config: config
+            )
             photoEditorVC.delegate = self
             navigationController?.pushViewController(photoEditorVC, animated: animated)
             return true
@@ -168,9 +218,11 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         return false
     }
     @discardableResult
-    func openVideoEditor(photoAsset: PhotoAsset,
-                         coverImage: UIImage? = nil,
-                         animated: Bool = true) -> Bool {
+    func openVideoEditor(
+        photoAsset: PhotoAsset,
+        coverImage: UIImage? = nil,
+        animated: Bool = true
+    ) -> Bool {
         guard let pickerController = pickerController,
               photoAsset.mediaType == .video else {
             return false
@@ -192,8 +244,12 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             config.languageType = pickerController.config.languageType
             config.appearanceStyle = pickerController.config.appearanceStyle
             config.indicatorType = pickerController.config.indicatorType
-            let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: config)
-            videoEditorVC.coverImage = coverImage;
+            let videoEditorVC = VideoEditorViewController(
+                photoAsset: photoAsset,
+                editResult: photoAsset.videoEdit,
+                config: config
+            )
+            videoEditorVC.coverImage = coverImage
             videoEditorVC.delegate = self
             navigationController?.pushViewController(videoEditorVC, animated: animated)
             return true
@@ -203,7 +259,11 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
     }
     
     @available(iOS 13.0, *)
-    public func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
         guard let sCell = collectionView.cellForItem(at: indexPath),
               config.allowHapticTouchPreview else {
             return nil
@@ -240,8 +300,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 return vc
             }
             return nil
-        } actionProvider: {
-            menuElements in
+        } actionProvider: { menuElements in
             guard let picker = self.pickerController,
                   let cell = sCell as? PhotoPickerBaseViewCell,
                   self.config.allowAddMenuElements else { return nil }
@@ -250,8 +309,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             if picker.config.selectMode == .multiple {
                 let select = UIAction(
                     title: photoAsset.isSelected ? "取消选择".localized : "选择".localized
-                ) {
-                    action in
+                ) { action in
                     self.updateCellSelectedState(
                         for: indexPath.item,
                         isSelected: !photoAsset.isSelected
@@ -270,8 +328,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             if picker.config.editorOptions.contains(options) {
                 let edit = UIAction(
                     title: "编辑".localized
-                ) {
-                    action in
+                ) { action in
                     self.openEditor(
                         photoAsset,
                         cell,
@@ -289,12 +346,15 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
     }
     
     @available(iOS 13.0, *)
-    public func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+        animator: UIContextMenuInteractionCommitAnimating
+    ) {
         guard let indexPath = configuration.identifier as? IndexPath else {
             return
         }
-        animator.addCompletion {
-            [weak self] in
+        animator.addCompletion { [weak self] in
             self?.didSelectItem(
                 indexPath: indexPath,
                 animated: false

@@ -81,7 +81,6 @@ extension LocalImageAsset: Codable {
     }
 }
 
-
 extension LocalVideoAsset: Codable {
     enum CodingKeys: CodingKey {
         case videoURL

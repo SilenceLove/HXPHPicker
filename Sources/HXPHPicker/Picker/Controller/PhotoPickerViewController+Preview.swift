@@ -8,11 +8,13 @@
 import UIKit
 
 // MARK: PhotoPreviewViewControllerDelegate
-extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
+extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate {
     
-    func pushPreviewViewController(previewAssets: [PhotoAsset],
-                                   currentPreviewIndex: Int,
-                                   animated: Bool) {
+    func pushPreviewViewController(
+        previewAssets: [PhotoAsset],
+        currentPreviewIndex: Int,
+        animated: Bool
+    ) {
         guard let picker = pickerController else {
             return
         }
@@ -26,18 +28,29 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
             vc.configColor()
         }
     }
-    func previewViewController(_ previewController: PhotoPreviewViewController, editAssetFinished photoAsset: PhotoAsset) {
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        editAssetFinished photoAsset: PhotoAsset
+    ) {
         reloadCell(for: photoAsset)
         bottomView.updateFinishButtonTitle()
     }
-    func previewViewController(_ previewController: PhotoPreviewViewController, didOriginalButton isOriginal: Bool) {
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        didOriginalButton isOriginal: Bool
+    ) {
         if isMultipleSelect {
             bottomView.boxControl.isSelected = isOriginal
             bottomView.requestAssetBytes()
         }
     }
-    func previewViewController(_ previewController: PhotoPreviewViewController, didSelectBox photoAsset: PhotoAsset, isSelected: Bool, updateCell: Bool) {
-        if !isSelected && updateCell{
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        didSelectBox photoAsset: PhotoAsset,
+        isSelected: Bool,
+        updateCell: Bool
+    ) {
+        if !isSelected && updateCell {
             let cell = getCell(for: photoAsset)
             cell?.photoAsset = photoAsset
         }
@@ -45,7 +58,10 @@ extension PhotoPickerViewController: PhotoPreviewViewControllerDelegate  {
         bottomView.updateFinishButtonTitle()
     }
     
-    func previewViewController(_ previewController: PhotoPreviewViewController, networkImagedownloadSuccess photoAsset: PhotoAsset) {
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        networkImagedownloadSuccess photoAsset: PhotoAsset
+    ) {
         if let cell = getCell(for: photoAsset), cell.downloadStatus == .failed {
             cell.requestThumbnailImage()
         }

@@ -23,20 +23,18 @@ public class PhotoManager: NSObject {
     
     /// 当前是否处于暗黑模式
     public class var isDark: Bool {
-        get {
-            if shared.appearanceStyle == .normal {
-                return false
-            }
-            if shared.appearanceStyle == .dark {
-                return true
-            }
-            if #available(iOS 13.0, *) {
-                if UITraitCollection.current.userInterfaceStyle == .dark {
-                    return true
-                }
-            }
+        if shared.appearanceStyle == .normal {
             return false
         }
+        if shared.appearanceStyle == .dark {
+            return true
+        }
+        if #available(iOS 13.0, *) {
+            if UITraitCollection.current.userInterfaceStyle == .dark {
+                return true
+            }
+        }
+        return false
     }
     
     /// 当前语言文件，每次创建PhotoPickerController判断是否需要重新创建
@@ -66,11 +64,11 @@ public class PhotoManager: NSObject {
     var audioPlayer: AVAudioPlayer?
     var audioPlayFinish: (() -> Void)?
     
-    var downloadTasks: [String : URLSessionDownloadTask] = [:]
-    var downloadCompletions: [String : (URL?, Error?, Any?) -> Void] = [:]
-    var downloadProgresss: [String : (Double, URLSessionDownloadTask) -> Void] = [:]
-    var downloadFileURLs: [String : URL] = [:]
-    var downloadExts: [String : Any] = [:]
+    var downloadTasks: [String: URLSessionDownloadTask] = [:]
+    var downloadCompletions: [String: (URL?, Error?, Any?) -> Void] = [:]
+    var downloadProgresss: [String: (Double, URLSessionDownloadTask) -> Void] = [:]
+    var downloadFileURLs: [String: URL] = [:]
+    var downloadExts: [String: Any] = [:]
     
     private override init() {
         super.init()

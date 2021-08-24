@@ -11,10 +11,10 @@ import Photos
 
 open class PhotoPickerController: UINavigationController {
     
-    public weak var pickerDelegate : PhotoPickerControllerDelegate?
+    public weak var pickerDelegate: PhotoPickerControllerDelegate?
     
     /// 相关配置
-    public let config : PickerConfiguration
+    public let config: PickerConfiguration
     
     /// 当前被选择的资源对应的 PhotoAsset 对象数组
     /// 外部预览时的资源数据
@@ -24,7 +24,7 @@ open class PhotoPickerController: UINavigationController {
     public var isOriginal: Bool = false
     
     /// fetch Assets 时的选项配置
-    public lazy var options : PHFetchOptions = .init()
+    public lazy var options: PHFetchOptions = .init()
     
     /// 完成/取消时自动 dismiss ,为false需要自己在代理回调里手动 dismiss
     public var autoDismiss: Bool = true
@@ -98,16 +98,19 @@ open class PhotoPickerController: UINavigationController {
     /// - Parameter config: 相关配置
     public convenience init(
         picker config: PickerConfiguration,
-        delegate: PhotoPickerControllerDelegate? = nil)
-    {
-        self.init(config: config, delegate: delegate)
+        delegate: PhotoPickerControllerDelegate? = nil
+    ) {
+        self.init(
+            config: config,
+            delegate: delegate
+        )
     }
     /// 选择资源初始化
     /// - Parameter config: 相关配置
     public init(
         config: PickerConfiguration,
-        delegate: PhotoPickerControllerDelegate? = nil)
-    {
+        delegate: PhotoPickerControllerDelegate? = nil
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -120,7 +123,7 @@ open class PhotoPickerController: UINavigationController {
         isPreviewAsset = false
         super.init(nibName: nil, bundle: nil)
         pickerDelegate = delegate
-        var photoVC : UIViewController
+        var photoVC: UIViewController
         if config.albumShowMode == .normal {
             photoVC = AlbumViewController(config: config.albumList)
         }else {
@@ -133,8 +136,8 @@ open class PhotoPickerController: UINavigationController {
     public convenience init(
         config: PickerConfiguration,
         finish: FinishHandler? = nil,
-        cancel: CancelHandler? = nil)
-    {
+        cancel: CancelHandler? = nil
+    ) {
         self.init(config: config)
         self.finishHandler = finish
         self.cancelHandler = cancel
@@ -149,8 +152,8 @@ open class PhotoPickerController: UINavigationController {
         preview config: PickerConfiguration,
         currentIndex: Int,
         modalPresentationStyle: UIModalPresentationStyle = .custom,
-        delegate: PhotoPickerControllerDelegate? = nil)
-    {
+        delegate: PhotoPickerControllerDelegate? = nil
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -174,18 +177,16 @@ open class PhotoPickerController: UINavigationController {
     public var finishHandler: FinishHandler?
     public var cancelHandler: CancelHandler?
     
-    
-    // MARK: -
     /// 所有资源集合
-    private(set) var assetCollectionsArray : [PhotoAssetCollection] = []
-    var fetchAssetCollectionsCompletion : (([PhotoAssetCollection])->())?
+    private(set) var assetCollectionsArray: [PhotoAssetCollection] = []
+    var fetchAssetCollectionsCompletion: (([PhotoAssetCollection]) -> Void)?
     
     /// 相机胶卷资源集合
-    private(set) var cameraAssetCollection : PhotoAssetCollection?
-    var fetchCameraAssetCollectionCompletion : ((PhotoAssetCollection?)->())?
+    private(set) var cameraAssetCollection: PhotoAssetCollection?
+    var fetchCameraAssetCollectionCompletion: ((PhotoAssetCollection?) -> Void)?
     private var canAddAsset: Bool = true
     private var isFirstAuthorization: Bool = false
-    private var selectOptions : PickerAssetOptions!
+    private var selectOptions: PickerAssetOptions!
     private var selectedPhotoAssetArray: [PhotoAsset] = []
     private var selectedVideoAssetArray: [PhotoAsset] = []
     private lazy var deniedView: DeniedAuthorizationView = {
@@ -244,12 +245,20 @@ open class PhotoPickerController: UINavigationController {
             }
         }
     }
-    public override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+    public override func present(
+        _ viewControllerToPresent: UIViewController,
+        animated flag: Bool,
+        completion: (() -> Void)? = nil
+    ) {
         if isFirstAuthorization && viewControllerToPresent is UIImagePickerController {
             viewControllerToPresent.modalPresentationStyle = .fullScreen
             isFirstAuthorization = false
         }
-        super.present(viewControllerToPresent, animated: flag, completion: completion)
+        super.present(
+            viewControllerToPresent,
+            animated: flag,
+            completion: completion
+        )
     }
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -309,7 +318,10 @@ extension PhotoPickerController {
     func fetchCameraAssetCollection() {
         if !config.allowLoadPhotoLibrary {
             if cameraAssetCollection == nil {
-                cameraAssetCollection = PhotoAssetCollection.init(albumName: config.albumList.emptyAlbumName.localized, coverImage: config.albumList.emptyCoverImageName.image)
+                cameraAssetCollection = PhotoAssetCollection(
+                    albumName: config.albumList.emptyAlbumName.localized,
+                    coverImage: config.albumList.emptyCoverImageName.image
+                )
             }
             fetchCameraAssetCollectionCompletion?(cameraAssetCollection)
             return
@@ -317,10 +329,16 @@ extension PhotoPickerController {
         if config.creationDate {
             options.sortDescriptors = [NSSortDescriptor.init(key: "creationDate", ascending: config.creationDate)]
         }
-        PhotoManager.shared.fetchCameraAssetCollection(for: selectOptions, options: options) { [weak self] (assetCollection) in
+        PhotoManager.shared.fetchCameraAssetCollection(
+            for: selectOptions,
+            options: options
+        ) { [weak self] (assetCollection) in
             guard let self = self else { return }
             if assetCollection.count == 0 {
-                self.cameraAssetCollection = PhotoAssetCollection.init(albumName: self.config.albumList.emptyAlbumName.localized, coverImage: self.config.albumList.emptyCoverImageName.image)
+                self.cameraAssetCollection = PhotoAssetCollection(
+                    albumName: self.config.albumList.emptyAlbumName.localized,
+                    coverImage: self.config.albumList.emptyCoverImageName.image
+                )
             }else {
                 // 获取封面
                 self.cameraAssetCollection = assetCollection
@@ -338,7 +356,12 @@ extension PhotoPickerController {
         assetCollectionsQueue.cancelAllOperations()
         let operation = BlockOperation.init {
             if self.config.creationDate {
-                self.options.sortDescriptors = [NSSortDescriptor.init(key: "creationDate", ascending: self.config.creationDate)]
+                self.options.sortDescriptors = [
+                    NSSortDescriptor(
+                        key: "creationDate",
+                        ascending: self.config.creationDate
+                    )
+                ]
             }
             self.assetCollectionsArray = []
             
@@ -374,15 +397,17 @@ extension PhotoPickerController {
                 }
                 return
             }
-            PhotoManager.shared.fetchAssetCollections(for: self.options, showEmptyCollection: false) {
-                [weak self] (assetCollection, isCameraRoll) in
+            PhotoManager.shared.fetchAssetCollections(
+                for: self.options,
+                showEmptyCollection: false
+            ) { [weak self] (assetCollection, isCameraRoll) in
                 guard let self = self else { return }
                 if assetCollection != nil {
                     // 获取封面
                     assetCollection?.fetchCoverAsset()
                     assetCollection?.count += localCount
                     if isCameraRoll {
-                        self.assetCollectionsArray.insert(assetCollection!, at: 0);
+                        self.assetCollectionsArray.insert(assetCollection!, at: 0)
                     }else {
                         self.assetCollectionsArray.append(assetCollection!)
                     }
@@ -416,7 +441,10 @@ extension PhotoPickerController {
     /// - Parameters:
     ///   - assetCollection: 相册
     ///   - completion: 完成回调
-    func fetchPhotoAssets(assetCollection: PhotoAssetCollection?, completion: @escaping ([PhotoAsset], PhotoAsset?) -> Void) {
+    func fetchPhotoAssets(
+        assetCollection: PhotoAssetCollection?,
+        completion: @escaping ([PhotoAsset], PhotoAsset?) -> Void
+    ) {
         DispatchQueue.global().async {
             for photoAsset in self.localAssetArray {
                 photoAsset.isSelected = false
@@ -425,7 +453,7 @@ extension PhotoPickerController {
                 photoAsset.isSelected = false
             }
             var selectedAssets = [PHAsset]()
-            var selectedPhotoAssets:[PhotoAsset] = []
+            var selectedPhotoAssets: [PhotoAsset] = []
             var localAssets: [PhotoAsset] = []
             var localIndex = -1
             for (index, photoAsset) in self.selectedAssetArray.enumerated() {
@@ -447,13 +475,15 @@ extension PhotoPickerController {
                     }
                     let inLocalCamera = self.localCameraAssetArray.contains(where: { (localAsset) -> Bool in
                         if localAsset.isEqual(photoAsset) {
-                            self.localCameraAssetArray[self.localCameraAssetArray.firstIndex(of: localAsset)!] = photoAsset
+                            self.localCameraAssetArray[
+                                self.localCameraAssetArray.firstIndex(of: localAsset)!
+                            ] = photoAsset
                             return true
                         }
                         return false
                     })
                     if !inLocal && !inLocalCamera {
-                        if photoAsset.localIndex > localIndex  {
+                        if photoAsset.localIndex > localIndex {
                             localIndex = photoAsset.localIndex
                             self.localAssetArray.insert(photoAsset, at: 0)
                         }else {
@@ -472,8 +502,8 @@ extension PhotoPickerController {
             var photoAssets = [PhotoAsset]()
             photoAssets.reserveCapacity(assetCollection?.count ?? 0)
             var lastAsset: PhotoAsset?
-            assetCollection?.enumerateAssets(usingBlock: {
-                [weak self] (photoAsset) in
+            assetCollection?.enumerateAssets(
+                usingBlock: { [weak self] (photoAsset) in
                 guard let self = self else { return }
                 if self.selectOptions.contains(.gifPhoto) {
                     if photoAsset.phAsset!.isImageAnimated {
@@ -525,7 +555,9 @@ extension PhotoPickerController {
 extension PhotoPickerController {
     
     func configBackgroundColor() {
-        view.backgroundColor = PhotoManager.isDark ? config.navigationViewBackgroudDarkColor : config.navigationViewBackgroundColor
+        view.backgroundColor = PhotoManager.isDark ?
+            config.navigationViewBackgroudDarkColor :
+            config.navigationViewBackgroundColor
     }
     func finishCallback() {
         #if HXPICKER_ENABLE_EDITOR
@@ -591,7 +623,11 @@ extension PhotoPickerController {
         pickerDelegate?.pickerController(self, didEditAsset: photoAsset, atIndex: atIndex)
     }
     func previewShouldDeleteAsset(photoAsset: PhotoAsset, index: Int) -> Bool {
-        if let previewShouldDeleteAsset = pickerDelegate?.pickerController(self, previewShouldDeleteAsset: photoAsset, atIndex: index) {
+        if let previewShouldDeleteAsset = pickerDelegate?.pickerController(
+            self,
+            previewShouldDeleteAsset: photoAsset,
+            atIndex: index
+        ) {
             return previewShouldDeleteAsset
         }
         return true
@@ -804,7 +840,9 @@ extension PhotoPickerController {
         if photoAsset.mediaType == .photo {
             if config.maximumSelectedPhotoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedPhotoFileSize {
-                    text = "照片大小超过最大限制".localized + PhotoTools.transformBytesToString(bytes: config.maximumSelectedPhotoFileSize)
+                    text = "照片大小超过最大限制".localized + PhotoTools.transformBytesToString(
+                        bytes: config.maximumSelectedPhotoFileSize
+                    )
                     canSelect = false
                 }
             }
@@ -828,7 +866,9 @@ extension PhotoPickerController {
         }else if photoAsset.mediaType == .video {
             if config.maximumSelectedVideoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedVideoFileSize {
-                    text = "视频大小超过最大限制".localized + PhotoTools.transformBytesToString(bytes: config.maximumSelectedVideoFileSize)
+                    text = "视频大小超过最大限制".localized + PhotoTools.transformBytesToString(
+                        bytes: config.maximumSelectedVideoFileSize
+                    )
                     canSelect = false
                 }
             }
@@ -836,23 +876,36 @@ extension PhotoPickerController {
                 if round(photoAsset.videoDuration) > Double(config.maximumSelectedVideoDuration) {
                     #if HXPICKER_ENABLE_EDITOR
                     if !config.editorOptions.contains(.video) {
-                        text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])
+                        text = String(
+                            format: "视频最大时长为%d秒，无法选择".localized,
+                            arguments: [config.maximumSelectedVideoDuration]
+                        )
                         canSelect = false
                     }else {
-                        if config.maximumVideoEditDuration > 0 && round(photoAsset.videoDuration) > Double(config.maximumVideoEditDuration) {
-                            text = String.init(format: "视频可编辑最大时长为%d秒，无法编辑".localized, arguments: [config.maximumVideoEditDuration])
+                        if config.maximumVideoEditDuration > 0 &&
+                            round(photoAsset.videoDuration) > Double(config.maximumVideoEditDuration) {
+                            text = String(
+                                format: "视频可编辑最大时长为%d秒，无法编辑".localized,
+                                arguments: [config.maximumVideoEditDuration]
+                            )
                             canSelect = false
                         }
                     }
                     #else
-                    text = String.init(format: "视频最大时长为%d秒，无法选择".localized, arguments: [config.maximumSelectedVideoDuration])
+                    text = String(
+                        format: "视频最大时长为%d秒，无法选择".localized,
+                        arguments: [config.maximumSelectedVideoDuration]
+                    )
                     canSelect = false
                     #endif
                 }
             }
             if config.minimumSelectedVideoDuration > 0 {
                 if round(photoAsset.videoDuration) < Double(config.minimumSelectedVideoDuration) {
-                    text = String.init(format: "视频最小时长为%d秒，无法选择".localized, arguments: [config.minimumSelectedVideoDuration])
+                    text = String(
+                        format: "视频最小时长为%d秒，无法选择".localized,
+                        arguments: [config.minimumSelectedVideoDuration]
+                    )
                     canSelect = false
                 }
             }
@@ -874,7 +927,11 @@ extension PhotoPickerController {
                 }
             }
         }
-        if let shouldSelect = pickerDelegate?.pickerController(self, shouldSelectedAsset: photoAsset, atIndex: selectedAssetArray.count) {
+        if let shouldSelect = pickerDelegate?.pickerController(
+            self,
+            shouldSelectedAsset: photoAsset,
+            atIndex: selectedAssetArray.count
+        ) {
             if canSelect {
                 canSelect = shouldSelect
             }
@@ -930,9 +987,15 @@ extension PhotoPickerController {
 extension PhotoPickerController {
     private func setOptions() {
         if !selectOptions.mediaTypes.contains(.image) {
-            options.predicate = NSPredicate.init(format: "mediaType == %ld", argumentArray: [PHAssetMediaType.video.rawValue])
+            options.predicate = NSPredicate(
+                format: "mediaType == %ld",
+                argumentArray: [PHAssetMediaType.video.rawValue]
+            )
         }else if !selectOptions.mediaTypes.contains(.video) {
-            options.predicate = NSPredicate.init(format: "mediaType == %ld", argumentArray: [PHAssetMediaType.image.rawValue])
+            options.predicate = NSPredicate(
+                format: "mediaType == %ld",
+                argumentArray: [PHAssetMediaType.image.rawValue]
+            )
         }else {
             options.predicate = nil
         }
@@ -947,7 +1010,11 @@ extension PhotoPickerController {
             configBackgroundColor()
         }
         let isDark = PhotoManager.isDark
-        navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : isDark ? config.navigationTitleDarkColor : config.navigationTitleColor]
+        navigationBar.titleTextAttributes =
+            [NSAttributedString.Key.foregroundColor: isDark ?
+                config.navigationTitleDarkColor :
+                config.navigationTitleColor
+            ]
         navigationBar.tintColor = isDark ? config.navigationDarkTintColor : config.navigationTintColor
         navigationBar.barStyle = isDark ? config.navigationBarDarkStyle : config.navigationBarStyle
     }
@@ -1064,7 +1131,7 @@ extension PhotoPickerController: PHPhotoLibraryChangeObserver {
             for assetCollection in collectionArray {
                 let hasChanges = resultHasChanges(for: changeInstance, assetCollection: assetCollection)
                 if !needReload {
-                    needReload = hasChanges;
+                    needReload = hasChanges
                 }
             }
         }
@@ -1079,20 +1146,28 @@ extension PhotoPickerController: PHPhotoLibraryChangeObserver {
             }
         }
     }
-    private func resultHasChanges(for changeInstance:PHChange, assetCollection: PhotoAssetCollection) -> Bool {
+    private func resultHasChanges(
+        for changeInstance: PHChange,
+        assetCollection: PhotoAssetCollection
+    ) -> Bool {
         if assetCollection.result == nil {
             if assetCollection == self.cameraAssetCollection {
                 return true
             }
             return false
         }
-        let changeResult : PHFetchResultChangeDetails? = changeInstance.changeDetails(for: assetCollection.result!)
+        let changeResult: PHFetchResultChangeDetails? = changeInstance.changeDetails(
+            for: assetCollection.result!
+        )
         if changeResult != nil {
             if !changeResult!.hasIncrementalChanges {
                 let result = changeResult!.fetchResultAfterChanges
                 assetCollection.changeResult(for: result)
                 if assetCollection == self.cameraAssetCollection && result.count == 0 {
-                    assetCollection.change(albumName: self.config.albumList.emptyAlbumName.localized, coverImage: self.config.albumList.emptyCoverImageName.image)
+                    assetCollection.change(
+                        albumName: self.config.albumList.emptyAlbumName.localized,
+                        coverImage: self.config.albumList.emptyCoverImageName.image
+                    )
                     assetCollection.count = 0
                     assetCollection.coverAsset = nil
                 }else {
@@ -1108,17 +1183,25 @@ extension PhotoPickerController: PHPhotoLibraryChangeObserver {
 // MARK: UIViewControllerTransitioningDelegate
 extension PhotoPickerController: UIViewControllerTransitioningDelegate {
     
-    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return PickerTransition.init(type: .present)
+    public func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        PickerTransition(type: .present)
     }
-    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return PickerTransition.init(type: .dismiss)
+    public func animationController(
+        forDismissed dismissed: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        PickerTransition(type: .dismiss)
     }
     
-    public func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+    public func interactionControllerForDismissal(
+        using animator: UIViewControllerAnimatedTransitioning
+    ) -> UIViewControllerInteractiveTransitioning? {
         if let canInteration = interactiveTransition?.canInteration, canInteration {
             return interactiveTransition
         }
         return nil
     }
-}
+} // swiftlint:disable:this file_length

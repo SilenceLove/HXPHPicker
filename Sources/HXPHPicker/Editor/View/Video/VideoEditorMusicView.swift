@@ -65,7 +65,10 @@ class VideoEditorMusicView: UIView {
     }()
     
     lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 50), collectionViewLayout: flowLayout)
+        let collectionView = UICollectionView(
+            frame: CGRect(x: 0, y: 0, width: 0, height: 50),
+            collectionViewLayout: flowLayout
+        )
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -171,8 +174,18 @@ class VideoEditorMusicView: UIView {
         addSubview(backgroundButton)
         addSubview(originalSoundButton)
         addSubview(showLyricButton)
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterPlayGround),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
     }
     @objc func appDidEnterBackground() {
         if backgroundButton.isSelected && currentPlayIndex != -2 {
@@ -267,7 +280,10 @@ class VideoEditorMusicView: UIView {
         super.layoutSubviews()
         bgMaskLayer.frame = bounds
         let margin: CGFloat = 30
-        let searchTextWidth = searchButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 14), maxHeight: 30) ?? 0
+        let searchTextWidth = searchButton.currentTitle?.width(
+            ofFont: UIFont.mediumPingFang(ofSize: 14),
+            maxHeight: 30
+        ) ?? 0
         var searchButtonWidth = searchTextWidth + (searchButton.currentImage?.width ?? 0) + 20
         if searchButtonWidth < 65 {
             searchButtonWidth = 65
@@ -276,7 +292,12 @@ class VideoEditorMusicView: UIView {
         searchButton.frame = searchBgView.bounds
         pageWidth = width - margin * 2 - UIDevice.leftMargin - UIDevice.rightMargin + flowLayout.minimumLineSpacing
         collectionView.frame = CGRect(x: 0, y: searchBgView.frame.maxY + 15, width: width, height: 90)
-        flowLayout.sectionInset = UIEdgeInsets(top: 0, left: margin + UIDevice.leftMargin, bottom: 0, right: margin + UIDevice.rightMargin)
+        flowLayout.sectionInset = UIEdgeInsets(
+            top: 0,
+            left: margin + UIDevice.leftMargin,
+            bottom: 0,
+            right: margin + UIDevice.rightMargin
+        )
         flowLayout.itemSize = CGSize(width: pageWidth - flowLayout.minimumLineSpacing, height: collectionView.height)
         setBottomButtonFrame()
     }
@@ -284,23 +305,46 @@ class VideoEditorMusicView: UIView {
         
         let buttonHeight: CGFloat = 25
         let imageWidth = backgroundButton.currentImage?.width ?? 0
-        let bgTextWidth = backgroundButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 16), maxHeight: buttonHeight) ?? 0
+        let bgTextWidth = backgroundButton.currentTitle?.width(
+            ofFont: UIFont.mediumPingFang(ofSize: 16),
+            maxHeight: buttonHeight
+        ) ?? 0
         let bgButtonWidth = imageWidth + bgTextWidth + 10
         
-        let originalTextWidth = originalSoundButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 16), maxHeight: buttonHeight) ?? 0
+        let originalTextWidth = originalSoundButton.currentTitle?.width(
+            ofFont: UIFont.mediumPingFang(ofSize: 16),
+            maxHeight: buttonHeight
+        ) ?? 0
         let originalButtonWidth = imageWidth + originalTextWidth + 10
         
-        let showLyricTextWidth = showLyricButton.currentTitle?.width(ofFont: UIFont.mediumPingFang(ofSize: 16), maxHeight: buttonHeight) ?? 0
+        let showLyricTextWidth = showLyricButton.currentTitle?.width(
+            ofFont: UIFont.mediumPingFang(ofSize: 16),
+            maxHeight: buttonHeight
+        ) ?? 0
         let showLyricWidth = imageWidth + showLyricTextWidth + 10
         
-        originalSoundButton.frame = CGRect(x: 0, y: backgroundButton.y, width: originalButtonWidth, height: buttonHeight)
+        originalSoundButton.frame = CGRect(
+            x: 0,
+            y: backgroundButton.y,
+            width: originalButtonWidth,
+            height: buttonHeight
+        )
         originalSoundButton.centerX = width * 0.5
         
         let margin: CGFloat = 35
-        backgroundButton.frame = CGRect(x: originalSoundButton.x - margin - bgButtonWidth, y: collectionView.frame.maxY + 20, width: bgButtonWidth, height: buttonHeight)
+        backgroundButton.frame = CGRect(
+            x: originalSoundButton.x - margin - bgButtonWidth,
+            y: collectionView.frame.maxY + 20,
+            width: bgButtonWidth,
+            height: buttonHeight
+        )
         
-        
-        showLyricButton.frame = CGRect(x: originalSoundButton.frame.maxX + margin, y: backgroundButton.y, width: showLyricWidth, height: buttonHeight)
+        showLyricButton.frame = CGRect(
+            x: originalSoundButton.frame.maxX + margin,
+            y: backgroundButton.y,
+            width: showLyricWidth,
+            height: buttonHeight
+        )
         
     }
     deinit {
@@ -308,19 +352,28 @@ class VideoEditorMusicView: UIView {
     }
 }
 
-extension VideoEditorMusicView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension VideoEditorMusicView: UICollectionViewDataSource,
+                                UICollectionViewDelegate,
+                                UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         musics.count
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoEditorMusicViewCellID", for: indexPath) as! VideoEditorMusicViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "VideoEditorMusicViewCellID",
+            for: indexPath
+        ) as! VideoEditorMusicViewCell
         cell.music = musics[indexPath.item]
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
         let offsetX = pageWidth * CGFloat(indexPath.item)
-        if (indexPath.item == selectedIndex && backgroundButton.isSelected) || collectionView.contentOffset.x != offsetX {
+        if (indexPath.item == selectedIndex && backgroundButton.isSelected) ||
+            collectionView.contentOffset.x != offsetX {
             return
         }
         selectedIndex = indexPath.item
@@ -330,7 +383,11 @@ extension VideoEditorMusicView: UICollectionViewDataSource, UICollectionViewDele
             collectionView.setContentOffset(CGPoint(x: offsetX, y: collectionView.contentOffset.y), animated: true)
         }
     }
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(
+        _ scrollView: UIScrollView,
+        withVelocity velocity: CGPoint,
+        targetContentOffset: UnsafeMutablePointer<CGPoint>
+    ) {
         if selectedIndex == -1 {
             selectedIndex = 0
         }
@@ -376,7 +433,12 @@ extension VideoEditorMusicView: UICollectionViewDataSource, UICollectionViewDele
         if collectionView.contentOffset.x != currentX {
             collectionView.setContentOffset(CGPoint(x: currentX, y: 0), animated: false)
         }
-        let cell = collectionView.cellForItem(at: IndexPath(item: selectedIndex, section: 0)) as? VideoEditorMusicViewCell
+        let cell = collectionView.cellForItem(
+            at: IndexPath(
+                item: selectedIndex,
+                section: 0
+            )
+        ) as? VideoEditorMusicViewCell
         if cell?.music.isLoading == true {
             return
         }
@@ -394,7 +456,12 @@ extension VideoEditorMusicView: UICollectionViewDataSource, UICollectionViewDele
         currentPlayIndex = selectedIndex
     }
     func stopMusic() {
-        if let beforeCell = collectionView.cellForItem(at: IndexPath(item: currentPlayIndex, section: 0)) as? VideoEditorMusicViewCell {
+        if let beforeCell = collectionView.cellForItem(
+            at: IndexPath(
+                item: currentPlayIndex,
+                section: 0
+            )
+        ) as? VideoEditorMusicViewCell {
             if beforeCell.music.isLoading == true {
                 return
             }
@@ -440,7 +507,10 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         return flowLayout
     }()
     lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 50), collectionViewLayout: flowLayout)
+        let collectionView = UICollectionView(
+            frame: CGRect(x: 0, y: 0, width: 0, height: 50),
+            collectionViewLayout: flowLayout
+        )
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -451,7 +521,10 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         if #available(iOS 11.0, *) {
             collectionView.contentInsetAdjustmentBehavior = .never
         }
-        collectionView.register(VideoEditorMusicLyricViewCell.self, forCellWithReuseIdentifier: "VideoEditorMusicLyricViewCellID")
+        collectionView.register(
+            VideoEditorMusicLyricViewCell.self,
+            forCellWithReuseIdentifier: "VideoEditorMusicLyricViewCellID"
+        )
         return collectionView
     }()
     
@@ -465,9 +538,9 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     lazy var maskLayer: CAGradientLayer = {
         let maskLayer = CAGradientLayer.init()
         maskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.clear.cgColor]
-        maskLayer.startPoint = CGPoint(x: 0, y: 1);
-        maskLayer.endPoint = CGPoint(x: 1, y: 1);
-        maskLayer.locations = [0.0, 0.1, 0.9, 1.0];
+        maskLayer.startPoint = CGPoint(x: 0, y: 1)
+        maskLayer.endPoint = CGPoint(x: 1, y: 1)
+        maskLayer.locations = [0.0, 0.1, 0.9, 1.0]
         return maskLayer
     }()
     
@@ -502,7 +575,8 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             }
             collectionView.reloadData()
             if music.isSelected {
-                playMusic { _ , _ in  }
+                playMusic { _, _ in
+                }
             }else {
                 resetStatus()
             }
@@ -548,8 +622,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             with: music.audioURL,
             toFile: audioTmpURL,
             ext: music
-        ) {
-            audioURL, error, ext in
+        ) { audioURL, error, ext in
             self.hideLoading()
             if let audioURL = audioURL,
                let music = ext as? VideoEditorMusic {
@@ -669,8 +742,8 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         self.playTimer = playTimer
     }
     
-    func setPreciseContentOffset( x:CGFloat, y:CGFloat) {
-        let point = CGPoint(x: x,y: y)
+    func setPreciseContentOffset(x: CGFloat, y: CGFloat) {
+        let point = CGPoint(x: x, y: y)
         collectionView.bounds = CGRect(origin: point, size: collectionView.size)
     }
     
@@ -723,7 +796,12 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
         songNameLb.width = animationView.x - 10 - songNameLb.x
         songNameLb.height = 20
         songNameLb.centerY = musicIconView.centerY
-        shadeView.frame = CGRect(x: 0, y: musicIconView.frame.maxY + 10, width: width, height: height - musicIconView.frame.maxY - 20)
+        shadeView.frame = CGRect(
+            x: 0,
+            y: musicIconView.frame.maxY + 10,
+            width: width,
+            height: height - musicIconView.frame.maxY - 20
+        )
         collectionView.frame = shadeView.bounds
         maskLayer.frame = CGRect(x: 10, y: 0, width: shadeView.width - 20, height: shadeView.height)
         
@@ -735,19 +813,34 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     }
 }
 
-extension VideoEditorMusicViewCell: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension VideoEditorMusicViewCell: UICollectionViewDataSource,
+                                    UICollectionViewDelegate,
+                                    UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return music.lyrics.count
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoEditorMusicLyricViewCellID", for: indexPath) as! VideoEditorMusicLyricViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "VideoEditorMusicLyricViewCellID",
+            for: indexPath
+        ) as! VideoEditorMusicLyricViewCell
         cell.lyricLb.textColor = isPlaying ? "#333333".color : .white
         cell.lyric = music.lyrics[indexPath.item]
         return cell
     }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
         let lyric = music.lyrics[indexPath.item]
-        let cellWidth = lyric.lyric.width(ofFont: UIFont.mediumPingFang(ofSize: 16), maxHeight: collectionView.height)
+        let cellWidth = lyric.lyric.width(
+            ofFont: UIFont.mediumPingFang(ofSize: 16),
+            maxHeight: collectionView.height
+        )
         return CGSize(width: cellWidth, height: collectionView.height)
     }
 }

@@ -63,8 +63,8 @@ extension VideoEditorViewController: EditorChartletViewDelegate {
     
     func chartletView(
         _ chartletView: EditorChartletView,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
-    {
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    ) {
         if let editorDelegate = delegate {
             editorDelegate.videoEditorViewController(
                 self,
@@ -84,8 +84,8 @@ extension VideoEditorViewController: EditorChartletViewDelegate {
         _ chartletView: EditorChartletView,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse)
-    {
+        loadChartletList response: @escaping EditorChartletListResponse
+    ) {
         if let editorDelegate = delegate {
             editorDelegate.videoEditorViewController(
                 self,
@@ -94,7 +94,7 @@ extension VideoEditorViewController: EditorChartletViewDelegate {
                 loadChartletList: response
             )
         }else {
-            /// 默认加载这些贴图
+            // 默认加载这些贴图
             #if canImport(Kingfisher)
             let chartletList = PhotoTools.defaultNetworkChartlet()
             response(titleIndex, chartletList)
@@ -104,8 +104,16 @@ extension VideoEditorViewController: EditorChartletViewDelegate {
         }
     }
     
-    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage, imageData: Data?) {
-        let item = EditorStickerItem(image: image, imageData: imageData, text: nil)
+    func chartletView(
+        _ chartletView: EditorChartletView,
+        didSelectImage image: UIImage,
+        imageData: Data?
+    ) {
+        let item = EditorStickerItem(
+            image: image,
+            imageData: imageData,
+            text: nil
+        )
         playerView.stickerView.add(sticker: item, isSelected: false)
         singleTap()
     }

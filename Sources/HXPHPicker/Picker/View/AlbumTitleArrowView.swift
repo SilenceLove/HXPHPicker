@@ -28,7 +28,16 @@ class AlbumTitleArrowView: UIView {
     }
     
     func drawContent() {
-        let circlePath = UIBezierPath.init(arcCenter: CGPoint.init(x: width * 0.5, y: height * 0.5), radius: width * 0.5, startAngle: 0, endAngle: 2 * .pi, clockwise: true)
+        let circlePath = UIBezierPath(
+            arcCenter: CGPoint(
+                x: width * 0.5,
+                y: height * 0.5
+            ),
+            radius: width * 0.5,
+            startAngle: 0,
+            endAngle: 2 * .pi,
+            clockwise: true
+        )
         backgroundLayer.path = circlePath.cgPath
         layer.addSublayer(backgroundLayer)
         
@@ -43,8 +52,12 @@ class AlbumTitleArrowView: UIView {
     }
     
     func configColor() {
-        backgroundLayer.fillColor = PhotoManager.isDark ? config.arrowBackgroudDarkColor.cgColor : config.arrowBackgroundColor.cgColor
-        arrowLayer.strokeColor = PhotoManager.isDark ? config.arrowDarkColor.cgColor : config.arrowColor.cgColor
+        backgroundLayer.fillColor = PhotoManager.isDark ?
+            config.arrowBackgroudDarkColor.cgColor :
+            config.arrowBackgroundColor.cgColor
+        arrowLayer.strokeColor = PhotoManager.isDark ?
+            config.arrowDarkColor.cgColor :
+            config.arrowColor.cgColor
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

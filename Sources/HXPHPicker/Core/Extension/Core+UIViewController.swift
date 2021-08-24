@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 extension UIViewController: HXPickerCompatible {
     
     class var topViewController: UIViewController? {

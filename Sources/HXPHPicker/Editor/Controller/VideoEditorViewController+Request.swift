@@ -20,7 +20,10 @@ extension VideoEditorViewController {
         }
         let loadingView = ProgressHUD.showLoading(addedTo: view, text: nil, animated: true)
         view.bringSubviewToFront(topView)
-        assetRequestID = photoAsset.requestAVAsset(filterEditor: true, deliveryMode: .highQualityFormat) { [weak self] (photoAsset, requestID) in
+        assetRequestID = photoAsset.requestAVAsset(
+            filterEditor: true,
+            deliveryMode: .highQualityFormat
+        ) { [weak self] (photoAsset, requestID) in
             self?.assetRequestID = requestID
             loadingView?.updateText(text: "正在同步iCloud".localized + "...")
         } progressHandler: { (photoAsset, progress) in
@@ -46,7 +49,12 @@ extension VideoEditorViewController {
     #endif
     
     func assetRequestFailure(message: String = "视频获取失败!".localized) {
-        PhotoTools.showConfirm(viewController: self, title: "提示".localized, message: message, actionTitle: "确定".localized) { (alertAction) in
+        PhotoTools.showConfirm(
+            viewController: self,
+            title: "提示".localized,
+            message: message,
+            actionTitle: "确定".localized
+        ) { (alertAction) in
             self.backAction()
         }
     }
@@ -111,8 +119,9 @@ extension VideoEditorViewController {
             }
             loadingView = ProgressHUD.showLoading(addedTo: view, text: "视频下载中".localized, animated: true)
             view.bringSubviewToFront(topView)
-            PhotoManager.shared.downloadTask(with: videoURL) {
-                [weak self] (progress, task) in
+            PhotoManager.shared.downloadTask(
+                with: videoURL
+            ) { [weak self] (progress, task) in
                 if progress > 0 {
                     self?.loadingView?.updateText(text: "视频下载中".localized + "(" + String(Int(progress * 100)) + "%)")
                 }

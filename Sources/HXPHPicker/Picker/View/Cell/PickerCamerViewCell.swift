@@ -40,7 +40,11 @@ class PickerCamerViewCell: UICollectionViewCell {
         if captureView.previewLayer?.session != nil || isCache {
             imageView.image = UIImage.image(for: config?.cameraDarkImageName)
         }else {
-            imageView.image = UIImage.image(for: PhotoManager.isDark ? config?.cameraDarkImageName : config?.cameraImageName)
+            imageView.image = UIImage.image(
+                for: PhotoManager.isDark ?
+                    config?.cameraDarkImageName :
+                    config?.cameraImageName
+            )
         }
         backgroundColor = PhotoManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
         imageView.size = imageView.image?.size ?? .zero
@@ -62,10 +66,11 @@ class PickerCamerViewCell: UICollectionViewCell {
         }
     }
     func startSeesion() {
-        captureView.startSession {
-            [weak self] isFinished in
+        captureView.startSession { [weak self] isFinished in
             if isFinished {
-                self?.imageView.image = UIImage.image(for: self?.config?.cameraDarkImageName)
+                self?.imageView.image = UIImage.image(
+                    for: self?.config?.cameraDarkImageName
+                )
             }
         }
     }

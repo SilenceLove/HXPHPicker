@@ -10,7 +10,10 @@ import UIKit
 
 class GIFImage {
     /// 内部读取图片帧队列
-    fileprivate lazy var readFrameQueue: DispatchQueue = DispatchQueue(label: "hxpickerimage.gif.readFrameQueue", qos: .background)
+    fileprivate lazy var readFrameQueue: DispatchQueue = DispatchQueue(
+        label: "hxpickerimage.gif.readFrameQueue",
+        qos: .background
+    )
     /// 图片资源数据
     fileprivate var cgImageSource: CGImageSource?
     /// 总动画时长
@@ -46,7 +49,10 @@ class GIFImage {
     /// 获取图片数据源的第 index 帧图片的动画时间
     fileprivate class func getCGImageSourceGifFrameDelay(imageSource: CGImageSource, index: Int) -> TimeInterval {
         var delay = 0.0
-        guard let imgProperties: NSDictionary = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) else { return delay }
+        guard let imgProperties: NSDictionary = CGImageSourceCopyPropertiesAtIndex(
+                imageSource,
+                index, nil
+        ) else { return delay }
         // 获取该帧图片的属性字典
         if let property = imgProperties[kCGImagePropertyGIFDictionary as String] as? NSDictionary {
             // 获取该帧图片的动画时长

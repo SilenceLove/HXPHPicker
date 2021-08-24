@@ -60,14 +60,21 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     open var selectedTitle: String = "0"
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
-        requestThumbnailImage(targetWidth: PhotoManager.shared.targetWidth <= 0 ? width * 2 : PhotoManager.shared.targetWidth)
+        requestThumbnailImage(
+            targetWidth: PhotoManager.shared.targetWidth <= 0 ?
+                width * 2 :
+                PhotoManager.shared.targetWidth
+        )
     }
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
         if photoAsset.isNetworkAsset || photoAsset.mediaSubType == .localVideo {
             downloadStatus = .downloading
             #if canImport(Kingfisher)
-            imageView.setImage(for: photoAsset, urlType: .thumbnail, completionHandler:  { [weak self] (image, error, photoAsset) in
+            imageView.setImage(
+                for: photoAsset,
+                urlType: .thumbnail,
+                completionHandler: { [weak self] (image, error, photoAsset) in
                 guard let self = self else { return }
                 if self.photoAsset == photoAsset {
                     if image != nil {
@@ -99,7 +106,9 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
                 firstLoadCompletion = true
             }
         }else {
-            requestID = photoAsset.requestThumbnailImage(targetWidth: targetWidth, completion: { [weak self] (image, photoAsset, info) in
+            requestID = photoAsset.requestThumbnailImage(
+                targetWidth: targetWidth,
+                completion: { [weak self] (image, photoAsset, info) in
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
                 if let image = image, self.photoAsset == photoAsset {

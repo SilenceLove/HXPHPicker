@@ -5,13 +5,12 @@
 //  Created by Slience on 2021/6/9.
 //
 
-
 import Photos
 
 public extension PHAsset {
     
     var isImageAnimated: Bool {
-        var isAnimated : Bool = false
+        var isAnimated: Bool = false
         let fileName = value(forKey: "filename") as? String
         if fileName != nil {
             isAnimated = fileName!.hasSuffix("GIF")
@@ -25,7 +24,7 @@ public extension PHAsset {
     }
     
     var isLivePhoto: Bool {
-        var isLivePhoto : Bool = false
+        var isLivePhoto: Bool = false
         if #available(iOS 9.1, *) {
             isLivePhoto = mediaSubtypes == .photoLive
             if #available(iOS 11, *) {

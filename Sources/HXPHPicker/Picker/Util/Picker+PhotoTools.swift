@@ -14,37 +14,55 @@ extension PhotoTools {
     /// - Parameters:
     ///   - viewController: 需要弹窗的viewController
     ///   - status: 权限类型
-    public class func showNotAuthorizedAlert(viewController : UIViewController? ,
-                                             status : PHAuthorizationStatus) {
+    public class func showNotAuthorizedAlert(
+        viewController: UIViewController?,
+        status: PHAuthorizationStatus
+    ) {
         guard let vc = viewController else { return }
         if status == .denied ||
             status == .restricted {
-            showAlert(viewController: vc, title: "无法访问相册中照片".localized, message: "当前无照片访问权限，建议前往系统设置，\n允许访问「照片」中的「所有照片」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
+            showAlert(
+                viewController: vc,
+                title: "无法访问相册中照片".localized,
+                message: "当前无照片访问权限，建议前往系统设置，\n允许访问「照片」中的「所有照片」。".localized,
+                leftActionTitle: "取消".localized,
+                leftHandler: {_ in },
+                rightActionTitle: "前往系统设置".localized) { (alertAction) in
                 openSettingsURL()
             }
         }
     }
     
     /// 显示没有相机权限弹窗
-    public class func showNotCameraAuthorizedAlert(viewController : UIViewController?) {
+    public class func showNotCameraAuthorizedAlert(
+        viewController: UIViewController?
+    ) {
         guard let vc = viewController else { return }
-        showAlert(viewController: vc, title: "无法使用相机功能".localized, message: "请前往系统设置中，允许访问「相机」。".localized, leftActionTitle: "取消".localized, leftHandler: {_ in }, rightActionTitle: "前往系统设置".localized) { (alertAction) in
+        showAlert(
+            viewController: vc,
+            title: "无法使用相机功能".localized,
+            message: "请前往系统设置中，允许访问「相机」。".localized,
+            leftActionTitle: "取消".localized,
+            leftHandler: {_ in },
+            rightActionTitle: "前往系统设置".localized) { (alertAction) in
             openSettingsURL()
         }
     }
     
     /// 转换相册名称为当前语言
-    public class func transformAlbumName(for collection: PHAssetCollection) -> String? {
+    public class func transformAlbumName(
+        for collection: PHAssetCollection
+    ) -> String? {
         if collection.assetCollectionType == .album {
             return collection.localizedTitle
         }
-        var albumName : String?
+        var albumName: String?
         let type = PhotoManager.shared.languageType
         if type == .system {
             albumName = collection.localizedTitle
         }else {
             if collection.localizedTitle == "最近项目" ||
-                collection.localizedTitle == "最近添加"  {
+                collection.localizedTitle == "最近添加" {
                 albumName = "HXAlbumRecents".localized
             }else if collection.localizedTitle == "Camera Roll" ||
                         collection.localizedTitle == "相机胶卷" {
@@ -53,46 +71,32 @@ extension PhotoTools {
                 switch collection.assetCollectionSubtype {
                 case .smartAlbumUserLibrary:
                     albumName = "HXAlbumCameraRoll".localized
-                    break
                 case .smartAlbumVideos:
                     albumName = "HXAlbumVideos".localized
-                    break
                 case .smartAlbumPanoramas:
                     albumName = "HXAlbumPanoramas".localized
-                    break
                 case .smartAlbumFavorites:
                     albumName = "HXAlbumFavorites".localized
-                    break
                 case .smartAlbumTimelapses:
                     albumName = "HXAlbumTimelapses".localized
-                    break
                 case .smartAlbumRecentlyAdded:
                     albumName = "HXAlbumRecentlyAdded".localized
-                    break
                 case .smartAlbumBursts:
                     albumName = "HXAlbumBursts".localized
-                    break
                 case .smartAlbumSlomoVideos:
                     albumName = "HXAlbumSlomoVideos".localized
-                    break
                 case .smartAlbumSelfPortraits:
                     albumName = "HXAlbumSelfPortraits".localized
-                    break
                 case .smartAlbumScreenshots:
                     albumName = "HXAlbumScreenshots".localized
-                    break
                 case .smartAlbumDepthEffect:
                     albumName = "HXAlbumDepthEffect".localized
-                    break
                 case .smartAlbumLivePhotos:
                     albumName = "HXAlbumLivePhotos".localized
-                    break
                 case .smartAlbumAnimated:
                     albumName = "HXAlbumAnimated".localized
-                    break
                 default:
                     albumName = collection.localizedTitle
-                    break
                 }
             }
         }
@@ -114,7 +118,11 @@ extension PhotoTools {
                 let cachePath = getImageCacheFolderPath()
                 let fileManager = FileManager.default
                 if !fileManager.fileExists(atPath: cachePath) {
-                    try fileManager.createDirectory(atPath: cachePath, withIntermediateDirectories: true, attributes: nil)
+                    try fileManager.createDirectory(
+                        atPath: cachePath,
+                        withIntermediateDirectories: true,
+                        attributes: nil
+                    )
                 }
                 let imageCacheURL = cameraPreviewImageURL()
                 if fileManager.fileExists(atPath: imageCacheURL.path) {
@@ -139,7 +147,9 @@ extension PhotoTools {
         }
         return nil
     }
-    public class func getVideoCoverImage(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
+    public class func getVideoCoverImage(
+        for photoAsset: PhotoAsset,
+        completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?
             if let videoAsset = photoAsset.localVideoAsset,
@@ -194,14 +204,14 @@ extension PhotoTools {
         endTime: TimeInterval,
         exportPreset: ExportPreset = .ratio_960x540,
         videoQuality: Int = 5,
-        completion:@escaping (URL?, Error?) -> Void) -> AVAssetExportSession?
-    {
-        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
+        completion:
+            @escaping (URL?, Error?) -> Void) -> AVAssetExportSession? {
+        if AVAssetExportSession.exportPresets(
+            compatibleWith: avAsset).contains(exportPreset.name) {
             let videoURL = outputURL == nil ? PhotoTools.getVideoTmpURL() : outputURL
             if let exportSession = AVAssetExportSession(
                 asset: avAsset,
-                presetName: exportPreset.name)
-            {
+                presetName: exportPreset.name) {
                 let timescale = avAsset.duration.timescale
                 let start = CMTime(value: CMTimeValue(startTime * TimeInterval(timescale)), timescale: timescale)
                 let end = CMTime(value: CMTimeValue(endTime * TimeInterval(timescale)), timescale: timescale)
@@ -233,10 +243,8 @@ extension PhotoTools {
                         switch exportSession.status {
                         case .completed:
                             completion(videoURL, nil)
-                            break
                         case .failed, .cancelled:
                             completion(nil, exportSession.error)
-                            break
                         default: break
                         }
                     }
@@ -252,7 +260,10 @@ extension PhotoTools {
         }
     }
     
-    public class func getVideoDuration(for photoAsset: PhotoAsset, completionHandler: @escaping (PhotoAsset, TimeInterval) -> Void) {
+    public class func getVideoDuration(
+        for photoAsset: PhotoAsset,
+        completionHandler:
+            @escaping (PhotoAsset, TimeInterval) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?
             if let videoAsset = photoAsset.localVideoAsset,
@@ -393,7 +404,6 @@ extension PhotoTools {
         config.previewView.bottomView.finishButtonDisableBackgroundColor = "#666666".color.withAlphaComponent(0.3)
         
         config.previewView.bottomView.selectedViewTickColor = wxColor
-        
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white

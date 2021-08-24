@@ -19,12 +19,12 @@ public protocol HXPickerCompatibleValue {}
 extension HXPickerCompatible {
     public var hx: HXPickerWrapper<Self> {
         get { return HXPickerWrapper(self) }
-        set { }
+        set { } // swiftlint:disable:this unused_setter_value
     }
 }
 extension HXPickerCompatibleValue {
     public var hx: HXPickerWrapper<Self> {
         get { return HXPickerWrapper(self) }
-        set { }
+        set { } // swiftlint:disable:this unused_setter_value
     }
 }

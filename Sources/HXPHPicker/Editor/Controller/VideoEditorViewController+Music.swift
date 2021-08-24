@@ -58,7 +58,10 @@ extension VideoEditorViewController: VideoEditorSearchMusicViewDelegate {
     func searchMusicView(didFinishClick searchMusicView: VideoEditorSearchMusicView) {
         hideSearchMusicView(deselect: false)
     }
-    func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, didSelectItem audioPath: String?, music: VideoEditorMusic) {
+    func searchMusicView(
+        _ searchMusicView: VideoEditorSearchMusicView,
+        didSelectItem audioPath: String?, music: VideoEditorMusic
+    ) {
         musicView.reset()
         musicView.backgroundButton.isSelected = true
         musicView(musicView, didShowLyricButton: true, music: music)
@@ -66,13 +69,23 @@ extension VideoEditorViewController: VideoEditorSearchMusicViewDelegate {
         backgroundMusicPath = audioPath
         otherMusic = music
     }
-    func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, didSearch text: String?, completion: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    func searchMusicView(
+        _ searchMusicView: VideoEditorSearchMusicView,
+        didSearch text: String?,
+        completion: @escaping ([VideoEditorMusicInfo], Bool
+        ) -> Void) {
         delegate?.videoEditorViewController(self, didSearch: text, completionHandler: completion)
     }
-    func searchMusicView(_ searchMusicView: VideoEditorSearchMusicView, loadMore text: String?, completion: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    func searchMusicView(
+        _ searchMusicView: VideoEditorSearchMusicView,
+        loadMore text: String?,
+        completion: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    ) {
         delegate?.videoEditorViewController(self, loadMore: text, completionHandler: completion)
     }
-    func searchMusicView(deselectItem searchMusicView: VideoEditorSearchMusicView) {
+    func searchMusicView(
+        deselectItem searchMusicView: VideoEditorSearchMusicView
+    ) {
         backgroundMusicPath = nil
         musicView.backgroundButton.isSelected = false
         musicView(musicView, didShowLyricButton: false, music: nil)
@@ -92,4 +105,3 @@ extension VideoEditorViewController: VideoEditorSearchMusicViewDelegate {
         }
     }
 }
-

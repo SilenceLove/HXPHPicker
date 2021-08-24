@@ -16,7 +16,10 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
     }
     
     func openEditor(_ photoAsset: PhotoAsset) {
-        if let shouldEditAsset = pickerController?.shouldEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex), !shouldEditAsset {
+        if let shouldEditAsset = pickerController?.shouldEditAsset(
+            photoAsset: photoAsset,
+            atIndex: currentPreviewIndex
+        ), !shouldEditAsset {
             return
         }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
@@ -38,7 +41,11 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             videoEditorConfig.languageType = pickerConfig.languageType
             videoEditorConfig.appearanceStyle = pickerConfig.appearanceStyle
             videoEditorConfig.indicatorType = pickerConfig.indicatorType
-            let videoEditorVC = VideoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.videoEdit, config: videoEditorConfig)
+            let videoEditorVC = VideoEditorViewController(
+                photoAsset: photoAsset,
+                editResult: photoAsset.videoEdit,
+                config: videoEditorConfig
+            )
             videoEditorVC.coverImage = cell?.scrollContentView.imageView.image
             videoEditorVC.delegate = self
             navigationController?.pushViewController(videoEditorVC, animated: true)
@@ -47,7 +54,11 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             photoEditorConfig.languageType = pickerConfig.languageType
             photoEditorConfig.appearanceStyle = pickerConfig.appearanceStyle
             photoEditorConfig.indicatorType = pickerConfig.indicatorType
-            let photoEditorVC = PhotoEditorViewController.init(photoAsset: photoAsset, editResult: photoAsset.photoEdit, config: photoEditorConfig)
+            let photoEditorVC = PhotoEditorViewController(
+                photoAsset: photoAsset,
+                editResult: photoAsset.photoEdit,
+                config: photoEditorConfig
+            )
             photoEditorVC.delegate = self
             navigationController?.pushViewController(photoEditorVC, animated: true)
         }
@@ -93,7 +104,9 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
                 }
             }
         }
-        let inICloud = photoAsset.checkICloundStatus(allowSyncPhoto: pickerController.config.allowSyncICloudWhenSelectPhoto) { isSuccess in
+        let inICloud = photoAsset.checkICloundStatus(
+            allowSyncPhoto: pickerController.config.allowSyncICloudWhenSelectPhoto
+        ) { isSuccess in
             if isSuccess {
                 addAsset()
             }
@@ -113,7 +126,11 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
                 return
             }
             getCell(for: currentPreviewIndex)?.cancelRequest()
-            collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .centeredHorizontally, animated: false)
+            collectionView.scrollToItem(
+                at: IndexPath(item: index, section: 0),
+                at: .centeredHorizontally,
+                animated: false
+            )
             setupRequestPreviewTimer()
         }else {
             bottomView.selectedView.scrollTo(photoAsset: nil)
@@ -124,7 +141,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         requestPreviewTimer = Timer(
             timeInterval: 0.2,
             target: self,
-            selector:#selector(delayRequestPreview),
+            selector: #selector(delayRequestPreview),
             userInfo: nil,
             repeats: false
         )

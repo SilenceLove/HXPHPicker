@@ -42,7 +42,9 @@ extension VideoEditorViewController: EditorCropConfirmViewDelegate {
         playerView.playStartTime = beforeStartTime
         playerView.playEndTime = beforeEndTime
         hiddenCropConfirmView()
-        guard let currentCropOffset = currentCropOffset, cropView.collectionView.contentOffset.equalTo(currentCropOffset) && cropView.frameMaskView.validRect.equalTo(currentValidRect) else {
+        guard let currentCropOffset = currentCropOffset,
+              cropView.collectionView.contentOffset.equalTo(currentCropOffset),
+              cropView.frameMaskView.validRect.equalTo(currentValidRect) else {
             cropView.stopLineAnimation()
             playerView.resetPlay()
             if let startTime = beforeStartTime, let endTime = beforeEndTime {

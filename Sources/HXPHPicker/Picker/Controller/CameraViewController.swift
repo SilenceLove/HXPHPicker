@@ -12,17 +12,22 @@ class CameraViewController: UIImagePickerController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(didTakePictures), name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidCaptureItem"), object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didTakePictures),
+            name: NSNotification.Name(rawValue: "_UIImagePickerControllerUserDidCaptureItem"),
+            object: nil
+        )
     }
     @objc func didTakePictures() {
-        if let viewController = topViewController  {
+        if let viewController = topViewController {
             layoutEditView(view: viewController.view)
         }
     }
     func layoutEditView(view: UIView) {
         var imageScrollView: UIScrollView?
         getSubviewsOfView(v: view).forEach { (subView) in
-            if NSStringFromClass(subView.classForCoder) == "PLCropOverlayCropView"  {
+            if NSStringFromClass(subView.classForCoder) == "PLCropOverlayCropView" {
                 subView.frame = subView.superview?.bounds ?? subView.frame
             }else if subView is UIScrollView && NSStringFromClass(subView.classForCoder) == "PLImageScrollView" {
                 let isNewImageScrollView = imageScrollView == nil
@@ -42,7 +47,7 @@ class CameraViewController: UIImagePickerController {
             }
         }
     }
-    func getSubviewsOfView(v:UIView) -> [UIView] {
+    func getSubviewsOfView(v: UIView) -> [UIView] {
         var allView: [UIView] = [v]
         v.subviews.forEach { (subView) in
             allView.append(contentsOf: getSubviewsOfView(v: subView))

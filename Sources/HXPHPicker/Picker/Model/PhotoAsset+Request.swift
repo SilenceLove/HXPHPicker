@@ -14,7 +14,7 @@ public extension PhotoAsset {
     struct ImageDataResult {
         let imageData: Data
         let imageOrientation: UIImage.Orientation
-        let info: [AnyHashable : Any]?
+        let info: [AnyHashable: Any]?
     }
     
     /// 获取原始图片地址
@@ -22,8 +22,10 @@ public extension PhotoAsset {
     /// - Parameters:
     ///   - fileURL: 指定图片的本地地址
     ///   - resultHandler: 获取结果
-    func requestImageURL(toFile fileURL:URL? = nil,
-                         resultHandler: @escaping AssetURLCompletion) {
+    func requestImageURL(
+        toFile fileURL: URL? = nil,
+        resultHandler: @escaping AssetURLCompletion
+    ) {
         if phAsset == nil {
             requestLocalImageURL(
                 toFile: fileURL,
@@ -39,7 +41,9 @@ public extension PhotoAsset {
     
     /// 获取图片（系统相册获取的是压缩后的，不是原图）
     @discardableResult
-    func requestImage(completion: ((UIImage?, PhotoAsset) -> Void)?) -> PHImageRequestID? {
+    func requestImage(
+        completion: ((UIImage?, PhotoAsset) -> Void)?
+    ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
             completion?(
@@ -59,7 +63,9 @@ public extension PhotoAsset {
         }
         #endif
         guard let phAsset = phAsset else {
-            requestLocalImage(urlType: .original) { (image, photoAsset) in
+            requestLocalImage(
+                urlType: .original
+            ) { (image, photoAsset) in
                 completion?(image, photoAsset)
             }
             return nil
@@ -73,8 +79,7 @@ public extension PhotoAsset {
             version: isGifAsset ? .original : .current,
             iCloudHandler: nil,
             progressHandler: nil
-        ) {
-            (result) in
+        ) { (result) in
             switch result {
             case .success(let dataResult):
                 var image = UIImage(
@@ -96,8 +101,10 @@ public extension PhotoAsset {
     /// - Parameter completion: 完成回调
     /// - Returns: 请求ID
     @discardableResult
-    func requestThumbnailImage(targetWidth: CGFloat = 180,
-                               completion: ((UIImage?, PhotoAsset, [AnyHashable : Any]?) -> Void)?) -> PHImageRequestID? {
+    func requestThumbnailImage(
+        targetWidth: CGFloat = 180,
+        completion: ((UIImage?, PhotoAsset, [AnyHashable: Any]?) -> Void)?
+    ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
             completion?(photoEdit.editedImage, self, nil)
@@ -126,15 +133,26 @@ public extension PhotoAsset {
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
     @discardableResult
-    func requestImageData(filterEditor: Bool = false,
-                          iCloudHandler: PhotoAssetICloudHandler?,
-                          progressHandler: PhotoAssetProgressHandler?,
-                          resultHandler: ((PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>) -> Void)?) -> PHImageRequestID {
+    func requestImageData(
+        filterEditor: Bool = false,
+        iCloudHandler: PhotoAssetICloudHandler?,
+        progressHandler: PhotoAssetProgressHandler?,
+        resultHandler: ((PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>
+        ) -> Void)?) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit, !filterEditor {
             do {
                 let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
-                resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: photoEdit.editedImage.imageOrientation, info: nil)))
+                resultHandler?(
+                    self,
+                    .success(
+                        .init(
+                            imageData: imageData,
+                            imageOrientation: photoEdit.editedImage.imageOrientation,
+                            info: nil
+                        )
+                    )
+                )
             }catch {
                 resultHandler?(self, .failure(.init(info: nil, error: .invalidData)))
             }
@@ -143,7 +161,16 @@ public extension PhotoAsset {
         if let videoEdit = videoEdit, !filterEditor {
             let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
             if let imageData = imageData {
-                resultHandler?(self, .success(.init(imageData: imageData, imageOrientation: videoEdit.coverImage!.imageOrientation, info: nil)))
+                resultHandler?(
+                    self,
+                    .success(
+                        .init(
+                            imageData: imageData,
+                            imageOrientation: videoEdit.coverImage!.imageOrientation,
+                            info: nil
+                        )
+                    )
+                )
             }else {
                 resultHandler?(self, .failure(.init(info: nil, error: .invalidData)))
             }
@@ -154,7 +181,16 @@ public extension PhotoAsset {
             requestlocalImageData { photoAsset, result in
                 switch result {
                 case .success(let imageResult):
-                    resultHandler?(photoAsset, .success(.init(imageData: imageResult.imageData, imageOrientation: imageResult.imageOrientation, info: nil)))
+                    resultHandler?(
+                        photoAsset,
+                        .success(
+                            .init(
+                                imageData: imageResult.imageData,
+                                imageOrientation: imageResult.imageOrientation,
+                                info: nil
+                            )
+                        )
+                    )
                 case .failure(let error):
                     resultHandler?(photoAsset, .failure(error))
                 }
@@ -233,11 +269,13 @@ public extension PhotoAsset {
     /// - Returns: 请求ID
     @available(iOS 9.1, *)
     @discardableResult
-    func requestLivePhoto(targetSize: CGSize,
-                          iCloudHandler: PhotoAssetICloudHandler?,
-                          progressHandler: PhotoAssetProgressHandler?,
-                          success: ((PhotoAsset, PHLivePhoto, [AnyHashable : Any]?) -> Void)?,
-                          failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+    func requestLivePhoto(
+        targetSize: CGSize,
+        iCloudHandler: PhotoAssetICloudHandler?,
+        progressHandler: PhotoAssetProgressHandler?,
+        success: ((PhotoAsset, PHLivePhoto, [AnyHashable: Any]?) -> Void)?,
+        failure: PhotoAssetFailureHandler?
+    ) -> PHImageRequestID {
         if phAsset == nil {
             failure?(self, nil, .invalidPHAsset)
             return 0
@@ -270,7 +308,16 @@ public extension PhotoAsset {
     func requestLivePhotoURL(completion: @escaping (Result<AssetURLResult, AssetError>) -> Void) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
-            completion(.success(.init(url: photoEdit.editedImageURL, urlType: .local, mediaType: .photo, livePhoto: nil)))
+            completion(
+                .success(
+                    .init(
+                        url: photoEdit.editedImageURL,
+                        urlType: .local,
+                        mediaType: .photo,
+                        livePhoto: nil
+                    )
+                )
+            )
             return
         }
         #endif
@@ -295,13 +342,24 @@ public extension PhotoAsset {
                     completion(.failure(.exportLivePhotoVideoURLFailed(error)))
                 }
             }else {
-                completion(.success(.init(url: imageURL!, urlType: .local, mediaType: .photo, livePhoto: .init(imageURL: imageURL!, videoURL: videoURL!))))
+                completion(
+                    .success(
+                        .init(
+                            url: imageURL!,
+                            urlType: .local,
+                            mediaType: .photo,
+                            livePhoto: .init(
+                                imageURL: imageURL!,
+                                videoURL: videoURL!
+                            )
+                        )
+                    )
+                )
             }
         }
 
     }
 }
-
 
 // MARK: Request Video
 public extension PhotoAsset {
@@ -314,11 +372,12 @@ public extension PhotoAsset {
     ///   - videoQuality: 视频质量[0-10]
     ///   - resultHandler: 获取结果
     func requestVideoURL(
-        toFile fileURL:URL? = nil,
+        toFile fileURL: URL? = nil,
         exportPreset: ExportPreset? = nil,
         videoQuality: Int = 5,
         exportSession: ((AVAssetExportSession) -> Void)? = nil,
-        resultHandler: @escaping AssetURLCompletion) {
+        resultHandler: @escaping AssetURLCompletion
+    ) {
         if phAsset == nil {
             requestLocalVideoURL(
                 toFile: fileURL,
@@ -342,12 +401,14 @@ public extension PhotoAsset {
     ///   - progressHandler: iCloud下载进度
     /// - Returns: 请求ID
     @discardableResult
-    func requestAVAsset(filterEditor: Bool = false,
-                        deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic,
-                        iCloudHandler: PhotoAssetICloudHandler?,
-                        progressHandler: PhotoAssetProgressHandler?,
-                        success: ((PhotoAsset, AVAsset, [AnyHashable : Any]?) -> Void)?,
-                        failure: PhotoAssetFailureHandler?) -> PHImageRequestID {
+    func requestAVAsset(
+        filterEditor: Bool = false,
+        deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic,
+        iCloudHandler: PhotoAssetICloudHandler?,
+        progressHandler: PhotoAssetProgressHandler?,
+        success: ((PhotoAsset, AVAsset, [AnyHashable: Any]?) -> Void)?,
+        failure: PhotoAssetFailureHandler?
+    ) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
         if let videoEdit = videoEdit, !filterEditor {
             success?(self, AVAsset.init(url: videoEdit.editedURL), nil)

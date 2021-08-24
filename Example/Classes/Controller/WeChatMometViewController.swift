@@ -47,12 +47,17 @@ class WeChatMometViewController: UIViewController {
         title = "Moment"
         view.backgroundColor = .white
         view.addSubview(imageView)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "camera_overturn"), style: .done, target: self, action: #selector(didPublishClick))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(named: "camera_overturn"),
+            style: .done,
+            target: self,
+            action: #selector(didPublishClick)
+        )
     }
     
     @objc func didPublishClick() {
         isImage = false
-        if FileManager.default.fileExists(atPath: localURL.path)  {
+        if FileManager.default.fileExists(atPath: localURL.path) {
             let vc = PickerResultViewController()
             vc.isPublish = true
             let nav = UINavigationController(rootViewController: vc)
@@ -69,8 +74,7 @@ class WeChatMometViewController: UIViewController {
     func presentPicker(_ config: PickerConfiguration) {
         let pickerController = hx.present(
             picker: config
-        ) {
-            [weak self] result, picker in
+        ) { [weak self] result, picker in
             guard let self = self else { return }
             let completion: (() -> Void)?
             if self.isImage {
@@ -95,6 +99,11 @@ class WeChatMometViewController: UIViewController {
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        imageView.frame = CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0, width: view.hx.width, height: view.hx.width)
+        imageView.frame = CGRect(
+            x: 0,
+            y: navigationController?.navigationBar.frame.maxY ?? 0,
+            width: view.hx.width,
+            height: view.hx.width
+        )
     }
 }

@@ -162,7 +162,12 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         selectMaskLayer.frame = imageView.bounds
         disableMaskLayer.frame = imageView.bounds
         assetTypeMaskView.frame = CGRect(x: 0, y: imageView.height - 25, width: width, height: 25)
-        assetTypeMaskLayer.frame = CGRect(x: 0, y: -5, width: assetTypeMaskView.width, height: assetTypeMaskView.height + 5)
+        assetTypeMaskLayer.frame = CGRect(
+            x: 0,
+            y: -5,
+            width: assetTypeMaskView.width,
+            height: assetTypeMaskView.height + 5
+        )
         assetTypeLb.frame = CGRect(x: 0, y: height - 19, width: width - 5, height: 18)
         assetTypeIcon.size = assetTypeIcon.image?.size ?? .zero
         assetTypeIcon.x = 5

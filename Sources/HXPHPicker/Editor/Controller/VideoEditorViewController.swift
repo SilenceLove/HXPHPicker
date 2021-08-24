@@ -17,13 +17,15 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     ///   - result: 编辑后的数据
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult)
+        didFinish result: VideoEditResult
+    )
     
     /// 点击完成按钮，但是视频未编辑
     /// - Parameters:
     ///   - videoEditorViewController: 对应的 VideoEditorViewController
     func videoEditorViewController(
-        didFinishWithUnedited videoEditorViewController: VideoEditorViewController)
+        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
+    )
     
     /// 加载贴图标题资源
     /// - Parameters:
@@ -31,7 +33,8 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     ///   - loadTitleChartlet: 传入标题数组
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    )
     
     /// 加载贴图资源
     /// - Parameters:
@@ -43,12 +46,14 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
         _ videoEditorViewController: VideoEditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse)
+        loadChartletList response: @escaping EditorChartletListResponse
+    )
     
     /// 将要点击工具栏音乐按钮
     /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
     func videoEditorViewController(
-        shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool
+        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
+    ) -> Bool
     
     /// 加载配乐信息，当musicConfig.infos为空时触发
     /// 返回 true 内部会显示加载状态，调用 completionHandler 后恢复
@@ -57,7 +62,8 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     ///   - completionHandler: 传入配乐信息
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool
+        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
+    ) -> Bool
     
     /// 搜索配乐信息
     /// - Parameters:
@@ -67,7 +73,8 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
         didSearch text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void)
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    )
     
     /// 加载更多配乐信息
     /// - Parameters:
@@ -77,22 +84,28 @@ public protocol VideoEditorViewControllerDelegate: AnyObject {
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
         loadMore text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void)
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    )
     
     /// 取消编辑
     /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
     func videoEditorViewController(
-        didCancel videoEditorViewController: VideoEditorViewController)
+        didCancel videoEditorViewController: VideoEditorViewController
+    )
 }
 
 public extension VideoEditorViewControllerDelegate {
-    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {}
-    func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {}
-    
     func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
-    {
+        didFinish result: VideoEditResult
+    ) {}
+    func videoEditorViewController(
+        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
+    ) {}
+    func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    ) {
         #if canImport(Kingfisher)
         let titles = PhotoTools.defaultTitleChartlet()
         response(titles)
@@ -104,8 +117,8 @@ public extension VideoEditorViewControllerDelegate {
         _ videoEditorViewController: VideoEditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse)
-    {
+        loadChartletList response: @escaping EditorChartletListResponse
+    ) {
         /// 默认加载这些贴图
         #if canImport(Kingfisher)
         let chartletList = PhotoTools.defaultNetworkChartlet()
@@ -115,22 +128,33 @@ public extension VideoEditorViewControllerDelegate {
         #endif
     }
     
-    func videoEditorViewController(shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool { true }
-    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+    func videoEditorViewController(
+        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
+    ) -> Bool { true }
+    func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
+    ) -> Bool {
         completionHandler(PhotoTools.defaultMusicInfos())
         return false
     }
-    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController,
-                                   didSearch text: String?,
-                                   completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        didSearch text: String?,
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool
+        ) -> Void) {
         completionHandler([], false)
     }
-    func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController,
-                                   loadMore text: String?,
-                                   completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadMore text: String?,
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    ) {
         completionHandler([], false)
     }
-    func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {}
+    func videoEditorViewController(
+        didCancel videoEditorViewController: VideoEditorViewController
+    ) {}
 }
 
 open class VideoEditorViewController: BaseViewController {
@@ -186,8 +210,8 @@ open class VideoEditorViewController: BaseViewController {
     public convenience init(
         videoURL: URL,
         editResult: VideoEditResult? = nil,
-        config: VideoEditorConfiguration)
-    {
+        config: VideoEditorConfiguration
+    ) {
         self.init(
             avAsset: AVAsset.init(url: videoURL),
             editResult: editResult,
@@ -203,8 +227,8 @@ open class VideoEditorViewController: BaseViewController {
     public init(
         avAsset: AVAsset,
         editResult: VideoEditResult? = nil,
-        config: VideoEditorConfiguration)
-    {
+        config: VideoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
@@ -231,8 +255,8 @@ open class VideoEditorViewController: BaseViewController {
     public init(
         networkVideoURL: URL,
         editResult: VideoEditResult? = nil,
-        config: VideoEditorConfiguration)
-    {
+        config: VideoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
@@ -263,8 +287,8 @@ open class VideoEditorViewController: BaseViewController {
     public init(
         photoAsset: PhotoAsset,
         editResult: VideoEditResult? = nil,
-        config: VideoEditorConfiguration)
-    {
+        config: VideoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if config.mustBeTailored {
@@ -304,7 +328,7 @@ open class VideoEditorViewController: BaseViewController {
     /// 不是在音乐列表选中的音乐数据（不包括搜索）
     var otherMusic: VideoEditorMusic?
     
-    lazy var scrollView : ScrollView = {
+    lazy var scrollView: ScrollView = {
         let scrollView = ScrollView.init()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
@@ -389,7 +413,7 @@ open class VideoEditorViewController: BaseViewController {
     var isMusicState = false
     var isSearchMusic = false
     lazy var cropView: VideoEditorCropView = {
-        let cropView : VideoEditorCropView
+        let cropView: VideoEditorCropView
         if needRequest {
             cropView = VideoEditorCropView.init(config: config.cropping)
         }else {
@@ -448,7 +472,7 @@ open class VideoEditorViewController: BaseViewController {
     }()
     var isPresentText = false
     var playerFrame: CGRect = .zero
-    var orientationDidChange : Bool = true
+    var orientationDidChange: Bool = true
     /// 当前裁剪框的位置大小
     var currentValidRect: CGRect = .zero
     /// 当前裁剪框帧画面的偏移量
@@ -456,9 +480,9 @@ open class VideoEditorViewController: BaseViewController {
     var beforeStartTime: CMTime?
     var beforeEndTime: CMTime?
     /// 旋转之前vc存储的当前编辑数据
-    var rotateBeforeStorageData: (CGFloat, CGFloat, CGFloat)?
+    var rotateBeforeStorageData: (CGFloat, CGFloat, CGFloat)? // swiftlint:disable:this large_tuple
     /// 旋转之前cropview存储的裁剪框数据
-    var rotateBeforeData: (CGFloat, CGFloat, CGFloat)?
+    var rotateBeforeData: (CGFloat, CGFloat, CGFloat)? // swiftlint:disable:this large_tuple
     var playTimer: DispatchSourceTimer?
     
     /// 视频导出会话
@@ -496,11 +520,24 @@ open class VideoEditorViewController: BaseViewController {
         if let editResult = editResult {
             didEdited = true
             if let cropData = editResult.cropData {
-                playerView.playStartTime = CMTimeMakeWithSeconds(cropData.startTime, preferredTimescale: cropData.preferredTimescale)
-                playerView.playEndTime = CMTimeMakeWithSeconds(cropData.endTime,
-                                                               preferredTimescale: cropData.preferredTimescale)
-                rotateBeforeStorageData = (cropData.cropingData.offsetX, cropData.cropingData.validX, cropData.cropingData.validWidth)
-                rotateBeforeData = (cropData.cropRectData.offsetX, cropData.cropRectData.validX, cropData.cropRectData.validWidth)
+                playerView.playStartTime = CMTimeMakeWithSeconds(
+                    cropData.startTime,
+                    preferredTimescale: cropData.preferredTimescale
+                )
+                playerView.playEndTime = CMTimeMakeWithSeconds(
+                    cropData.endTime,
+                    preferredTimescale: cropData.preferredTimescale
+                )
+                rotateBeforeStorageData = (
+                    cropData.cropingData.offsetX,
+                    cropData.cropingData.validX,
+                    cropData.cropingData.validWidth
+                )
+                rotateBeforeData = (
+                    cropData.cropRectData.offsetX,
+                    cropData.cropRectData.validX,
+                    cropData.cropRectData.validWidth
+                )
             }
         }
     }
@@ -521,7 +558,11 @@ open class VideoEditorViewController: BaseViewController {
     }
     open override func deviceOrientationWillChanged(notify: Notification) {
         if let currentCropOffset = currentCropOffset {
-            rotateBeforeStorageData = cropView.getRotateBeforeData(offsetX: currentCropOffset.x, validX: currentValidRect.minX, validWidth: currentValidRect.width)
+            rotateBeforeStorageData = cropView.getRotateBeforeData(
+                offsetX: currentCropOffset.x,
+                validX: currentValidRect.minX,
+                validWidth: currentValidRect.width
+            )
         }
         if showChartlet {
             singleTap()
@@ -539,7 +580,12 @@ open class VideoEditorViewController: BaseViewController {
     }
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        toolView.frame = CGRect(x: 0, y: view.height - UIDevice.bottomMargin - 50, width: view.width, height: 50 + UIDevice.bottomMargin)
+        toolView.frame = CGRect(
+            x: 0,
+            y: view.height - UIDevice.bottomMargin - 50,
+            width: view.width,
+            height: 50 + UIDevice.bottomMargin
+        )
         toolView.reloadContentInset()
         cropView.frame = CGRect(x: 0, y: toolView.y - 100, width: view.width, height: 100)
         topView.width = view.width
@@ -568,7 +614,11 @@ open class VideoEditorViewController: BaseViewController {
             }else {
                 if let size = coverImage?.size {
                     if UIDevice.isPad {
-                        playerView.frame = PhotoTools.transformImageSize(size, toViewSize: view.size, directions: [.horizontal])
+                        playerView.frame = PhotoTools.transformImageSize(
+                            size,
+                            toViewSize: view.size,
+                            directions: [.horizontal]
+                        )
                     }else {
                         playerView.frame = PhotoTools.transformImageSize(size, to: view)
                     }
@@ -595,9 +645,19 @@ open class VideoEditorViewController: BaseViewController {
             viewHeight = view.height * 0.6
         }
         if showChartlet {
-            chartletView.frame = CGRect(x: 0, y: view.height - viewHeight - UIDevice.bottomMargin, width: view.width, height: viewHeight + UIDevice.bottomMargin)
+            chartletView.frame = CGRect(
+                x: 0,
+                y: view.height - viewHeight - UIDevice.bottomMargin,
+                width: view.width,
+                height: viewHeight + UIDevice.bottomMargin
+            )
         }else {
-            chartletView.frame = CGRect(x: 0, y: view.height, width: view.width, height: viewHeight + UIDevice.bottomMargin)
+            chartletView.frame = CGRect(
+                x: 0,
+                y: view.height,
+                width: view.width,
+                height: viewHeight + UIDevice.bottomMargin
+            )
         }
     }
     /// 设置裁剪框frame
@@ -606,14 +666,22 @@ open class VideoEditorViewController: BaseViewController {
             cropView.configData()
             if let rotateBeforeData = rotateBeforeData {
                 cropView.layoutSubviews()
-                cropView.rotateAfterSetData(offsetXScale: rotateBeforeData.0, validXScale: rotateBeforeData.1, validWithScale: rotateBeforeData.2)
+                cropView.rotateAfterSetData(
+                    offsetXScale: rotateBeforeData.0,
+                    validXScale: rotateBeforeData.1,
+                    validWithScale: rotateBeforeData.2
+                )
                 cropView.updateTimeLabels()
                 if state == .cropping || didEdited {
                     playerView.playStartTime = cropView.getStartTime(real: true)
                     playerView.playEndTime = cropView.getEndTime(real: true)
                 }
                 if let rotateBeforeStorageData = rotateBeforeStorageData {
-                    rotateAfterSetStorageData(offsetXScale: rotateBeforeStorageData.0, validXScale: rotateBeforeStorageData.1, validWithScale: rotateBeforeStorageData.2)
+                    rotateAfterSetStorageData(
+                        offsetXScale: rotateBeforeStorageData.0,
+                        validXScale: rotateBeforeStorageData.1,
+                        validWithScale: rotateBeforeStorageData.2
+                    )
                 }
                 playerView.resetPlay()
                 startPlayTimer()
@@ -626,9 +694,19 @@ open class VideoEditorViewController: BaseViewController {
     func setMusicViewFrame() {
         let musicHeight: CGFloat = 190
         if !isMusicState {
-            musicView.frame = CGRect(x: 0, y: view.height, width: view.width, height: musicHeight + UIDevice.bottomMargin)
+            musicView.frame = CGRect(
+                x: 0,
+                y: view.height,
+                width: view.width,
+                height: musicHeight + UIDevice.bottomMargin
+            )
         }else {
-            musicView.frame = CGRect(x: 0, y: view.height - musicHeight - UIDevice.bottomMargin, width: view.width, height: musicHeight + UIDevice.bottomMargin)
+            musicView.frame = CGRect(
+                x: 0,
+                y: view.height - musicHeight - UIDevice.bottomMargin,
+                width: view.width,
+                height: musicHeight + UIDevice.bottomMargin
+            )
         }
     }
     func setSearchMusicViewFrame() {
@@ -689,15 +767,26 @@ open class VideoEditorViewController: BaseViewController {
         var y: CGFloat = 10
         var height = cropView.y - y - 5
         if let modalPresentationStyle = navigationController?.modalPresentationStyle, UIDevice.isPortrait {
-            if modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom { height -= UIDevice.generalStatusBarHeight
+            if modalPresentationStyle == .fullScreen ||
+                modalPresentationStyle == .custom {
+                height -= UIDevice.generalStatusBarHeight
                 y += UIDevice.generalStatusBarHeight
             }
         }else if (modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom) && UIDevice.isPortrait {
             height -= UIDevice.generalStatusBarHeight
             y += UIDevice.generalStatusBarHeight
         }
-        let rect = PhotoTools.transformImageSize(videoSize, toViewSize: CGSize(width: width, height: height), directions: [.horizontal])
-        return CGRect(x: leftMargin + (width - rect.width) * 0.5, y: y + (height - rect.height) * 0.5, width: rect.width, height: rect.height)
+        let rect = PhotoTools.transformImageSize(
+            videoSize,
+            toViewSize: CGSize(width: width, height: height),
+            directions: [.horizontal]
+        )
+        return CGRect(
+            x: leftMargin + (width - rect.width) * 0.5,
+            y: y + (height - rect.height) * 0.5,
+            width: rect.width,
+            height: rect.height
+        )
     }
     open override var prefersStatusBarHidden: Bool {
         return config.prefersStatusBarHidden
@@ -724,7 +813,8 @@ open class VideoEditorViewController: BaseViewController {
     }
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if navigationController?.topViewController != self && navigationController?.viewControllers.contains(self) == false {
+        if navigationController?.topViewController != self &&
+            navigationController?.viewControllers.contains(self) == false {
             navigationController?.setNavigationBarHidden(false, animated: true)
         }
     }
@@ -743,8 +833,10 @@ extension VideoEditorViewController: UIScrollViewDelegate, UIGestureRecognizerDe
         return playerView
     }
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        let offsetX = (scrollView.width > scrollView.contentSize.width) ? (scrollView.width - scrollView.contentSize.width) * 0.5 : 0
-        let offsetY = (scrollView.height > scrollView.contentSize.height) ? (scrollView.height - scrollView.contentSize.height) * 0.5 : 0
+        let offsetX = (scrollView.width > scrollView.contentSize.width) ?
+            (scrollView.width - scrollView.contentSize.width) * 0.5 : 0
+        let offsetY = (scrollView.height > scrollView.contentSize.height) ?
+            (scrollView.height - scrollView.contentSize.height) * 0.5 : 0
         let centerX = scrollView.contentSize.width * 0.5 + offsetX
         let centerY = scrollView.contentSize.height * 0.5 + offsetY
         playerView.center = CGPoint(x: centerX, y: centerY)

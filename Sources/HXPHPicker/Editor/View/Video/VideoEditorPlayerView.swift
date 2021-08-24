@@ -58,10 +58,30 @@ class VideoEditorPlayerView: VideoPlayerView {
             let playerItem = AVPlayerItem.init(asset: avAsset)
             player.replaceCurrentItem(with: playerItem)
             playerLayer.player = player
-            NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
-            playerLayer.addObserver(self, forKeyPath: "readyForDisplay", options: [.new, .old], context: nil)
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(appDidEnterBackground),
+                name: UIApplication.didEnterBackgroundNotification,
+                object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(appDidEnterPlayGround),
+                name: UIApplication.didBecomeActiveNotification,
+                object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)),
+                name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                object: player.currentItem
+            )
+            playerLayer.addObserver(
+                self,
+                forKeyPath: "readyForDisplay",
+                options: [.new, .old],
+                context: nil
+            )
             addObserverReadyForDisplay = true
         }
     }
@@ -109,9 +129,16 @@ class VideoEditorPlayerView: VideoPlayerView {
             }
         }
     }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if object is AVPlayerLayer && keyPath == "readyForDisplay" {
+    // swiftlint:disable block_based_kvo
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        // swiftlint:enable block_based_kvo
+        if object is AVPlayerLayer &&
+            keyPath == "readyForDisplay" {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
@@ -162,7 +189,12 @@ extension VideoEditorPlayerView: EditorStickerViewDelegate {
         let newRect = CGRect(origin: .init(x: x, y: y), size: videoRect.size)
         let marginWidth = rect.width - 20
         let marginHeight = rect.height - 20
-        if CGRect(x: newRect.minX - marginWidth, y: newRect.minY - marginHeight, width: newRect.width + marginWidth * 2, height: newRect.height + marginHeight * 2).contains(rect) {
+        if CGRect(
+            x: newRect.minX - marginWidth,
+            y: newRect.minY - marginHeight,
+            width: newRect.width + marginWidth * 2,
+            height: newRect.height + marginHeight * 2
+        ).contains(rect) {
             return false
         }
         return true

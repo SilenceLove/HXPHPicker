@@ -40,7 +40,10 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         present(imagePickerController, animated: true, completion: nil)
     }
     
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    public func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
         ProgressHUD.showLoading(addedTo: self.navigationController?.view, animated: true)
         picker.dismiss(animated: true, completion: nil)
         DispatchQueue.global().async {
@@ -59,18 +62,28 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                     return
                 }
             }else {
-                let startTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingStart")] as? TimeInterval
-                let endTime = info[UIImagePickerController.InfoKey.init(rawValue: "_UIImagePickerControllerVideoEditingEnd")] as? TimeInterval
+                let startTime = info[
+                    UIImagePickerController.InfoKey(
+                        rawValue: "_UIImagePickerControllerVideoEditingStart"
+                    )
+                ] as? TimeInterval
+                let endTime = info[
+                    UIImagePickerController.InfoKey(
+                        rawValue: "_UIImagePickerControllerVideoEditingEnd"
+                    )
+                ] as? TimeInterval
                 let videoURL: URL? = info[.mediaURL] as? URL
-                if let startTime = startTime, let endTime = endTime, let videoURL = videoURL  {
+                if let startTime = startTime,
+                   let endTime = endTime,
+                   let videoURL = videoURL {
                     let avAsset = AVAsset.init(url: videoURL)
                     PhotoTools.exportEditVideo(
                         for: avAsset,
                         startTime: startTime,
                         endTime: endTime,
                         exportPreset: self.config.camera.editExportPreset,
-                        videoQuality: self.config.camera.editVideoQuality)
-                    { (url, error) in
+                        videoQuality: self.config.camera.editVideoQuality
+                    ) { (url, error) in
                         if let url = url, error == nil {
                             if self.config.saveSystemAlbum {
                                 self.saveSystemAlbum(for: url, mediaType: .video)
@@ -80,7 +93,12 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                             self.addedCameraPhotoAsset(phAsset)
                         }else {
                             ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
-                            ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "视频导出失败".localized, animated: true, delayHide: 1.5)
+                            ProgressHUD.showWarning(
+                                addedTo: self.navigationController?.view,
+                                text: "视频导出失败".localized,
+                                animated: true,
+                                delayHide: 1.5
+                            )
                         }
                     }
                     return
@@ -100,13 +118,27 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         }
     }
     func saveSystemAlbum(for asset: Any, mediaType: PHAssetMediaType) {
-        AssetManager.saveSystemAlbum(forAsset: asset, mediaType: mediaType, customAlbumName: config.customAlbumName, creationDate: nil, location: nil) { (phAsset) in
+        AssetManager.saveSystemAlbum(
+            forAsset: asset,
+            mediaType: mediaType,
+            customAlbumName: config.customAlbumName,
+            creationDate: nil,
+            location: nil
+        ) { (phAsset) in
             if let phAsset = phAsset {
                 self.addedCameraPhotoAsset(PhotoAsset.init(asset: phAsset))
             }else {
                 DispatchQueue.main.async {
-                    ProgressHUD.hide(forView: self.navigationController?.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: self.navigationController?.view, text: "保存失败".localized, animated: true, delayHide: 1.5)
+                    ProgressHUD.hide(
+                        forView: self.navigationController?.view,
+                        animated: true
+                    )
+                    ProgressHUD.showWarning(
+                        addedTo: self.navigationController?.view,
+                        text: "保存失败".localized,
+                        animated: true,
+                        delayHide: 1.5
+                    )
                 }
             }
         }

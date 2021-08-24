@@ -90,12 +90,21 @@ class ConfigurationViewCell: UITableViewCell {
         titleLabel.hx.y = hx.height * 0.5 - 2 - titleLabel.hx.height
         
         tagsButton.hx.x = 16
-        tagsButton.hx.width = tagsButton.titleLabel!.text!.hx.width(ofFont: tagsButton.titleLabel!.font, maxHeight: CGFloat(MAXFLOAT)) + 8
-        tagsButton.hx.height = tagsButton.titleLabel!.text!.hx.height(ofFont: tagsButton.titleLabel!.font, maxWidth: CGFloat(MAXFLOAT)) + 4
+        tagsButton.hx.width = tagsButton.titleLabel!.text!.hx.width(
+            ofFont: tagsButton.titleLabel!.font,
+            maxHeight: CGFloat(MAXFLOAT)
+        ) + 8
+        tagsButton.hx.height = tagsButton.titleLabel!.text!.hx.height(
+            ofFont: tagsButton.titleLabel!.font,
+            maxWidth: CGFloat(MAXFLOAT)
+        ) + 4
         tagsButton.hx.y = hx.height * 0.5 + 2
         
         contentLabel.hx.width = contentLabel.text!.hx.width(ofFont: contentLabel.font, maxHeight: CGFloat(MAXFLOAT))
-        contentLabel.hx.height = contentLabel.text!.hx.height(ofFont: contentLabel.font, maxWidth: contentLabel.hx.width)
+        contentLabel.hx.height = contentLabel.text!.hx.height(
+            ofFont: contentLabel.font,
+            maxWidth: contentLabel.hx.width
+        )
         contentLabel.hx.centerY = hx.height * 0.5
         contentLabel.hx.x = hx.width - 20 - contentLabel.hx.width
         
@@ -117,4 +126,3 @@ class ConfigurationViewCell: UITableViewCell {
         contentLabel.isHidden = true
     }
 }
-

@@ -18,43 +18,60 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
     ///   - result: 编辑后的数据
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
-                                   didFinish result: PhotoEditResult)
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        didFinish result: PhotoEditResult
+    )
     
     /// 点击完成按钮，但是照片未编辑
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
-    func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController)
+    func photoEditorViewController(
+        didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
+    )
     
     /// 加载贴图标题资源
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController 
     ///   - loadTitleChartlet: 传入标题数组
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
-                                   loadTitleChartlet response: @escaping EditorTitleChartletResponse)
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    )
     /// 加载贴图资源
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
     ///   - titleChartlet: 对应配置的 title
     ///   - titleIndex: 对应配置的 title 的位置索引
     ///   - response: 传入 title索引 和 贴图数据
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController,
-                                   titleChartlet: EditorChartlet,
-                                   titleIndex: Int,
-                                   loadChartletList response: @escaping EditorChartletListResponse)
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        titleChartlet: EditorChartlet,
+        titleIndex: Int,
+        loadChartletList response: @escaping EditorChartletListResponse
+    )
     
     /// 取消编辑
     /// - Parameter photoEditorViewController: 对应的 PhotoEditorViewController
-    func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController)
+    func photoEditorViewController(
+        didCancel photoEditorViewController: PhotoEditorViewController
+    )
 }
 public extension PhotoEditorViewControllerDelegate {
-    func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {}
-    func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {}
-    func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {}
     func photoEditorViewController(
         _ photoEditorViewController: PhotoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse)
-    {
+        didFinish result: PhotoEditResult
+    ) {}
+    func photoEditorViewController(
+        didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
+    ) {}
+    func photoEditorViewController(
+        didCancel photoEditorViewController: PhotoEditorViewController
+    ) {}
+    func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
+    ) {
         #if canImport(Kingfisher)
         let titles = PhotoTools.defaultTitleChartlet()
         response(titles)
@@ -66,8 +83,8 @@ public extension PhotoEditorViewControllerDelegate {
         _ photoEditorViewController: PhotoEditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse)
-    {
+        loadChartletList response: @escaping EditorChartletListResponse
+    ) {
         /// 默认加载这些贴图
         #if canImport(Kingfisher)
         let chartletList = PhotoTools.defaultNetworkChartlet()
@@ -105,8 +122,8 @@ open class PhotoEditorViewController: BaseViewController {
     public init(
         image: UIImage,
         editResult: PhotoEditResult? = nil,
-        config: PhotoEditorConfiguration)
-    {
+        config: PhotoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .local
@@ -128,8 +145,8 @@ open class PhotoEditorViewController: BaseViewController {
     public init(
         photoAsset: PhotoAsset,
         editResult: PhotoEditResult? = nil,
-        config: PhotoEditorConfiguration)
-    {
+        config: PhotoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .picker
@@ -154,8 +171,8 @@ open class PhotoEditorViewController: BaseViewController {
     public init(
         networkImageURL: URL,
         editResult: PhotoEditResult? = nil,
-        config: PhotoEditorConfiguration)
-    {
+        config: PhotoEditorConfiguration
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         sourceType = .network
@@ -303,7 +320,7 @@ open class PhotoEditorViewController: BaseViewController {
         return view
     }()
     var isFilter = false
-    var filterImage: UIImage? = nil
+    var filterImage: UIImage?
     lazy var filterView: PhotoEditorFilterView = {
         let filter = editResult?.editedData.filter
         let value = editResult?.editedData.filterValue
@@ -383,7 +400,12 @@ open class PhotoEditorViewController: BaseViewController {
     }
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        toolView.frame = CGRect(x: 0, y: view.height - UIDevice.bottomMargin - 50, width: view.width, height: 50 + UIDevice.bottomMargin)
+        toolView.frame = CGRect(
+            x: 0,
+            y: view.height - UIDevice.bottomMargin - 50,
+            width: view.width,
+            height: 50 + UIDevice.bottomMargin
+        )
         toolView.reloadContentInset()
         topView.width = view.width
         topView.height = navigationController?.navigationBar.height ?? 44
@@ -444,16 +466,36 @@ open class PhotoEditorViewController: BaseViewController {
             viewHeight = view.height * 0.6
         }
         if showChartlet {
-            chartletView.frame = CGRect(x: 0, y: view.height - viewHeight - UIDevice.bottomMargin, width: view.width, height: viewHeight + UIDevice.bottomMargin)
+            chartletView.frame = CGRect(
+                x: 0,
+                y: view.height - viewHeight - UIDevice.bottomMargin,
+                width: view.width,
+                height: viewHeight + UIDevice.bottomMargin
+            )
         }else {
-            chartletView.frame = CGRect(x: 0, y: view.height, width: view.width, height: viewHeight + UIDevice.bottomMargin)
+            chartletView.frame = CGRect(
+                x: 0,
+                y: view.height,
+                width: view.width,
+                height: viewHeight + UIDevice.bottomMargin
+            )
         }
     }
     func setFilterViewFrame() {
         if isFilter {
-            filterView.frame = CGRect(x: 0, y: view.height - 150 - UIDevice.bottomMargin, width: view.width, height: 150 + UIDevice.bottomMargin)
+            filterView.frame = CGRect(
+                x: 0,
+                y: view.height - 150 - UIDevice.bottomMargin,
+                width: view.width,
+                height: 150 + UIDevice.bottomMargin
+            )
         }else {
-            filterView.frame = CGRect(x: 0, y: view.height + 10, width: view.width, height: 150 + UIDevice.bottomMargin)
+            filterView.frame = CGRect(
+                x: 0,
+                y: view.height + 10,
+                width: view.width,
+                height: 150 + UIDevice.bottomMargin
+            )
         }
     }
     open override var prefersStatusBarHidden: Bool {
@@ -467,7 +509,8 @@ open class PhotoEditorViewController: BaseViewController {
     }
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if navigationController?.topViewController != self && navigationController?.viewControllers.contains(self) == false {
+        if navigationController?.topViewController != self &&
+            navigationController?.viewControllers.contains(self) == false {
             navigationController?.setNavigationBarHidden(false, animated: true)
         }
     }
@@ -664,7 +707,10 @@ extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
     }
 }
 extension PhotoEditorViewController: PhotoEditorMosaicToolViewDelegate {
-    func mosaicToolView(_ mosaicToolView: PhotoEditorMosaicToolView, didChangedMosaicType type: PhotoEditorMosaicView.MosaicType) {
+    func mosaicToolView(
+        _ mosaicToolView: PhotoEditorMosaicToolView,
+        didChangedMosaicType type: PhotoEditorMosaicView.MosaicType
+    ) {
         imageView.mosaicType = type
     }
     
@@ -678,9 +724,11 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         true
     }
     
-    func filterView(_ filterView: PhotoEditorFilterView,
-                    didSelected filter: PhotoEditorFilter,
-                    atItem: Int) {
+    func filterView(
+        _ filterView: PhotoEditorFilterView,
+        didSelected filter: PhotoEditorFilter,
+        atItem: Int
+    ) {
         if filter.isOriginal {
             imageView.imageResizerView.filter = nil
             imageView.updateImage(image)
@@ -742,17 +790,26 @@ extension PhotoEditorViewController: UIGestureRecognizerDelegate {
         }
         return false
     }
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
         true
     }
 }
 
 extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
-    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerItem: EditorStickerItem) {
+    func stickerTextViewController(
+        _ controller: EditorStickerTextViewController,
+        didFinish stickerItem: EditorStickerItem
+    ) {
         imageView.updateSticker(item: stickerItem)
     }
     
-    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerText: EditorStickerText) {
+    func stickerTextViewController(
+        _ controller: EditorStickerTextViewController,
+        didFinish stickerText: EditorStickerText
+    ) {
         let item = EditorStickerItem(
             image: stickerText.image,
             imageData: nil,
@@ -763,7 +820,10 @@ extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
 }
 
 extension PhotoEditorViewController: EditorChartletViewDelegate {
-    func chartletView(_ chartletView: EditorChartletView, loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
+    func chartletView(
+        _ chartletView: EditorChartletView,
+        loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void
+    ) {
         if let editorDelegate = delegate {
             editorDelegate.photoEditorViewController(
                 self,
@@ -781,10 +841,12 @@ extension PhotoEditorViewController: EditorChartletViewDelegate {
     func chartletView(backClick chartletView: EditorChartletView) {
         singleTap()
     }
-    func chartletView(_ chartletView: EditorChartletView,
-                      titleChartlet: EditorChartlet,
-                      titleIndex: Int,
-                      loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
+    func chartletView(
+        _ chartletView: EditorChartletView,
+        titleChartlet: EditorChartlet,
+        titleIndex: Int,
+        loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void
+    ) {
         if let editorDelegate = delegate {
             editorDelegate.photoEditorViewController(
                 self,
@@ -802,9 +864,20 @@ extension PhotoEditorViewController: EditorChartletViewDelegate {
             #endif
         }
     }
-    func chartletView(_ chartletView: EditorChartletView, didSelectImage image: UIImage, imageData: Data?) {
-        let item = EditorStickerItem(image: image, imageData: imageData, text: nil)
-        imageView.addSticker(item: item, isSelected: false)
+    func chartletView(
+        _ chartletView: EditorChartletView,
+        didSelectImage image: UIImage,
+        imageData: Data?
+    ) {
+        let item = EditorStickerItem(
+            image: image,
+            imageData: imageData,
+            text: nil
+        )
+        imageView.addSticker(
+            item: item,
+            isSelected: false
+        )
         singleTap()
     }
 }

@@ -58,8 +58,17 @@ class VideoEditorFrameMaskView: UIView {
     }()
     
     func drawMaskLayer() {
-        let maskPath = UIBezierPath.init(rect: bounds)
-        maskPath.append(UIBezierPath.init(rect: CGRect(x: validRect.minX + 4, y: validRect.minY + 2, width: validRect.width - 8, height: validRect.height - 4)).reversing())
+        let maskPath = UIBezierPath(rect: bounds)
+        maskPath.append(
+            UIBezierPath(
+                rect: CGRect(
+                    x: validRect.minX + 4,
+                    y: validRect.minY + 2,
+                    width: validRect.width - 8,
+                    height: validRect.height - 4
+                )
+            ).reversing()
+        )
         maskLayer.path = maskPath.cgPath
         
         let restrictionpath = UIBezierPath.init(rect: validRect)

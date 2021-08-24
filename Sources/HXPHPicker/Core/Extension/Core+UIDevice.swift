@@ -34,7 +34,7 @@ extension UIDevice {
         isAllIPhoneX ? 44 : 20
     }
     class var statusBarHeight: CGFloat {
-        let statusBarHeight : CGFloat;
+        let statusBarHeight: CGFloat
         let window = UIApplication.shared.windows.first
         if #available(iOS 13.0, *) {
             statusBarHeight = (window?.windowScene?.statusBarManager?.statusBarFrame.size.height)!
@@ -79,7 +79,13 @@ extension UIDevice {
         UI_USER_INTERFACE_IDIOM() == .pad
     }
     class var isAllIPhoneX: Bool {
-        (isIPhoneX || isIPhoneXR || isIPhoneXsMax || isIPhoneXsMax || isIPhoneTwelveMini || isIPhoneTwelve || isIPhoneTwelveProMax)
+        (isIPhoneX ||
+            isIPhoneXR ||
+            isIPhoneXsMax ||
+            isIPhoneXsMax ||
+            isIPhoneTwelveMini ||
+            isIPhoneTwelve || isIPhoneTwelveProMax
+        )
     }
     class var isIPhoneX: Bool {
         if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&

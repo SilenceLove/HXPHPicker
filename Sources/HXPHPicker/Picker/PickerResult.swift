@@ -22,8 +22,8 @@ public struct PickerResult {
     ///   - isOriginal: 是否原图
     public init(
         photoAssets: [PhotoAsset],
-        isOriginal: Bool)
-    {
+        isOriginal: Bool
+    ) {
         self.photoAssets = photoAssets
         self.isOriginal = isOriginal
     }
@@ -88,8 +88,8 @@ public extension PickerResult {
                     videoQuality: videoQuality,
                     exportSession: { session in
                         exportSession?(session, photoAsset, index)
-                    })
-                { result in
+                    }
+                ) { result in
                     switch result {
                     case .success(let response):
                         videoURLs.append(response.url)
@@ -161,7 +161,7 @@ public extension PickerResult {
                     mediatype = photoAsset.mediaType
                 }else if options.contains([.photo]) {
                     mediatype = .photo
-                }else if options.contains([.video]){
+                }else if options.contains([.video]) {
                     mediatype = .video
                 }
                 #if HXPICKER_ENABLE_EDITOR

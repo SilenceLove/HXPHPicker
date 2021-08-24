@@ -49,8 +49,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     func exportVideoURL(
         timeRang: CMTimeRange,
         hasSticker: Bool,
-        stickerInfos: [EditorStickerInfo])
-    {
+        stickerInfos: [EditorStickerInfo]
+    ) {
         DispatchQueue.global().async {
             var audioURL: URL?
             if let musicPath = self.backgroundMusicPath {
@@ -65,8 +65,8 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 audioVolume: self.backgroundMusicVolume,
                 originalAudioVolume: self.playerView.player.volume,
                 exportPreset: self.config.exportPreset,
-                videoQuality: self.config.videoQuality)
-            {  [weak self] videoURL, error in
+                videoQuality: self.config.videoQuality
+            ) {  [weak self] videoURL, error in
                 if let videoURL = videoURL {
                     self?.editFinishCallBack(videoURL)
                     self?.backAction()
@@ -82,7 +82,11 @@ extension VideoEditorViewController: EditorToolViewDelegate {
     }
     func editFinishCallBack(_ videoURL: URL) {
         if let currentCropOffset = currentCropOffset {
-            rotateBeforeStorageData = cropView.getRotateBeforeData(offsetX: currentCropOffset.x, validX: currentValidRect.minX, validWidth: currentValidRect.width)
+            rotateBeforeStorageData = cropView.getRotateBeforeData(
+                offsetX: currentCropOffset.x,
+                validX: currentValidRect.minX,
+                validWidth: currentValidRect.width
+            )
         }
         rotateBeforeData = cropView.getRotateBeforeData()
         var cropData: VideoCropData?
@@ -94,8 +98,16 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 startTime: startTime.seconds,
                 endTime: endTime.seconds,
                 preferredTimescale: avAsset.duration.timescale,
-                cropingData: .init(offsetX: rotateBeforeStorageData.0, validX: rotateBeforeStorageData.1, validWidth: rotateBeforeStorageData.2),
-                cropRectData: .init(offsetX: rotateBeforeData.0, validX: rotateBeforeData.1, validWidth: rotateBeforeData.2)
+                cropingData: .init(
+                    offsetX: rotateBeforeStorageData.0,
+                    validX: rotateBeforeStorageData.1,
+                    validWidth: rotateBeforeStorageData.2
+                ),
+                cropRectData: .init(
+                    offsetX: rotateBeforeData.0,
+                    validX: rotateBeforeData.1,
+                    validWidth: rotateBeforeData.2
+                )
             )
         }
         var backgroundMusicURL: URL?
@@ -125,8 +137,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 if let editorDelegate = delegate {
                     if editorDelegate.videoEditorViewController(
                         self,
-                        loadMusic: {
-                            [weak self] infos in
+                        loadMusic: { [weak self] infos in
                             self?.musicView.reloadData(infos: infos)
                     }) {
                         musicView.showLoading()
@@ -227,12 +238,25 @@ extension VideoEditorViewController: EditorToolViewDelegate {
 
 extension VideoEditorViewController: EditorStickerTextViewControllerDelegate {
     
-    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerItem: EditorStickerItem) {
+    func stickerTextViewController(
+        _ controller: EditorStickerTextViewController,
+        didFinish stickerItem: EditorStickerItem
+    ) {
         playerView.stickerView.update(item: stickerItem)
     }
     
-    func stickerTextViewController(_ controller: EditorStickerTextViewController, didFinish stickerText: EditorStickerText) {
-        let item = EditorStickerItem(image: stickerText.image, imageData:nil, text: stickerText)
-        playerView.stickerView.add(sticker: item, isSelected: false)
+    func stickerTextViewController(
+        _ controller: EditorStickerTextViewController,
+        didFinish stickerText: EditorStickerText
+    ) {
+        let item = EditorStickerItem(
+            image: stickerText.image,
+            imageData: nil,
+            text: stickerText
+        )
+        playerView.stickerView.add(
+            sticker: item,
+            isSelected: false
+        )
     }
 }

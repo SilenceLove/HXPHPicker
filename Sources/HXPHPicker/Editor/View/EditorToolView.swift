@@ -48,7 +48,10 @@ public class EditorToolView: UIView {
     }()
     
     public lazy var collectionView: EditorToolScrollView = {
-        let collectionView = EditorToolScrollView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 50), collectionViewLayout: flowLayout)
+        let collectionView = EditorToolScrollView(
+            frame: CGRect(x: 0, y: 0, width: 0, height: 50),
+            collectionViewLayout: flowLayout
+        )
         collectionView.delaysContentTouches = false
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
@@ -92,8 +95,17 @@ public class EditorToolView: UIView {
     }
     func configColor() {
         let isDark = PhotoManager.isDark
-        finishButton.setTitleColor(isDark ? config.finishButtonTitleDarkColor : config.finishButtonTitleColor, for: .normal)
-        finishButton.setBackgroundImage(UIImage.image(for: isDark ? config.finishButtonDarkBackgroundColor : config.finishButtonBackgroundColor, havingSize: .zero), for: .normal)
+        finishButton.setTitleColor(
+            isDark ? config.finishButtonTitleDarkColor : config.finishButtonTitleColor,
+            for: .normal
+        )
+        finishButton.setBackgroundImage(
+            UIImage.image(
+                for: isDark ? config.finishButtonDarkBackgroundColor : config.finishButtonBackgroundColor,
+                havingSize: .zero
+            ),
+            for: .normal
+        )
     }
     func deselected() {
         if let indexPath = currentSelectedIndexPath {
@@ -124,8 +136,15 @@ public class EditorToolView: UIView {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
-        maskLayer.frame = CGRect(x: 0, y: stretchMask ? -70 : -10, width: width, height: stretchMask ? height + 70 : height + 10)
-        var finishWidth = (finishButton.currentTitle?.width(ofFont: finishButton.titleLabel!.font, maxHeight: 33) ?? 0) + 20
+        maskLayer.frame = CGRect(
+            x: 0,
+            y: stretchMask ? -70 : -10,
+            width: width,
+            height: stretchMask ? height + 70 : height + 10
+        )
+        var finishWidth = (finishButton.currentTitle?.width(
+                            ofFont: finishButton.titleLabel!.font,
+                            maxHeight: 33) ?? 0) + 20
         if finishWidth < 60 {
             finishWidth = 60
         }
@@ -142,8 +161,14 @@ extension EditorToolView: UICollectionViewDataSource, UICollectionViewDelegate, 
         config.toolOptions.count
     }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorToolViewCellID", for: indexPath) as! EditorToolViewCell
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "EditorToolViewCellID",
+            for: indexPath
+        ) as! EditorToolViewCell
         let model = config.toolOptions[indexPath.item]
         cell.delegate = self
         cell.boxColor = config.musicSelectedColor

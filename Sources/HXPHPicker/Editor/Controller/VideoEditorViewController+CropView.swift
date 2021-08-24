@@ -51,7 +51,11 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         }
     }
     func startPlayTimer(reset: Bool = true) {
-        startPlayTimer(reset: reset, startTime: cropView.getStartTime(real: true), endTime: cropView.getEndTime(real: true))
+        startPlayTimer(
+            reset: reset,
+            startTime: cropView.getStartTime(real: true),
+            endTime: cropView.getEndTime(real: true)
+        )
     }
     func startPlayTimer(reset: Bool = true, startTime: CMTime, endTime: CMTime) {
         stopPlayTimer()
@@ -60,7 +64,8 @@ extension VideoEditorViewController: VideoEditorCropViewDelegate {
         if reset {
             microseconds = (endTime.seconds - startTime.seconds) * 1000000
         }else {
-            microseconds = (playerView.player.currentTime().seconds - cropView.getStartTime(real: true).seconds) * 1000000
+            let seconds = playerView.player.currentTime().seconds - cropView.getStartTime(real: true).seconds
+            microseconds = seconds * 1000000
         }
         playTimer.schedule(deadline: .now(), repeating: .microseconds(Int(microseconds)), leeway: .microseconds(0))
         playTimer.setEventHandler(handler: {

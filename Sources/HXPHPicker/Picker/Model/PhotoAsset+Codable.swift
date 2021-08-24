@@ -79,7 +79,7 @@ extension PhotoAsset {
     /// - Parameter data: 之前编码得到的数据
     /// - Returns: 对应的 PhotoAsset 对象
     public class func decoder(data: Data) -> PhotoAsset? {
-        var photoAsset: PhotoAsset? = nil
+        var photoAsset: PhotoAsset?
         do {
             let decoder = JSONDecoder()
             let simplify = try decoder.decode(Simplify.self, from: data)

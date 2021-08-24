@@ -10,7 +10,10 @@ import UIKit
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
 // MARK: PhotoEditorViewControllerDelegate
 extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
-    public func photoEditorViewController(_ photoEditorViewController: PhotoEditorViewController, didFinish result: PhotoEditResult) {
+    public func photoEditorViewController(
+        _ photoEditorViewController: PhotoEditorViewController,
+        didFinish result: PhotoEditResult
+    ) {
         let photoAsset = photoEditorViewController.photoAsset!
         photoAsset.photoEdit = result
         pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
@@ -31,10 +34,12 @@ extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
         }
         bottomView.updateFinishButtonTitle()
     }
-    public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
+    public func photoEditorViewController(
+        didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
+    ) {
         let photoAsset = photoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.photoEdit != nil
-        photoAsset.photoEdit = nil;
+        photoAsset.photoEdit = nil
         if beforeHasEdit {
             pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
         }
@@ -143,14 +148,22 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
             response: response
         )
     }
-    public func videoEditorViewController(shouldClickMusicTool videoEditorViewController: VideoEditorViewController) -> Bool {
+    public func videoEditorViewController(
+        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
+    ) -> Bool {
         if let pickerController = pickerController,
-           let shouldClick = pickerController.pickerDelegate?.pickerController(pickerController, videoEditorShouldClickMusicTool: videoEditorViewController) {
+           let shouldClick = pickerController.pickerDelegate?.pickerController(
+            pickerController,
+            videoEditorShouldClickMusicTool: videoEditorViewController
+           ) {
             return shouldClick
         }
         return true
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
+    ) -> Bool {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler(PhotoTools.defaultMusicInfos())
@@ -165,7 +178,8 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
         didSearch text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    ) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler([], false)
@@ -181,7 +195,8 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         _ videoEditorViewController: VideoEditorViewController,
         loadMore text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
+    ) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler([], false)
@@ -194,10 +209,16 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(_ videoEditorViewController: VideoEditorViewController, didFinish result: VideoEditResult) {
+    public func videoEditorViewController(
+        _ videoEditorViewController: VideoEditorViewController,
+        didFinish result: VideoEditResult
+    ) {
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result
-        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        pickerController?.didEditAsset(
+            photoAsset: photoAsset,
+            atIndex: assets.firstIndex(of: photoAsset) ?? 0
+        )
         if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
                 pickerController!.singleFinishCallback(for: photoAsset)
@@ -215,15 +236,22 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
         }
         bottomView.updateFinishButtonTitle()
     }
-    public func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {
+    public func videoEditorViewController(
+        didCancel videoEditorViewController: VideoEditorViewController
+    ) {
         
     }
-    public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
+    public func videoEditorViewController(
+        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
+    ) {
         let photoAsset = videoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.videoEdit != nil
         photoAsset.videoEdit = nil
         if beforeHasEdit {
-            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+            pickerController?.didEditAsset(
+                photoAsset: photoAsset,
+                atIndex: assets.firstIndex(of: photoAsset) ?? 0
+            )
         }
         if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
             if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {

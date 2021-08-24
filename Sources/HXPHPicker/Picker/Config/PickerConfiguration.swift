@@ -13,7 +13,7 @@ open class PickerConfiguration: BaseConfiguration {
     /// 资源可选项，控制获取系统相册资源的类型
     /// .livePhoto .gifPhoto 是photo的子项
     /// 默认只获取静态图片和视频
-    public var selectOptions : PickerAssetOptions = [.photo, .video]
+    public var selectOptions: PickerAssetOptions = [.photo, .video]
     
     /// 选择模式
     public var selectMode: PickerSelectMode = .multiple
@@ -28,7 +28,7 @@ open class PickerConfiguration: BaseConfiguration {
     /// 如果在断网或者系统iCloud出错的情况下:
     /// true: 选择失败
     /// fasle: 获取原始图片会失败
-    public var allowSyncICloudWhenSelectPhoto : Bool = true
+    public var allowSyncICloudWhenSelectPhoto: Bool = true
     
     /// 相册展示模式
     public var albumShowMode: AlbumShowMode = .normal
@@ -46,10 +46,10 @@ open class PickerConfiguration: BaseConfiguration {
     public var videoSelectionTapAction: SelectionTapAction = .preview
     
     /// 最多可以选择的照片数，如果为0则不限制
-    public var maximumSelectedPhotoCount : Int = 0
+    public var maximumSelectedPhotoCount: Int = 0
     
     /// 最多可以选择的视频数，如果为0则不限制
-    public var maximumSelectedVideoCount : Int = 0
+    public var maximumSelectedVideoCount: Int = 0
     
     /// 最多可以选择的资源数，如果为0则不限制
     public var maximumSelectedCount: Int = 9
@@ -113,7 +113,7 @@ open class PickerConfiguration: BaseConfiguration {
     public var navigationDarkTintColor: UIColor = .white
     
     /// 相册列表配置
-    public lazy var albumList : AlbumListConfiguration = .init()
+    public lazy var albumList: AlbumListConfiguration = .init()
     
     /// 照片列表配置
     public lazy var photoList: PhotoListConfiguration = .init()
@@ -122,5 +122,5 @@ open class PickerConfiguration: BaseConfiguration {
     public lazy var previewView: PreviewViewConfiguration = .init()
     
     /// 未授权提示界面相关配置
-    public lazy var notAuthorized : NotAuthorizedConfiguration = .init()
+    public lazy var notAuthorized: NotAuthorizedConfiguration = .init()
 }

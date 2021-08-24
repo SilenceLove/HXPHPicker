@@ -9,8 +9,7 @@ import UIKit
 
 class PreviewLivePhotoViewCell: PhotoPreviewViewCell {
     
-    
-    var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once  {
+    var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once {
         didSet {
             scrollContentView.livePhotoPlayType = livePhotoPlayType
         }

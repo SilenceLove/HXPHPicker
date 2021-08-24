@@ -73,8 +73,18 @@ class PhotoPreviewVideoView: VideoPlayerView {
         playerLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         
         playerLayer.addObserver(self, forKeyPath: "readyForDisplay", options: [.new, .old], context: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterPlayGround), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterPlayGround),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
     }
     @objc func appDidEnterBackground() {
         didEnterBackground = true
@@ -167,12 +177,37 @@ class PhotoPreviewVideoView: VideoPlayerView {
         if canRemovePlayerObservers {
             return
         }
-        player.currentItem?.addObserver(self, forKeyPath: "status", options:[.new, .old], context: nil)
-        player.currentItem?.addObserver(self, forKeyPath: "loadedTimeRanges", options:.new, context: nil)
-        player.currentItem?.addObserver(self, forKeyPath: "playbackBufferEmpty", options:.new, context: nil)
-        player.currentItem?.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options:.new, context: nil)
+        player.currentItem?.addObserver(
+            self,
+            forKeyPath: "status",
+            options: [.new, .old],
+            context: nil
+        )
+        player.currentItem?.addObserver(
+            self,
+            forKeyPath: "loadedTimeRanges",
+            options: .new,
+            context: nil
+        )
+        player.currentItem?.addObserver(
+            self,
+            forKeyPath: "playbackBufferEmpty",
+            options: .new,
+            context: nil
+        )
+        player.currentItem?.addObserver(
+            self,
+            forKeyPath: "playbackLikelyToKeepUp",
+            options: .new,
+            context: nil
+        )
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)),
+            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+            object: player.currentItem
+        )
         canRemovePlayerObservers = true
     }
     func removePlayerObservers() {
@@ -183,14 +218,40 @@ class PhotoPreviewVideoView: VideoPlayerView {
             player.removeTimeObserver(timeObserver)
             playbackTimeObserver = nil
         }
-        player.currentItem?.removeObserver(self, forKeyPath: "status", context: nil)
-        player.currentItem?.removeObserver(self, forKeyPath: "loadedTimeRanges", context: nil)
-        player.currentItem?.removeObserver(self, forKeyPath: "playbackBufferEmpty", context: nil)
-        player.currentItem?.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp", context: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+        player.currentItem?.removeObserver(
+            self,
+            forKeyPath: "status",
+            context: nil
+        )
+        player.currentItem?.removeObserver(
+            self,
+            forKeyPath: "loadedTimeRanges",
+            context: nil
+        )
+        player.currentItem?.removeObserver(
+            self,
+            forKeyPath: "playbackBufferEmpty",
+            context: nil
+        )
+        player.currentItem?.removeObserver(
+            self,
+            forKeyPath: "playbackLikelyToKeepUp",
+            context: nil
+        )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+            object: player.currentItem
+        )
         canRemovePlayerObservers = false
     }
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    // swiftlint:disable block_based_kvo
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?) {
+        // swiftlint:enable block_based_kvo
         if object is AVPlayerItem {
             if object as? AVPlayerItem != player.currentItem {
                 return
@@ -206,18 +267,22 @@ class PhotoPreviewVideoView: VideoPlayerView {
                     loadingView?.isHidden = true
                     delegate?.videoView(self, isPlaybackLikelyToKeepUp: true)
                     if playbackTimeObserver == nil {
-                        playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 10), queue: .main) { [weak self] (time) in
+                        playbackTimeObserver = player.addPeriodicTimeObserver(
+                            forInterval: CMTimeMake(
+                                value: 1,
+                                timescale: 10
+                            ),
+                            queue: .main
+                        ) { [weak self] (time) in
                             guard let self = self else { return }
                             let currentTime = CMTimeGetSeconds(time)
                             self.delegate?.videoView(self, didChangedPlayerTime: CGFloat(currentTime))
                         }
                     }
-                    break
                 case AVPlayerItem.Status.failed:
                     // 初始化失败
                     cancelPlayer()
                     ProgressHUD.showWarning(addedTo: self, text: "视频加载失败!".localized, animated: true, delayHide: 1.5)
-                    break
                 default:
                     break
                 }
@@ -251,7 +316,9 @@ class PhotoPreviewVideoView: VideoPlayerView {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
-            if playerLayer.isReadyForDisplay && !didEnterBackground && (videoPlayType == .auto || videoPlayType == .once) {
+            if playerLayer.isReadyForDisplay &&
+                !didEnterBackground &&
+                (videoPlayType == .auto || videoPlayType == .once) {
                 startPlay()
             }
             if playerTime > 0 {
@@ -287,7 +354,14 @@ class PhotoPreviewVideoView: VideoPlayerView {
         }else if time > duration {
             seconds = duration
         }
-        player.seek(to: CMTimeMakeWithSeconds(seconds, preferredTimescale: playerItem.duration.timescale), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] isFinished in
+        player.seek(
+            to: CMTimeMakeWithSeconds(
+                seconds,
+                preferredTimescale: playerItem.duration.timescale
+            ),
+            toleranceBefore: .zero,
+            toleranceAfter: .zero
+        ) { [weak self] isFinished in
             if isFinished && isPlay {
                 self?.startPlay()
             }

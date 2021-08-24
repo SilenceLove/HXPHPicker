@@ -10,12 +10,10 @@ import UIKit
 
 extension UIViewController {
     var pickerController: PhotoPickerController? {
-        get {
-            if self.navigationController is PhotoPickerController {
-                return self.navigationController as? PhotoPickerController
-            }
-            return nil
+        if self.navigationController is PhotoPickerController {
+            return self.navigationController as? PhotoPickerController
         }
+        return nil
     }
 }
 public extension HXPickerWrapper where Base: UIViewController {
@@ -25,8 +23,8 @@ public extension HXPickerWrapper where Base: UIViewController {
         picker config: PickerConfiguration,
         delegate: PhotoPickerControllerDelegate? = nil,
         finish: PhotoPickerController.FinishHandler? = nil,
-        cancel: PhotoPickerController.CancelHandler? = nil) -> PhotoPickerController
-    {
+        cancel: PhotoPickerController.CancelHandler? = nil
+    ) -> PhotoPickerController {
         let pickerController = PhotoPickerController(
             picker: config,
             delegate: delegate
@@ -40,14 +38,13 @@ public extension HXPickerWrapper where Base: UIViewController {
         return pickerController
     }
     
-    
     @discardableResult
     func present(
         preview assets: [PhotoAsset],
         pageIndex: Int = 0,
         config: PickerConfiguration,
-        delegate: PhotoPickerControllerDelegate? = nil) -> PhotoPickerController
-    {
+        delegate: PhotoPickerControllerDelegate? = nil
+    ) -> PhotoPickerController {
         let previewController = PhotoPickerController(
             preview: config,
             currentIndex: pageIndex,
@@ -61,4 +58,3 @@ public extension HXPickerWrapper where Base: UIViewController {
         return previewController
     }
 }
-

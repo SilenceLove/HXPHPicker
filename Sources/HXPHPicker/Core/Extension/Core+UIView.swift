@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIView: HXPickerCompatible {
-    var x : CGFloat {
+    var x: CGFloat {
         get { frame.origin.x }
         set {
             var rect = frame
@@ -17,7 +17,7 @@ extension UIView: HXPickerCompatible {
             frame = rect
         }
     }
-    var y : CGFloat {
+    var y: CGFloat {
         get { frame.origin.y }
         set {
             var rect = frame
@@ -25,7 +25,7 @@ extension UIView: HXPickerCompatible {
             frame = rect
         }
     }
-    var width : CGFloat {
+    var width: CGFloat {
         get { frame.width }
         set {
             var rect = frame
@@ -33,7 +33,7 @@ extension UIView: HXPickerCompatible {
             frame = rect
         }
     }
-    var height : CGFloat {
+    var height: CGFloat {
         get { frame.height }
         set {
             var rect = frame
@@ -41,7 +41,7 @@ extension UIView: HXPickerCompatible {
             frame = rect
         }
     }
-    var size : CGSize {
+    var size: CGSize {
         get { frame.size }
         set {
             var rect = frame
@@ -49,7 +49,7 @@ extension UIView: HXPickerCompatible {
             frame = rect
         }
     }
-    var centerX : CGFloat {
+    var centerX: CGFloat {
         get { center.x }
         set {
             var point = center
@@ -57,7 +57,7 @@ extension UIView: HXPickerCompatible {
             center = point
         }
     }
-    var centerY : CGFloat {
+    var centerY: CGFloat {
         get { center.y }
         set {
             var point = center
@@ -68,7 +68,7 @@ extension UIView: HXPickerCompatible {
     
     func viewController() -> UIViewController? {
         var next = superview
-        while (next != nil) {
+        while next != nil {
             let nextResponder = next?.next
             if nextResponder is UINavigationController ||
                 nextResponder is UIViewController {
@@ -99,31 +99,31 @@ extension UIView: HXPickerCompatible {
 }
 
 public extension HXPickerWrapper where Base: UIView {
-    var x : CGFloat {
+    var x: CGFloat {
         get { base.x }
         set { base.x = newValue }
     }
-    var y : CGFloat {
+    var y: CGFloat {
         get { base.y }
         set { base.y = newValue }
     }
-    var width : CGFloat {
+    var width: CGFloat {
         get { base.width }
         set { base.width = newValue }
     }
-    var height : CGFloat {
+    var height: CGFloat {
         get { base.height }
         set { base.height = newValue }
     }
-    var size : CGSize {
+    var size: CGSize {
         get { base.size }
         set { base.size = newValue }
     }
-    var centerX : CGFloat {
+    var centerX: CGFloat {
         get { base.centerX }
         set { base.centerX = newValue }
     }
-    var centerY : CGFloat {
+    var centerY: CGFloat {
         get { base.centerY }
         set { base.centerY = newValue }
     }
@@ -136,8 +136,8 @@ public extension HXPickerWrapper where Base: UIView {
         text: String? = nil,
         delayShow: TimeInterval = 0,
         indicatorType: BaseConfiguration.IndicatorType = .system,
-        animated: Bool = true)
-    {
+        animated: Bool = true
+    ) {
         ProgressHUD.showLoading(
             addedTo: base,
             text: text,
@@ -149,8 +149,8 @@ public extension HXPickerWrapper where Base: UIView {
     func showWarning(
         text: String? = nil,
         delayHide: TimeInterval,
-        animated: Bool = true)
-    {
+        animated: Bool = true
+    ) {
         ProgressHUD.showWarning(
             addedTo: base,
             text: text,
@@ -161,8 +161,8 @@ public extension HXPickerWrapper where Base: UIView {
     func showSuccess(
         text: String? = nil,
         delayHide: TimeInterval,
-        animated: Bool = true)
-    {
+        animated: Bool = true
+    ) {
         ProgressHUD.showSuccess(
             addedTo: base,
             text: text,
@@ -172,12 +172,12 @@ public extension HXPickerWrapper where Base: UIView {
     }
     func hide(
         delay: TimeInterval = 0,
-        animated: Bool = true)
-    {
+        animated: Bool = true
+    ) {
         ProgressHUD.hide(
             forView: base,
             animated: animated,
-            afterDelay:delay
+            afterDelay: delay
         )
     }
 }

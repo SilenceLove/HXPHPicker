@@ -21,7 +21,7 @@ open class PhotoBrowser: PhotoPickerController {
         /// LivePhoto播放类型
         public var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once
         /// 背景颜色
-        public var backgroundColor : UIColor = .black
+        public var backgroundColor: UIColor = .black
         /// 显示删除按钮
         public var showDelete: Bool = false
         /// 跳转样式
@@ -50,8 +50,8 @@ open class PhotoBrowser: PhotoPickerController {
         transitionalImage: UIImage? = nil,
         transitionHandler: TransitionHandler? = nil,
         deleteAssetHandler: AssetHandler? = nil,
-        longPressHandler: AssetHandler? = nil) -> PhotoBrowser
-    {
+        longPressHandler: AssetHandler? = nil
+    ) -> PhotoBrowser {
         let previewConfig = PickerConfiguration()
         previewConfig.prefersStatusBarHidden = true
         previewConfig.statusBarStyle = .lightContent
@@ -96,8 +96,8 @@ open class PhotoBrowser: PhotoPickerController {
         transitionalImage: UIImage?,
         transitionHandler: TransitionHandler?,
         deleteAssetHandler: AssetHandler?,
-        longPressHandler: AssetHandler?)
-    {
+        longPressHandler: AssetHandler?
+    ) {
         self.transitionalImage = transitionalImage
         self.transitionHandler = transitionHandler
         self.deleteAssetHandler = deleteAssetHandler
@@ -164,8 +164,8 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     public func pickerController(
         _ pickerController: PhotoPickerController,
         previewSingleClick photoAsset: PhotoAsset,
-        atIndex: Int)
-    {
+        atIndex: Int
+    ) {
         if photoAsset.mediaType == .photo {
             pickerController.dismiss(animated: true, completion: nil)
         }
@@ -174,8 +174,8 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     public func pickerController(
         _ pickerController: PhotoPickerController,
         previewUpdateCurrentlyDisplayedAsset photoAsset: PhotoAsset,
-        atIndex: Int)
-    {
+        atIndex: Int
+    ) {
         if let preview = previewViewController() {
             titleLabel.text = String(atIndex + 1) + "/" + String(preview.previewAssets.count)
         }
@@ -183,8 +183,8 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        viewControllersWillAppear viewController: UIViewController)
-    {
+        viewControllersWillAppear viewController: UIViewController
+    ) {
         let navHeight = viewController.navigationController?.navigationBar.height ?? 0
         viewController.navigationController?.navigationBar.setBackgroundImage(
             UIImage.gradualShadowImage(
@@ -200,8 +200,8 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     public func pickerController(
         _ pickerController: PhotoPickerController,
         previewLongPressClick photoAsset: PhotoAsset,
-        atIndex: Int)
-    {
+        atIndex: Int
+    ) {
         longPressHandler?(atIndex, photoAsset, self)
     }
     
@@ -212,24 +212,24 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
     ///   - index: 预览资源对应的位置
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        presentPreviewImageForIndexAt index: Int) -> UIImage?
-    {
+        presentPreviewImageForIndexAt index: Int
+    ) -> UIImage? {
         transitionalImage
     }
     
     /// present 预览时起始的视图，用于获取位置大小。与 presentPreviewFrameForIndexAt 一样
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        presentPreviewViewForIndexAt index: Int) -> UIView?
-    {
+        presentPreviewViewForIndexAt index: Int
+    ) -> UIView? {
         transitionHandler?(index)
     }
     
     /// dismiss 结束时对应的视图，用于获取位置大小。与 dismissPreviewFrameForIndexAt 一样
     public func pickerController(
         _ pickerController: PhotoPickerController,
-        dismissPreviewViewForIndexAt index: Int) -> UIView?
-    {
+        dismissPreviewViewForIndexAt index: Int
+    ) -> UIView? {
         transitionHandler?(index)
     }
 }

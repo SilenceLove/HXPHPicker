@@ -114,7 +114,10 @@ public class EditorImageResizerMaskView: UIView {
                 maskPath.append(UIBezierPath.init(rect: rect).reversing())
             }
             if animated {
-                let maskAnimation = getAnimation(maskLayer.path , maskPath.cgPath, 0.25)
+                let maskAnimation = getAnimation(
+                    maskLayer.path,
+                    maskPath.cgPath, 0.25
+                )
                 maskLayer.add(maskAnimation, forKey: nil)
             }
             CATransaction.begin()
@@ -123,21 +126,42 @@ public class EditorImageResizerMaskView: UIView {
             CATransaction.commit()
         }else {
             var framePath: UIBezierPath
-            let frameRect = CGRect(x: rect.minX - frameLayer.lineWidth * 0.5, y: rect.minY - frameLayer.lineWidth * 0.5, width: rect.width + frameLayer.lineWidth, height: rect.height + frameLayer.lineWidth)
+            let frameRect = CGRect(
+                x: rect.minX - frameLayer.lineWidth * 0.5,
+                y: rect.minY - frameLayer.lineWidth * 0.5,
+                width: rect.width + frameLayer.lineWidth,
+                height: rect.height + frameLayer.lineWidth
+            )
             if !isRoundCrop {
                 framePath = UIBezierPath.init(rect: frameRect)
             }else {
                 framePath = UIBezierPath.init(roundedRect: frameRect, cornerRadius: frameRect.width * 0.5)
             }
             let gridlinePath = getGridlinePath(rect)
-            let dotsPath = getDotsPath(CGRect(x: rect.minX - frameLayer.lineWidth, y: rect.minY - frameLayer.lineWidth, width: rect.width + frameLayer.lineWidth * 2, height: rect.height + frameLayer.lineWidth * 2))
+            let dotsPath = getDotsPath(
+                CGRect(
+                    x: rect.minX - frameLayer.lineWidth,
+                    y: rect.minY - frameLayer.lineWidth,
+                    width: rect.width + frameLayer.lineWidth * 2,
+                    height: rect.height + frameLayer.lineWidth * 2
+                )
+            )
             if animated {
-                let frameAnimation = getAnimation(frameLayer.path , framePath.cgPath, 0.25)
+                let frameAnimation = getAnimation(
+                    frameLayer.path,
+                    framePath.cgPath, 0.25
+                )
                 frameLayer.add(frameAnimation, forKey: nil)
                 if !isRoundCrop {
-                    let gridlinesAnimation = getAnimation(gridlinesLayer.path , gridlinePath.cgPath, 0.25)
+                    let gridlinesAnimation = getAnimation(
+                        gridlinesLayer.path,
+                        gridlinePath.cgPath, 0.25
+                    )
                     gridlinesLayer.add(gridlinesAnimation, forKey: nil)
-                    let dotsAnimation = getAnimation(dotsLayer.path , dotsPath.cgPath, 0.25)
+                    let dotsAnimation = getAnimation(
+                        dotsLayer.path,
+                        dotsPath.cgPath, 0.25
+                    )
                     dotsLayer.add(dotsAnimation, forKey: nil)
                 }
             }
@@ -165,7 +189,11 @@ public class EditorImageResizerMaskView: UIView {
         }
         CATransaction.commit()
     }
-    func getAnimation(_ fromValue: Any?,_ toValue: Any?, _ duration: TimeInterval) -> CABasicAnimation {
+    func getAnimation(
+        _ fromValue: Any?,
+        _ toValue: Any?,
+        _ duration: TimeInterval
+    ) -> CABasicAnimation {
         let animation = CABasicAnimation.init(keyPath: "path")
         animation.fromValue = fromValue
         animation.toValue = toValue
@@ -175,7 +203,9 @@ public class EditorImageResizerMaskView: UIView {
         return animation
     }
     
-    func getDotsPath(_ rect: CGRect) -> UIBezierPath{
+    func getDotsPath(
+        _ rect: CGRect
+    ) -> UIBezierPath {
         let lineWidth: CGFloat = 20
         let path = UIBezierPath.init()
         let leftTopStartPoint = CGPoint(x: rect.minX + lineWidth, y: rect.minY)
@@ -208,7 +238,9 @@ public class EditorImageResizerMaskView: UIView {
         return path
     }
     
-    func getGridlinePath(_ rect: CGRect) -> UIBezierPath{
+    func getGridlinePath(
+        _ rect: CGRect
+    ) -> UIBezierPath {
         let gridCount: Int = 3
         let horSpace = rect.width / CGFloat(gridCount)
         let verSpace = rect.height / CGFloat(gridCount)

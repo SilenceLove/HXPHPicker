@@ -45,7 +45,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         
         #if canImport(Kingfisher)
         let networkImageURL = URL.init(string: "https://wx4.sinaimg.cn/large/a6a681ebgy1gojng2qw07g208c093qv6.gif")!
-        let networkImageAsset = PhotoAsset.init(networkImageAsset: NetworkImageAsset.init(thumbnailURL: networkImageURL, originalURL: networkImageURL))
+        let networkImageAsset = PhotoAsset.init(networkImageAsset: NetworkImageAsset.init(thumbnailURL: networkImageURL, originalURL: networkImageURL)) // swiftlint:disable:this line_length
         previewAssets.append(networkImageAsset)
         #endif
         
@@ -58,7 +58,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
             previewAssets.append(videoAsset)
         }
         
-        let networkVideoURL2 = URL.init(string: "https://sf1-ttcdn-tos.pstatp.com/obj/tos-cn-v-0004/471d1136b00141f5a9ddf81e461547fd")!
+        let networkVideoURL2 = URL.init(string: "https://sf1-ttcdn-tos.pstatp.com/obj/tos-cn-v-0004/471d1136b00141f5a9ddf81e461547fd")! // swiftlint:disable:this line_length
         let networkVideoAsset2 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL2))
         previewAssets.append(networkVideoAsset2)
     }
@@ -70,15 +70,26 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         flowLayout.minimumLineSpacing = 1
         flowLayout.sectionInset = UIEdgeInsets(top: 20, left: 12, bottom: 20, right: 12)
         let collectionViewY = navigationController?.navigationBar.frame.maxY ?? UIDevice.navigationBarHeight
-        collectionView.frame = CGRect(x: 0, y: collectionViewY, width: view.hx.width, height: view.hx.height - collectionViewY)
+        collectionView.frame = CGRect(
+            x: 0,
+            y: collectionViewY,
+            width: view.hx.width,
+            height: view.hx.height - collectionViewY
+        )
     }
     
     // MARK: UICollectionViewDataSource
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return previewAssets.count
     }
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoBrowserViewCellId", for: indexPath) as! ResultViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "PhotoBrowserViewCellId",
+            for: indexPath
+        ) as! ResultViewCell
         cell.photoAsset = previewAssets[indexPath.item]
         cell.hideDelete()
         return cell
@@ -94,8 +105,8 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         PhotoBrowser.show(
             previewAssets,
             pageIndex: indexPath.item,
-            transitionalImage: cell?.imageView.image) {
-            index in
+            transitionalImage: cell?.imageView.image
+        ) { index in
             self.collectionView.cellForItem(
                 at: IndexPath(
                     item: index,
@@ -106,7 +117,11 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
     }
     
     @available(iOS 13.0, *)
-    public func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
         guard let cell = collectionView.cellForItem(at: indexPath) as? ResultViewCell else {
             return nil
         }
@@ -130,7 +145,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
             }
             width = max(120, width)
             height = max(120, height)
-            /// 不下载，直接播放
+            // 不下载，直接播放
             PhotoManager.shared.loadNetworkVideoMode = .play
             let vc = PhotoPeekViewController(cell.photoAsset)
             vc.preferredContentSize = CGSize(width: width, height: height)
@@ -139,7 +154,12 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
     }
     
     @available(iOS 13.0, *)
-    public func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        willPerformPreviewActionForMenuWith
+            configuration: UIContextMenuConfiguration,
+        animator: UIContextMenuInteractionCommitAnimating
+    ) {
         guard let indexPath = configuration.identifier as? IndexPath else {
             return
         }
@@ -151,8 +171,8 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
             PhotoBrowser.show(
                 self.previewAssets,
                 pageIndex: indexPath.item,
-                transitionalImage: cell?.imageView.image) {
-                index in
+                transitionalImage: cell?.imageView.image
+            ) { index in
                 self.collectionView.cellForItem(
                     at: IndexPath(
                         item: index,

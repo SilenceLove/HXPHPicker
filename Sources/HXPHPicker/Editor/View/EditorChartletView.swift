@@ -102,8 +102,8 @@ class EditorChartletView: UIView {
     var configTitles: [EditorChartlet] = []
     init(
         config: EditorChartletConfig,
-        editorType: EditorController.EditorType)
-    {
+        editorType: EditorController.EditorType
+    ) {
         self.config = config
         self.editorType = editorType
         super.init(frame: .zero)
@@ -141,7 +141,12 @@ class EditorChartletView: UIView {
     }
     
     @objc func longPressClick(longPress: UILongPressGestureRecognizer) {
-        guard let listCell = listView.cellForItem(at: IndexPath(item: selectedTitleIndex, section: 0)) as? EditorChartletViewListCell else {
+        guard let listCell = listView.cellForItem(
+                at: IndexPath(
+                    item: selectedTitleIndex,
+                    section: 0
+                )
+        ) as? EditorChartletViewListCell else {
             return
         }
         switch longPress.state {
@@ -152,7 +157,12 @@ class EditorChartletView: UIView {
                 if previewIndex == indexPath.item {
                     return
                 }
-                if let beforeCell = listCell.collectionView.cellForItem(at: IndexPath(item: previewIndex, section: 0)) as? EditorChartletViewCell {
+                if let beforeCell = listCell.collectionView.cellForItem(
+                    at: IndexPath(
+                        item: previewIndex,
+                        section: 0
+                    )
+                ) as? EditorChartletViewCell {
                     beforeCell.showSelectedBgView = false
                 }
                 previewView?.removeFromSuperview()
@@ -191,7 +201,12 @@ class EditorChartletView: UIView {
                 cell.showSelectedBgView = true
             }
         case .cancelled, .ended, .failed:
-            if let cell = listCell.collectionView.cellForItem(at: IndexPath(item: previewIndex, section: 0)) as? EditorChartletViewCell {
+            if let cell = listCell.collectionView.cellForItem(
+                at: IndexPath(
+                    item: previewIndex,
+                    section: 0
+                )
+            ) as? EditorChartletViewCell {
                 cell.showSelectedBgView = false
             }
             UIView.animate(withDuration: 0.2) {
@@ -212,7 +227,12 @@ class EditorChartletView: UIView {
         backButton.frame = CGRect(x: width - 50 - UIDevice.rightMargin, y: 0, width: 50, height: 50)
         bgView.frame = CGRect(x: 0, y: titleBgView.frame.maxY, width: width, height: height - titleBgView.height)
         titleView.frame = CGRect(x: 0, y: 0, width: width, height: 50)
-        titleView.contentInset = UIEdgeInsets(top: 5, left: 15 + UIDevice.leftMargin, bottom: 5, right: backButton.width + UIDevice.rightMargin)
+        titleView.contentInset = UIEdgeInsets(
+            top: 5,
+            left: 15 + UIDevice.leftMargin,
+            bottom: 5,
+            right: backButton.width + UIDevice.rightMargin
+        )
         listView.frame = bounds
         loadingView.center = CGPoint(x: width * 0.5, y: height * 0.5)
     }
@@ -222,20 +242,32 @@ class EditorChartletView: UIView {
     }
 }
 
-extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, EditorChartletViewListCellDelegate {
+extension EditorChartletView: UICollectionViewDataSource,
+                              UICollectionViewDelegate,
+                              UICollectionViewDelegateFlowLayout,
+                              EditorChartletViewListCellDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return titles.count
+        titles.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         if collectionView == titleView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewCellTitleID", for: indexPath) as! EditorChartletViewCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "EditorChartletViewCellTitleID",
+                for: indexPath
+            ) as! EditorChartletViewCell
             cell.editorType = editorType
             let titleChartlet = titles[indexPath.item]
             cell.titleChartlet = titleChartlet
             return cell
         }else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewListCell_ID", for: indexPath) as! EditorChartletViewListCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "EditorChartletViewListCell_ID",
+                for: indexPath
+            ) as! EditorChartletViewListCell
             cell.editorType = editorType
             cell.rowCount = config.rowCount
             cell.delegate = self
@@ -243,14 +275,22 @@ extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelega
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
         if collectionView == titleView {
             return CGSize(width: 40, height: 40)
         }else {
             return listView.size
         }
     }
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        willDisplay cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
         if collectionView != listView {
             return
         }
@@ -266,14 +306,21 @@ extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelega
         let listCell = cell as! EditorChartletViewListCell
         listCell.startLoading()
     }
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didEndDisplaying cell: UICollectionViewCell,
+        forItemAt indexPath: IndexPath
+    ) {
         if collectionView != listView {
             return
         }
         let listCell = cell as! EditorChartletViewListCell
         listCell.stopLoad()
     }
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
         collectionView.deselectItem(at: indexPath, animated: false)
         if collectionView == titleView {
             listView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
@@ -294,7 +341,12 @@ extension EditorChartletView: UICollectionViewDataSource, UICollectionViewDelega
         titleCell?.isSelectedTitle = true
         titles[currentIndex].isSelected = true
         
-        let selectedCell = titleView.cellForItem(at: IndexPath(item: selectedTitleIndex, section: 0)) as? EditorChartletViewCell
+        let selectedCell = titleView.cellForItem(
+            at: IndexPath(
+                item: selectedTitleIndex,
+                section: 0
+            )
+        ) as? EditorChartletViewCell
         selectedCell?.isSelectedTitle = false
         titles[selectedTitleIndex].isSelected = false
         
@@ -365,7 +417,10 @@ protocol EditorChartletViewListCellDelegate: AnyObject {
     func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage, imageData: Data?)
 }
 
-class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+class EditorChartletViewListCell: UICollectionViewCell,
+                                  UICollectionViewDataSource,
+                                  UICollectionViewDelegate,
+                                  UICollectionViewDelegateFlowLayout {
     weak var delegate: EditorChartletViewListCellDelegate?
     lazy var loadingView: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView(style: .white)
@@ -402,7 +457,10 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
     var editorType: EditorController.EditorType = .photo
     
     func resetOffset() {
-        collectionView.contentOffset = CGPoint(x: -collectionView.contentInset.left, y: -collectionView.contentInset.top)
+        collectionView.contentOffset = CGPoint(
+            x: -collectionView.contentInset.left,
+            y: -collectionView.contentInset.top
+        )
     }
     
     func startLoading() {
@@ -422,14 +480,24 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
         return chartletList.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditorChartletViewListCellID", for: indexPath) as! EditorChartletViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "EditorChartletViewListCellID",
+            for: indexPath
+        ) as! EditorChartletViewCell
         cell.editorType = editorType
         cell.chartlet = chartletList[indexPath.item]
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
         let rowCount = !UIDevice.isPortrait && !UIDevice.isPad ? 7 : CGFloat(self.rowCount)
         let margin = collectionView.contentInset.left + collectionView.contentInset.right
         let spacing = flowLayout.minimumLineSpacing * (rowCount - 1)
@@ -437,7 +505,10 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
         return CGSize(width: itemWidth, height: itemWidth)
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
         collectionView.deselectItem(at: indexPath, animated: false)
         let cell = collectionView.cellForItem(at: indexPath) as! EditorChartletViewCell
         if var image = cell.chartlet.image {
@@ -489,8 +560,18 @@ class EditorChartletViewListCell: UICollectionViewCell, UICollectionViewDataSour
         super.layoutSubviews()
         collectionView.frame = bounds
         loadingView.center = CGPoint(x: width * 0.5, y: height * 0.5)
-        collectionView.contentInset = UIEdgeInsets(top: 60, left: 15 + UIDevice.leftMargin, bottom: 15 + UIDevice.bottomMargin, right: 15 + UIDevice.rightMargin)
-        collectionView.scrollIndicatorInsets = UIEdgeInsets(top: 60, left: UIDevice.leftMargin, bottom: 15 + UIDevice.bottomMargin, right: UIDevice.rightMargin)
+        collectionView.contentInset = UIEdgeInsets(
+            top: 60,
+            left: 15 + UIDevice.leftMargin,
+            bottom: 15 + UIDevice.bottomMargin,
+            right: 15 + UIDevice.rightMargin
+        )
+        collectionView.scrollIndicatorInsets = UIEdgeInsets(
+            top: 60,
+            left: UIDevice.leftMargin,
+            bottom: 15 + UIDevice.bottomMargin,
+            right: UIDevice.rightMargin
+        )
     }
     
     required init?(coder: NSCoder) {
@@ -579,8 +660,8 @@ class EditorChartletViewCell: UICollectionViewCell {
             }
             imageView.my.kf.setImage(
                 with: url,
-                options: options)
-            { [weak self] result in
+                options: options
+            ) { [weak self] result in
                 switch result {
                 case .success(_):
                     self?.downloadCompletion = true

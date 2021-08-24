@@ -39,7 +39,7 @@ class HomeViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let rowType = Section.allCases[indexPath.section].allRowCase[indexPath.row]
-        if let rowType = rowType as? ApplicationRowType  {
+        if let rowType = rowType as? ApplicationRowType {
             if rowType == .customCell {
                 let vc = rowType.controller as! PhotoPickerController
                 vc.pickerDelegate = self
@@ -175,7 +175,6 @@ extension HomeViewController {
         }
     }
 }
-
 
 extension HomeViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
