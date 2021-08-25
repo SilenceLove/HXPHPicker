@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 class EditorChartletViewCell: UICollectionViewCell {
     lazy var selectedBgView: UIVisualEffectView = {

@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 protocol EditorChartletViewListCellDelegate: AnyObject {
     func listCell(_ cell: EditorChartletViewListCell, didSelectImage image: UIImage, imageData: Data?)
