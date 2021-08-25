@@ -134,9 +134,15 @@ extension PhotoPickerViewController {
                 let largeHeight = collectionView.contentSize.height > collectionView.height
                 var exceedBottom: Bool
                 let offsety = collectionView.contentOffset.y
-                let maxOffsetY = collectionView.contentSize.height - collectionView.height + collectionView.contentInset.bottom - 1 // swiftlint:disable:this line_length
+                let maxOffsetY =
+                    collectionView.contentSize.height -
+                    collectionView.height +
+                    collectionView.contentInset.bottom - 1
                 if offsety > maxOffsetY {
-                    let exceedOffset_1 = collectionView.height - collectionView.contentInset.bottom - 1 - collectionViewLayout.itemSize.height // swiftlint:disable:this line_length
+                    let exceedOffset_1 =
+                        collectionView.height -
+                        collectionView.contentInset.bottom - 1 -
+                        collectionViewLayout.itemSize.height
                     let exceedOffset_2 = collectionView.contentSize.height - 1 - collectionViewLayout.itemSize.height
                     exceedBottom = largeHeight ? point.y > exceedOffset_1 : localPoint.y > exceedOffset_2
                 }else {
@@ -146,24 +152,20 @@ extension PhotoPickerViewController {
                 }
                 let inScope = point.x >= 0 && point.x <= collectionView.width
                 if exceedBottom && inScope {
-                    for index in indexArray {
-                        if index < beganIndex { // swiftlint:disable:this for_where
-                            updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                            let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                            swipeSelectedIndexArray?.remove(at: firstIndex)
-                        }
+                    for index in indexArray where index < beganIndex {
+                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                        swipeSelectedIndexArray?.remove(at: firstIndex)
                     }
                     let endIndex = needOffset ? assets.count : assets.count - 1
                     for index in beganIndex ... endIndex {
                         panGRChangedUpdateState(index: index, state: swipeSelectState)
                     }
                 }else if localPoint.y < 0 && inScope {
-                    for index in indexArray {
-                        if index > beganIndex { // swiftlint:disable:this for_where
-                            updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
-                            let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
-                            swipeSelectedIndexArray?.remove(at: firstIndex)
-                        }
+                    for index in indexArray where index > beganIndex {
+                        updateCellSelectedState(for: index, isSelected: !(swipeSelectState == .select))
+                        let firstIndex = swipeSelectedIndexArray!.firstIndex(of: index)!
+                        swipeSelectedIndexArray?.remove(at: firstIndex)
                     }
                     for index in 0 ... beganIndex {
                         panGRChangedUpdateState(index: index, state: swipeSelectState)

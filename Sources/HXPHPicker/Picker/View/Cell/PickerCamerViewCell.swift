@@ -37,7 +37,7 @@ class PickerCamerViewCell: UICollectionViewCell {
     }
     func configProperty() {
         let isCache = PhotoManager.shared.cameraPreviewImage != nil
-        if captureView.previewLayer?.session != nil || isCache {
+        if (captureView.previewLayer?.session != nil || isCache) && canPreview() {
             imageView.image = UIImage.image(for: config?.cameraDarkImageName)
         }else {
             imageView.image = UIImage.image(
@@ -52,8 +52,15 @@ class PickerCamerViewCell: UICollectionViewCell {
             requestCameraAccess()
         }
     }
+    func canPreview() -> Bool {
+        if !UIImagePickerController.isSourceTypeAvailable(.camera) ||
+            AssetManager.cameraAuthorizationStatus() == .denied {
+            return false
+        }
+        return true
+    }
     func requestCameraAccess() {
-        if !UIImagePickerController.isSourceTypeAvailable(.camera) {
+        if !canPreview() {
             captureView.isHidden = true
             return
         }
@@ -61,7 +68,9 @@ class PickerCamerViewCell: UICollectionViewCell {
             if granted {
                 self.startSeesion()
             }else {
-                PhotoTools.showNotCameraAuthorizedAlert(viewController: self.viewController())
+                PhotoTools.showNotCameraAuthorizedAlert(
+                    viewController: self.viewController()
+                )
             }
         }
     }

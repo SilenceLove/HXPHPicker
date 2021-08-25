@@ -48,7 +48,7 @@ class ProgressHUD: UIView {
             indicatorView.startAnimating()
             return indicatorView
         }else {
-            let indicatorView = UIActivityIndicatorView.init(style: .whiteLarge)
+            let indicatorView = UIActivityIndicatorView(style: .whiteLarge)
             indicatorView.hidesWhenStopped = true
             indicatorView.startAnimating()
             return indicatorView
@@ -65,12 +65,22 @@ class ProgressHUD: UIView {
     }()
     
     lazy var imageView: ProgressImageView = {
-        let imageView = ProgressImageView.init(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let imageView = ProgressImageView(
+            frame: CGRect(
+                x: 0, y: 0,
+                width: 60, height: 60
+            )
+        )
         return imageView
     }()
     
     lazy var tickView: ProgressImageView = {
-        let tickView = ProgressImageView.init(tickFrame: CGRect(x: 0, y: 0, width: 80, height: 80))
+        let tickView = ProgressImageView(
+            tickFrame: CGRect(
+                x: 0, y: 0,
+                width: 80, height: 80
+            )
+        )
         return tickView
     }()
     
@@ -106,7 +116,11 @@ class ProgressHUD: UIView {
         
     }
     
-    private func showHUD(text: String?, animated: Bool, afterDelay: TimeInterval) {
+    private func showHUD(
+        text: String?,
+        animated: Bool,
+        afterDelay: TimeInterval
+    ) {
         self.text = text
         textLb.text = text
         updateFrame()
@@ -118,7 +132,10 @@ class ProgressHUD: UIView {
                 userInfo: animated,
                 repeats: false
             )
-            RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
+            RunLoop.current.add(
+                timer,
+                forMode: RunLoop.Mode.common
+            )
             self.showDelayTimer = timer
         }else {
             showViews(animated: animated)
@@ -390,13 +407,12 @@ class ProgressHUD: UIView {
         afterDelay: TimeInterval
     ) {
         guard let view = view else { return }
-        for subView in view.subviews {
-            if subView is ProgressHUD {
-                (subView as! ProgressHUD).hide(
-                    withAnimated: animated,
-                    afterDelay: afterDelay
-                )
-            }
+        for subView in view.subviews where
+            subView is ProgressHUD {
+            (subView as! ProgressHUD).hide(
+                withAnimated: animated,
+                afterDelay: afterDelay
+            )
         }
     }
     override func layoutSubviews() {

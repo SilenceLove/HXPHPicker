@@ -122,11 +122,14 @@ public class EditorToolView: UIView {
     
     func reloadMusic(isSelected: Bool) {
         musicCellShowBox = isSelected
-        for (index, option) in config.toolOptions.enumerated() {
-            if option.type == .music {
-                collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
-                return
-            }
+        for (index, option) in config.toolOptions.enumerated() where
+            option.type == .music {
+            collectionView.reloadItems(
+                at: [
+                    IndexPath(item: index, section: 0)
+                ]
+            )
+            return
         }
     }
     
@@ -192,7 +195,10 @@ extension EditorToolView: UICollectionViewDataSource, UICollectionViewDelegate, 
         return cell
     }
     
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
         collectionView.deselectItem(at: indexPath, animated: false)
     }
     

@@ -244,6 +244,27 @@
 		7BEA744826BA3A570065FC35 /* PhotoPickerViewController+Editor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEA744726BA3A570065FC35 /* PhotoPickerViewController+Editor.swift */; };
 		7BEA744A26BA3B2C0065FC35 /* PhotoPickerViewController+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEA744926BA3B2C0065FC35 /* PhotoPickerViewController+Preview.swift */; };
 		7BEA744C26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEA744B26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift */; };
+		7BF42DE626D5DE69006C556A /* AssetURLResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DE526D5DE69006C556A /* AssetURLResult.swift */; };
+		7BF42DE826D5E055006C556A /* PhotoAsset+FileSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DE726D5E055006C556A /* PhotoAsset+FileSize.swift */; };
+		7BF42DEA26D5E1EC006C556A /* PhotoAsset+Equal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DE926D5E1EC006C556A /* PhotoAsset+Equal.swift */; };
+		7BF42DEC26D5E7E3006C556A /* PhotoAsset+Editor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DEB26D5E7E3006C556A /* PhotoAsset+Editor.swift */; };
+		7BF42DEE26D5E884006C556A /* PhotoAsset+Local.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DED26D5E884006C556A /* PhotoAsset+Local.swift */; };
+		7BF42DF026D62691006C556A /* PhotoPickerController+Transitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DEF26D62691006C556A /* PhotoPickerController+Transitioning.swift */; };
+		7BF42DF226D626C8006C556A /* PhotoPickerController+PHPhotoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DF126D626C8006C556A /* PhotoPickerController+PHPhotoLibrary.swift */; };
+		7BF42DF426D62A0B006C556A /* PhotoPickerController+FetchAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DF326D62A0B006C556A /* PhotoPickerController+FetchAsset.swift */; };
+		7BF42DF626D62C95006C556A /* PhotoPickerController+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DF526D62C95006C556A /* PhotoPickerController+Internal.swift */; };
+		7BF42DF826D63511006C556A /* EditorImageResizerView+ControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DF726D63511006C556A /* EditorImageResizerView+ControlView.swift */; };
+		7BF42DFA26D63547006C556A /* EditorImageResizerView+ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DF926D63547006C556A /* EditorImageResizerView+ScrollView.swift */; };
+		7BF42DFC26D6363E006C556A /* EditorImageResizerView+Initial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DFB26D6363E006C556A /* EditorImageResizerView+Initial.swift */; };
+		7BF42DFE26D636CD006C556A /* EditorImageResizerView+Mask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DFD26D636CC006C556A /* EditorImageResizerView+Mask.swift */; };
+		7BF42E0026D63789006C556A /* EditorImageResizerView+Cropping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42DFF26D63789006C556A /* EditorImageResizerView+Cropping.swift */; };
+		7BF42E0226D638AD006C556A /* EditorImageResizerView+CropImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0126D638AD006C556A /* EditorImageResizerView+CropImage.swift */; };
+		7BF42E0426D63D4C006C556A /* EditorChartletViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0326D63D4C006C556A /* EditorChartletViewCell.swift */; };
+		7BF42E0626D63D71006C556A /* EditorChartletViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0526D63D71006C556A /* EditorChartletViewListCell.swift */; };
+		7BF42E0826D63DC1006C556A /* EditorStickerTextView+CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0726D63DC1006C556A /* EditorStickerTextView+CollectionView.swift */; };
+		7BF42E0A26D63DEF006C556A /* EditorStickerTextView+Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0926D63DEF006C556A /* EditorStickerTextView+Delegate.swift */; };
+		7BF42E0C26D63E2B006C556A /* EditorStickerTextView+Draw.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0B26D63E2B006C556A /* EditorStickerTextView+Draw.swift */; };
+		7BF42E0E26D63E8A006C556A /* EditorStickerView+ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF42E0D26D63E8A006C556A /* EditorStickerView+ItemView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -519,6 +540,27 @@
 		7BEB058C25A9851C00B39BE5 /* EditorToolViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorToolViewConfiguration.swift; sourceTree = "<group>"; };
 		7BEB058F25A9922D00B39BE5 /* EditorCropConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorCropConfirmView.swift; sourceTree = "<group>"; };
 		7BEB059225A9934500B39BE5 /* CropConfirmViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropConfirmViewConfiguration.swift; sourceTree = "<group>"; };
+		7BF42DE526D5DE69006C556A /* AssetURLResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetURLResult.swift; sourceTree = "<group>"; };
+		7BF42DE726D5E055006C556A /* PhotoAsset+FileSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+FileSize.swift"; sourceTree = "<group>"; };
+		7BF42DE926D5E1EC006C556A /* PhotoAsset+Equal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Equal.swift"; sourceTree = "<group>"; };
+		7BF42DEB26D5E7E3006C556A /* PhotoAsset+Editor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Editor.swift"; sourceTree = "<group>"; };
+		7BF42DED26D5E884006C556A /* PhotoAsset+Local.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Local.swift"; sourceTree = "<group>"; };
+		7BF42DEF26D62691006C556A /* PhotoPickerController+Transitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPickerController+Transitioning.swift"; sourceTree = "<group>"; };
+		7BF42DF126D626C8006C556A /* PhotoPickerController+PHPhotoLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPickerController+PHPhotoLibrary.swift"; sourceTree = "<group>"; };
+		7BF42DF326D62A0B006C556A /* PhotoPickerController+FetchAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPickerController+FetchAsset.swift"; sourceTree = "<group>"; };
+		7BF42DF526D62C95006C556A /* PhotoPickerController+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPickerController+Internal.swift"; sourceTree = "<group>"; };
+		7BF42DF726D63511006C556A /* EditorImageResizerView+ControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+ControlView.swift"; sourceTree = "<group>"; };
+		7BF42DF926D63547006C556A /* EditorImageResizerView+ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+ScrollView.swift"; sourceTree = "<group>"; };
+		7BF42DFB26D6363E006C556A /* EditorImageResizerView+Initial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+Initial.swift"; sourceTree = "<group>"; };
+		7BF42DFD26D636CC006C556A /* EditorImageResizerView+Mask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+Mask.swift"; sourceTree = "<group>"; };
+		7BF42DFF26D63789006C556A /* EditorImageResizerView+Cropping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+Cropping.swift"; sourceTree = "<group>"; };
+		7BF42E0126D638AD006C556A /* EditorImageResizerView+CropImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorImageResizerView+CropImage.swift"; sourceTree = "<group>"; };
+		7BF42E0326D63D4C006C556A /* EditorChartletViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletViewCell.swift; sourceTree = "<group>"; };
+		7BF42E0526D63D71006C556A /* EditorChartletViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletViewListCell.swift; sourceTree = "<group>"; };
+		7BF42E0726D63DC1006C556A /* EditorStickerTextView+CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerTextView+CollectionView.swift"; sourceTree = "<group>"; };
+		7BF42E0926D63DEF006C556A /* EditorStickerTextView+Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerTextView+Delegate.swift"; sourceTree = "<group>"; };
+		7BF42E0B26D63E2B006C556A /* EditorStickerTextView+Draw.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerTextView+Draw.swift"; sourceTree = "<group>"; };
+		7BF42E0D26D63E8A006C556A /* EditorStickerView+ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerView+ItemView.swift"; sourceTree = "<group>"; };
 		7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = RELEASE_NOTE.md; sourceTree = "<group>"; };
 		98BBBE43DD88BF719F1FA7D1 /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9954A16ACB03271F6C07C4AC /* Pods-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.debug.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -752,6 +794,10 @@
 			children = (
 				7B4D86BB25F776E7008B923A /* PhotoPickerControllerProtocol.swift */,
 				7B73D6A5259C88A90045DA42 /* PhotoPickerController.swift */,
+				7BF42DF326D62A0B006C556A /* PhotoPickerController+FetchAsset.swift */,
+				7BF42DF526D62C95006C556A /* PhotoPickerController+Internal.swift */,
+				7BF42DF126D626C8006C556A /* PhotoPickerController+PHPhotoLibrary.swift */,
+				7BF42DEF26D62691006C556A /* PhotoPickerController+Transitioning.swift */,
 				7B73D6A6259C88A90045DA42 /* AlbumViewController.swift */,
 				7B73D6A3259C88A90045DA42 /* PhotoPickerViewController.swift */,
 				7BEA744B26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift */,
@@ -777,6 +823,10 @@
 				7B73D6AA259C88A90045DA42 /* PhotoAsset.swift */,
 				7B4CA1C7265B4C0C009FEC18 /* LocalAsset.swift */,
 				7B4CA1CB265B9521009FEC18 /* NetworkAsset.swift */,
+				7BF42DE726D5E055006C556A /* PhotoAsset+FileSize.swift */,
+				7BF42DE926D5E1EC006C556A /* PhotoAsset+Equal.swift */,
+				7BF42DEB26D5E7E3006C556A /* PhotoAsset+Editor.swift */,
+				7BF42DED26D5E884006C556A /* PhotoAsset+Local.swift */,
 				7B5ED04E26A55FE200A968B7 /* PhotoAsset+URL.swift */,
 				7B62469925FA265A00090025 /* PhotoAsset+Request.swift */,
 				7B4CA1CE265B9A9F009FEC18 /* PhotoAsset+Network.swift */,
@@ -829,6 +879,12 @@
 				7B80FA87268EBE75003C7B35 /* EditorImageResizerControlView.swift */,
 				7B80FA8B268EBE76003C7B35 /* EditorImageResizerMaskView.swift */,
 				7B80FA86268EBE75003C7B35 /* EditorImageResizerView.swift */,
+				7BF42DFB26D6363E006C556A /* EditorImageResizerView+Initial.swift */,
+				7BF42DFF26D63789006C556A /* EditorImageResizerView+Cropping.swift */,
+				7BF42E0126D638AD006C556A /* EditorImageResizerView+CropImage.swift */,
+				7BF42DF926D63547006C556A /* EditorImageResizerView+ScrollView.swift */,
+				7BF42DFD26D636CC006C556A /* EditorImageResizerView+Mask.swift */,
+				7BF42DF726D63511006C556A /* EditorImageResizerView+ControlView.swift */,
 				7B80FA88268EBE75003C7B35 /* PhotoEditorBrushColorView.swift */,
 				7B80FA84268EBE75003C7B35 /* PhotoEditorContentView.swift */,
 				7B80FA89268EBE76003C7B35 /* PhotoEditorCropToolView.swift */,
@@ -895,6 +951,7 @@
 			isa = PBXGroup;
 			children = (
 				7BBA80D325F5C2EB00CECBA7 /* PickerResult.swift */,
+				7BF42DE526D5DE69006C556A /* AssetURLResult.swift */,
 				7B73D693259C88A90045DA42 /* Config */,
 				7B73D6A2259C88A90045DA42 /* Controller */,
 				7B73D6AC259C88A90045DA42 /* View */,
@@ -1083,11 +1140,17 @@
 				7BEB056925A9417000B39BE5 /* EditorToolView.swift */,
 				7BEB057125A942EA00B39BE5 /* EditorToolViewCell.swift */,
 				7B82EBC326A66D01002A33F1 /* EditorStickerView.swift */,
+				7BF42E0D26D63E8A006C556A /* EditorStickerView+ItemView.swift */,
 				7B82EBC526A66EEF002A33F1 /* EditorStickerItemView.swift */,
 				7B82EBC726A66EFA002A33F1 /* EditorStickerContentView.swift */,
 				7B536DE626A918D7004E3130 /* EditorStickerTrashView.swift */,
 				7B536DE826A96650004E3130 /* EditorStickerTextView.swift */,
+				7BF42E0B26D63E2B006C556A /* EditorStickerTextView+Draw.swift */,
+				7BF42E0926D63DEF006C556A /* EditorStickerTextView+Delegate.swift */,
+				7BF42E0726D63DC1006C556A /* EditorStickerTextView+CollectionView.swift */,
 				7B95AC8726ABB66D00FE0561 /* EditorChartletView.swift */,
+				7BF42E0526D63D71006C556A /* EditorChartletViewListCell.swift */,
+				7BF42E0326D63D4C006C556A /* EditorChartletViewCell.swift */,
 				7B881BAE26B91BB900CC44CC /* EditorChartletPreviewView.swift */,
 			);
 			path = View;
@@ -1376,12 +1439,16 @@
 				7B5833D226BCD034001F86F5 /* VideoEditorViewController+ToolView.swift in Sources */,
 				7B5833D626BCD07C001F86F5 /* VideoEditorViewController+PlayerView.swift in Sources */,
 				7BBBD57525AEFE9100301DCC /* ProgressHUD.swift in Sources */,
+				7BF42DF226D626C8006C556A /* PhotoPickerController+PHPhotoLibrary.swift in Sources */,
 				7BBBD57625AEFE9100301DCC /* VideoPlayerView.swift in Sources */,
 				7BBBD57725AEFE9100301DCC /* PhotoError.swift in Sources */,
 				7B80FA8D268EBE76003C7B35 /* PhotoEditorContentView.swift in Sources */,
+				7BF42E0A26D63DEF006C556A /* EditorStickerTextView+Delegate.swift in Sources */,
+				7BF42DFE26D636CD006C556A /* EditorImageResizerView+Mask.swift in Sources */,
 				7B5833D026BCD00D001F86F5 /* VideoEditorViewController+CropConfirm.swift in Sources */,
 				7BA856A826CCA275003CF839 /* ExportPreset.swift in Sources */,
 				7BBA0C6226BBDCE200BA85B1 /* CaptureVideoPreviewView.swift in Sources */,
+				7BF42DF426D62A0B006C556A /* PhotoPickerController+FetchAsset.swift in Sources */,
 				7BBBD57825AEFE9100301DCC /* LivePhotoError.swift in Sources */,
 				7B80FA9C268EBE7D003C7B35 /* VideoEditorCropView.swift in Sources */,
 				7BBBD57925AEFE9100301DCC /* LanguageType.swift in Sources */,
@@ -1389,6 +1456,7 @@
 				7BBBD57B25AEFE9100301DCC /* CustomLanguage.swift in Sources */,
 				7B5833CE26BCCFC0001F86F5 /* VideoEditorViewController+Music.swift in Sources */,
 				7BBBD57C25AEFE9100301DCC /* AssetManager.swift in Sources */,
+				7BF42DF026D62691006C556A /* PhotoPickerController+Transitioning.swift in Sources */,
 				7BBBD57D25AEFE9100301DCC /* AssetManager+Asset.swift in Sources */,
 				7B5ED04F26A55FE200A968B7 /* PhotoAsset+URL.swift in Sources */,
 				7B5BF28825F719FB00E21D15 /* VideoEditResult.swift in Sources */,
@@ -1396,6 +1464,7 @@
 				7B80FA92268EBE76003C7B35 /* PhotoEditorCropToolView.swift in Sources */,
 				7BBBD57F25AEFE9100301DCC /* AssetManager+ImageData.swift in Sources */,
 				7BBBD58025AEFE9100301DCC /* AssetManager+ImageURL.swift in Sources */,
+				7BF42E0C26D63E2B006C556A /* EditorStickerTextView+Draw.swift in Sources */,
 				7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */,
 				7B80FAA0268EBE7D003C7B35 /* VideoEditorMusicView.swift in Sources */,
 				7B536DE726A918D7004E3130 /* EditorStickerTrashView.swift in Sources */,
@@ -1411,14 +1480,18 @@
 				7B76CA29269EC0BB00F5590E /* PhotoEditorViewController+Animation.swift in Sources */,
 				7B9369B92631121800B7C531 /* PhotoEditResult.swift in Sources */,
 				7BBBD58525AEFE9100301DCC /* AssetManager+AssetCollection.swift in Sources */,
+				7BF42E0626D63D71006C556A /* EditorChartletViewListCell.swift in Sources */,
 				7B51350E268D554F00275419 /* PhotoPanGestureRecognizer.swift in Sources */,
 				7B64A9C6268C75B10002109E /* PreviewVideoControlViewCell.swift in Sources */,
 				7BBBD58625AEFE9100301DCC /* AssetManager+Authorization.swift in Sources */,
 				7BA856AC26CCB826003CF839 /* GIFImageView.swift in Sources */,
+				7BF42DE626D5DE69006C556A /* AssetURLResult.swift in Sources */,
 				7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */,
 				7B80FA94268EBE76003C7B35 /* EditorImageResizerMaskView.swift in Sources */,
+				7BF42E0226D638AD006C556A /* EditorImageResizerView+CropImage.swift in Sources */,
 				7BBBD58725AEFE9100301DCC /* PhotoManager.swift in Sources */,
 				7BBBD58825AEFE9100301DCC /* PhotoManager+Language.swift in Sources */,
+				7BF42E0826D63DC1006C556A /* EditorStickerTextView+CollectionView.swift in Sources */,
 				7BBBD58925AEFE9100301DCC /* PhotoTools.swift in Sources */,
 				7B80FA9E268EBE7D003C7B35 /* VideoEditorCropViewCell.swift in Sources */,
 				7B4CA1C8265B4C0C009FEC18 /* LocalAsset.swift in Sources */,
@@ -1432,7 +1505,9 @@
 				7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */,
 				7BA856AA26CCB6CF003CF839 /* ImageView.swift in Sources */,
 				7BBBD58A25AEFE9100301DCC /* Core+Bundle.swift in Sources */,
+				7BF42E0026D63789006C556A /* EditorImageResizerView+Cropping.swift in Sources */,
 				7BBBD58B25AEFE9100301DCC /* Core+String.swift in Sources */,
+				7BF42DEE26D5E884006C556A /* PhotoAsset+Local.swift in Sources */,
 				7BBBD58C25AEFE9100301DCC /* Core+UIColor.swift in Sources */,
 				7BBBD58D25AEFE9100301DCC /* Core+UIDevice.swift in Sources */,
 				7BBBD58E25AEFE9100301DCC /* Core+UIFont.swift in Sources */,
@@ -1445,6 +1520,7 @@
 				7BBBD59425AEFE9100301DCC /* PickerConfiguration.swift in Sources */,
 				7B536DEB26A96961004E3130 /* EditorStickerTextViewController.swift in Sources */,
 				7B35F34A26B28BEC007EBD79 /* VideoEditorSearchMusicView.swift in Sources */,
+				7BF42DFA26D63547006C556A /* EditorImageResizerView+ScrollView.swift in Sources */,
 				7B80FA9D268EBE7D003C7B35 /* VideoEditorFrameMaskView.swift in Sources */,
 				7B536DE926A96650004E3130 /* EditorStickerTextView.swift in Sources */,
 				7BBBD59525AEFE9100301DCC /* AlbumTitleViewConfiguration.swift in Sources */,
@@ -1471,6 +1547,7 @@
 				7BBBD5A125AEFE9100301DCC /* AlbumViewController.swift in Sources */,
 				7B5D5B702627DF7200F94E01 /* PhotoEditorCropToolModel.swift in Sources */,
 				7BBBD5A225AEFE9100301DCC /* PhotoPickerViewController.swift in Sources */,
+				7BF42DF626D62C95006C556A /* PhotoPickerController+Internal.swift in Sources */,
 				7B4B0CE9265E452E00493EE9 /* Picker+UIImageView.swift in Sources */,
 				7BBBD5A325AEFE9100301DCC /* PhotoPickerViewController+SwipeSelect.swift in Sources */,
 				7BA920A4267B3B29002BFD9D /* Core+URL.swift in Sources */,
@@ -1491,9 +1568,11 @@
 				7B76CA23269EBCD000F5590E /* Core+CALayer.swift in Sources */,
 				7BBBD5AF25AEFE9200301DCC /* DeniedAuthorizationView.swift in Sources */,
 				7B5833D826BCD0AA001F86F5 /* VideoEditorViewController+Request.swift in Sources */,
+				7BF42E0426D63D4C006C556A /* EditorChartletViewCell.swift in Sources */,
 				7BBBD5B025AEFE9200301DCC /* EmptyView.swift in Sources */,
 				7BEA744C26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift in Sources */,
 				7BEA744826BA3A570065FC35 /* PhotoPickerViewController+Editor.swift in Sources */,
+				7BF42DE826D5E055006C556A /* PhotoAsset+FileSize.swift in Sources */,
 				7B02F2BC2656186500FA94CD /* Core+Data.swift in Sources */,
 				7B80FAA1268EBE7D003C7B35 /* VideoEditorPlayerView.swift in Sources */,
 				7BBBD5B225AEFE9200301DCC /* PhotoPickerBottomView.swift in Sources */,
@@ -1502,6 +1581,7 @@
 				7BBBD5B525AEFE9200301DCC /* PhotoPreviewSelectedView.swift in Sources */,
 				7B6ACE2326575AFA003704BE /* ImageContentType.swift in Sources */,
 				7BBBD5B625AEFE9200301DCC /* PhotoPreviewVideoView.swift in Sources */,
+				7BF42DFC26D6363E006C556A /* EditorImageResizerView+Initial.swift in Sources */,
 				7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */,
 				7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */,
 				7BBBD5B725AEFE9200301DCC /* PickerTypes.swift in Sources */,
@@ -1524,6 +1604,7 @@
 				7B5833DE26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift in Sources */,
 				7BBBD5BF25AEFE9200301DCC /* PickerInteractiveTransition.swift in Sources */,
 				7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */,
+				7BF42E0E26D63E8A006C556A /* EditorStickerView+ItemView.swift in Sources */,
 				7BBBD5C025AEFE9200301DCC /* EditorConfiguration.swift in Sources */,
 				7BBBD5C125AEFE9200301DCC /* VideoEditorConfiguration.swift in Sources */,
 				7BBBD5C225AEFE9200301DCC /* VideoCroppingConfiguration.swift in Sources */,
@@ -1533,8 +1614,10 @@
 				7B881BAF26B91BB900CC44CC /* EditorChartletPreviewView.swift in Sources */,
 				7BBBD5C325AEFE9200301DCC /* EditorToolViewConfiguration.swift in Sources */,
 				7BBBD5C425AEFE9200301DCC /* CropConfirmViewConfiguration.swift in Sources */,
+				7BF42DF826D63511006C556A /* EditorImageResizerView+ControlView.swift in Sources */,
 				7BBBD5C525AEFE9200301DCC /* EditorController.swift in Sources */,
 				7BCF087426CA3F5A008C8C0E /* Core+UIViewController.swift in Sources */,
+				7BF42DEA26D5E1EC006C556A /* PhotoAsset+Equal.swift in Sources */,
 				7BDAE9BC26803AB000DF0362 /* VideoEditorMusic.swift in Sources */,
 				7BBBD5C625AEFE9200301DCC /* PhotoEditorViewController.swift in Sources */,
 				7BBBD5C725AEFE9200301DCC /* VideoEditorViewController.swift in Sources */,
@@ -1548,6 +1631,7 @@
 				7B95AC8826ABB66D00FE0561 /* EditorChartletView.swift in Sources */,
 				7BBBD5CE25AEFE9200301DCC /* EditorToolView.swift in Sources */,
 				7BBBD5CF25AEFE9200301DCC /* EditorToolViewCell.swift in Sources */,
+				7BF42DEC26D5E7E3006C556A /* PhotoAsset+Editor.swift in Sources */,
 				7BBBD5D025AEFE9200301DCC /* Editor+PhotoTools.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1701,7 +1785,7 @@
 				MACH_O_TYPE = mh_execute;
 				MARKETING_VERSION = 1.2.0;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence1.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1717,7 +1801,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Example/Example.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
@@ -1728,7 +1812,7 @@
 				);
 				MACH_O_TYPE = mh_execute;
 				MARKETING_VERSION = 1.2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence1.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";

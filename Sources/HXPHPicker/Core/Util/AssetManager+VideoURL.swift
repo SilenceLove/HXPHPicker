@@ -115,10 +115,9 @@ public extension AssetManager {
                 }
             }else {
                 var videoResource: PHAssetResource?
-                for resource in PHAssetResource.assetResources(for: asset) {
-                    if resource.type == .video {
-                        videoResource = resource
-                    }
+                for resource in PHAssetResource.assetResources(for: asset) where
+                    resource.type == .video {
+                    videoResource = resource
                 }
                 guard let videoResource = videoResource else {
                     resultHandler(.failure(.assetResourceIsEmpty))

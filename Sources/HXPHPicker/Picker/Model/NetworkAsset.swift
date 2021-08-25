@@ -12,7 +12,7 @@ import Kingfisher
 public struct NetworkImageAsset: Codable {
     
     /// 占位图
-    public var placeholder: String?
+    public let placeholder: String?
     
     /// 缩略图，列表cell展示
     public let thumbnailURL: URL
@@ -29,14 +29,18 @@ public struct NetworkImageAsset: Codable {
     /// 图片文件大小
     public var fileSize: Int
     
-    public init(thumbnailURL: URL,
-                originalURL: URL,
-                thumbnailSize: CGSize = UIScreen.main.bounds.size,
-                imageSize: CGSize = .zero,
-                fileSize: Int = 0) {
+    public init(
+        thumbnailURL: URL,
+        originalURL: URL,
+        thumbnailSize: CGSize = UIScreen.main.bounds.size,
+        placeholder: String? = nil,
+        imageSize: CGSize = .zero,
+        fileSize: Int = 0
+    ) {
         self.thumbnailURL = thumbnailURL
         self.originalURL = originalURL
         self.thumbnailSize = thumbnailSize
+        self.placeholder = placeholder
         self.imageSize = imageSize
         self.fileSize = fileSize
         if let image = ImageCache.default.retrieveImageInMemoryCache(forKey: originalURL.cacheKey) {

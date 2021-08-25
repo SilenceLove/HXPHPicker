@@ -75,11 +75,10 @@ public extension AssetManager {
                     }
                 }
                 var hasAdjustmentData = false
-                for assetResource in assetResources {
-                    if assetResource.type == .adjustmentData {
-                        hasAdjustmentData = true
-                        break
-                    }
+                for assetResource in assetResources where
+                    assetResource.type == .adjustmentData {
+                    hasAdjustmentData = true
+                    break
                 }
                 for assetResource in assetResources {
                     var photoType: PHAssetResourceType = .photo
@@ -209,11 +208,10 @@ public extension AssetManager {
                 let options = PHAssetResourceRequestOptions.init()
                 options.isNetworkAccessAllowed = true
                 var hasAdjustmentData = false
-                for assetResource in assetResources {
-                    if assetResource.type == .adjustmentData {
-                        hasAdjustmentData = true
-                        break
-                    }
+                for assetResource in assetResources where
+                    assetResource.type == .adjustmentData {
+                    hasAdjustmentData = true
+                    break
                 }
                 for assetResource in assetResources {
                     var videoType: PHAssetResourceType = .pairedVideo
@@ -316,11 +314,10 @@ public extension AssetManager {
                     }
                 }
                 var hasAdjustmentData = false
-                for assetResource in assetResources {
-                    if assetResource.type == .adjustmentData {
-                        hasAdjustmentData = true
-                        break
-                    }
+                for assetResource in assetResources where
+                    assetResource.type == .adjustmentData {
+                    hasAdjustmentData = true
+                    break
                 }
                 for assetResource in assetResources {
                     var photoType: PHAssetResourceType = .photo

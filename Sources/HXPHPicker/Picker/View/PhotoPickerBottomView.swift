@@ -340,76 +340,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         barTintColor = isDark ? config.barTintDarkColor : config.barTintColor
         barStyle = isDark ? config.barDarkStyle : config.barStyle
         if !isExternalPreview {
-            previewBtn.setTitleColor(
-                isDark ?
-                    config.previewButtonTitleDarkColor :
-                    config.previewButtonTitleColor,
-                for: .normal
-            )
-            #if HXPICKER_ENABLE_EDITOR
-            editBtn.setTitleColor(isDark ? config.editButtonTitleDarkColor : config.editButtonTitleColor, for: .normal)
-            #endif
-            if isDark {
-                if config.previewButtonDisableTitleDarkColor != nil {
-                    previewBtn.setTitleColor(config.previewButtonDisableTitleDarkColor, for: .disabled)
-                }else {
-                    previewBtn.setTitleColor(config.previewButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
-                }
-                #if HXPICKER_ENABLE_EDITOR
-                if config.editButtonDisableTitleDarkColor != nil {
-                    editBtn.setTitleColor(config.editButtonDisableTitleDarkColor, for: .disabled)
-                }else {
-                    editBtn.setTitleColor(config.editButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
-                }
-                #endif
-            }else {
-                if config.previewButtonDisableTitleColor != nil {
-                    previewBtn.setTitleColor(config.previewButtonDisableTitleColor, for: .disabled)
-                }else {
-                    previewBtn.setTitleColor(config.previewButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
-                }
-                #if HXPICKER_ENABLE_EDITOR
-                if config.editButtonDisableTitleColor != nil {
-                    editBtn.setTitleColor(config.editButtonDisableTitleColor, for: .disabled)
-                }else {
-                    editBtn.setTitleColor(config.editButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
-                }
-                #endif
-            }
-            originalLoadingView.style = isDark ? config.originalLoadingDarkStyle : config.originalLoadingStyle
-            originalTitleLb.textColor = isDark ? config.originalButtonTitleDarkColor : config.originalButtonTitleColor
-            
-            let finishBtnBackgroundColor = isDark ?
-                config.finishButtonDarkBackgroundColor :
-                config.finishButtonBackgroundColor
-            finishBtn.setTitleColor(
-                isDark ?
-                    config.finishButtonTitleDarkColor :
-                    config.finishButtonTitleColor,
-                for: .normal
-            )
-            finishBtn.setTitleColor(
-                isDark ?
-                    config.finishButtonDisableTitleDarkColor :
-                    config.finishButtonDisableTitleColor,
-                for: .disabled
-            )
-            finishBtn.setBackgroundImage(
-                UIImage.image(
-                    for: finishBtnBackgroundColor,
-                    havingSize: CGSize.zero
-                ),
-                for: .normal
-            )
-            finishBtn.setBackgroundImage(
-                UIImage.image(
-                    for: isDark ?
-                        config.finishButtonDisableDarkBackgroundColor :
-                        config.finishButtonDisableBackgroundColor,
-                    havingSize: CGSize.zero
-                ),
-                for: .disabled
-            )
+            configCoreColor()
         }else {
             #if HXPICKER_ENABLE_EDITOR
             if isDark {
@@ -428,6 +359,79 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             #endif
         }
         configPromptColor()
+    }
+    func configCoreColor() {
+        let isDark = PhotoManager.isDark
+        previewBtn.setTitleColor(
+            isDark ?
+                config.previewButtonTitleDarkColor :
+                config.previewButtonTitleColor,
+            for: .normal
+        )
+        #if HXPICKER_ENABLE_EDITOR
+        editBtn.setTitleColor(isDark ? config.editButtonTitleDarkColor : config.editButtonTitleColor, for: .normal)
+        #endif
+        if isDark {
+            if config.previewButtonDisableTitleDarkColor != nil {
+                previewBtn.setTitleColor(config.previewButtonDisableTitleDarkColor, for: .disabled)
+            }else {
+                previewBtn.setTitleColor(config.previewButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
+            }
+            #if HXPICKER_ENABLE_EDITOR
+            if config.editButtonDisableTitleDarkColor != nil {
+                editBtn.setTitleColor(config.editButtonDisableTitleDarkColor, for: .disabled)
+            }else {
+                editBtn.setTitleColor(config.editButtonTitleDarkColor.withAlphaComponent(0.6), for: .disabled)
+            }
+            #endif
+        }else {
+            if config.previewButtonDisableTitleColor != nil {
+                previewBtn.setTitleColor(config.previewButtonDisableTitleColor, for: .disabled)
+            }else {
+                previewBtn.setTitleColor(config.previewButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
+            }
+            #if HXPICKER_ENABLE_EDITOR
+            if config.editButtonDisableTitleColor != nil {
+                editBtn.setTitleColor(config.editButtonDisableTitleColor, for: .disabled)
+            }else {
+                editBtn.setTitleColor(config.editButtonTitleColor.withAlphaComponent(0.6), for: .disabled)
+            }
+            #endif
+        }
+        originalLoadingView.style = isDark ? config.originalLoadingDarkStyle : config.originalLoadingStyle
+        originalTitleLb.textColor = isDark ? config.originalButtonTitleDarkColor : config.originalButtonTitleColor
+        
+        let finishBtnBackgroundColor = isDark ?
+            config.finishButtonDarkBackgroundColor :
+            config.finishButtonBackgroundColor
+        finishBtn.setTitleColor(
+            isDark ?
+                config.finishButtonTitleDarkColor :
+                config.finishButtonTitleColor,
+            for: .normal
+        )
+        finishBtn.setTitleColor(
+            isDark ?
+                config.finishButtonDisableTitleDarkColor :
+                config.finishButtonDisableTitleColor,
+            for: .disabled
+        )
+        finishBtn.setBackgroundImage(
+            UIImage.image(
+                for: finishBtnBackgroundColor,
+                havingSize: CGSize.zero
+            ),
+            for: .normal
+        )
+        finishBtn.setBackgroundImage(
+            UIImage.image(
+                for: isDark ?
+                    config.finishButtonDisableDarkBackgroundColor :
+                    config.finishButtonDisableBackgroundColor,
+                havingSize: CGSize.zero
+            ),
+            for: .disabled
+        )
     }
     func configPromptColor() {
         if config.showPrompt &&

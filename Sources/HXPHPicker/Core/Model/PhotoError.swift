@@ -34,6 +34,8 @@ public enum AssetError: Error {
     case exportFailed(Error?)
     /// 无效的 Data
     case invalidData
+    /// 无效的编辑数据
+    case invalidEditedData
     /// phAsset为空
     case invalidPHAsset
     /// 网络地址为空

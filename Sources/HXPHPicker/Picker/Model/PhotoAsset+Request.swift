@@ -305,7 +305,9 @@ public extension PhotoAsset {
         }
     }
     
-    func requestLivePhotoURL(completion: @escaping (Result<AssetURLResult, AssetError>) -> Void) {
+    func requestLivePhotoURL(
+        completion: @escaping (Result<AssetURLResult, AssetError>) -> Void
+    ) {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit {
             completion(

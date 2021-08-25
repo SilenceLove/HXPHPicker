@@ -86,17 +86,15 @@ class VideoEditorMusic: Equatable, Codable {
                 continue
             }
             var isTag = false
-            for tag in tags {
-                if metaData[tag] == nil { // swiftlint:disable:this for_where
-                    let prefix = "[" + tag + ":"
-                    if line.hasPrefix(prefix) && line.hasSuffix("]") {
-                        let loc = prefix.count
-                        let len = line.count - 2
-                        let info = line[loc...len]
-                        metaData[tag] = info
-                        isTag = true
-                        break
-                    }
+            for tag in tags where metaData[tag] == nil {
+                let prefix = "[" + tag + ":"
+                if line.hasPrefix(prefix) && line.hasSuffix("]") {
+                    let loc = prefix.count
+                    let len = line.count - 2
+                    let info = line[loc...len]
+                    metaData[tag] = info
+                    isTag = true
+                    break
                 }
             }
             if isTag {

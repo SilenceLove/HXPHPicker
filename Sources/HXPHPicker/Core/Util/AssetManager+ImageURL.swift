@@ -79,11 +79,10 @@ public extension AssetManager {
                 }
             }else {
                 var imageResource: PHAssetResource?
-                for resource in PHAssetResource.assetResources(for: asset) {
-                    if resource.type == .photo {
-                        imageResource = resource
-                        break
-                    }
+                for resource in PHAssetResource.assetResources(for: asset) where
+                    resource.type == .photo {
+                    imageResource = resource
+                    break
                 }
                 guard let imageResource = imageResource else {
                     resultHandler(.failure(.assetResourceIsEmpty))

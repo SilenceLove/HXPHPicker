@@ -63,16 +63,16 @@ public extension PickerResult {
     
     /// 获取视频地址
     /// - Parameters:
-    ///   - exportPreset: 视频分辨率 默认960x540
-    ///   - videoQuality: 视频质量[0-10]
+    ///   - exportPreset: 视频分辨率，默认ratio_640x480
+    ///   - videoQuality: 视频质量[0-10]，默认4
     ///   - exportSession: 导出视频时对应的 AVAssetExportSession   
     ///   - videoURLHandler: 每一次获取视频地址都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
     func getVideoURL(
-        exportPreset: ExportPreset = .ratio_960x540,
+        exportPreset: ExportPreset = .ratio_640x480,
         videoQuality: Int = 4,
         exportSession: ((AVAssetExportSession, PhotoAsset, Int) -> Void)? = nil,
-        videoURLHandler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
+        videoURLHandler: ((Result<AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
         let group = DispatchGroup.init()
@@ -145,7 +145,9 @@ public extension PickerResult {
     ///   - completionHandler: 全部获取完成
     func getURLs(
         options: Options = .any,
-        urlReceivedHandler handler: ((Result<PhotoAsset.AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
+        urlReceivedHandler handler: (
+            (Result<AssetURLResult, AssetError>, PhotoAsset, Int) -> Void
+        )? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
         let group = DispatchGroup.init()

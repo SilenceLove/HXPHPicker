@@ -252,67 +252,7 @@ class PhotoPreviewVideoView: VideoPlayerView {
         change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?) {
         // swiftlint:enable block_based_kvo
-        if object is AVPlayerItem {
-            if object as? AVPlayerItem != player.currentItem {
-                return
-            }
-            if keyPath == "status" {
-                guard let playerItem = player.currentItem else {
-                    return
-                }
-                switch playerItem.status {
-                case AVPlayerItem.Status.readyToPlay:
-                    // 可以播放了
-                    delegate?.videoView(self, readyToPlay: CGFloat(CMTimeGetSeconds(playerItem.duration)))
-                    loadingView?.isHidden = true
-                    delegate?.videoView(self, isPlaybackLikelyToKeepUp: true)
-                    if playbackTimeObserver == nil {
-                        playbackTimeObserver = player.addPeriodicTimeObserver(
-                            forInterval: CMTimeMake(
-                                value: 1,
-                                timescale: 10
-                            ),
-                            queue: .main
-                        ) { [weak self] (time) in
-                            guard let self = self else { return }
-                            let currentTime = CMTimeGetSeconds(time)
-                            self.delegate?.videoView(self, didChangedPlayerTime: CGFloat(currentTime))
-                        }
-                    }
-                case AVPlayerItem.Status.failed:
-                    // 初始化失败
-                    cancelPlayer()
-                    ProgressHUD.showWarning(addedTo: self, text: "视频加载失败!".localized, animated: true, delayHide: 1.5)
-                default:
-                    break
-                }
-            }else if keyPath == "loadedTimeRanges" {
-                let loadedTimeRanges = player.currentItem?.loadedTimeRanges
-                guard let timeRange = loadedTimeRanges?.first?.timeRangeValue else {
-                    return
-                }
-                let startSeconds = CMTimeGetSeconds(timeRange.start)
-                let durationSeconds = CMTimeGetSeconds(timeRange.duration)
-                let bufferSeconds = startSeconds + durationSeconds
-                delegate?.videoView(self, didChangedBuffer: CGFloat(bufferSeconds))
-            }else if keyPath == "playbackBufferEmpty" {
-                
-            }else if keyPath == "playbackLikelyToKeepUp" {
-                let isPlaybackLikelyToKeepUp = player.currentItem!.isPlaybackLikelyToKeepUp
-                delegate?.videoView(self, isPlaybackLikelyToKeepUp: isPlaybackLikelyToKeepUp)
-                if !isPlaybackLikelyToKeepUp {
-                    // 缓冲中
-                    if loadingView == nil {
-                        loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
-                    }else {
-                        loadingView?.isHidden = false
-                    }
-                }else {
-                    // 缓冲完成
-                    loadingView?.isHidden = true
-                }
-            }
-        }else if object is AVPlayerLayer && keyPath == "readyForDisplay" {
+        if object is AVPlayerLayer && keyPath == "readyForDisplay" {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
@@ -323,6 +263,65 @@ class PhotoPreviewVideoView: VideoPlayerView {
             }
             if playerTime > 0 {
                 seek(to: TimeInterval(playerTime), isPlay: true)
+            }
+            return
+        }
+        guard let item = object as? AVPlayerItem,
+              let playerItem = player.currentItem,
+              item == playerItem else {
+            return
+        }
+        if keyPath == "status" {
+            switch playerItem.status {
+            case AVPlayerItem.Status.readyToPlay:
+                // 可以播放了
+                delegate?.videoView(self, readyToPlay: CGFloat(CMTimeGetSeconds(playerItem.duration)))
+                loadingView?.isHidden = true
+                delegate?.videoView(self, isPlaybackLikelyToKeepUp: true)
+                if playbackTimeObserver == nil {
+                    playbackTimeObserver = player.addPeriodicTimeObserver(
+                        forInterval: CMTimeMake(
+                            value: 1,
+                            timescale: 10
+                        ),
+                        queue: .main
+                    ) { [weak self] (time) in
+                        guard let self = self else { return }
+                        let currentTime = CMTimeGetSeconds(time)
+                        self.delegate?.videoView(self, didChangedPlayerTime: CGFloat(currentTime))
+                    }
+                }
+            case AVPlayerItem.Status.failed:
+                // 初始化失败
+                cancelPlayer()
+                ProgressHUD.showWarning(addedTo: self, text: "视频加载失败!".localized, animated: true, delayHide: 1.5)
+            default:
+                break
+            }
+        }else if keyPath == "loadedTimeRanges" {
+            let loadedTimeRanges = player.currentItem?.loadedTimeRanges
+            guard let timeRange = loadedTimeRanges?.first?.timeRangeValue else {
+                return
+            }
+            let startSeconds = CMTimeGetSeconds(timeRange.start)
+            let durationSeconds = CMTimeGetSeconds(timeRange.duration)
+            let bufferSeconds = startSeconds + durationSeconds
+            delegate?.videoView(self, didChangedBuffer: CGFloat(bufferSeconds))
+        }else if keyPath == "playbackBufferEmpty" {
+            
+        }else if keyPath == "playbackLikelyToKeepUp" {
+            let isPlaybackLikelyToKeepUp = player.currentItem!.isPlaybackLikelyToKeepUp
+            delegate?.videoView(self, isPlaybackLikelyToKeepUp: isPlaybackLikelyToKeepUp)
+            if !isPlaybackLikelyToKeepUp {
+                // 缓冲中
+                if loadingView == nil {
+                    loadingView = ProgressHUD.showLoading(addedTo: loadingSuperview(), animated: true)
+                }else {
+                    loadingView?.isHidden = false
+                }
+            }else {
+                // 缓冲完成
+                loadingView?.isHidden = true
             }
         }
     }

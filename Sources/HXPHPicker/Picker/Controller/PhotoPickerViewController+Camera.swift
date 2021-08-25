@@ -44,77 +44,98 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
-        ProgressHUD.showLoading(addedTo: self.navigationController?.view, animated: true)
+        ProgressHUD.showLoading(
+            addedTo: self.navigationController?.view,
+            animated: true
+        )
         picker.dismiss(animated: true, completion: nil)
         DispatchQueue.global().async {
             let mediaType = info[.mediaType] as! String
-            var photoAsset: PhotoAsset
             if mediaType == kUTTypeImage as String {
-                var image: UIImage? = (info[.editedImage] ?? info[.originalImage]) as? UIImage
-                image = image?.scaleSuitableSize()
-                if let image = image {
-                    if self.config.saveSystemAlbum {
-                        self.saveSystemAlbum(for: image, mediaType: .image)
-                        return
-                    }
-                    photoAsset = PhotoAsset.init(localImageAsset: .init(image: image))
-                }else {
-                    return
-                }
+                self.pickingImage(info: info)
             }else {
-                let startTime = info[
-                    UIImagePickerController.InfoKey(
-                        rawValue: "_UIImagePickerControllerVideoEditingStart"
-                    )
-                ] as? TimeInterval
-                let endTime = info[
-                    UIImagePickerController.InfoKey(
-                        rawValue: "_UIImagePickerControllerVideoEditingEnd"
-                    )
-                ] as? TimeInterval
-                let videoURL: URL? = info[.mediaURL] as? URL
-                if let startTime = startTime,
-                   let endTime = endTime,
-                   let videoURL = videoURL {
-                    let avAsset = AVAsset.init(url: videoURL)
-                    PhotoTools.exportEditVideo(
-                        for: avAsset,
-                        startTime: startTime,
-                        endTime: endTime,
-                        exportPreset: self.config.camera.editExportPreset,
-                        videoQuality: self.config.camera.editVideoQuality
-                    ) { (url, error) in
-                        if let url = url, error == nil {
-                            if self.config.saveSystemAlbum {
-                                self.saveSystemAlbum(for: url, mediaType: .video)
-                                return
-                            }
-                            let phAsset: PhotoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: url))
-                            self.addedCameraPhotoAsset(phAsset)
-                        }else {
-                            ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
-                            ProgressHUD.showWarning(
-                                addedTo: self.navigationController?.view,
-                                text: "视频导出失败".localized,
-                                animated: true,
-                                delayHide: 1.5
-                            )
-                        }
-                    }
-                    return
-                }else {
-                    if let videoURL = videoURL {
-                        if self.config.saveSystemAlbum {
-                            self.saveSystemAlbum(for: videoURL, mediaType: .video)
-                            return
-                        }
-                        photoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: videoURL))
-                    }else {
-                        return
-                    }
-                }
+                self.pickingVideo(info: info)
             }
-            self.addedCameraPhotoAsset(photoAsset)
+        }
+    }
+    func pickingImage(info: [UIImagePickerController.InfoKey: Any]) {
+        var image: UIImage? = (info[.editedImage] ?? info[.originalImage]) as? UIImage
+        image = image?.scaleSuitableSize()
+        if let image = image {
+            if config.saveSystemAlbum {
+                saveSystemAlbum(for: image, mediaType: .image)
+                return
+            }
+            addedCameraPhotoAsset(PhotoAsset(
+                localImageAsset: .init(image: image)
+            ))
+            return
+        }
+        DispatchQueue.main.async {
+            ProgressHUD.hide(
+                forView: self.navigationController?.view,
+                animated: false
+            )
+        }
+    }
+    func pickingVideo(info: [UIImagePickerController.InfoKey: Any]) {
+        let startTime = info[
+            UIImagePickerController.InfoKey(
+                rawValue: "_UIImagePickerControllerVideoEditingStart"
+            )
+        ] as? TimeInterval
+        let endTime = info[
+            UIImagePickerController.InfoKey(
+                rawValue: "_UIImagePickerControllerVideoEditingEnd"
+            )
+        ] as? TimeInterval
+        let videoURL: URL? = info[.mediaURL] as? URL
+        guard let videoURL = videoURL else {
+            DispatchQueue.main.async {
+                ProgressHUD.hide(
+                    forView: self.navigationController?.view,
+                    animated: false
+                )
+            }
+            return
+        }
+        guard let startTime = startTime,
+              let endTime = endTime  else {
+            if config.saveSystemAlbum {
+                saveSystemAlbum(for: videoURL, mediaType: .video)
+                return
+            }
+            addedCameraPhotoAsset(
+                PhotoAsset(
+                    localVideoAsset: .init(videoURL: videoURL)
+                )
+            )
+            return
+        }
+        let avAsset = AVAsset.init(url: videoURL)
+        PhotoTools.exportEditVideo(
+            for: avAsset,
+            startTime: startTime,
+            endTime: endTime,
+            exportPreset: config.camera.editExportPreset,
+            videoQuality: config.camera.editVideoQuality
+        ) { (url, error) in
+            guard let url = url, error == nil else {
+                ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
+                ProgressHUD.showWarning(
+                    addedTo: self.navigationController?.view,
+                    text: "视频导出失败".localized,
+                    animated: true,
+                    delayHide: 1.5
+                )
+                return
+            }
+            if self.config.saveSystemAlbum {
+                self.saveSystemAlbum(for: url, mediaType: .video)
+                return
+            }
+            let phAsset: PhotoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: url))
+            self.addedCameraPhotoAsset(phAsset)
         }
     }
     func saveSystemAlbum(for asset: Any, mediaType: PHAssetMediaType) {
