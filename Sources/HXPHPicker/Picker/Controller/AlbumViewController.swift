@@ -12,15 +12,17 @@ import Photos
 public class AlbumViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
     
     lazy var tableView: UITableView = {
-        let tableView = UITableView.init(frame: CGRect.init(), style: .plain)
-        if AssetManager.authorizationStatusIsLimited() &&
-            pickerController!.config.allowLoadPhotoLibrary {
-            tableView.tableHeaderView = promptLb
-        }
+        let tableView = UITableView(
+            frame: .zero,
+            style: .plain
+        )
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .none
-        tableView.register(AlbumViewCell.self, forCellReuseIdentifier: "cellId")
+        tableView.register(
+            AlbumViewCell.self,
+            forCellReuseIdentifier: "cellId"
+        )
         if #available(iOS 11.0, *) {
             tableView.contentInsetAdjustmentBehavior = .never
         } else {
@@ -30,7 +32,9 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         return tableView
     }()
     lazy var promptLb: UILabel = {
-        let promptLb = UILabel.init(frame: CGRect(x: 0, y: 0, width: 0, height: 40))
+        let promptLb = UILabel(
+            frame: CGRect(x: 0, y: 0, width: 0, height: 40)
+        )
         promptLb.text = "只能查看允许访问的照片和相关相册".localized
         promptLb.textAlignment = .center
         promptLb.font = UIFont.systemFont(ofSize: 14)
@@ -39,7 +43,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         return promptLb
     }()
     lazy var titleLabel: UILabel = {
-        let titleLabel = UILabel.init()
+        let titleLabel = UILabel()
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.textAlignment = .center
         return titleLabel
@@ -58,6 +62,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     }
     public override func viewDidLoad() {
         super.viewDidLoad()
+        guard let picker = pickerController else { return }
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
         title = "返回".localized
@@ -70,6 +75,10 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         )
         navigationItem.rightBarButtonItem = backItem
         view.addSubview(tableView)
+        if AssetManager.authorizationStatusIsLimited() &&
+            picker.config.allowLoadPhotoLibrary {
+            tableView.tableHeaderView = promptLb
+        }
         configColor()
         fetchCameraAssetCollection()
     }
@@ -88,11 +97,15 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     }
     func fetchCameraAssetCollection() {
         if pickerController?.cameraAssetCollection != nil {
-            self.pushPhotoPickerController(assetCollection: pickerController?.cameraAssetCollection, animated: false)
-            self.canFetchAssetCollections = true
+            pushPhotoPickerController(
+                assetCollection: pickerController?.cameraAssetCollection,
+                animated: false
+            )
+            canFetchAssetCollections = true
             titleLabel.text = "相册".localized
         }else {
-            pickerController?.fetchCameraAssetCollectionCompletion = { [weak self] (assetCollection) in
+            pickerController?
+                .fetchCameraAssetCollectionCompletion = { [weak self] (assetCollection) in
                 
                 var cameraAssetCollection = assetCollection
                 if cameraAssetCollection == nil {
@@ -105,10 +118,15 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
                 self?.titleLabel.text = "相册".localized
                 if self?.navigationController?.topViewController is PhotoPickerViewController {
                     let vc = self?.navigationController?.topViewController as! PhotoPickerViewController
-                    vc.changedAssetCollection(collection: cameraAssetCollection)
+                    vc.changedAssetCollection(
+                        collection: cameraAssetCollection
+                    )
                     return
                 }
-                self?.pushPhotoPickerController(assetCollection: cameraAssetCollection, animated: false)
+                self?.pushPhotoPickerController(
+                    assetCollection: cameraAssetCollection,
+                    animated: false
+                )
             }
         }
     }
@@ -116,7 +134,8 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
     func fetchAssetCollections() {
         ProgressHUD.showLoading(addedTo: view, animated: true)
         pickerController?.fetchAssetCollections()
-        pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
+        pickerController?
+            .fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
             self?.reloadTableView(assetCollectionsArray: assetCollectionsArray)
             ProgressHUD.hide(forView: self?.view, animated: true)
         }
@@ -133,15 +152,17 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         self.tableView.reloadData()
     }
     func updatePrompt() {
+        guard let picker = pickerController else { return }
         if AssetManager.authorizationStatusIsLimited() &&
-            pickerController!.config.allowLoadPhotoLibrary {
+            picker.config.allowLoadPhotoLibrary {
             tableView.tableHeaderView = promptLb
         }
     }
-    private func pushPhotoPickerController(assetCollection: PhotoAssetCollection?, animated: Bool) {
-        guard let picker = pickerController else {
-            return
-        }
+    private func pushPhotoPickerController(
+        assetCollection: PhotoAssetCollection?,
+        animated: Bool
+    ) {
+        guard let picker = pickerController else { return }
         let photoVC = PhotoPickerViewController(config: picker.config.photoList)
         photoVC.assetCollection = assetCollection
         photoVC.showLoading = animated
@@ -152,20 +173,34 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         pickerController?.cancelCallback()
     }
     
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return assetCollectionsArray.count
+    public func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
+        assetCollectionsArray.count
     }
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cellId") as! AlbumViewCell
+    public func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "cellId"
+        ) as! AlbumViewCell
         let assetCollection = assetCollectionsArray[indexPath.row]
         cell.assetCollection = assetCollection
         cell.config = config
         return cell
     }
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return config.cellHeight
+    public func tableView(
+        _ tableView: UITableView,
+        heightForRowAt indexPath: IndexPath
+    ) -> CGFloat {
+        config.cellHeight
     }
-    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
         tableView.deselectRow(at: indexPath, animated: true)
         let assetCollection = assetCollectionsArray[indexPath.row]
         pushPhotoPickerController(assetCollection: assetCollection, animated: true)

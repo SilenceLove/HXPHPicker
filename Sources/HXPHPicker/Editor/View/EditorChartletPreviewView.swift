@@ -30,7 +30,11 @@ class EditorChartletPreviewView: UIView {
     var upslope: Bool = true
     var isHorizontal: Bool = false
     var horizontalType: Int = 0
-    init(image: UIImage, touch center: CGPoint, touchView viewSize: CGSize) {
+    init(
+        image: UIImage,
+        touch center: CGPoint,
+        touchView viewSize: CGSize
+    ) {
         self.image = image
         touchCenter = center
         touchViewSize = viewSize
@@ -77,7 +81,9 @@ class EditorChartletPreviewView: UIView {
             switch result {
             case .success(let imageResult):
                 self?.image = imageResult.image
-                self?.setupFrame(imageSize: imageResult.image.size)
+                self?.setupFrame(
+                    imageSize: imageResult.image.size
+                )
                 self?.bgLayer.path = self?.bgLayerPath()
             case .failure(_):
                 break
@@ -91,7 +97,9 @@ class EditorChartletPreviewView: UIView {
         let imageScale = imageSize.height / imageSize.width
         let screenWidth = UIScreen.main.bounds.width
         let screenHeight = UIScreen.main.bounds.height
-        let maxWidth = (!UIDevice.isPad && UIDevice.isPortrait) ? screenWidth * 0.5 : screenWidth * 0.25
+        let maxWidth = (!UIDevice.isPad && UIDevice.isPortrait) ?
+            screenWidth * 0.5 :
+            screenWidth * 0.25
         let maxHeight = screenHeight * 0.5
         var width = imageSize.width
         var height = imageSize.height
@@ -130,10 +138,16 @@ class EditorChartletPreviewView: UIView {
                 }
             }
         }else {
-            triangleMove = CGPoint(x: center.x - x, y: center.y - viewSize.height * 0.5 - y)
+            triangleMove = CGPoint(
+                x: center.x - x,
+                y: center.y - viewSize.height * 0.5 - y
+            )
             upslope = true
         }
-        frame = CGRect(x: x, y: y, width: width, height: height)
+        frame = CGRect(
+            x: x, y: y,
+            width: width, height: height
+        )
     }
     
     func bgLayerPath() -> CGPath? {
@@ -144,22 +158,48 @@ class EditorChartletPreviewView: UIView {
         let trianglePath = UIBezierPath()
         trianglePath.move(to: triangleMove)
         if !isHorizontal {
-            rect = CGRect(x: 0, y: upslope ? 0 : 10, width: width, height: height - 10)
+            rect = CGRect(
+                x: 0,
+                y: upslope ? 0 : 10,
+                width: width,
+                height: height - 10
+            )
             if upslope {
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y - 10))
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y - 10))
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y - 10)
+                )
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y - 10)
+                )
             }else {
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y + 10))
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y + 10))
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y + 10)
+                )
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y + 10)
+                )
             }
         }else {
-            rect = CGRect(x: horizontalType == 0 ? 0 : 10, y: 0, width: width - 10, height: height)
+            rect = CGRect(
+                x: horizontalType == 0 ? 0 : 10,
+                y: 0,
+                width: width - 10,
+                height: height
+            )
             if horizontalType == 0 {
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y - 10))
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y + 10))
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y - 10)
+                )
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x - 10, y: triangleMove.y + 10)
+                )
             }else {
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y - 10))
-                trianglePath.addLine(to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y + 10))
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y - 10)
+                )
+                trianglePath.addLine(
+                    to: CGPoint(x: triangleMove.x + 10, y: triangleMove.y + 10)
+                )
             }
         }
         
@@ -176,9 +216,19 @@ class EditorChartletPreviewView: UIView {
         super.layoutSubviews()
         bgLayer.frame = bounds
         if !isHorizontal {
-            imageView.frame = CGRect(x: 5, y: upslope ? 5 : 15, width: width - 10, height: height - 20)
+            imageView.frame = CGRect(
+                x: 5,
+                y: upslope ? 5 : 15,
+                width: width - 10,
+                height: height - 20
+            )
         }else {
-            imageView.frame = CGRect(x: horizontalType == 0 ? 5 : 15, y: 5, width: width - 10, height: height - 20)
+            imageView.frame = CGRect(
+                x: horizontalType == 0 ? 5 : 15,
+                y: 5,
+                width: width - 10,
+                height: height - 20
+            )
         }
     }
 }

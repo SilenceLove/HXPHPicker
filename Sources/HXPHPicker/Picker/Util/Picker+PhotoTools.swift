@@ -263,7 +263,8 @@ extension PhotoTools {
     public class func getVideoDuration(
         for photoAsset: PhotoAsset,
         completionHandler:
-            @escaping (PhotoAsset, TimeInterval) -> Void) {
+            @escaping (PhotoAsset, TimeInterval) -> Void
+    ) {
         if photoAsset.mediaType == .video {
             var url: URL?
             if let videoAsset = photoAsset.localVideoAsset,
@@ -407,6 +408,7 @@ extension PhotoTools {
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white
+        
         config.videoEditor.cropping.maximumVideoCroppingTime = 15
         config.videoEditor.cropView.finishButtonBackgroundColor = wxColor
         config.videoEditor.cropView.finishButtonDarkBackgroundColor = wxColor
@@ -423,8 +425,10 @@ extension PhotoTools {
         config.photoEditor.cropConfimView.finishButtonBackgroundColor = wxColor
         config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = wxColor
         config.photoEditor.cropping.aspectRatioSelectedColor = wxColor
-        config.photoEditor.filter = .init(infos: defaultFilters(),
-                                                selectedColor: wxColor)
+        config.photoEditor.filter = .init(
+            infos: defaultFilters(),
+            selectedColor: wxColor
+        )
         config.photoEditor.text.tintColor = wxColor
         #endif
         

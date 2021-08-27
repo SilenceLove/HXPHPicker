@@ -71,16 +71,23 @@ class VideoEditorMusic: Equatable, Codable {
     }
     
     func parseLrc() {
-        let lines = lrc.replacingOccurrences(of: "\r", with: "").components(separatedBy: "\n")
+        let lines = lrc.replacingOccurrences(
+            of: "\r",
+            with: ""
+        ).components(
+            separatedBy: "\n"
+        )
         let tags = ["ti", "ar", "al", "by", "offset", "t_time"]
         let pattern1 = "(\\[\\d{0,2}:\\d{0,2}([.|:]\\d{0,3})?\\])"
         let pattern2 = "(\\[\\d{0,2}:\\d{0,2}([.|:]\\d{0,3})?\\])+"
-        var regular1: NSRegularExpression?
-        var regular2: NSRegularExpression?
-        do {
-            regular1 = try NSRegularExpression(pattern: pattern1, options: .caseInsensitive)
-            regular2 = try NSRegularExpression(pattern: pattern2, options: .caseInsensitive)
-        } catch {}
+        let regular1 = try? NSRegularExpression(
+            pattern: pattern1,
+            options: .caseInsensitive
+        )
+        let regular2 = try? NSRegularExpression(
+            pattern: pattern2,
+            options: .caseInsensitive
+        )
         for line in lines {
             if line.count <= 1 {
                 continue
@@ -117,7 +124,11 @@ class VideoEditorMusic: Equatable, Codable {
                     if result.range.location == NSNotFound {
                         continue
                     }
-                    var sec = line[result.range.location...(result.range.location + result.range.length - 1)]
+                    var sec = line[
+                        result.range.location...(
+                            result.range.location + result.range.length - 1
+                        )
+                    ]
                     sec = sec.replacingOccurrences(of: "[", with: "")
                     sec = sec.replacingOccurrences(of: "]", with: "")
                     if sec.count == 0 {
@@ -163,7 +174,9 @@ class VideoEditorMusic: Equatable, Codable {
         }
     }
      
-    func lyric(atTime time: TimeInterval) -> VideoEditorLyric? {
+    func lyric(
+        atTime time: TimeInterval
+    ) -> VideoEditorLyric? {
         if lyricIsEmpty {
             return .init(lyric: "此歌曲暂无歌词，请您欣赏".localized)
         }
@@ -179,7 +192,9 @@ class VideoEditorMusic: Equatable, Codable {
         return nil
     }
     
-    func lyric(atRange range: NSRange) -> [VideoEditorLyric] {
+    func lyric(
+        atRange range: NSRange
+    ) -> [VideoEditorLyric] {
         if range.location == NSNotFound || lyrics.isEmpty {
             return []
         }
@@ -195,10 +210,21 @@ class VideoEditorMusic: Equatable, Codable {
         }
         return Array(lyrics[loc..<(loc + len)])
     }
-    func lyric(atLine line: Int) -> VideoEditorLyric? {
-        lyric(atRange: NSRange(location: line, length: 1)).first
+    func lyric(
+        atLine line: Int
+    ) -> VideoEditorLyric? {
+        lyric(
+            atRange:
+                NSRange(
+                    location: line,
+                    length: 1
+                )
+        ).first
     }
-    public static func == (lhs: VideoEditorMusic, rhs: VideoEditorMusic) -> Bool {
+    public static func == (
+        lhs: VideoEditorMusic,
+        rhs: VideoEditorMusic
+    ) -> Bool {
         lhs === rhs
     }
 }
@@ -215,11 +241,16 @@ class VideoEditorLyric: Equatable, Codable {
         self.lyric = lyric
     }
     
-    func update(second: String, isEnd: Bool) {
+    func update(
+        second: String,
+        isEnd: Bool
+    ) {
         if !second.isEmpty {
             self.second = second
         }
-        let time = PhotoTools.getVideoTime(forVideo: self.second)
+        let time = PhotoTools.getVideoTime(
+            forVideo: self.second
+        )
         if isEnd {
             endTime = time
         }else {
@@ -227,7 +258,10 @@ class VideoEditorLyric: Equatable, Codable {
         }
     }
     
-    static func == (lhs: VideoEditorLyric, rhs: VideoEditorLyric) -> Bool {
+    static func == (
+        lhs: VideoEditorLyric,
+        rhs: VideoEditorLyric
+    ) -> Bool {
         lhs === rhs
     }
 }

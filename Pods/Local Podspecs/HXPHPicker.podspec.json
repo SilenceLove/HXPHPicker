@@ -11,7 +11,7 @@
     "SilenceLove": "294005139@qq.com"
   },
   "swift_versions": [
-    "5.3"
+    "5.4"
   ],
   "platforms": {
     "ios": "10.0"
@@ -83,5 +83,5 @@
       }
     }
   ],
-  "swift_version": "5.3"
+  "swift_version": "5.4"
 }

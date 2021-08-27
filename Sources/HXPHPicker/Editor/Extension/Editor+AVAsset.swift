@@ -11,7 +11,7 @@ import AVFoundation
 extension AVAsset {
     
     var videoOrientation: AVCaptureVideoOrientation {
-        guard let videoTrack = self.tracks(withMediaType: .video).first else {
+        guard let videoTrack = tracks(withMediaType: .video).first else {
             return .landscapeRight
         }
         

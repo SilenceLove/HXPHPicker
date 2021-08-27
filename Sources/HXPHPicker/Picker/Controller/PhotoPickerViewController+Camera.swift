@@ -166,22 +166,23 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
     }
     func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
         func addPhotoAsset(_ photoAsset: PhotoAsset) {
-            ProgressHUD.hide(forView: self.navigationController?.view, animated: true)
-            if self.config.takePictureCompletionToSelected {
-                if self.pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
-                    self.updateCellSelectedTitle()
+            guard let picker = pickerController else { return }
+            ProgressHUD.hide(forView: navigationController?.view, animated: true)
+            if config.takePictureCompletionToSelected {
+                if picker.addedPhotoAsset(photoAsset: photoAsset) {
+                    updateCellSelectedTitle()
                 }
             }
-            self.pickerController?.updateAlbums(coverImage: photoAsset.originalImage, count: 1)
+            picker.updateAlbums(coverImage: photoAsset.originalImage, count: 1)
             if photoAsset.isLocalAsset {
-                self.pickerController?.addedLocalCameraAsset(photoAsset: photoAsset)
+                picker.addedLocalCameraAsset(photoAsset: photoAsset)
             }
-            if self.pickerController!.config.albumShowMode == .popup {
-                self.albumView.tableView.reloadData()
+            if picker.config.albumShowMode == .popup {
+                albumView.tableView.reloadData()
             }
-            self.addedPhotoAsset(for: photoAsset)
-            self.bottomView.updateFinishButtonTitle()
-            self.setupEmptyView()
+            addedPhotoAsset(for: photoAsset)
+            bottomView.updateFinishButtonTitle()
+            setupEmptyView()
         }
         if DispatchQueue.isMain {
             addPhotoAsset(photoAsset)

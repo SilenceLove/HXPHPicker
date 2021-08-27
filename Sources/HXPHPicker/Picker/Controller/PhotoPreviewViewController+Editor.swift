@@ -14,14 +14,15 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
         _ photoEditorViewController: PhotoEditorViewController,
         didFinish result: PhotoEditResult
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = photoEditorViewController.photoAsset!
         photoAsset.photoEdit = result
         if isExternalPreview {
             replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
         }else {
             if (videoLoadSingleCell && photoAsset.mediaType == .video) || !isMultipleSelect {
-                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                    pickerController?.singleFinishCallback(for: photoAsset)
+                if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                    picker.singleFinishCallback(for: photoAsset)
                 }
                 return
             }
@@ -31,18 +32,19 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
             }
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
-        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+        picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
     }
     public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
+        guard let picker = pickerController else { return }
         let photoAsset = photoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.photoEdit != nil
         photoAsset.photoEdit = nil
         if beforeHasEdit {
-            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+            picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
         }
         if !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController?.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }
@@ -210,14 +212,15 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         _ videoEditorViewController: VideoEditorViewController,
         didFinish result: VideoEditResult
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result
         if isExternalPreview {
             replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
         }else {
             if videoLoadSingleCell || !isMultipleSelect {
-                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                    pickerController?.singleFinishCallback(for: photoAsset)
+                if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                    picker.singleFinishCallback(for: photoAsset)
                 }
                 return
             }
@@ -227,18 +230,21 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
             }
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
-        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+        picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
     }
-    public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
+    public func videoEditorViewController(
+        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
+    ) {
+        guard let picker = pickerController else { return }
         let photoAsset = videoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.videoEdit != nil
         photoAsset.videoEdit = nil
         if beforeHasEdit {
-            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+            picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
         }
         if videoLoadSingleCell || !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController?.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }

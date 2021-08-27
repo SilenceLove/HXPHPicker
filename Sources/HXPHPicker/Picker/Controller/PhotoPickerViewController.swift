@@ -40,27 +40,34 @@ public class PhotoPickerViewController: BaseViewController {
             collectionView.register(
                 customSingleCellClass,
                 forCellWithReuseIdentifier:
-                    NSStringFromClass(PhotoPickerViewCell.classForCoder())
+                    NSStringFromClass(
+                        PhotoPickerViewCell.classForCoder()
+                    )
             )
         }else {
             collectionView.register(
                 PhotoPickerViewCell.self,
                 forCellWithReuseIdentifier:
-                    NSStringFromClass(PhotoPickerViewCell.classForCoder())
+                    NSStringFromClass(
+                        PhotoPickerViewCell.classForCoder()
+                    )
             )
         }
         if let customSelectableCellClass = config.cell.customSelectableCellClass {
             collectionView.register(
                 customSelectableCellClass,
                 forCellWithReuseIdentifier:
-                    NSStringFromClass(PhotoPickerSelectableViewCell.classForCoder()
+                    NSStringFromClass(
+                        PhotoPickerSelectableViewCell.classForCoder()
                     )
             )
         }else {
             collectionView.register(
                 PhotoPickerSelectableViewCell.self,
                 forCellWithReuseIdentifier:
-                    NSStringFromClass(PhotoPickerSelectableViewCell.classForCoder())
+                    NSStringFromClass(
+                        PhotoPickerSelectableViewCell.classForCoder()
+                    )
             )
         }
         if config.allowAddCamera {
@@ -162,7 +169,10 @@ public class PhotoPickerViewController: BaseViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        allowLoadPhotoLibrary = pickerController?.config.allowLoadPhotoLibrary ?? true
+        guard let picker = pickerController else {
+            return
+        }
+        allowLoadPhotoLibrary = picker.config.allowLoadPhotoLibrary
         if AssetManager.authorizationStatus() == .notDetermined {
             canAddCamera = true
         }
@@ -170,7 +180,8 @@ public class PhotoPickerViewController: BaseViewController {
         initView()
         configColor()
         fetchData()
-        if config.allowSwipeToSelect && pickerController?.config.selectMode == .multiple {
+        if config.allowSwipeToSelect &&
+            picker.config.selectMode == .multiple {
             swipeSelectPanGR = UIPanGestureRecognizer(
                 target: self,
                 action: #selector(panGestureRecognizer(panGR:))
@@ -303,85 +314,11 @@ public class PhotoPickerViewController: BaseViewController {
     }
 }
 
-// MARK: fetch Asset
-extension PhotoPickerViewController {
-    
-    func fetchData() {
-        if pickerController!.config.albumShowMode == .popup {
-            fetchAssetCollections()
-            title = ""
-            navigationItem.titleView = titleView
-            if pickerController?.cameraAssetCollection != nil {
-                assetCollection = pickerController?.cameraAssetCollection
-                assetCollection.isSelected = true
-                titleView.title = assetCollection.albumName
-                fetchPhotoAssets()
-            }else {
-                pickerController?.fetchCameraAssetCollectionCompletion = { [weak self] (assetCollection) in
-                    var cameraAssetCollection = assetCollection
-                    if cameraAssetCollection == nil {
-                        cameraAssetCollection = PhotoAssetCollection(
-                            albumName:
-                                self?.pickerController?.config.albumList.emptyAlbumName.localized,
-                            coverImage:
-                                self?.pickerController?.config.albumList.emptyCoverImageName.image
-                        )
-                    }
-                    self?.assetCollection = cameraAssetCollection
-                    self?.assetCollection.isSelected = true
-                    self?.titleView.title = self?.assetCollection.albumName
-                    self?.fetchPhotoAssets()
-                }
-            }
-        }else {
-            title = ""
-            navigationItem.titleView = titleLabel
-            if showLoading {
-                ProgressHUD.showLoading(addedTo: view, afterDelay: 0.15, animated: true)
-            }
-            fetchPhotoAssets()
-        }
-    }
-    
-    func fetchAssetCollections() {
-        if !pickerController!.assetCollectionsArray.isEmpty {
-            albumView.assetCollectionsArray = pickerController!.assetCollectionsArray
-            albumView.currentSelectedAssetCollection = assetCollection
-            updateAlbumViewFrame()
-        }
-        fetchAssetCollectionsClosure()
-        if !pickerController!.config.allowLoadPhotoLibrary {
-            pickerController?.fetchAssetCollections()
-        }
-    }
-    private func fetchAssetCollectionsClosure() {
-        pickerController?.fetchAssetCollectionsCompletion = { [weak self] (assetCollectionsArray) in
-            self?.albumView.assetCollectionsArray = assetCollectionsArray
-            self?.albumView.currentSelectedAssetCollection = self?.assetCollection
-            self?.updateAlbumViewFrame()
-        }
-    }
-    func fetchPhotoAssets() {
-        pickerController!.fetchPhotoAssets(assetCollection: assetCollection) { [weak self] (photoAssets, photoAsset) in
-            self?.canAddCamera = true
-            self?.assets = photoAssets
-            self?.setupEmptyView()
-            self?.collectionView.reloadData()
-            self?.scrollToAppropriatePlace(photoAsset: photoAsset)
-            if self != nil && self!.showLoading {
-                ProgressHUD.hide(forView: self?.view, animated: true)
-                self?.showLoading = false
-            }else {
-                ProgressHUD.hide(forView: self?.navigationController?.view, animated: false)
-            }
-        }
-    }
-}
-
 // MARK: Function
 extension PhotoPickerViewController {
     
     func initView() {
+        guard let picker = pickerController else { return }
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
         view.addSubview(collectionView)
@@ -389,7 +326,7 @@ extension PhotoPickerViewController {
             view.addSubview(bottomView)
             bottomView.updateFinishButtonTitle()
         }
-        if pickerController!.config.albumShowMode == .popup {
+        if picker.config.albumShowMode == .popup {
             var cancelItem: UIBarButtonItem
             if config.cancelType == .text {
                 cancelItem = UIBarButtonItem(
@@ -427,25 +364,28 @@ extension PhotoPickerViewController {
         }
     }
     func configData() {
-        isMultipleSelect = pickerController!.config.selectMode == .multiple
-        videoLoadSingleCell = pickerController!.singleVideo
+        guard let picker = pickerController else { return }
+        isMultipleSelect = picker.config.selectMode == .multiple
+        videoLoadSingleCell = picker.singleVideo
         updateTitle()
     }
     func configColor() {
+        guard let picker = pickerController else { return }
         let isDark = PhotoManager.isDark
         view.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         collectionView.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         let titleColor = isDark ?
-            pickerController?.config.navigationTitleDarkColor :
-            pickerController?.config.navigationTitleColor
-        if pickerController!.config.albumShowMode == .popup {
+            picker.config.navigationTitleDarkColor :
+            picker.config.navigationTitleColor
+        if picker.config.albumShowMode == .popup {
             titleView.titleColor = titleColor
         }else {
             titleLabel.textColor = titleColor
         }
     }
     func updateTitle() {
-        if pickerController?.config.albumShowMode == .popup {
+        guard let picker = pickerController else { return }
+        if picker.config.albumShowMode == .popup {
             titleView.title = assetCollection?.albumName
         }else {
             titleLabel.text = assetCollection?.albumName
@@ -463,11 +403,16 @@ extension PhotoPickerViewController {
         if assets.isEmpty {
             return
         }
-        if let photoAsset = photoAsset, var item = assets.firstIndex(of: photoAsset) {
+        if let photoAsset = photoAsset,
+           var item = assets.firstIndex(of: photoAsset) {
             if needOffset {
                 item += 1
             }
-            collectionView.scrollToItem(at: IndexPath(item: item, section: 0), at: .centeredVertically, animated: false)
+            collectionView.scrollToItem(
+                at: IndexPath(item: item, section: 0),
+                at: .centeredVertically,
+                animated: false
+            )
         }
     }
     func scrollCellToVisibleArea(_ cell: PhotoPickerBaseViewCell) {
@@ -477,35 +422,54 @@ extension PhotoPickerViewController {
         let rect = cell.imageView.convert(cell.imageView.bounds, to: view)
         if rect.minY - collectionView.contentInset.top < 0 {
             if let indexPath = collectionView.indexPath(for: cell) {
-                collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+                collectionView.scrollToItem(
+                    at: indexPath,
+                    at: .top,
+                    animated: false
+                )
             }
         }else if rect.maxY > view.height - collectionView.contentInset.bottom {
             if let indexPath = collectionView.indexPath(for: cell) {
-                collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
+                collectionView.scrollToItem(
+                    at: indexPath,
+                    at: .bottom,
+                    animated: false
+                )
             }
         }
     }
     func scrollToAppropriatePlace(photoAsset: PhotoAsset?) {
-        if assets.isEmpty {
-            return
-        }
-        var item = !pickerController!.config.reverseOrder ? assets.count - 1 : 0
+        guard let picker = pickerController, !assets.isEmpty else { return }
+        var item = !picker.config.reverseOrder ? assets.count - 1 : 0
         if let photoAsset = photoAsset {
             item = assets.firstIndex(of: photoAsset) ?? item
             if needOffset {
                 item += 1
             }
         }
-        collectionView.scrollToItem(at: IndexPath(item: item, section: 0), at: .centeredVertically, animated: false)
+        collectionView.scrollToItem(
+            at: IndexPath(
+                item: item,
+                section: 0
+            ),
+            at: .centeredVertically,
+            animated: false
+        )
     }
-    func getCell(for item: Int) -> PhotoPickerBaseViewCell? {
+    func getCell(
+        for item: Int
+    ) -> PhotoPickerBaseViewCell? {
         if assets.isEmpty {
             return nil
         }
-        let cell = collectionView.cellForItem(at: IndexPath.init(item: item, section: 0)) as? PhotoPickerBaseViewCell
+        let cell = collectionView.cellForItem(
+            at: IndexPath(item: item, section: 0)
+        ) as? PhotoPickerBaseViewCell
         return cell
     }
-    func getCell(for photoAsset: PhotoAsset) -> PhotoPickerBaseViewCell? {
+    func getCell(
+        for photoAsset: PhotoAsset
+    ) -> PhotoPickerBaseViewCell? {
         if let item = getIndexPath(for: photoAsset)?.item {
             return getCell(for: item)
         }
@@ -538,10 +502,14 @@ extension PhotoPickerViewController {
         return photoAsset
     }
     func addedPhotoAsset(for photoAsset: PhotoAsset) {
+        guard let picker = pickerController else { return }
         let indexPath: IndexPath
-        if pickerController!.config.reverseOrder {
+        if picker.config.reverseOrder {
             assets.insert(photoAsset, at: 0)
-            indexPath = IndexPath(item: needOffset ? 1 : 0, section: 0)
+            indexPath = IndexPath(
+                item: needOffset ? 1 : 0,
+                section: 0
+            )
         }else {
             assets.append(photoAsset)
             indexPath = IndexPath(
@@ -549,18 +517,28 @@ extension PhotoPickerViewController {
                 section: 0
             )
         }
-        collectionView.insertItems(at: [indexPath])
-        collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+        collectionView.insertItems(
+            at: [indexPath]
+        )
+        collectionView.scrollToItem(
+            at: indexPath,
+            at: .bottom,
+            animated: true
+        )
     }
     func changedAssetCollection(collection: PhotoAssetCollection?) {
-        ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
+        ProgressHUD.showLoading(
+            addedTo: navigationController?.view,
+            animated: true
+        )
         if collection == nil {
             updateTitle()
             fetchPhotoAssets()
             reloadAlbumData()
             return
         }
-        if pickerController!.config.albumShowMode == .popup {
+        guard let picker = pickerController else { return }
+        if picker.config.albumShowMode == .popup {
             assetCollection.isSelected = false
             collection?.isSelected = true
         }
@@ -570,7 +548,8 @@ extension PhotoPickerViewController {
         reloadAlbumData()
     }
     func reloadAlbumData() {
-        if pickerController!.config.albumShowMode == .popup {
+        guard let picker = pickerController else { return }
+        if picker.config.albumShowMode == .popup {
             albumView.tableView.reloadData()
             albumView.updatePrompt()
         }
@@ -581,16 +560,16 @@ extension PhotoPickerViewController {
         }
     }
     func updateCellSelectedTitle() {
+        guard let picker = pickerController else { return }
         for visibleCell in collectionView.visibleCells {
             if visibleCell is PhotoPickerBaseViewCell,
-               let photoAsset = (visibleCell as? PhotoPickerBaseViewCell)?.photoAsset,
-               let pickerController = pickerController {
+               let photoAsset = (visibleCell as? PhotoPickerBaseViewCell)?.photoAsset {
                 let cell = visibleCell as! PhotoPickerBaseViewCell
                 if !photoAsset.isSelected &&
                     config.cell.showDisableMask &&
-                    pickerController.config.maximumSelectedVideoFileSize == 0  &&
-                    pickerController.config.maximumSelectedPhotoFileSize == 0 {
-                    cell.canSelect = pickerController.canSelectAsset(
+                    picker.config.maximumSelectedVideoFileSize == 0  &&
+                    picker.config.maximumSelectedPhotoFileSize == 0 {
+                    cell.canSelect = picker.canSelectAsset(
                         for: photoAsset,
                         showHUD: false
                     )
@@ -602,176 +581,8 @@ extension PhotoPickerViewController {
             }
         }
     }
-}
-// MARK: Action
-extension PhotoPickerViewController {
-    
-    @objc func didTitleViewClick(control: AlbumTitleView) {
-        control.isSelected = !control.isSelected
-        if control.isSelected {
-            // 展开
-            if albumView.assetCollectionsArray.isEmpty {
-//                ProgressHUD.showLoading(addedTo: view, animated: true)
-//                ProgressHUD.hide(forView: weakSelf?.navigationController?.view, animated: true)
-                control.isSelected = false
-                return
-            }
-            openAlbumView()
-        }else {
-            // 收起
-            closeAlbumView()
-        }
-    }
-    
-    @objc func didAlbumBackgroudViewClick() {
-        titleView.isSelected = false
-        closeAlbumView()
-    }
-    
-    func openAlbumView() {
-        collectionView.scrollsToTop = false
-        albumBackgroudView.alpha = 0
-        albumBackgroudView.isHidden = false
-        albumView.scrollToMiddle()
-        UIView.animate(withDuration: 0.25) {
-            self.albumBackgroudView.alpha = 1
-            self.updateAlbumViewFrame()
-            self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: .pi)
-        }
-    }
-    
-    func closeAlbumView() {
-        collectionView.scrollsToTop = true
-        UIView.animate(withDuration: 0.25) {
-            self.albumBackgroudView.alpha = 0
-            self.updateAlbumViewFrame()
-            self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: 2 * .pi)
-        } completion: { (isFinish) in
-            if isFinish {
-                self.albumBackgroudView.isHidden = true
-            }
-        }
-    }
-    
-    func updateAlbumViewFrame() {
-        self.albumView.size = CGSize(width: view.width, height: getAlbumViewHeight())
-        if titleView.isSelected {
-            if self.navigationController?.modalPresentationStyle == UIModalPresentationStyle.fullScreen &&
-                UIDevice.isPortrait {
-                self.albumView.y = UIDevice.navigationBarHeight
-            }else {
-                self.albumView.y = self.navigationController?.navigationBar.height ?? 0
-            }
-        }else {
-            self.albumView.y = -self.albumView.height
-        }
-    }
-    
-    func getAlbumViewHeight() -> CGFloat {
-        var albumViewHeight = CGFloat(albumView.assetCollectionsArray.count) * albumView.config.cellHeight
-        if AssetManager.authorizationStatusIsLimited() &&
-            pickerController!.config.allowLoadPhotoLibrary {
-            albumViewHeight += 40
-        }
-        if albumViewHeight > view.height * 0.75 {
-            albumViewHeight = view.height * 0.75
-        }
-        return albumViewHeight
-    }
     
     @objc func didCancelItemClick() {
         pickerController?.cancelCallback()
-    }
-}
-
-// MARK: AlbumViewDelegate
-extension PhotoPickerViewController: AlbumViewDelegate {
-    
-    func albumView(_ albumView: AlbumView, didSelectRowAt assetCollection: PhotoAssetCollection) {
-        didAlbumBackgroudViewClick()
-        if self.assetCollection == assetCollection {
-            return
-        }
-        titleView.title = assetCollection.albumName
-        assetCollection.isSelected = true
-        self.assetCollection.isSelected = false
-        self.assetCollection = assetCollection
-        ProgressHUD.showLoading(addedTo: navigationController?.view, animated: true)
-        fetchPhotoAssets()
-    }
-}
-
-// MARK: PhotoPickerBottomViewDelegate
-extension PhotoPickerViewController: PhotoPickerBottomViewDelegate {
-    
-    func bottomView(didPreviewButtonClick bottomView: PhotoPickerBottomView) {
-        pushPreviewViewController(
-            previewAssets: pickerController!.selectedAssetArray,
-            currentPreviewIndex: 0,
-            animated: true
-        )
-    }
-    func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView) {
-        pickerController?.finishCallback()
-    }
-    func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool) {
-        pickerController?.originalButtonCallback()
-    }
-}
-
-// MARK: PhotoPickerViewCellDelegate
-extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
-    
-    public func cell(_ cell: PhotoPickerBaseViewCell, didSelectControl isSelected: Bool) {
-        if isSelected {
-            // 取消选中
-            let photoAsset = cell.photoAsset!
-            pickerController?.removePhotoAsset(photoAsset: photoAsset)
-            // 清空视频编辑的数据
-            #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.videoEdit != nil {
-                photoAsset.videoEdit = nil
-                cell.photoAsset = photoAsset
-            }else {
-                cell.updateSelectedState(isSelected: false, animated: true)
-            }
-            #else
-            cell.updateSelectedState(isSelected: false, animated: true)
-            #endif
-            updateCellSelectedTitle()
-        }else {
-            // 选中
-            #if HXPICKER_ENABLE_EDITOR
-            if cell.photoAsset.mediaType == .video &&
-                pickerController!.videoDurationExceedsTheLimit(
-                    photoAsset: cell.photoAsset) &&
-                pickerController!.config.editorOptions.isVideo {
-                if pickerController!.canSelectAsset(for: cell.photoAsset, showHUD: true) {
-                    openVideoEditor(
-                        photoAsset: cell.photoAsset,
-                        coverImage: cell.imageView.image
-                    )
-                }
-                return
-            }
-            #endif
-            func addAsset() {
-                if pickerController!.addedPhotoAsset(photoAsset: cell.photoAsset) {
-                    cell.updateSelectedState(isSelected: true, animated: true)
-                    updateCellSelectedTitle()
-                }
-            }
-            let inICloud = cell.photoAsset.checkICloundStatus(
-                allowSyncPhoto: pickerController!.config.allowSyncICloudWhenSelectPhoto,
-                completion: { isSuccess in
-                if isSuccess {
-                    addAsset()
-                }
-            })
-            if !inICloud {
-                addAsset()
-            }
-        }
-        bottomView.updateFinishButtonTitle()
     }
 }

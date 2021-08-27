@@ -14,19 +14,20 @@ extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
         _ photoEditorViewController: PhotoEditorViewController,
         didFinish result: PhotoEditResult
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = photoEditorViewController.photoAsset!
         photoAsset.photoEdit = result
-        pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+        picker.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
         if !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController!.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }
         if !photoAsset.isSelected {
             let cell = getCell(for: photoAsset)
             cell?.photoAsset = photoAsset
-            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+            if picker.addedPhotoAsset(photoAsset: photoAsset) {
                 updateCellSelectedTitle()
             }
         }else {
@@ -37,22 +38,23 @@ extension PhotoPickerViewController: PhotoEditorViewControllerDelegate {
     public func photoEditorViewController(
         didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = photoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.photoEdit != nil
         photoAsset.photoEdit = nil
         if beforeHasEdit {
-            pickerController?.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
+            picker.didEditAsset(photoAsset: photoAsset, atIndex: assets.firstIndex(of: photoAsset) ?? 0)
         }
         if !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController!.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }
         let cell = getCell(for: photoAsset)
         cell?.photoAsset = photoAsset
         if !photoAsset.isSelected {
-            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+            if picker.addedPhotoAsset(photoAsset: photoAsset) {
                 updateCellSelectedTitle()
             }
             bottomView.updateFinishButtonTitle()
@@ -213,22 +215,23 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
         _ videoEditorViewController: VideoEditorViewController,
         didFinish result: VideoEditResult
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = videoEditorViewController.photoAsset!
         photoAsset.videoEdit = result
-        pickerController?.didEditAsset(
+        picker.didEditAsset(
             photoAsset: photoAsset,
             atIndex: assets.firstIndex(of: photoAsset) ?? 0
         )
         if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController!.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }
         if !photoAsset.isSelected {
             let cell = getCell(for: photoAsset)
             cell?.photoAsset = photoAsset
-            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+            if picker.addedPhotoAsset(photoAsset: photoAsset) {
                 updateCellSelectedTitle()
             }
         }else {
@@ -244,18 +247,19 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         didFinishWithUnedited videoEditorViewController: VideoEditorViewController
     ) {
+        guard let picker = pickerController else { return }
         let photoAsset = videoEditorViewController.photoAsset!
         let beforeHasEdit = photoAsset.videoEdit != nil
         photoAsset.videoEdit = nil
         if beforeHasEdit {
-            pickerController?.didEditAsset(
+            picker.didEditAsset(
                 photoAsset: photoAsset,
                 atIndex: assets.firstIndex(of: photoAsset) ?? 0
             )
         }
         if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
-            if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                pickerController!.singleFinishCallback(for: photoAsset)
+            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                picker.singleFinishCallback(for: photoAsset)
             }
             return
         }
@@ -264,7 +268,7 @@ extension PhotoPickerViewController: VideoEditorViewControllerDelegate {
             cell?.photoAsset = photoAsset
         }
         if !photoAsset.isSelected {
-            if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
+            if picker.addedPhotoAsset(photoAsset: photoAsset) {
                 updateCellSelectedTitle()
             }
             bottomView.updateFinishButtonTitle()

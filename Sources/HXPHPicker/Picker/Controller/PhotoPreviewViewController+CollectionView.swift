@@ -104,7 +104,8 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
                 bottomView.selectedView.scrollTo(photoAsset: photoAsset)
             }
             #if HXPICKER_ENABLE_EDITOR
-            if let pickerController = pickerController, !config.bottomView.editButtonHidden,
+            if let pickerController = pickerController,
+               !config.bottomView.editButtonHidden,
                config.showBottomView {
                 if photoAsset.mediaType == .photo {
                     bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
@@ -120,6 +121,9 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
     
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if scrollView != collectionView || orientationDidChange {
+            return
+        }
+        if scrollView.isTracking {
             return
         }
         let cell = getCell(for: currentPreviewIndex)
@@ -183,7 +187,8 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
-        if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+        if let pickerController = pickerController,
+           let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewNetworkImageDownloadSuccess: photoCell.photoAsset,
@@ -199,7 +204,8 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     
     func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
-        if let pickerController = pickerController, let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+        if let pickerController = pickerController,
+           let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewNetworkImageDownloadFailed: photoCell.photoAsset,

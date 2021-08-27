@@ -40,6 +40,8 @@ open class VideoEditorConfiguration: EditorConfiguration {
         public var tintColor: UIColor = .systemTintColor
         /// 搜索框的 placeholder
         public var placeholder: String = ""
+        /// 滚动停止时自动播放音乐
+        public var autoPlayWhenScrollingStops: Bool = true
         /// 配乐信息
         /// 也可通过代理回调设置
         /// func videoEditorViewController(

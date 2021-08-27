@@ -379,14 +379,16 @@ extension PhotoPreviewViewController {
         )
     }
     func configColor() {
-        view.backgroundColor = PhotoManager.isDark ? config.backgroundDarkColor : config.backgroundColor
+        view.backgroundColor = PhotoManager.isDark ?
+            config.backgroundDarkColor :
+            config.backgroundColor
     }
     func reloadCell(for photoAsset: PhotoAsset) {
         if previewAssets.isEmpty {
             return
         }
         if let item = previewAssets.firstIndex(of: photoAsset) {
-            let indexPath = IndexPath.init(item: item, section: 0)
+            let indexPath = IndexPath(item: item, section: 0)
             collectionView.reloadItems(at: [indexPath])
             if config.showBottomView {
                 bottomView.selectedView.reloadData(photoAsset: photoAsset)
@@ -398,7 +400,12 @@ extension PhotoPreviewViewController {
         if previewAssets.isEmpty {
             return nil
         }
-        let cell = collectionView.cellForItem(at: IndexPath.init(item: item, section: 0)) as? PhotoPreviewViewCell
+        let cell = collectionView.cellForItem(
+            at: IndexPath(
+                item: item,
+                section: 0
+            )
+        ) as? PhotoPreviewViewCell
         return cell
     }
     func setCurrentCellImage(image: UIImage?) {
@@ -426,10 +433,15 @@ extension PhotoPreviewViewController {
         photoAsset.photoEdit = nil
         photoAsset.videoEdit = nil
         #endif
-        previewAssets.remove(at: currentPreviewIndex)
+        previewAssets.remove(
+            at: currentPreviewIndex
+        )
         collectionView.deleteItems(
             at: [
-                IndexPath.init(item: currentPreviewIndex, section: 0)
+                IndexPath(
+                    item: currentPreviewIndex,
+                    section: 0
+                )
             ]
         )
         if config.showBottomView {
@@ -452,204 +464,44 @@ extension PhotoPreviewViewController {
 //        collectionView.reloadItems(at: [IndexPath.init(item: index, section: 0)])
     }
     func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
-        if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) && config.showBottomView {
-            bottomView.selectedView.reloadData(photoAssets: pickerController!.selectedAssetArray)
+        guard let picker = pickerController else { return }
+        if config.bottomView.showSelectedView &&
+            (isMultipleSelect || isExternalPreview) &&
+            config.showBottomView {
+            bottomView.selectedView.reloadData(
+                photoAssets: picker.selectedAssetArray
+            )
             configBottomViewFrame()
             bottomView.layoutSubviews()
             bottomView.updateFinishButtonTitle()
         }
         getCell(for: currentPreviewIndex)?.cancelRequest()
-        previewAssets.insert(photoAsset, at: currentPreviewIndex)
-        collectionView.insertItems(at: [IndexPath.init(item: currentPreviewIndex, section: 0)])
+        previewAssets.insert(
+            photoAsset,
+            at: currentPreviewIndex
+        )
+        collectionView.insertItems(
+            at: [
+                IndexPath(
+                    item: currentPreviewIndex,
+                    section: 0
+                )
+            ]
+        )
         collectionView.scrollToItem(
-            at: IndexPath(item: currentPreviewIndex, section: 0),
+            at: IndexPath(
+                item: currentPreviewIndex,
+                section: 0
+            ),
             at: .centeredHorizontally,
             animated: false
         )
         scrollViewDidScroll(collectionView)
         setupRequestPreviewTimer()
     }
-}
-// MARK: Action
-extension PhotoPreviewViewController {
     
     @objc func didCancelItemClick() {
         pickerController?.cancelCallback()
         dismiss(animated: true, completion: nil)
-    }
-    @objc func didSelectBoxControlClick() {
-        guard let picker = pickerController else {
-            return
-        }
-        let isSelected = !selectBoxControl.isSelected
-        let photoAsset = previewAssets[currentPreviewIndex]
-        var canUpdate = false
-        var bottomNeedAnimated = false
-        var pickerUpdateCell = false
-        let beforeIsEmpty = pickerController!.selectedAssetArray.isEmpty
-        if isSelected {
-            // 选中
-            #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.mediaType == .video &&
-                pickerController!.videoDurationExceedsTheLimit(photoAsset: photoAsset) &&
-                pickerController!.config.editorOptions.isVideo {
-                if pickerController!.canSelectAsset(for: photoAsset, showHUD: true) {
-                    openEditor(photoAsset)
-                }
-                return
-            }
-            #endif
-            func addAsset() {
-                if pickerController!.addedPhotoAsset(photoAsset: photoAsset) {
-                    canUpdate = true
-                    if config.bottomView.showSelectedView && isMultipleSelect && config.showBottomView {
-                        bottomView.selectedView.insertPhotoAsset(photoAsset: photoAsset)
-                    }
-                    if beforeIsEmpty {
-                        bottomNeedAnimated = true
-                    }
-                }
-            }
-            let inICloud = photoAsset.checkICloundStatus(
-                allowSyncPhoto: picker.config.allowSyncICloudWhenSelectPhoto
-            ) { isSuccess in
-                if isSuccess {
-                    addAsset()
-                    if canUpdate {
-                        self.updateSelectBox(photoAsset: photoAsset,
-                                             isSelected: isSelected,
-                                             pickerUpdateCell: pickerUpdateCell,
-                                             bottomNeedAnimated: bottomNeedAnimated)
-                    }
-                }
-            }
-            if !inICloud {
-                addAsset()
-            }
-        }else {
-            // 取消选中
-            picker.removePhotoAsset(photoAsset: photoAsset)
-            if !beforeIsEmpty && picker.selectedAssetArray.isEmpty {
-                bottomNeedAnimated = true
-            }
-            if config.bottomView.showSelectedView &&
-                isMultipleSelect &&
-                config.showBottomView {
-                bottomView.selectedView.removePhotoAsset(photoAsset: photoAsset)
-            }
-            #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.videoEdit != nil {
-                photoAsset.videoEdit = nil
-                let cell = getCell(for: currentPreviewIndex)
-                cell?.photoAsset = photoAsset
-                cell?.cancelRequest()
-                cell?.requestPreviewAsset()
-                pickerUpdateCell = true
-            }
-            #endif
-            canUpdate = true
-        }
-        if canUpdate {
-            updateSelectBox(
-                photoAsset: photoAsset,
-                isSelected: isSelected,
-                pickerUpdateCell: pickerUpdateCell,
-                bottomNeedAnimated: bottomNeedAnimated
-            )
-        }
-    }
-    
-    func updateSelectBox(
-        photoAsset: PhotoAsset,
-        isSelected: Bool,
-        pickerUpdateCell: Bool,
-        bottomNeedAnimated: Bool
-    ) {
-        if config.bottomView.showSelectedView &&
-            isMultipleSelect &&
-            config.showBottomView {
-            if bottomNeedAnimated {
-                UIView.animate(withDuration: 0.25) {
-                    self.configBottomViewFrame()
-                    self.bottomView.layoutSubviews()
-                }
-            }else {
-                configBottomViewFrame()
-            }
-        }
-        updateSelectBox(isSelected, photoAsset: photoAsset)
-        selectBoxControl.isSelected = isSelected
-        delegate?.previewViewController(
-            self,
-            didSelectBox: photoAsset,
-            isSelected: isSelected,
-            updateCell: pickerUpdateCell
-        )
-        if config.showBottomView {
-            bottomView.updateFinishButtonTitle()
-        }
-        selectBoxControl.layer.removeAnimation(forKey: "SelectControlAnimation")
-        let keyAnimation = CAKeyframeAnimation.init(keyPath: "transform.scale")
-        keyAnimation.duration = 0.3
-        keyAnimation.values = [1.2, 0.8, 1.1, 0.9, 1.0]
-        selectBoxControl.layer.add(keyAnimation, forKey: "SelectControlAnimation")
-    }
-    
-    func updateSelectBox(_ isSelected: Bool, photoAsset: PhotoAsset) {
-        let boxWidth = config.selectBox.size.width
-        let boxHeight = config.selectBox.size.height
-        if isSelected {
-            if config.selectBox.style == .number {
-                let text = String(format: "%d", arguments: [photoAsset.selectIndex + 1])
-                let font = UIFont.mediumPingFang(ofSize: config.selectBox.titleFontSize)
-                let textHeight = text.height(ofFont: font, maxWidth: CGFloat(MAXFLOAT))
-                var textWidth = text.width(ofFont: font, maxHeight: textHeight)
-                selectBoxControl.textSize = CGSize(width: textWidth, height: textHeight)
-                textWidth += boxHeight * 0.5
-                if textWidth < boxWidth {
-                    textWidth = boxWidth
-                }
-                selectBoxControl.text = text
-                selectBoxControl.size = CGSize(width: textWidth, height: boxHeight)
-            }else {
-                selectBoxControl.size = CGSize(width: boxWidth, height: boxHeight)
-            }
-        }else {
-            selectBoxControl.size = CGSize(width: boxWidth, height: boxHeight)
-        }
-    }
-}
-
-// MARK: UINavigationControllerDelegate
-extension PhotoPreviewViewController: UINavigationControllerDelegate {
-    
-    public func navigationController(
-        _ navigationController: UINavigationController,
-        animationControllerFor operation: UINavigationController.Operation,
-        from fromVC: UIViewController,
-        to toVC: UIViewController
-    ) -> UIViewControllerAnimatedTransitioning? {
-        if operation == .push {
-            if toVC is PhotoPreviewViewController && fromVC is PhotoPickerViewController {
-                return PickerTransition.init(type: .push)
-            }
-        }else if operation == .pop {
-            if fromVC is PhotoPreviewViewController && toVC is PhotoPickerViewController {
-                let cell = getCell(for: currentPreviewIndex)
-                cell?.scrollContentView.hiddenOtherSubview()
-                return PickerTransition.init(type: .pop)
-            }
-        }
-        return nil
-    }
-    public func navigationController(
-        _ navigationController: UINavigationController,
-        interactionControllerFor
-            animationController: UIViewControllerAnimatedTransitioning
-    ) -> UIViewControllerInteractiveTransitioning? {
-        if let canInteration = interactiveTransition?.canInteration, canInteration {
-            return interactiveTransition
-        }
-        return nil
     }
 }

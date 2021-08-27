@@ -33,7 +33,7 @@ class ProgressHUD: UIView {
     
     lazy var blurEffectView: UIVisualEffectView = {
         let effect = UIBlurEffect.init(style: .dark)
-        let blurEffectView = UIVisualEffectView.init(effect: effect)
+        let blurEffectView = UIVisualEffectView(effect: effect)
         return blurEffectView
     }()
     

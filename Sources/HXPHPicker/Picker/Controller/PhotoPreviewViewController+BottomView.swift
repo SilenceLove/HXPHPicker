@@ -16,22 +16,26 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
     }
     
     func openEditor(_ photoAsset: PhotoAsset) {
-        if let shouldEditAsset = pickerController?.shouldEditAsset(
+        guard let picker = pickerController else { return }
+        let shouldEditAsset = picker.shouldEditAsset(
             photoAsset: photoAsset,
             atIndex: currentPreviewIndex
-        ), !shouldEditAsset {
+        )
+        if !shouldEditAsset {
             return
         }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
-        guard let pickerConfig = pickerController?.config else {
-            return
-        }
+        let pickerConfig = picker.config
         if photoAsset.mediaType == .video && pickerConfig.editorOptions.isVideo {
-            let cell = getCell(for: currentPreviewIndex)
+            let cell = getCell(
+                for: currentPreviewIndex
+            )
             cell?.scrollContentView.stopVideo()
             let videoEditorConfig: VideoEditorConfiguration
-            let isExceedsTheLimit = pickerController?.videoDurationExceedsTheLimit(photoAsset: photoAsset)
-            if isExceedsTheLimit == true {
+            let isExceedsTheLimit = picker.videoDurationExceedsTheLimit(
+                photoAsset: photoAsset
+            )
+            if isExceedsTheLimit {
                 videoEditorConfig = pickerConfig.videoEditor.mutableCopy() as! VideoEditorConfiguration
                 videoEditorConfig.defaultState = .cropping
                 videoEditorConfig.mustBeTailored = true
@@ -48,7 +52,10 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             )
             videoEditorVC.coverImage = cell?.scrollContentView.imageView.image
             videoEditorVC.delegate = self
-            navigationController?.pushViewController(videoEditorVC, animated: true)
+            navigationController?.pushViewController(
+                videoEditorVC,
+                animated: true
+            )
         }else if pickerConfig.editorOptions.isPhoto {
             let photoEditorConfig = pickerConfig.photoEditor
             photoEditorConfig.languageType = pickerConfig.languageType
@@ -60,11 +67,16 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
                 config: photoEditorConfig
             )
             photoEditorVC.delegate = self
-            navigationController?.pushViewController(photoEditorVC, animated: true)
+            navigationController?.pushViewController(
+                photoEditorVC,
+                animated: true
+            )
         }
         #endif
     }
-    func bottomView(didFinishButtonClick bottomView: PhotoPickerBottomView) {
+    func bottomView(
+        didFinishButtonClick bottomView: PhotoPickerBottomView
+    ) {
         guard let pickerController = pickerController else {
             return
         }
@@ -73,7 +85,12 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             return
         }
         if previewAssets.isEmpty {
-            ProgressHUD.showWarning(addedTo: self.view, text: "没有可选资源".localized, animated: true, delayHide: 1.5)
+            ProgressHUD.showWarning(
+                addedTo: view,
+                text: "没有可选资源".localized,
+                animated: true,
+                delayHide: 1.5
+            )
             return
         }
         let photoAsset = previewAssets[currentPreviewIndex]
@@ -81,7 +98,10 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         if photoAsset.mediaType == .video &&
             pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset) &&
             pickerController.config.editorOptions.isVideo {
-            if pickerController.canSelectAsset(for: photoAsset, showHUD: true) {
+            if pickerController.canSelectAsset(
+                for: photoAsset,
+                showHUD: true
+            ) {
                 openEditor(photoAsset)
             }
             return
@@ -89,16 +109,28 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         #endif
         func addAsset() {
             if !isMultipleSelect {
-                if pickerController.canSelectAsset(for: photoAsset, showHUD: true) {
-                    pickerController.singleFinishCallback(for: photoAsset)
+                if pickerController.canSelectAsset(
+                    for: photoAsset,
+                    showHUD: true
+                ) {
+                    pickerController.singleFinishCallback(
+                        for: photoAsset
+                    )
                 }
             }else {
                 if videoLoadSingleCell {
-                    if pickerController.canSelectAsset(for: photoAsset, showHUD: true) {
-                        pickerController.singleFinishCallback(for: photoAsset)
+                    if pickerController.canSelectAsset(
+                        for: photoAsset,
+                        showHUD: true
+                    ) {
+                        pickerController.singleFinishCallback(
+                            for: photoAsset
+                        )
                     }
                 }else {
-                    if pickerController.addedPhotoAsset(photoAsset: photoAsset) {
+                    if pickerController.addedPhotoAsset(
+                        photoAsset: photoAsset
+                    ) {
                         pickerController.finishCallback()
                     }
                 }
@@ -115,11 +147,20 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             addAsset()
         }
     }
-    func bottomView(_ bottomView: PhotoPickerBottomView, didOriginalButtonClick isOriginal: Bool) {
-        delegate?.previewViewController(self, didOriginalButton: isOriginal)
+    func bottomView(
+        _ bottomView: PhotoPickerBottomView,
+        didOriginalButtonClick isOriginal: Bool
+    ) {
+        delegate?.previewViewController(
+            self,
+            didOriginalButton: isOriginal
+        )
         pickerController?.originalButtonCallback()
     }
-    func bottomView(_ bottomView: PhotoPickerBottomView, didSelectedItemAt photoAsset: PhotoAsset) {
+    func bottomView(
+        _ bottomView: PhotoPickerBottomView,
+        didSelectedItemAt photoAsset: PhotoAsset
+    ) {
         if previewAssets.contains(photoAsset) {
             let index = previewAssets.firstIndex(of: photoAsset) ?? 0
             if index == currentPreviewIndex {

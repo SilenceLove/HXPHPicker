@@ -85,7 +85,8 @@ open class AlbumViewCell: UITableViewCell {
         requestID = assetCollection?.requestCoverImage(completion: { [weak self] (image, assetCollection, info) in
             guard let self = self else { return }
             if let info = info, info.isCancel { return }
-            if let image = image, assetCollection == self.assetCollection {
+            if let image = image,
+               assetCollection == self.assetCollection {
                 self.albumCoverView.image = image
                 if !AssetManager.assetIsDegraded(for: info) {
                     self.requestID = nil
