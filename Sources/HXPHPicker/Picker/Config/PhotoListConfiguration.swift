@@ -74,8 +74,33 @@ public class PhotoListConfiguration {
     /// 相机cell配置
     public lazy var cameraCell: PhotoListCameraCellConfiguration = .init()
     
-    /// 相机配置
+    public lazy var cameraType: CameraType = {
+        #if HXPICKER_ENABLE_CAMERA
+        return .secondary
+        #else
+        return .system
+        #endif
+    }()
+    
+    /// 单选模式下，拍照完成之后直接选中并且完成选择
+    public var finishSelectionAfterTakingPhoto: Bool = false
+    
+    /// 系统相机配置
+    public lazy var systemCamera: SystemCameraConfiguration = .init()
+    
+    #if HXPICKER_ENABLE_CAMERA
+    /// 自带的相机配置
     public lazy var camera: CameraConfiguration = .init()
+    #endif
+    
+    public enum CameraType {
+        /// 系统相机
+        case system
+        #if HXPICKER_ENABLE_CAMERA
+        /// 自带相机
+        case secondary
+        #endif
+    }
     
     /// 拍照完成后是否选择
     public var takePictureCompletionToSelected: Bool = true

@@ -263,7 +263,6 @@ extension PhotoPickerViewController {
                 }
                 UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
                     self.collectionView.contentOffset = CGPoint(x: self.collectionView.contentOffset.x, y: offsety)
-                } completion: { (isFinished) in
                 }
             }else if bottomRect.contains(localPoint) {
                 offsety = self.collectionView.contentOffset.y + margin
@@ -273,7 +272,6 @@ extension PhotoPickerViewController {
                 }
                 UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
                     self.collectionView.contentOffset = CGPoint(x: self.collectionView.contentOffset.x, y: offsety)
-                } completion: { (isFinished) in
                 }
             }
             panGestureRecognizer(panGR: swipeSelectPanGR!)

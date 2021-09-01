@@ -1,15 +1,14 @@
 //
-//  AlbumTitleArrowView.swift
-//  HXPHPickerExample
+//  ArrowView.swift
+//  HXPHPicker
 //
-//  Created by Slience on 2020/12/29.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by Slience on 2021/8/30.
 //
 
 import UIKit
 
-class AlbumTitleArrowView: UIView {
-    var config: AlbumTitleViewConfiguration
+class ArrowView: UIView {
+    var config: ArrowViewConfiguration
     lazy var backgroundLayer: CAShapeLayer = {
         let backgroundLayer = CAShapeLayer.init()
         backgroundLayer.contentsScale = UIScreen.main.scale
@@ -20,7 +19,7 @@ class AlbumTitleArrowView: UIView {
         arrowLayer.contentsScale = UIScreen.main.scale
         return arrowLayer
     }()
-    init(frame: CGRect, config: AlbumTitleViewConfiguration) {
+    init(frame: CGRect, config: ArrowViewConfiguration) {
         self.config = config
         super.init(frame: frame)
         drawContent()
@@ -53,11 +52,17 @@ class AlbumTitleArrowView: UIView {
     
     func configColor() {
         backgroundLayer.fillColor = PhotoManager.isDark ?
-            config.arrowBackgroudDarkColor.cgColor :
-            config.arrowBackgroundColor.cgColor
+            config.backgroudDarkColor.cgColor :
+            config.backgroundColor.cgColor
         arrowLayer.strokeColor = PhotoManager.isDark ?
             config.arrowDarkColor.cgColor :
             config.arrowColor.cgColor
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backgroundLayer.frame = bounds
+        arrowLayer.frame = bounds
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

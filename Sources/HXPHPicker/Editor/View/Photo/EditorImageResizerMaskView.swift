@@ -114,9 +114,11 @@ public class EditorImageResizerMaskView: UIView {
                 maskPath.append(UIBezierPath.init(rect: rect).reversing())
             }
             if animated {
-                let maskAnimation = getAnimation(
+                let maskAnimation = PhotoTools.getBasicAnimation(
+                    "path",
                     maskLayer.path,
-                    maskPath.cgPath, 0.25
+                    maskPath.cgPath,
+                    0.25
                 )
                 maskLayer.add(maskAnimation, forKey: nil)
             }
@@ -147,18 +149,23 @@ public class EditorImageResizerMaskView: UIView {
                 )
             )
             if animated {
-                let frameAnimation = getAnimation(
+                let frameAnimation = PhotoTools.getBasicAnimation(
+                    "path",
                     frameLayer.path,
-                    framePath.cgPath, 0.25
+                    framePath.cgPath,
+                    0.25
                 )
                 frameLayer.add(frameAnimation, forKey: nil)
                 if !isRoundCrop {
-                    let gridlinesAnimation = getAnimation(
+                    let gridlinesAnimation = PhotoTools.getBasicAnimation(
+                        "path",
                         gridlinesLayer.path,
-                        gridlinePath.cgPath, 0.25
+                        gridlinePath.cgPath,
+                        0.25
                     )
                     gridlinesLayer.add(gridlinesAnimation, forKey: nil)
-                    let dotsAnimation = getAnimation(
+                    let dotsAnimation = PhotoTools.getBasicAnimation(
+                        "path",
                         dotsLayer.path,
                         dotsPath.cgPath, 0.25
                     )
@@ -188,19 +195,6 @@ public class EditorImageResizerMaskView: UIView {
             gridlinesLayer.shadowPath = isHidden ? UIBezierPath.init(rect: .zero).cgPath : nil
         }
         CATransaction.commit()
-    }
-    func getAnimation(
-        _ fromValue: Any?,
-        _ toValue: Any?,
-        _ duration: TimeInterval
-    ) -> CABasicAnimation {
-        let animation = CABasicAnimation.init(keyPath: "path")
-        animation.fromValue = fromValue
-        animation.toValue = toValue
-        animation.duration = duration
-        animation.fillMode = .backwards
-        animation.timingFunction = .init(name: CAMediaTimingFunctionName.linear)
-        return animation
     }
     
     func getDotsPath(

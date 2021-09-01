@@ -9,154 +9,6 @@ import UIKit
 import AVKit
 import Photos
 
-public protocol VideoEditorViewControllerDelegate: AnyObject {
-    
-    /// 编辑完成
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - result: 编辑后的数据
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult
-    )
-    
-    /// 点击完成按钮，但是视频未编辑
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    func videoEditorViewController(
-        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
-    )
-    
-    /// 加载贴图标题资源
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - loadTitleChartlet: 传入标题数组
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse
-    )
-    
-    /// 加载贴图资源
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - titleChartlet: 对应配置的 title
-    ///   - titleIndex: 对应配置的 title 的位置索引
-    ///   - response: 传入 title索引 和 贴图数据
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        titleChartlet: EditorChartlet,
-        titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse
-    )
-    
-    /// 将要点击工具栏音乐按钮
-    /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
-    func videoEditorViewController(
-        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
-    ) -> Bool
-    
-    /// 加载配乐信息，当musicConfig.infos为空时触发
-    /// 返回 true 内部会显示加载状态，调用 completionHandler 后恢复
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - completionHandler: 传入配乐信息
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
-    ) -> Bool
-    
-    /// 搜索配乐信息
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - text: 搜索的文字内容
-    ///   - completion: 传入配乐信息，是否需要加载更多
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didSearch text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
-    )
-    
-    /// 加载更多配乐信息
-    /// - Parameters:
-    ///   - videoEditorViewController: 对应的 VideoEditorViewController
-    ///   - text: 搜索的文字内容
-    ///   - completion: 传入配乐信息，是否还有更多数据
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMore text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
-    )
-    
-    /// 取消编辑
-    /// - Parameter videoEditorViewController: 对应的 VideoEditorViewController
-    func videoEditorViewController(
-        didCancel videoEditorViewController: VideoEditorViewController
-    )
-}
-
-public extension VideoEditorViewControllerDelegate {
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult
-    ) {}
-    func videoEditorViewController(
-        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
-    ) {}
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse
-    ) {
-        #if canImport(Kingfisher)
-        let titles = PhotoTools.defaultTitleChartlet()
-        response(titles)
-        #else
-        response([])
-        #endif
-    }
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        titleChartlet: EditorChartlet,
-        titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse
-    ) {
-        /// 默认加载这些贴图
-        #if canImport(Kingfisher)
-        let chartletList = PhotoTools.defaultNetworkChartlet()
-        response(titleIndex, chartletList)
-        #else
-        response(titleIndex, [])
-        #endif
-    }
-    
-    func videoEditorViewController(
-        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
-    ) -> Bool { true }
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
-    ) -> Bool {
-        completionHandler(PhotoTools.defaultMusicInfos())
-        return false
-    }
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didSearch text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool
-        ) -> Void) {
-        completionHandler([], false)
-    }
-    func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMore text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
-    ) {
-        completionHandler([], false)
-    }
-    func videoEditorViewController(
-        didCancel videoEditorViewController: VideoEditorViewController
-    ) {}
-}
-
 open class VideoEditorViewController: BaseViewController {
     public weak var delegate: VideoEditorViewControllerDelegate?
     
@@ -202,6 +54,12 @@ open class VideoEditorViewController: BaseViewController {
     /// 上一次的编辑数据
     public private(set) var editResult: VideoEditResult?
     
+    /// 当前被编辑的视频地址，只有通过videoURL初始化的时候才有值
+    public private(set) var videoURL: URL?
+    
+    /// 确认/取消之后自动退出界面
+    public var autoBack: Bool = true
+    
     /// 根据视频地址初始化
     /// - Parameters:
     ///   - videoURL: 本地视频地址
@@ -217,6 +75,7 @@ open class VideoEditorViewController: BaseViewController {
             editResult: editResult,
             config: config
         )
+        self.videoURL = videoURL
     }
     
     /// 根据AVAsset初始化
@@ -446,18 +305,7 @@ open class VideoEditorViewController: BaseViewController {
     }()
     
     lazy var topMaskLayer: CAGradientLayer = {
-        let layer = CAGradientLayer.init()
-        layer.contentsScale = UIScreen.main.scale
-        let blackColor = UIColor.black
-        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
-                        blackColor.withAlphaComponent(0.3).cgColor,
-                        blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.5).cgColor,
-                        blackColor.withAlphaComponent(0.6).cgColor]
-        layer.startPoint = CGPoint(x: 0, y: 1)
-        layer.endPoint = CGPoint(x: 0, y: 0)
-        layer.locations = [0.1, 0.3, 0.5, 0.7, 0.9]
-        layer.borderWidth = 0.0
+        let layer = PhotoTools.getGradientShadowLayer(true)
         return layer
     }()
     
@@ -550,10 +398,12 @@ open class VideoEditorViewController: BaseViewController {
         if let requestID = assetRequestID {
             PHImageManager.default().cancelImageRequest(requestID)
         }
-        if let navigationController = navigationController, navigationController.viewControllers.count > 1 {
-            navigationController.popViewController(animated: true)
-        }else {
-            dismiss(animated: true, completion: nil)
+        if autoBack {
+            if let navigationController = navigationController, navigationController.viewControllers.count > 1 {
+                navigationController.popViewController(animated: true)
+            }else {
+                dismiss(animated: true, completion: nil)
+            }
         }
     }
     open override func deviceOrientationWillChanged(notify: Notification) {

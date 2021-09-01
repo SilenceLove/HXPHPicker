@@ -17,11 +17,13 @@ public struct LocalImageAsset {
     }
     public init(imageData: Data) {
         self.imageData = imageData
-        self.image = UIImage.init(data: imageData)
+        self.image = UIImage(data: imageData)
     }
     public init(imageURL: URL) {
         self.imageURL = imageURL
     }
+    
+    var thumbnail: UIImage?
 }
 
 public struct LocalVideoAsset {

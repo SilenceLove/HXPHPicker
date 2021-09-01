@@ -58,6 +58,18 @@
       }
     },
     {
+      "name": "Camera",
+      "source_files": "Sources/HXPHPicker/Camera/**/*.{swift}",
+      "dependencies": {
+        "HXPHPicker/Core": [
+
+        ]
+      },
+      "pod_target_xcconfig": {
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA"
+      }
+    },
+    {
       "name": "Full",
       "dependencies": {
         "HXPHPicker/Lite": [
@@ -78,6 +90,9 @@
 
         ],
         "HXPHPicker/Editor": [
+
+        ],
+        "HXPHPicker/Camera": [
 
         ]
       }

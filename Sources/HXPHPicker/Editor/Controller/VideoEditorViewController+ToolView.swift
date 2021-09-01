@@ -230,7 +230,6 @@ extension VideoEditorViewController: EditorToolViewDelegate {
                 self.setupScrollViewScale()
                 self.cropView.alpha = 1
                 self.cropConfirmView.alpha = 1
-            } completion: { (isFinished) in
             }
         }
     }

@@ -68,15 +68,15 @@ class AlbumTitleView: UIControl {
         return titleLb
    }()
    
-   lazy var arrowView: AlbumTitleArrowView = {
-       let arrowView = AlbumTitleArrowView(
+   lazy var arrowView: ArrowView = {
+       let arrowView = ArrowView(
         frame: CGRect(
             x: titleLb.frame.maxX + 5,
             y: 0,
             width: 20,
             height: 20
         ),
-        config: self.config
+        config: self.config.arrow
        )
        
        return arrowView

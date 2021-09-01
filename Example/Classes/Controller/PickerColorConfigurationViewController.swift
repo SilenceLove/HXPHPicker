@@ -143,13 +143,13 @@ extension PickerColorConfigurationViewController {
             case .titleViewBackgroundDarkColor:
                 return config.photoList.titleView.backgroudDarkColor
             case .titleViewArrowBackgroundColor:
-                return config.photoList.titleView.arrowBackgroundColor
+                return config.photoList.titleView.arrow.backgroundColor
             case .titleViewArrowBackgroudDarkColor:
-                return config.photoList.titleView.arrowBackgroudDarkColor
+                return config.photoList.titleView.arrow.backgroudDarkColor
             case .titleViewArrowColor:
-                return config.photoList.titleView.arrowColor
+                return config.photoList.titleView.arrow.arrowColor
             case .titleViewArrowDarkColor:
-                return config.photoList.titleView.arrowDarkColor
+                return config.photoList.titleView.arrow.arrowDarkColor
             case .cellTitleColor:
                 return config.photoList.cell.selectBox.titleColor
             case .cellTitleDarkColor:
@@ -273,13 +273,13 @@ extension PickerColorConfigurationViewController: UIColorPickerViewControllerDel
                 case .titleViewBackgroundDarkColor:
                     config.photoList.titleView.backgroudDarkColor = color
                 case .titleViewArrowBackgroundColor:
-                    config.photoList.titleView.arrowBackgroundColor = color
+                    config.photoList.titleView.arrow.backgroundColor = color
                 case .titleViewArrowBackgroudDarkColor:
-                    config.photoList.titleView.arrowBackgroudDarkColor = color
+                    config.photoList.titleView.arrow.backgroudDarkColor = color
                 case .titleViewArrowColor:
-                    config.photoList.titleView.arrowColor = color
+                    config.photoList.titleView.arrow.arrowColor = color
                 case .titleViewArrowDarkColor:
-                    config.photoList.titleView.arrowDarkColor = color
+                    config.photoList.titleView.arrow.arrowDarkColor = color
                 case .cellTitleColor:
                     config.photoList.cell.selectBox.titleColor = color
                 case .cellTitleDarkColor:

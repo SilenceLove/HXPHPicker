@@ -15,12 +15,14 @@ extension UIImageView {
     
     #if canImport(Kingfisher)
     @discardableResult
+    // swiftlint:disable function_body_length
     func setImage(
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
         completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
     ) -> Kingfisher.DownloadTask? {
+        // swiftlint:enable function_body_length
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = asset.photoEdit {
             if urlType == .thumbnail {
@@ -88,20 +90,29 @@ extension UIImageView {
             url = videoAsset.videoURL
         }
         if loadVideoCover {
-            let provider = AVAssetImageDataProvider(assetURL: url!, seconds: 0.15)
-            return KF.dataProvider(provider)
-                    .onSuccess { (result) in
-                        if asset.isNetworkAsset {
-                            asset.networkVideoAsset?.coverImage = result.image
-                        }else {
-                            asset.localVideoAsset?.image = result.image
-                        }
-                        completionHandler?(result.image, nil, asset)
+            PhotoTools.getVideoThumbnailImage(
+                url: url!,
+                atTime: 0.1
+            ) { videoURL, image in
+                if let image = image {
+                    if asset.isNetworkAsset {
+                        asset.networkVideoAsset?.coverImage = image
+                    }else {
+                        asset.localVideoAsset?.image = image
                     }
-                    .onFailure { (error) in
-                        completionHandler?(nil, error, asset)
-                    }
-                    .set(to: self)
+                }
+                var currentImage = image
+                if urlType == .thumbnail {
+                    currentImage = image?.scaleImage(toScale: 0.5)
+                }
+                self.image = currentImage
+                if let image = currentImage {
+                    completionHandler?(image, nil, asset)
+                }else {
+                    completionHandler?(nil, KingfisherError.requestError(reason: .emptyRequest), asset)
+                }
+            }
+            return nil
         }
         return kf.setImage(
             with: url,

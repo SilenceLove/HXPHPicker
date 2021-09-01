@@ -22,9 +22,9 @@ public class AssetManager {
     public class func saveSystemAlbum(
         forAsset asset: Any,
         mediaType: PHAssetMediaType,
-        customAlbumName: String?,
-        creationDate: Date?,
-        location: CLLocation?,
+        customAlbumName: String? = nil,
+        creationDate: Date = Date(),
+        location: CLLocation? = nil,
         completion: @escaping (PHAsset?) -> Void
     ) {
         var albumName: String?
@@ -61,11 +61,7 @@ public class AssetManager {
                             from: asset as! UIImage
                         )
                     }
-                    if let creationDate = creationDate {
-                        creationRequest?.creationDate = creationDate
-                    }else {
-                        creationRequest?.creationDate = Date.init()
-                    }
+                    creationRequest?.creationDate = creationDate
                     creationRequest?.location = location
                     placeholder = creationRequest?.placeholderForCreatedAsset
                 }
@@ -103,8 +99,6 @@ public class AssetManager {
             forAsset: image,
             mediaType: .image,
             customAlbumName: customAlbumName,
-            creationDate: nil,
-            location: nil,
             completion: completion
         )
     }
@@ -119,8 +113,6 @@ public class AssetManager {
             forAsset: videoURL,
             mediaType: .video,
             customAlbumName: customAlbumName,
-            creationDate: nil,
-            location: nil,
             completion: completion
         )
     }

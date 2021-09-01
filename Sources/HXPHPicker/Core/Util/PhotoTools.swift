@@ -14,96 +14,6 @@ import Kingfisher
 
 public class PhotoTools {
     
-    /// 跳转系统设置界面
-    public class func openSettingsURL() {
-        if let openURL = URL(string: UIApplication.openSettingsURLString) {
-            if #available(iOS 10, *) {
-                UIApplication.shared.open(openURL, options: [:], completionHandler: nil)
-            } else {
-                UIApplication.shared.openURL(openURL)
-            }
-        }
-    }
-    
-    /// 显示UIAlertController
-    public class func showAlert(
-        viewController: UIViewController?,
-        title: String?,
-        message: String? = nil,
-        leftActionTitle: String?,
-        leftHandler: ((UIAlertAction) -> Void)?,
-        rightActionTitle: String?,
-        rightHandler: ((UIAlertAction) -> Void)?
-    ) {
-        guard let viewController = viewController else { return }
-        let alertController = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        if let leftActionTitle = leftActionTitle {
-            let leftAction = UIAlertAction(
-                title: leftActionTitle,
-                style: UIAlertAction.Style.cancel,
-                handler: leftHandler
-            )
-            alertController.addAction(leftAction)
-        }
-        if let rightActionTitle = rightActionTitle {
-            let rightAction = UIAlertAction(
-                title: rightActionTitle,
-                style: UIAlertAction.Style.default,
-                handler: rightHandler
-            )
-            alertController.addAction(rightAction)
-        }
-        if UIDevice.isPad {
-            let pop = alertController.popoverPresentationController
-            pop?.permittedArrowDirections = .any
-            pop?.sourceView = viewController.view
-            pop?.sourceRect = CGRect(
-                x: viewController.view.width * 0.5,
-                y: viewController.view.height,
-                width: 0,
-                height: 0
-            )
-        }
-        viewController.present(alertController, animated: true, completion: nil)
-    }
-    
-    public class func showConfirm(
-        viewController: UIViewController? ,
-        title: String? ,
-        message: String?,
-        actionTitle: String?,
-        actionHandler: ((UIAlertAction) -> Void)?
-    ) {
-        let alertController = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        if UIDevice.isPad {
-            let pop = alertController.popoverPresentationController
-            pop?.permittedArrowDirections = .any
-            pop?.sourceView = viewController?.view
-            pop?.sourceRect = viewController?.view.bounds ?? .zero
-        }
-        if let actionTitle = actionTitle {
-            let action = UIAlertAction(
-                title: actionTitle,
-                style: UIAlertAction.Style.cancel,
-                handler: actionHandler
-            )
-            alertController.addAction(action)
-            viewController?.present(
-                alertController,
-                animated: true,
-                completion: nil
-            )
-        }
-    }
-    
     /// 根据PHAsset资源获取对应的目标大小
     public class func transformTargetWidthToSize(
         targetWidth: CGFloat,
@@ -242,7 +152,7 @@ public class PhotoTools {
     public class  func getVideoThumbnailImage(
         url: URL,
         atTime: TimeInterval,
-        completion: @escaping (URL, UIImage) -> Void
+        completion: @escaping (URL, UIImage?) -> Void
     ) {
         let asset = AVAsset(url: url)
         asset.loadValuesAsynchronously(forKeys: ["duration"]) {
@@ -256,8 +166,17 @@ public class PhotoTools {
                 forTimes: array
             ) { (requestedTime, cgImage, actualTime, result, error) in
                 if let image = cgImage, result == .succeeded {
+                    var image = UIImage(cgImage: image)
+                    if image.imageOrientation != .up,
+                       let img = image.normalizedImage() {
+                        image = img
+                    }
                     DispatchQueue.main.async {
-                        completion(url, UIImage(cgImage: image))
+                        completion(url, image)
+                    }
+                }else {
+                    DispatchQueue.main.async {
+                        completion(url, nil)
                     }
                 }
             }
@@ -434,6 +353,42 @@ public class PhotoTools {
             return Int64(seconds * ratioParam * quality * 1000 * 1000)
         }
         return 0
+    }
+    
+    class func getBasicAnimation(
+        _ keyPath: String,
+        _ fromValue: Any?,
+        _ toValue: Any?,
+        _ duration: TimeInterval
+    ) -> CABasicAnimation {
+        let animation = CABasicAnimation.init(keyPath: keyPath)
+        animation.fromValue = fromValue
+        animation.toValue = toValue
+        animation.duration = duration
+        animation.fillMode = .backwards
+        animation.timingFunction = .init(name: CAMediaTimingFunctionName.linear)
+        return animation
+    }
+    
+    class func getGradientShadowLayer(_ isTop: Bool) -> CAGradientLayer {
+        let layer = CAGradientLayer()
+        layer.contentsScale = UIScreen.main.scale
+        let blackColor = UIColor.black
+        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
+                        blackColor.withAlphaComponent(0.2).cgColor,
+                        blackColor.withAlphaComponent(0.4).cgColor,
+                        blackColor.withAlphaComponent(0.6).cgColor,
+                        blackColor.withAlphaComponent(0.8).cgColor]
+        if isTop {
+            layer.startPoint = CGPoint(x: 0, y: 1)
+            layer.endPoint = CGPoint(x: 0, y: 0)
+        }else {
+            layer.startPoint = CGPoint(x: 0, y: 0)
+            layer.endPoint = CGPoint(x: 0, y: 1)
+        }
+        layer.locations = [0.1, 0.3, 0.5, 0.7, 0.9]
+        layer.borderWidth = 0.0
+        return layer
     }
 }
 

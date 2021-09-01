@@ -102,6 +102,7 @@ public extension PhotoAsset {
     /// - Returns: 请求ID
     @discardableResult
     func requestThumbnailImage(
+        localType: DonwloadURLType = .thumbnail,
         targetWidth: CGFloat = 180,
         completion: ((UIImage?, PhotoAsset, [AnyHashable: Any]?) -> Void)?
     ) -> PHImageRequestID? {
@@ -116,7 +117,10 @@ public extension PhotoAsset {
         }
         #endif
         guard let phAsset = phAsset else {
-            requestLocalImage(urlType: .thumbnail) { (image, photoAsset) in
+            requestLocalImage(
+                urlType: localType,
+                targetWidth: targetWidth
+            ) { (image, photoAsset) in
                 completion?(image, photoAsset, nil)
             }
             return nil

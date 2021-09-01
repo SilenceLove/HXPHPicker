@@ -18,18 +18,7 @@ protocol VideoEditorMusicViewDelegate: AnyObject {
 class VideoEditorMusicView: UIView {
     weak var delegate: VideoEditorMusicViewDelegate?
     lazy var bgMaskLayer: CAGradientLayer = {
-        let layer = CAGradientLayer()
-        layer.contentsScale = UIScreen.main.scale
-        let blackColor = UIColor.black
-        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
-                        blackColor.withAlphaComponent(0.25).cgColor,
-                        blackColor.withAlphaComponent(0.3).cgColor,
-                        blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.5).cgColor]
-        layer.startPoint = CGPoint(x: 0, y: 0)
-        layer.endPoint = CGPoint(x: 0, y: 1)
-        layer.locations = [0.15, 0.5, 0.6, 0.7, 0.9]
-        layer.borderWidth = 0.0
+        let layer = PhotoTools.getGradientShadowLayer(false)
         return layer
     }()
     lazy var searchBgView: UIVisualEffectView = {
@@ -86,6 +75,7 @@ class VideoEditorMusicView: UIView {
         let button = UIButton(type: .custom)
         button.setTitle("配乐".localized, for: .normal)
         button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
         button.setImage("hx_photo_box_normal".image, for: .normal)
         button.setImage("hx_photo_box_selected".image, for: .selected)
@@ -101,6 +91,7 @@ class VideoEditorMusicView: UIView {
         let button = UIButton(type: .custom)
         button.setTitle("视频原声".localized, for: .normal)
         button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
         button.setImage("hx_photo_box_normal".image, for: .normal)
         button.setImage("hx_photo_box_selected".image, for: .selected)
@@ -115,6 +106,7 @@ class VideoEditorMusicView: UIView {
         let button = UIButton(type: .custom)
         button.setTitle("歌词".localized, for: .normal)
         button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
         button.setImage("hx_photo_box_normal".image, for: .normal)
         button.setImage("hx_photo_box_selected".image, for: .selected)
@@ -346,7 +338,17 @@ class VideoEditorMusicView: UIView {
             width: showLyricWidth,
             height: buttonHeight
         )
-        
+        if backgroundButton.x <= 0 && showLyricButton.frame.maxX >= width {
+            backgroundButton.x = 5
+            backgroundButton.width = originalSoundButton.x - 10
+            showLyricButton.x = originalSoundButton.frame.maxX + 5
+            showLyricButton.width = width - showLyricButton.x - 5
+        }else if backgroundButton.x <= 0 || showLyricButton.frame.maxX >= width {
+            let margin = (width - backgroundButton.width - originalSoundButton.width - showLyricButton.width) * 0.5
+            backgroundButton.x = margin
+            originalSoundButton.x = backgroundButton.frame.maxX
+            showLyricButton.x = originalSoundButton.frame.maxX
+        }
     }
     deinit {
         NotificationCenter.default.removeObserver(self)

@@ -30,6 +30,12 @@ Pod::Spec.new do |spec|
         editor.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
     end
     
+    spec.subspec 'Camera' do |camera|
+        camera.source_files   = "Sources/HXPHPicker/Camera/**/*.{swift}"
+        camera.dependency 'HXPHPicker/Core'
+        camera.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA' }
+    end
+    
     spec.subspec 'Full' do |full|
         full.dependency 'HXPHPicker/Lite'
         full.dependency 'Kingfisher', '~> 6.0'
@@ -39,5 +45,6 @@ Pod::Spec.new do |spec|
         lite.dependency 'HXPHPicker/Core'
         lite.dependency 'HXPHPicker/Picker'
         lite.dependency 'HXPHPicker/Editor'
+        lite.dependency 'HXPHPicker/Camera'
     end
 end

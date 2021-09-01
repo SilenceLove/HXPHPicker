@@ -14,7 +14,6 @@ extension PhotoManager {
     struct AssociatedKeys {
         static var targetWidthKey: String = "targetWidth"
         static var loadNetworkVideoMode: String = "loadNetworkVideoMode"
-        static var cameraPreviewImage: String = "cameraPreviewImage"
     }
     var targetWidth: CGFloat {
         get {
@@ -37,28 +36,6 @@ extension PhotoManager {
                 &AssociatedKeys.loadNetworkVideoMode,
                 newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
-        }
-    }
-    public var cameraPreviewImage: UIImage? {
-        get {
-            if let image = objc_getAssociatedObject(self, &AssociatedKeys.cameraPreviewImage) as? UIImage {
-                return image
-            }
-            return PhotoTools.getCameraPreviewImage()
-        }
-        set {
-            objc_setAssociatedObject(
-                self,
-                &AssociatedKeys.cameraPreviewImage,
-                newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-            )
-        }
-    }
-    func saveCameraPreview() {
-        if let image = cameraPreviewImage {
-            DispatchQueue.global().async {
-                PhotoTools.saveCameraPreviewImage(image)
-            }
         }
     }
     

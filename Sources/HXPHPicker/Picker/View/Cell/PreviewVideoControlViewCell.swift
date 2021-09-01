@@ -10,18 +10,7 @@ import UIKit
 public class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSliderViewDelegate {
     
     lazy var maskLayer: CAGradientLayer = {
-        let layer = CAGradientLayer.init()
-        layer.contentsScale = UIScreen.main.scale
-        let blackColor = UIColor.black
-        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
-                        blackColor.withAlphaComponent(0.25).cgColor,
-                        blackColor.withAlphaComponent(0.3).cgColor,
-                        blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.5).cgColor]
-        layer.startPoint = CGPoint(x: 0, y: 0)
-        layer.endPoint = CGPoint(x: 0, y: 1)
-        layer.locations = [0.15, 0.5, 0.6, 0.7, 0.9]
-        layer.borderWidth = 0.0
+        let layer = PhotoTools.getGradientShadowLayer(false)
         return layer
     }()
     lazy var sliderView: PreviewVideoSliderView = {
@@ -462,7 +451,6 @@ class SliderView: UIView {
             ) {
                 self.thumbView.centerX = 5 + (self.width - 10) * self.value
                 self.trackView.width = currentWidth
-            } completion: { _ in
             }
         }else {
             thumbView.centerX = 5 + (width - 10) * value

@@ -35,12 +35,10 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
     
     func transitionDuration(
         using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        if type == .pop || type == .present {
-            return 0.5
-        }else if type == .dismiss {
+        if type == .dismiss {
             return 0.65
         }
-        return 0.45
+        return 0.5
     }
     
     func animateTransition(
@@ -109,7 +107,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 #endif
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
                     requestAssetImage(for: phAsset)
-                }else if pushImageView.image == nil {
+                }else if pushImageView.image == nil || photoAsset.isLocalAsset {
                     pushImageView.image = photoAsset.originalImage
                 }
             }
@@ -220,7 +218,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 if pickerVC?.bottomView.mask != nil {
                     pickerVC?.bottomView.mask?.frame = CGRect(x: 0, y: 70, width: contentView.width, height: maskHeight)
                 }
-            } completion: { _ in }
+            }
             let alphaDuration = previewVC?.bottomView.mask == nil ? duration - 0.15 : 0.15
             UIView.animate(withDuration: alphaDuration) {
                 previewVC?.bottomView.alpha = 1
@@ -239,10 +237,10 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                         width: contentView.width, height: maskHeight + 70
                     )
                 }
-            } completion: { _ in }
+            }
             UIView.animate(withDuration: duration - 0.15, delay: 0.125, options: []) {
                 previewVC?.bottomView.alpha = 0
-            } completion: { _ in }
+            }
         }
         
         UIView.animate(
@@ -265,14 +263,15 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             pickerVC?.bottomView.mask = nil
             previewVC?.bottomView.mask = nil
             if self.type == .push {
-                if self.requestID != nil {
-                    PHImageManager.default().cancelImageRequest(self.requestID!)
+                if let requestID = self.requestID {
+                    PHImageManager.default().cancelImageRequest(requestID)
                     self.requestID = nil
                 }
                 fromView?.isHidden = false
                 previewVC?.setCurrentCellImage(image: self.pushImageView.image)
                 previewVC?.collectionView.isHidden = false
                 previewVC?.configColor()
+                self.pushImageView.removeFromSuperview()
                 contentView.removeFromSuperview()
                 transitionContext.completeTransition(true)
             }else if self.type == .pop {
@@ -359,7 +358,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 #endif
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
                     requestAssetImage(for: phAsset)
-                }else if pushImageView.image == nil {
+                }else if pushImageView.image == nil || photoAsset.isLocalAsset {
                     pushImageView.image = photoAsset.originalImage
                 }
                 if UIDevice.isPad && photoAsset.mediaType == .video {
@@ -423,7 +422,6 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 previewViewController?.bottomView.alpha = 0
                 contentView.backgroundColor = backgroundColor.withAlphaComponent(0)
             }
-        } completion: { (isFinished) in
         }
         UIView.animate(
             withDuration: duration,
@@ -452,8 +450,8 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         } completion: { (isFinished) in
             previewView?.isHidden = false
             if self.type == .present {
-                if self.requestID != nil {
-                    PHImageManager.default().cancelImageRequest(self.requestID!)
+                if let requestID = self.requestID {
+                    PHImageManager.default().cancelImageRequest(requestID)
                     self.requestID = nil
                 }
                 let currentPreviewIndex = previewViewController?.currentPreviewIndex ?? 0
@@ -466,6 +464,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 previewViewController?.collectionView.isHidden = false
                 previewViewController?.configColor()
                 pickerController.configBackgroundColor()
+                self.pushImageView.removeFromSuperview()
                 contentView.removeFromSuperview()
                 transitionContext.completeTransition(true)
             }else {
@@ -492,10 +491,10 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
     func requestAssetImage(for asset: PHAsset) {
         let options = PHImageRequestOptions.init()
         options.resizeMode = .fast
-        options.isSynchronous = false
         requestID = AssetManager.requestImageData(
             for: asset,
-            options: options) { (result) in
+            options: options
+        ) { (result) in
             var info: [AnyHashable: Any]?
             switch result {
             case .success(let dataResult):
@@ -503,12 +502,18 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 DispatchQueue.global().async {
                     var image: UIImage?
                     if dataResult.imageOrientation != .up {
-                        image = UIImage.init(data: dataResult.imageData)?.normalizedImage()
+                        image = UIImage(data: dataResult.imageData)?.normalizedImage()
                     }else {
-                        image = UIImage.init(data: dataResult.imageData)
+                        image = UIImage(data: dataResult.imageData)
+                    }
+                    if !AssetManager.assetIsDegraded(for: info) &&
+                        dataResult.imageData.count > 3000000 {
+                        image = image?.scaleSuitableSize()
                     }
                     DispatchQueue.main.async {
-                        self.pushImageView.image = image
+                        if self.pushImageView.superview != nil {
+                            self.pushImageView.image = image
+                        }
                     }
                 }
             case .failure(let error):

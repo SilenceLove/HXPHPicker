@@ -16,6 +16,7 @@ class AvatarPickerConfigurationViewController: UITableViewController {
         navigationItem.title = "Avatar Picker"
         config.selectMode = .single
         config.selectOptions = .photo
+        config.photoList.finishSelectionAfterTakingPhoto = true
         config.photoSelectionTapAction = .openEditor
         config.photoEditor.fixedCropState = true
         config.photoEditor.cropping.isRoundCrop = true
@@ -34,6 +35,15 @@ class AvatarPickerConfigurationViewController: UITableViewController {
     }
     
     @objc func openPickerController() {
+        let aspectRatioType = config.photoEditor.cropping.aspectRatioType
+        let fixedRatio = config.photoEditor.cropping.fixedRatio
+        let fixedCropState = config.photoEditor.fixedCropState
+        let isRoundCrop = config.photoEditor.cropping.isRoundCrop
+        config.photoList.camera.photoEditor.cropping.aspectRatioType = aspectRatioType
+        config.photoList.camera.photoEditor.cropping.fixedRatio = fixedRatio
+        config.photoList.camera.photoEditor.fixedCropState = fixedCropState
+        config.photoList.camera.photoEditor.cropping.isRoundCrop = isRoundCrop
+        
         let vc = PhotoPickerController.init(config: config)
         vc.pickerDelegate = self
         vc.autoDismiss = false

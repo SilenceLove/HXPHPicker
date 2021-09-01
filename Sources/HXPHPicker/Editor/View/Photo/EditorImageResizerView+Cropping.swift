@@ -113,13 +113,9 @@ extension EditorImageResizerView {
         let fromSize = getExactnessSize(imageView.size)
         let toSize = getExactnessSize(controlView.size)
         let can_Reset = canReset()
-        if can_Reset ||
-            (!can_Reset &&
-                (!fromSize.equalTo(toSize) ||
-                    (fromSize.equalTo(toSize) &&
-                        cropConfig.isRoundCrop)
-                )
-            ) {
+        
+        let isEqualSize = (!fromSize.equalTo(toSize) || (fromSize.equalTo(toSize) && cropConfig.isRoundCrop))
+        if can_Reset || (!can_Reset && isEqualSize ) {
             // 调整裁剪框至中心
             adjustmentViews(false, showMaskShadow: false)
             hasCropping = true
@@ -341,15 +337,11 @@ extension EditorImageResizerView {
             var offset =  CGPoint(x: -scrollViewContentInset.left, y: -scrollViewContentInset.top)
             if !isOriginalRatio {
                 // 不是原始比例,需要判断中心点
+                let leftMargin = baseImageSize.width * zoomScale * 0.5 - maskViewFrame.width * 0.5
+                let rightMargin = baseImageSize.height * zoomScale * 0.5 - maskViewFrame.height * 0.5
                 offset = CGPoint(
-                    x: -scrollViewContentInset.left +
-                        (
-                            baseImageSize.width * zoomScale * 0.5 - maskViewFrame.width * 0.5
-                        ),
-                    y: -scrollViewContentInset.top +
-                        (
-                            baseImageSize.height * zoomScale * 0.5 - maskViewFrame.height * 0.5
-                        )
+                    x: -scrollViewContentInset.left + leftMargin,
+                    y: -scrollViewContentInset.top + rightMargin
                 )
             }
             let currentOffset = scrollView.contentOffset
@@ -470,7 +462,6 @@ extension EditorImageResizerView {
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
                 self.scrollView.transform = rotateTransform
                 self.scrollView.frame = scrollViewFrame
-            } completion: { (_) in
             }
         }else {
             scrollView.transform = rotateTransform

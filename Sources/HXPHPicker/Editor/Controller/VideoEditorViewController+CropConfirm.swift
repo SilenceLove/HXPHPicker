@@ -33,7 +33,7 @@ extension VideoEditorViewController: EditorCropConfirmViewDelegate {
     func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView) {
         playerView.stickerView.isUserInteractionEnabled = true
         if onceState == .cropping {
-            backAction()
+            didBackClick()
             return
         }
         pState = .normal

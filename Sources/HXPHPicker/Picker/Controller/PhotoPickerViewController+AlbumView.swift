@@ -40,7 +40,7 @@ extension PhotoPickerViewController: AlbumViewDelegate {
         UIView.animate(withDuration: 0.25) {
             self.albumBackgroudView.alpha = 1
             self.updateAlbumViewFrame()
-            self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: .pi)
+            self.titleView.arrowView.transform = CGAffineTransform(rotationAngle: .pi)
         }
     }
     
@@ -49,9 +49,9 @@ extension PhotoPickerViewController: AlbumViewDelegate {
         UIView.animate(withDuration: 0.25) {
             self.albumBackgroudView.alpha = 0
             self.updateAlbumViewFrame()
-            self.titleView.arrowView.transform = CGAffineTransform.init(rotationAngle: 2 * .pi)
+            self.titleView.arrowView.transform = CGAffineTransform(rotationAngle: 2 * .pi)
         } completion: { (isFinish) in
-            if isFinish {
+            if self.albumBackgroudView.alpha == 0 {
                 self.albumBackgroudView.isHidden = true
             }
         }

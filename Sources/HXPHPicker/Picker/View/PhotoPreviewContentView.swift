@@ -83,6 +83,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
             requestNetworkCompletion = true
             requestID = photoAsset.requestThumbnailImage(
+                localType: .original,
                 targetWidth: min(
                     UIScreen.main.bounds.width,
                     UIScreen.main.bounds.height
@@ -195,9 +196,16 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 if let url = url {
                     if let image = self.photoAsset.networkVideoAsset?.coverImage {
                         self.updateContentSize(image: image)
-                    }else if let image = PhotoTools.getVideoThumbnailImage(videoURL: url, atTime: 0.1) {
-                        self.photoAsset.networkVideoAsset?.coverImage = image
-                        self.updateContentSize(image: image)
+                    }else {
+                        PhotoTools.getVideoThumbnailImage(
+                            url: url,
+                            atTime: 0.1
+                        ) { [weak self] _, image in
+                            if let image = image {
+                                self?.photoAsset.networkVideoAsset?.coverImage = image
+                                self?.updateContentSize(image: image)
+                            }
+                        }
                     }
                     self.checkNetworkVideoFileSize(url)
                     self.requestSucceed()

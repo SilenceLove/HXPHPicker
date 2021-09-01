@@ -1,5 +1,5 @@
 //
-//  CameraViewController.swift
+//  SystemCameraViewController.swift
 //  HXPHPickerExample
 //
 //  Created by Slience on 2020/12/29.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CameraViewController: UIImagePickerController {
+class SystemCameraViewController: UIImagePickerController {
     
     override func viewDidLoad() {
         super.viewDidLoad()

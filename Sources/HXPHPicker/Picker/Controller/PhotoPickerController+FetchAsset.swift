@@ -88,8 +88,9 @@ extension PhotoPickerController {
                 })
                 let inLocalCamera = self.localCameraAssetArray.contains(
                     where: { (localAsset) -> Bool in
-                    return localAsset.isEqual(phAsset)
-                })
+                        return localAsset.isEqual(phAsset)
+                    }
+                )
                 if !inLocal && !inLocalCamera {
                     if firstSetImage {
                         coverImage = phAsset.originalImage

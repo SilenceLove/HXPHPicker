@@ -384,16 +384,15 @@ extension PhotoPreviewViewController {
             config.backgroundColor
     }
     func reloadCell(for photoAsset: PhotoAsset) {
-        if previewAssets.isEmpty {
+        guard let item = previewAssets.firstIndex(of: photoAsset),
+              !previewAssets.isEmpty else {
             return
         }
-        if let item = previewAssets.firstIndex(of: photoAsset) {
-            let indexPath = IndexPath(item: item, section: 0)
-            collectionView.reloadItems(at: [indexPath])
-            if config.showBottomView {
-                bottomView.selectedView.reloadData(photoAsset: photoAsset)
-                bottomView.requestAssetBytes()
-            }
+        let indexPath = IndexPath(item: item, section: 0)
+        collectionView.reloadItems(at: [indexPath])
+        if config.showBottomView {
+            bottomView.selectedView.reloadData(photoAsset: photoAsset)
+            bottomView.requestAssetBytes()
         }
     }
     func getCell(for item: Int) -> PhotoPreviewViewCell? {
@@ -409,13 +408,13 @@ extension PhotoPreviewViewController {
         return cell
     }
     func setCurrentCellImage(image: UIImage?) {
-        if image != nil {
-            if let cell = getCell(for: currentPreviewIndex) {
-                if !cell.photoAsset.mediaSubType.isGif {
-                    cell.cancelRequest()
-                    cell.scrollContentView.imageView.image = image
-                }
-            }
+        guard let image = image,
+              let cell = getCell(for: currentPreviewIndex) else {
+            return
+        }
+        if !cell.photoAsset.mediaSubType.isGif {
+            cell.cancelRequest()
+            cell.scrollContentView.imageView.image = image
         }
     }
     func deleteCurrentPhotoAsset() {

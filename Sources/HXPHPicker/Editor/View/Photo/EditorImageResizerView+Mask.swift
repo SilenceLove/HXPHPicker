@@ -44,7 +44,6 @@ extension EditorImageResizerView {
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
                 self.maskBgView.alpha = 1
                 self.maskLinesView.alpha = 1
-            } completion: { (isFinished) in
             }
         }else {
             self.maskBgView.isHidden = false

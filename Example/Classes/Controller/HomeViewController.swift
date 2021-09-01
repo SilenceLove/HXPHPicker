@@ -7,6 +7,7 @@
 
 import UIKit
 import HXPHPicker
+import CoreLocation
 
 class HomeViewController: UITableViewController {
     
@@ -39,6 +40,15 @@ class HomeViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let rowType = Section.allCases[indexPath.section].allRowCase[indexPath.row]
+        if let rowType = rowType as? HomeRowType {
+            if rowType == .camera {
+                let camerController = rowType.controller as! CameraController
+                camerController.autoDismiss = false
+                camerController.cameraDelegate = self
+                present(camerController, animated: true, completion: nil)
+                return
+            }
+        }
         if let rowType = rowType as? ApplicationRowType {
             if rowType == .customCell {
                 let vc = rowType.controller as! PhotoPickerController
@@ -82,6 +92,7 @@ extension HomeViewController {
     enum HomeRowType: CaseIterable, HomeRowTypeRule {
         case picker
         case editor
+        case camera
         
         var title: String {
             switch self {
@@ -89,6 +100,8 @@ extension HomeViewController {
                 return "Picker"
             case .editor:
                 return "Editor"
+            case .camera:
+                return "Camera"
             }
         }
         
@@ -106,6 +119,8 @@ extension HomeViewController {
                 } else {
                     return EditorConfigurationViewController(style: .grouped)
                 }
+            case .camera:
+                return CameraController(config: .init(), type: .all)
             }
         }
     }
@@ -194,5 +209,31 @@ extension UITableViewCell {
     
     static var reuseIdentifier: String {
         return String(describing: Self.self)
+    }
+}
+extension HomeViewController: CameraControllerDelegate {
+    func cameraController(
+        _ cameraController: CameraController,
+        didFinishWithImage image: UIImage,
+        location: CLLocation?
+    ) {
+        cameraController.dismiss(animated: true) {
+            let photoAsset = PhotoAsset(localImageAsset: .init(image: image))
+            let pickerResultVC = PickerResultViewController.init()
+            pickerResultVC.selectedAssets = [photoAsset]
+            self.navigationController?.pushViewController(pickerResultVC, animated: true)
+        }
+    }
+    func cameraController(
+        _ cameraController: CameraController,
+        didFinishWithVideo videoURL: URL,
+        location: CLLocation?
+    ) {
+        cameraController.dismiss(animated: true) {
+            let photoAsset = PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+            let pickerResultVC = PickerResultViewController.init()
+            pickerResultVC.selectedAssets = [photoAsset]
+            self.navigationController?.pushViewController(pickerResultVC, animated: true)
+        }
     }
 }

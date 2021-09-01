@@ -18,16 +18,39 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
               pickerController.shouldPresentCamera() else {
             return
         }
-        let imagePickerController = CameraViewController.init()
+        #if HXPICKER_ENABLE_CAMERA
+        if config.cameraType == .secondary {
+            let type: CameraController.CameraType
+            if pickerController.config.selectOptions.isPhoto &&
+                pickerController.config.selectOptions.isVideo {
+                type = .all
+            }else if pickerController.config.selectOptions.isPhoto {
+                type = .photo
+            }else {
+                type = .video
+            }
+            config.camera.languageType = pickerController.config.languageType
+            config.camera.appearanceStyle = pickerController.config.appearanceStyle
+            let vc = CameraController(
+                config: config.camera,
+                type: type,
+                delegate: self
+            )
+            vc.autoDismiss = false
+            present(vc, animated: true)
+            return
+        }
+        #endif
+        let imagePickerController = SystemCameraViewController.init()
         imagePickerController.sourceType = .camera
         imagePickerController.delegate = self
-        imagePickerController.videoMaximumDuration = config.camera.videoMaximumDuration
-        imagePickerController.videoQuality = config.camera.videoQuality
-        imagePickerController.allowsEditing = config.camera.allowsEditing
-        imagePickerController.cameraDevice = config.camera.cameraDevice
+        imagePickerController.videoMaximumDuration = config.systemCamera.videoMaximumDuration
+        imagePickerController.videoQuality = config.systemCamera.videoQuality
+        imagePickerController.allowsEditing = config.systemCamera.allowsEditing
+        imagePickerController.cameraDevice = config.systemCamera.cameraDevice
         var mediaTypes: [String] = []
-        if !config.camera.mediaTypes.isEmpty {
-            mediaTypes = config.camera.mediaTypes
+        if !config.systemCamera.mediaTypes.isEmpty {
+            mediaTypes = config.systemCamera.mediaTypes
         }else {
             if pickerController.config.selectOptions.isPhoto {
                 mediaTypes.append(kUTTypeImage as String)
@@ -117,8 +140,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             for: avAsset,
             startTime: startTime,
             endTime: endTime,
-            exportPreset: config.camera.editExportPreset,
-            videoQuality: config.camera.editVideoQuality
+            exportPreset: config.systemCamera.editExportPreset,
+            videoQuality: config.systemCamera.editVideoQuality
         ) { (url, error) in
             guard let url = url, error == nil else {
                 ProgressHUD.hide(forView: self.navigationController?.view, animated: false)
@@ -138,16 +161,19 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             self.addedCameraPhotoAsset(phAsset)
         }
     }
-    func saveSystemAlbum(for asset: Any, mediaType: PHAssetMediaType) {
+    func saveSystemAlbum(
+        for asset: Any,
+        mediaType: PHAssetMediaType,
+        location: CLLocation? = nil,
+        completion: (() -> Void)? = nil) {
         AssetManager.saveSystemAlbum(
             forAsset: asset,
             mediaType: mediaType,
             customAlbumName: config.customAlbumName,
-            creationDate: nil,
-            location: nil
+            location: location
         ) { (phAsset) in
             if let phAsset = phAsset {
-                self.addedCameraPhotoAsset(PhotoAsset.init(asset: phAsset))
+                self.addedCameraPhotoAsset(PhotoAsset(asset: phAsset), completion: completion)
             }else {
                 DispatchQueue.main.async {
                     ProgressHUD.hide(
@@ -160,11 +186,15 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                         animated: true,
                         delayHide: 1.5
                     )
+                    completion?()
                 }
             }
         }
     }
-    func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
+    func addedCameraPhotoAsset(
+        _ photoAsset: PhotoAsset,
+        completion: (() -> Void)? = nil
+    ) {
         func addPhotoAsset(_ photoAsset: PhotoAsset) {
             guard let picker = pickerController else { return }
             ProgressHUD.hide(forView: navigationController?.view, animated: true)
@@ -183,6 +213,10 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             addedPhotoAsset(for: photoAsset)
             bottomView.updateFinishButtonTitle()
             setupEmptyView()
+            completion?()
+            if picker.config.selectMode == .single && config.finishSelectionAfterTakingPhoto {
+                quickSelect(photoAsset)
+            }
         }
         if DispatchQueue.isMain {
             addPhotoAsset(photoAsset)
@@ -193,3 +227,84 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         }
     }
 }
+
+#if HXPICKER_ENABLE_CAMERA
+extension PhotoPickerViewController: CameraControllerDelegate {
+    public func cameraController(
+        _ cameraController: CameraController,
+        didFinishWithImage image: UIImage,
+        location: CLLocation?
+    ) {
+        if let picker = pickerController,
+           picker.config.selectMode == .single,
+           config.finishSelectionAfterTakingPhoto {
+            ProgressHUD.showLoading(addedTo: cameraController.view, animated: true)
+        }else {
+            cameraController.dismiss(animated: true)
+        }
+        ProgressHUD.showLoading(
+            addedTo: self.navigationController?.view,
+            animated: true
+        )
+        DispatchQueue.global().async {
+            if self.config.saveSystemAlbum {
+                self.saveSystemAlbum(
+                    for: image,
+                    mediaType: .image,
+                    location: location
+                ) { [weak self] in
+                    self?.cameraControllerDismiss()
+                }
+                return
+            }
+            self.addedCameraPhotoAsset(
+                PhotoAsset(localImageAsset: .init(image: image))
+            ) { [weak self] in
+                self?.cameraControllerDismiss()
+            }
+        }
+    }
+    public func cameraController(
+        _ cameraController: CameraController,
+        didFinishWithVideo videoURL: URL,
+        location: CLLocation?
+    ) {
+        if let picker = pickerController,
+           picker.config.selectMode == .single,
+           config.finishSelectionAfterTakingPhoto {
+            ProgressHUD.showLoading(addedTo: cameraController.view, animated: true)
+        }else {
+            cameraController.dismiss(animated: true)
+        }
+        ProgressHUD.showLoading(
+            addedTo: self.navigationController?.view,
+            animated: true
+        )
+        DispatchQueue.global().async {
+            if self.config.saveSystemAlbum {
+                self.saveSystemAlbum(
+                    for: videoURL,
+                    mediaType: .video,
+                    location: location
+                ) { [weak self] in
+                    self?.cameraControllerDismiss()
+                }
+                return
+            }
+            self.addedCameraPhotoAsset(
+                PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+            ) { [weak self] in
+                self?.cameraControllerDismiss()
+            }
+        }
+    }
+    
+    func cameraControllerDismiss() {
+        if let picker = pickerController,
+           picker.config.selectMode == .single,
+           config.finishSelectionAfterTakingPhoto {
+            presentingViewController?.dismiss(animated: true)
+        }
+    }
+}
+#endif

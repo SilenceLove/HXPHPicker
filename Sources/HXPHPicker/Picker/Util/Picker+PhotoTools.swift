@@ -33,22 +33,6 @@ extension PhotoTools {
         }
     }
     
-    /// 显示没有相机权限弹窗
-    public class func showNotCameraAuthorizedAlert(
-        viewController: UIViewController?
-    ) {
-        guard let vc = viewController else { return }
-        showAlert(
-            viewController: vc,
-            title: "无法使用相机功能".localized,
-            message: "请前往系统设置中，允许访问「相机」。".localized,
-            leftActionTitle: "取消".localized,
-            leftHandler: {_ in },
-            rightActionTitle: "前往系统设置".localized) { (alertAction) in
-            openSettingsURL()
-        }
-    }
-    
     /// 转换相册名称为当前语言
     public class func transformAlbumName(
         for collection: PHAssetCollection
@@ -102,54 +86,9 @@ extension PhotoTools {
         }
         return albumName
     }
-    class func cameraPreviewImageURL() -> URL {
-        var cachePath = getImageCacheFolderPath()
-        cachePath.append(contentsOf: "/" + "cameraPreviewImage".md5)
-        return URL(fileURLWithPath: cachePath)
-    }
-    class func isCacheCameraPreviewImage() -> Bool {
-        let imageCacheURL = cameraPreviewImageURL()
-        return FileManager.default.fileExists(atPath: imageCacheURL.path)
-    }
-    class func saveCameraPreviewImage(_ image: UIImage) {
-        if let data = getImageData(for: image),
-           !data.isEmpty {
-            do {
-                let cachePath = getImageCacheFolderPath()
-                let fileManager = FileManager.default
-                if !fileManager.fileExists(atPath: cachePath) {
-                    try fileManager.createDirectory(
-                        atPath: cachePath,
-                        withIntermediateDirectories: true,
-                        attributes: nil
-                    )
-                }
-                let imageCacheURL = cameraPreviewImageURL()
-                if fileManager.fileExists(atPath: imageCacheURL.path) {
-                    try fileManager.removeItem(at: imageCacheURL)
-                }
-                try data.write(to: cameraPreviewImageURL())
-            } catch {
-                print("saveError:\n", error)
-            }
-        }
-    }
-    class func getCameraPreviewImage() -> UIImage? {
-        do {
-            let cacheURL = cameraPreviewImageURL()
-            if !FileManager.default.fileExists(atPath: cacheURL.path) {
-                return nil
-            }
-            let data = try Data(contentsOf: cacheURL)
-            return UIImage(data: data)
-        } catch {
-            print("getError:\n", error)
-        }
-        return nil
-    }
     public class func getVideoCoverImage(
         for photoAsset: PhotoAsset,
-        completionHandler: @escaping (PhotoAsset, UIImage) -> Void) {
+        completionHandler: @escaping (PhotoAsset, UIImage?) -> Void) {
         if photoAsset.mediaType == .video {
             var url: URL?
             if let videoAsset = photoAsset.localVideoAsset,
@@ -181,6 +120,8 @@ extension PhotoTools {
                     }
                     completionHandler(photoAsset, coverImage)
                 }
+            }else {
+                completionHandler(photoAsset, nil)
             }
         }
     }
@@ -317,7 +258,9 @@ extension PhotoTools {
     }
     
     /// 获取和微信主题一致的配置
+    // swiftlint:disable function_body_length
     public class func getWXPickerConfig(isMoment: Bool = false) -> PickerConfiguration {
+        // swiftlint:enable function_body_length
         let config = PickerConfiguration.init()
         if isMoment {
             config.maximumSelectedCount = 9
@@ -355,8 +298,8 @@ extension PhotoTools {
         config.photoList.cancelType = .image
         
         config.photoList.titleView.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
-        config.photoList.titleView.arrowBackgroundColor = "#B2B2B2".color
-        config.photoList.titleView.arrowColor = "#2E2F30".color
+        config.photoList.titleView.arrow.backgroundColor = "#B2B2B2".color
+        config.photoList.titleView.arrow.arrowColor = "#2E2F30".color
         
         config.photoList.cell.targetWidth = 250
         config.photoList.cell.selectBox.selectedBackgroundColor = wxColor
@@ -430,6 +373,11 @@ extension PhotoTools {
             selectedColor: wxColor
         )
         config.photoEditor.text.tintColor = wxColor
+        #endif
+        
+        #if HXPICKER_ENABLE_CAMERA
+        config.photoList.camera.videoMaximumDuration = 15
+        config.photoList.camera.tintColor = wxColor
         #endif
         
         config.notAuthorized.closeButtonImageName = "hx_picker_notAuthorized_close_dark"

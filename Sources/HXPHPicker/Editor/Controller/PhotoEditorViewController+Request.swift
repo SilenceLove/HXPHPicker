@@ -13,13 +13,16 @@ import Kingfisher
 extension PhotoEditorViewController {
     #if HXPICKER_ENABLE_PICKER
     // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
     func requestImage() {
         // swiftlint:enable: function_body_length
+        // swiftlint:enable: cyclomatic_complexity
         if photoAsset.isLocalAsset {
             ProgressHUD.showLoading(addedTo: view, animated: true)
             DispatchQueue.global().async {
                 if self.photoAsset.mediaType == .photo {
                     var image = self.photoAsset.localImageAsset!.image!
+                    image = self.fixImageOrientation(image)
                     if self.photoAsset.mediaSubType.isGif {
                         if let imageData = self.photoAsset.localImageAsset?.imageData {
                             #if canImport(Kingfisher)
@@ -50,10 +53,11 @@ extension PhotoEditorViewController {
                         self.requestAssetCompletion(image: image)
                     }
                 }else {
-                    self.filterHDImageHandler(image: self.photoAsset.localVideoAsset!.image!)
+                    let image = self.fixImageOrientation(self.photoAsset.localVideoAsset!.image!)
+                    self.filterHDImageHandler(image: image)
                     DispatchQueue.main.async {
                         ProgressHUD.hide(forView: self.view, animated: true)
-                        self.requestAssetCompletion(image: self.photoAsset.localVideoAsset!.image!)
+                        self.requestAssetCompletion(image: image)
                     }
                 }
             }
@@ -67,8 +71,9 @@ extension PhotoEditorViewController {
                 }
             } resultHandler: { [weak self] (image) in
                 guard let self = self else { return }
-                if let image = image {
+                if var image = image {
                     DispatchQueue.global().async {
+                        image = self.fixImageOrientation(image)
                         self.filterHDImageHandler(image: image)
                         DispatchQueue.main.async {
                             ProgressHUD.hide(forView: self.view, animated: true)
@@ -99,15 +104,21 @@ extension PhotoEditorViewController {
                     guard let self = self else { return }
                     switch result {
                     case .success(let dataResult):
-                        var image = UIImage.init(data: dataResult.imageData)
-                        if dataResult.imageData.count > 3000000 {
-                            image = image?.scaleSuitableSize()
+                        guard var image = UIImage(data: dataResult.imageData) else {
+                            ProgressHUD.hide(forView: self.view, animated: true)
+                            self.requestAssetFailure(isICloud: false)
+                            return
+                        }
+                        if dataResult.imageData.count > 3000000,
+                           let sImage = image.scaleSuitableSize() {
+                            image = sImage
                         }
                         DispatchQueue.global().async {
-                            self.filterHDImageHandler(image: image!)
+                            image = self.fixImageOrientation(image)
+                            self.filterHDImageHandler(image: image)
                             DispatchQueue.main.async {
                                 ProgressHUD.hide(forView: self.view, animated: true)
-                                self.requestAssetCompletion(image: image!)
+                                self.requestAssetCompletion(image: image)
                             }
                         }
                     case .failure(let error):
@@ -147,7 +158,8 @@ extension PhotoEditorViewController {
                             }catch {}
                         }
                         #endif
-                        if let image = UIImage.init(contentsOfFile: imageURL.path)?.scaleSuitableSize() {
+                        if var image = UIImage.init(contentsOfFile: imageURL.path)?.scaleSuitableSize() {
+                            image = self.fixImageOrientation(image)
                             self.filterHDImageHandler(image: image)
                             DispatchQueue.main.async {
                                 ProgressHUD.hide(forView: self.view, animated: true)
@@ -192,7 +204,7 @@ extension PhotoEditorViewController {
     #endif
     
     func requestAssetCompletion(image: UIImage) {
-        if imageInitializeCompletion == true {
+        if !imageInitializeCompletion {
             imageView.setImage(image)
             filterView.image = filterImage
             if let editedData = editResult?.editedData {
@@ -204,6 +216,7 @@ extension PhotoEditorViewController {
                 imageView.startCropping(true)
                 croppingAction()
             }
+            imageInitializeCompletion = true
         }
         setFilterImage()
         setImage(image)
@@ -219,6 +232,14 @@ extension PhotoEditorViewController {
         ) { (alertAction) in
             self.didBackClick()
         }
+    }
+    func fixImageOrientation(_ image: UIImage) -> UIImage {
+        var image = image
+        if image.imageOrientation != .up,
+           let nImage = image.normalizedImage() {
+            image = nImage
+        }
+        return image
     }
     func filterHDImageHandler(image: UIImage) {
         if config.fixedCropState {

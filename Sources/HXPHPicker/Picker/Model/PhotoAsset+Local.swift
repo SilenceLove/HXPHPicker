@@ -85,6 +85,7 @@ extension PhotoAsset {
     ///   - resultHandler: 获取结果
     func requestLocalImage(
         urlType: DonwloadURLType = .original,
+        targetWidth: CGFloat = 180,
         resultHandler: @escaping (UIImage?, PhotoAsset) -> Void
     ) {
         #if HXPICKER_ENABLE_EDITOR
@@ -98,10 +99,6 @@ extension PhotoAsset {
             return
         }
         if mediaType == .photo {
-            if let image = localImageAsset?.image {
-                resultHandler(image, self)
-                return
-            }
             if isNetworkAsset {
                 #if canImport(Kingfisher)
                 getNetworkImage(urlType: urlType) { (image) in
@@ -110,13 +107,36 @@ extension PhotoAsset {
                 #endif
                 return
             }
-            if let imageURL = self.localImageAsset?.imageURL,
-               let image = UIImage(contentsOfFile: imageURL.path) {
-                localImageAsset?.image = image
-                resultHandler(image, self)
+            if urlType == .thumbnail,
+               let thumbnail = localImageAsset?.thumbnail {
+                resultHandler(thumbnail, self)
                 return
             }
-            resultHandler(nil, self)
+            var image: UIImage?
+            if let img = localImageAsset?.image {
+                image = img
+            }else  if let imageURL = self.localImageAsset?.imageURL,
+               let img = UIImage(contentsOfFile: imageURL.path) {
+                localImageAsset?.image = img
+                image = img
+            }
+            if let image = image, urlType == .thumbnail {
+                DispatchQueue.global().async {
+                    let thumbnail = image.scaleToFillSize(
+                        size: CGSize(
+                            width: targetWidth,
+                            height: targetWidth
+                        ),
+                        equalRatio: true
+                    )
+                    self.localImageAsset?.thumbnail = thumbnail
+                    DispatchQueue.main.async {
+                        resultHandler(thumbnail, self)
+                    }
+                }
+                return
+            }
+            resultHandler(image, self)
         }else {
             PhotoTools.getVideoCoverImage(
                 for: self

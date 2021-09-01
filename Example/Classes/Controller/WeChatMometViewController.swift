@@ -25,9 +25,14 @@ class WeChatMometViewController: UIViewController {
         config.selectOptions = .photo
         config.selectMode = .single
         config.photoSelectionTapAction = .openEditor
+        config.photoList.finishSelectionAfterTakingPhoto = true
         config.photoEditor.cropping.aspectRatioType = .ratio_1x1
         config.photoEditor.cropping.fixedRatio = true
         config.photoEditor.fixedCropState = true
+        
+        config.photoList.camera.photoEditor.cropping.aspectRatioType = .ratio_1x1
+        config.photoList.camera.photoEditor.cropping.fixedRatio = true
+        config.photoList.camera.photoEditor.fixedCropState = true
         
         presentPicker(config)
     }

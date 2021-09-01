@@ -11,6 +11,7 @@ import AVFoundation
 public struct PickerResult {
     
     /// 已选的资源
+    /// getURLs 获取原始资源的URL
     public let photoAssets: [PhotoAsset]
     
     /// 是否选择的原图
@@ -40,21 +41,24 @@ public extension PickerResult {
         imageHandler: ((UIImage?, PhotoAsset, Int) -> Void)? = nil,
         completionHandler: @escaping ([UIImage]) -> Void
     ) {
-        let group = DispatchGroup.init()
-        let queue = DispatchQueue.init(label: "hxphpicker.get.image")
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "hxphpicker.get.image")
         var images: [UIImage] = []
         for (index, photoAsset) in photoAssets.enumerated() {
-            queue.async(group: group, execute: DispatchWorkItem.init(block: {
-                let semaphore = DispatchSemaphore.init(value: 0)
-                photoAsset.requestImage { (image, phAsset) in
+            queue.async(
+                group: group,
+                execute: DispatchWorkItem(block: {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    photoAsset.requestImage { (image, phAsset) in
                     imageHandler?(image, phAsset, index)
-                    if let image = image {
-                        images.append(image)
+                        if let image = image {
+                            images.append(image)
+                        }
+                        semaphore.signal()
                     }
-                    semaphore.signal()
-                }
-                semaphore.wait()
-            }))
+                    semaphore.wait()
+                })
+            )
         }
         group.notify(queue: .main) {
             completionHandler(images)
@@ -75,32 +79,33 @@ public extension PickerResult {
         videoURLHandler: ((Result<AssetURLResult, AssetError>, PhotoAsset, Int) -> Void)? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
-        let group = DispatchGroup.init()
-        let queue = DispatchQueue.init(label: "hxphpicker.get.videoURL")
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "hxphpicker.get.videoURL")
         var videoURLs: [URL] = []
         for (index, photoAsset) in photoAssets.enumerated() {
             queue.async(
                 group: group,
-                execute: DispatchWorkItem.init(block: {
-                let semaphore = DispatchSemaphore.init(value: 0)
-                photoAsset.getVideoURL(
-                    exportPreset: exportPreset,
-                    videoQuality: videoQuality,
-                    exportSession: { session in
-                        exportSession?(session, photoAsset, index)
+                execute: DispatchWorkItem(block: {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    photoAsset.getVideoURL(
+                        exportPreset: exportPreset,
+                        videoQuality: videoQuality,
+                        exportSession: { session in
+                            exportSession?(session, photoAsset, index)
+                        }
+                    ) { result in
+                        switch result {
+                        case .success(let response):
+                            videoURLs.append(response.url)
+                        case .failure(_):
+                            break
+                        }
+                        videoURLHandler?(result, photoAsset, index)
+                        semaphore.signal()
                     }
-                ) { result in
-                    switch result {
-                    case .success(let response):
-                        videoURLs.append(response.url)
-                    case .failure(_):
-                        break
-                    }
-                    videoURLHandler?(result, photoAsset, index)
-                    semaphore.signal()
-                }
-                semaphore.wait()
-            }))
+                    semaphore.wait()
+                })
+            )
         }
         group.notify(queue: .main) {
             completionHandler(videoURLs)
@@ -150,55 +155,56 @@ public extension PickerResult {
         )? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
-        let group = DispatchGroup.init()
-        let queue = DispatchQueue.init(label: "hxphpicker.request.urls")
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "hxphpicker.request.urls")
         var urls: [URL] = []
         for (index, photoAsset) in photoAssets.enumerated() {
             queue.async(
                 group: group,
                 execute: DispatchWorkItem.init(block: {
-                let semaphore = DispatchSemaphore.init(value: 0)
-                var mediatype: PhotoAsset.MediaType = .photo
-                if options.contains([.photo, .video]) {
-                    mediatype = photoAsset.mediaType
-                }else if options.contains([.photo]) {
-                    mediatype = .photo
-                }else if options.contains([.video]) {
-                    mediatype = .video
-                }
-                #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.mediaSubType == .livePhoto &&
-                    photoAsset.photoEdit != nil {
-                    mediatype = .photo
-                }
-                #endif
-                let resultHandler: PhotoAsset.AssetURLCompletion = { result in
-                    switch result {
-                    case .success(let respone):
-                        urls.append(respone.url)
-                    case .failure(_):
-                        break
+                    let semaphore = DispatchSemaphore(value: 0)
+                    var mediatype: PhotoAsset.MediaType = .photo
+                    if options.contains([.photo, .video]) {
+                        mediatype = photoAsset.mediaType
+                    }else if options.contains([.photo]) {
+                        mediatype = .photo
+                    }else if options.contains([.video]) {
+                        mediatype = .video
                     }
-                    handler?(result, photoAsset, index)
-                    semaphore.signal()
-                }
-                if mediatype == .photo {
-                    if photoAsset.mediaSubType == .livePhoto {
-                        photoAsset.getLivePhotoURL { result in
-                            resultHandler(result)
+                    #if HXPICKER_ENABLE_EDITOR
+                    if photoAsset.mediaSubType == .livePhoto &&
+                        photoAsset.photoEdit != nil {
+                        mediatype = .photo
+                    }
+                    #endif
+                    let resultHandler: PhotoAsset.AssetURLCompletion = { result in
+                        switch result {
+                        case .success(let respone):
+                            urls.append(respone.url)
+                        case .failure(_):
+                            break
+                        }
+                        handler?(result, photoAsset, index)
+                        semaphore.signal()
+                    }
+                    if mediatype == .photo {
+                        if photoAsset.mediaSubType == .livePhoto {
+                            photoAsset.getLivePhotoURL { result in
+                                resultHandler(result)
+                            }
+                        }else {
+                            photoAsset.getImageURL { result in
+                                resultHandler(result)
+                            }
                         }
                     }else {
-                        photoAsset.getImageURL { result in
+                        photoAsset.getVideoURL { result in
                             resultHandler(result)
                         }
                     }
-                }else {
-                    photoAsset.getVideoURL { result in
-                        resultHandler(result)
-                    }
-                }
-                semaphore.wait()
-            }))
+                    semaphore.wait()
+                })
+            )
         }
         group.notify(queue: .main) {
             completionHandler(urls)

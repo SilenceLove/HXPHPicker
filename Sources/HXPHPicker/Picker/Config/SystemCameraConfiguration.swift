@@ -1,5 +1,5 @@
 //
-//  CameraConfiguration.swift
+//  SystemCameraConfiguration.swift
 //  HXPHPickerExample
 //
 //  Created by Slience on 2020/12/29.
@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 // MARK: 相机配置类
-public class CameraConfiguration {
+public class SystemCameraConfiguration {
     
     /// 媒体类型[kUTTypeImage, kUTTypeMovie]
     public var mediaTypes: [String] = []
