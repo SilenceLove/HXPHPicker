@@ -419,7 +419,7 @@ extension PhotoPickerViewController {
         if assets.isEmpty {
             return
         }
-        let rect = cell.imageView.convert(cell.imageView.bounds, to: view)
+        let rect = cell.photoView.convert(cell.photoView.bounds, to: view)
         if rect.minY - collectionView.contentInset.top < 0 {
             if let indexPath = collectionView.indexPath(for: cell) {
                 collectionView.scrollToItem(

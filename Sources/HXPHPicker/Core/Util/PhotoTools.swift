@@ -149,17 +149,19 @@ public class PhotoTools {
     }
     
     /// 获视频缩略图
-    public class  func getVideoThumbnailImage(
+    @discardableResult
+    public class func getVideoThumbnailImage(
         url: URL,
         atTime: TimeInterval,
-        completion: @escaping (URL, UIImage?) -> Void
-    ) {
-        let asset = AVAsset(url: url)
+        imageGenerator: ((AVAssetImageGenerator) -> Void)? = nil,
+        completion: @escaping (URL, UIImage?, AVAssetImageGenerator.Result) -> Void
+    ) -> AVAsset {
+        let asset = AVURLAsset(url: url)
         asset.loadValuesAsynchronously(forKeys: ["duration"]) {
             let generator = AVAssetImageGenerator(asset: asset)
             generator.appliesPreferredTrackTransform = true
-            generator.requestedTimeToleranceAfter = .zero
-            generator.requestedTimeToleranceBefore = .zero
+//            generator.requestedTimeToleranceAfter = .zero
+//            generator.requestedTimeToleranceBefore = .zero
             let time = CMTime(value: CMTimeValue(atTime), timescale: asset.duration.timescale)
             let array = [NSValue(time: time)]
             generator.generateCGImagesAsynchronously(
@@ -172,15 +174,19 @@ public class PhotoTools {
                         image = img
                     }
                     DispatchQueue.main.async {
-                        completion(url, image)
+                        completion(url, image, result)
                     }
                 }else {
                     DispatchQueue.main.async {
-                        completion(url, nil)
+                        completion(url, nil, result)
                     }
                 }
             }
+            DispatchQueue.main.async {
+                imageGenerator?(generator)
+            }
         }
+        return asset
     }
     
     #if canImport(Kingfisher)

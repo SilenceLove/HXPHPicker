@@ -73,7 +73,7 @@ public struct NetworkVideoAsset {
     public var fileSize: Int
     
     /// 视频尺寸
-    public let videoSize: CGSize
+    public var videoSize: CGSize
     
     #if canImport(Kingfisher)
     /// 视频封面网络地址

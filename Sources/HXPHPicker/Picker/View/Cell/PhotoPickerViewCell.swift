@@ -129,8 +129,8 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     /// 添加视图
     open override func initView() {
         super.initView()
-        imageView.addSubview(assetTypeMaskView)
-        imageView.layer.addSublayer(selectMaskLayer)
+        photoView.addSubview(assetTypeMaskView)
+        photoView.layer.addSublayer(selectMaskLayer)
         contentView.addSubview(assetTypeLb)
         contentView.addSubview(assetTypeIcon)
         contentView.addSubview(assetEditMarkIcon)
@@ -149,9 +149,9 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     /// 布局
     open override func layoutView() {
         super.layoutView()
-        selectMaskLayer.frame = imageView.bounds
-        disableMaskLayer.frame = imageView.bounds
-        assetTypeMaskView.frame = CGRect(x: 0, y: imageView.height - 25, width: width, height: 25)
+        selectMaskLayer.frame = photoView.bounds
+        disableMaskLayer.frame = photoView.bounds
+        assetTypeMaskView.frame = CGRect(x: 0, y: photoView.height - 25, width: width, height: 25)
         assetTypeMaskLayer.frame = CGRect(
             x: 0,
             y: -5,
@@ -177,6 +177,7 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     
     /// 设置高亮遮罩
     open func setupHighlightedMask() {
+        guard let photoAsset = photoAsset else { return }
         if !photoAsset.isSelected {
             selectMaskLayer.isHidden = !isHighlighted
         }

@@ -28,36 +28,44 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
         didSet { configColor() }
     }
     /// 展示图片
-    public lazy var imageView: UIImageView = {
-        let imageView = UIImageView.init()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        return imageView
+    public lazy var photoView: PhotoThumbnailView = {
+        let photoView = PhotoThumbnailView()
+        return photoView
     }()
     /// 是否可以选择
     open var canSelect = true
+    
     /// 请求ID
-    public var requestID: PHImageRequestID?
+    public var requestID: PHImageRequestID? {
+        photoView.requestID
+    }
+    
     /// 网络图片下载状态
-    public var downloadStatus: PhotoAsset.DownloadStatus = .unknow
+    public var downloadStatus: PhotoAsset.DownloadStatus {
+        photoView.downloadStatus
+    }
+    
     /// 对应资源的 PhotoAsset 对象
     open var photoAsset: PhotoAsset! {
         didSet {
             updateSelectedState(isSelected: photoAsset.isSelected, animated: false)
+            photoView.photoAsset = photoAsset
             requestThumbnailImage()
         }
     }
     /// 初始化
     open func initView() {
         isHidden = true
-        contentView.addSubview(imageView)
+        contentView.addSubview(photoView)
     }
     /// 配置背景颜色
     open func configColor() {
         backgroundColor = PhotoManager.isDark ? config?.backgroundDarkColor : config?.backgroundColor
     }
+    
     /// 当前选中时显示的标题数字
     open var selectedTitle: String = "0"
+    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
         requestThumbnailImage(
@@ -66,64 +74,16 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
                 PhotoManager.shared.targetWidth
         )
     }
+    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
-        if photoAsset.isNetworkAsset || photoAsset.mediaSubType == .localVideo {
-            downloadStatus = .downloading
-            #if canImport(Kingfisher)
-            imageView.setImage(
-                for: photoAsset,
-                urlType: .thumbnail,
-                completionHandler: { [weak self] (image, error, photoAsset) in
-                guard let self = self else { return }
-                if self.photoAsset == photoAsset {
-                    if image != nil {
-                        self.downloadStatus = .succeed
-                    }else {
-                        if error!.isTaskCancelled {
-                            self.downloadStatus = .canceled
-                        }else {
-                            self.downloadStatus = .failed
-                        }
-                    }
-                }
-            })
-            #else
-            imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
-                guard let self = self else { return }
-                if self.photoAsset == photoAsset {
-                    self.imageView.image = image
-                    if image != nil {
-                        self.downloadStatus = .succeed
-                    }else {
-                        self.downloadStatus = .failed
-                    }
-                }
-            }
-            #endif
-            if !firstLoadCompletion {
-                isHidden = false
-                firstLoadCompletion = true
-            }
-        }else {
-            requestID = photoAsset.requestThumbnailImage(
-                targetWidth: targetWidth,
-                completion: { [weak self] (image, photoAsset, info) in
-                guard let self = self else { return }
-                if let info = info, info.isCancel { return }
-                if let image = image, self.photoAsset == photoAsset {
-                    if self.firstLoadCompletion == false {
-                        self.isHidden = false
-                        self.firstLoadCompletion = true
-                    }
-                    self.imageView.image = image
-                    if !AssetManager.assetIsDegraded(for: info) {
-                        self.requestID = nil
-                    }
-                }
-            })
+        photoView.requestThumbnailImage(targetWidth: targetWidth)
+        if !firstLoadCompletion {
+            isHidden = false
+            firstLoadCompletion = true
         }
     }
+    
     /// 更新已选状态
     /// 重写此方法时如果是自定义的选择按钮显示当前选择的下标文字，必须在此方法内更新文字内容，否则将会出现顺序显示错乱
     /// 当前选择的下标：photoAsset.selectIndex
@@ -135,14 +95,11 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     }
     /// 布局，重写此方法修改布局
     open func layoutView() {
-        imageView.frame = bounds
+        photoView.frame = bounds
     }
     /// 取消请求资源图片
     public func cancelRequest() {
-        if requestID != nil {
-            PHImageManager.default().cancelImageRequest(requestID!)
-            requestID = nil
-        }
+        photoView.cancelRequest()
     }
     
     private var firstLoadCompletion: Bool = false

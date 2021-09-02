@@ -273,7 +273,6 @@ open class CameraViewController: BaseViewController {
         super.viewDidAppear(animated)
         if requestCameraSuccess {
             cameraManager.startRunning()
-            bottomView.isGestureEnable = true
         }
     }
     open override func viewDidDisappear(_ animated: Bool) {
@@ -349,7 +348,10 @@ extension CameraViewController: CameraBottomViewDelegate {
         if !cameraManager.session.isRunning {
             return
         }
-        cameraManager.capturePhoto { [weak self] data in
+        bottomView.isGestureEnable = false
+        cameraManager.capturePhoto {
+            
+        } completion: { [weak self] data in
             guard let self = self else { return }
             if let data = data ,
                var image = UIImage(data: data) {
@@ -372,6 +374,7 @@ extension CameraViewController: CameraBottomViewDelegate {
                 self.openPhotoResult(image)
                 #endif
             }else {
+                self.bottomView.isGestureEnable = true
                 ProgressHUD.showWarning(
                     addedTo: self.view,
                     text: "拍摄失败!".localized,
@@ -408,7 +411,10 @@ extension CameraViewController: CameraBottomViewDelegate {
                 let text: String
                 if let error = error as NSError?,
                    error.code == 110 {
-                    text = String(format: "拍摄时长不足%d秒".localized, arguments: [1])
+                    text = String(
+                        format: "拍摄时长不足%d秒".localized,
+                        arguments: [Int(self.config.videoMinimumDuration)]
+                    )
                 }else {
                     text = "拍摄失败!".localized
                 }
@@ -463,6 +469,7 @@ extension CameraViewController: CameraBottomViewDelegate {
 extension CameraViewController: CameraPreviewViewDelegate {
     func previewView(didPreviewing previewView: CameraPreviewView) {
         bottomView.hiddenTip()
+        bottomView.isGestureEnable = true
     }
     func previewView(_ previewView: CameraPreviewView, pinchGestureScale scale: CGFloat) {
         cameraManager.zoomFacto = scale
@@ -500,7 +507,7 @@ extension CameraViewController: CameraResultViewControllerDelegate {
     func didFinish(withImage image: UIImage) {
         delegate?.cameraViewController(
             self,
-            didFinishWithImage: image,
+            didFinishWithResult: .image(image),
             location: currentLocation
         )
         if autoDismiss {
@@ -510,7 +517,7 @@ extension CameraViewController: CameraResultViewControllerDelegate {
     func didFinish(withVideo videoURL: URL) {
         delegate?.cameraViewController(
             self,
-            didFinishWithVideo: videoURL,
+            didFinishWithResult: .video(videoURL),
             location: currentLocation
         )
         if autoDismiss {
@@ -528,7 +535,7 @@ extension CameraViewController: CameraResultViewControllerDelegate {
         PhotoTools.getVideoThumbnailImage(
             url: videoURL,
             atTime: 0.1
-        ) { _, image in
+        ) { _, image, _ in
             if let image = image {
                 PhotoManager.shared.cameraPreviewImage = image
             }

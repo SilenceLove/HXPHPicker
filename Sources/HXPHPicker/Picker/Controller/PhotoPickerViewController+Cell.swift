@@ -50,7 +50,7 @@ extension PhotoPickerViewController: PhotoPickerViewCellDelegate {
                 ) {
                     openVideoEditor(
                         photoAsset: cell.photoAsset,
-                        coverImage: cell.imageView.image
+                        coverImage: cell.photoView.image
                     )
                 }
                 return

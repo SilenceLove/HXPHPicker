@@ -58,7 +58,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
             previewAssets.append(videoAsset)
         }
         
-        let networkVideoURL2 = URL.init(string: "https://sf1-ttcdn-tos.pstatp.com/obj/tos-cn-v-0004/471d1136b00141f5a9ddf81e461547fd")! // swiftlint:disable:this line_length
+        let networkVideoURL2 = URL.init(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/395826883-1-208.mp4")! // swiftlint:disable:this line_length
         let networkVideoAsset2 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL2))
         previewAssets.append(networkVideoAsset2)
     }
@@ -105,7 +105,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         PhotoBrowser.show(
             previewAssets,
             pageIndex: indexPath.item,
-            transitionalImage: cell?.imageView.image
+            transitionalImage: cell?.photoView.image
         ) { index in
             self.collectionView.cellForItem(
                 at: IndexPath(
@@ -171,7 +171,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
             PhotoBrowser.show(
                 self.previewAssets,
                 pageIndex: indexPath.item,
-                transitionalImage: cell?.imageView.image
+                transitionalImage: cell?.photoView.image
             ) { index in
                 self.collectionView.cellForItem(
                     at: IndexPath(

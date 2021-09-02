@@ -176,7 +176,7 @@ class PickerResultViewController: UIViewController,
             
             let networkVideoURL1 = URL(
                 string:
-                    "https://sf1-ttcdn-tos.pstatp.com/obj/tos-cn-v-0004/471d1136b00141f5a9ddf81e461547fd"
+                    "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/395826883-1-208.mp4"
             )!
             let networkVideoAsset1 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL1))
             selectedAssets.append(networkVideoAsset1)
@@ -427,7 +427,7 @@ class PickerResultViewController: UIViewController,
             // 预览相关配置
             config: config,
             // 转场动画初始的 UIImage
-            transitionalImage: cell?.imageView.image
+            transitionalImage: cell?.photoView.image
         ) { index in
             // 转场过渡时起始/结束时 对应的 UIView
             self.collectionView.cellForItem(
@@ -715,7 +715,7 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         _ pickerController: PhotoPickerController,
         presentPreviewImageForIndexAt index: Int) -> UIImage? {
         let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? ResultViewCell
-        return cell?.imageView.image
+        return cell?.photoView.image
     }
     func pickerController(
         _ pickerController: PhotoPickerController,
@@ -893,7 +893,7 @@ class ResultAddViewCell: PhotoPickerBaseViewCell {
     override func initView() {
         super.initView()
         isHidden = false
-        imageView.image = UIImage.image(for: "hx_picker_add_img")
+        photoView.placeholder = UIImage.image(for: "hx_picker_add_img")
     }
 }
 

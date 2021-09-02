@@ -1,5 +1,5 @@
 //
-//  CameraViewController+CoreLocation.swift
+//  CameraViewController+Location.swift
 //  HXPHPicker
 //
 //  Created by Slience on 2021/9/1.

@@ -232,7 +232,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
 extension PhotoPickerViewController: CameraControllerDelegate {
     public func cameraController(
         _ cameraController: CameraController,
-        didFinishWithImage image: UIImage,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     ) {
         if let picker = pickerController,
@@ -247,10 +247,23 @@ extension PhotoPickerViewController: CameraControllerDelegate {
             animated: true
         )
         DispatchQueue.global().async {
+            let asset: Any
+            let mediaType: PHAssetMediaType
+            let photoAsset: PhotoAsset
+            switch result {
+            case .image(let image):
+                asset = image
+                mediaType = .image
+                photoAsset = .init(localImageAsset: .init(image: image))
+            case .video(let videoURL):
+                asset = videoURL
+                mediaType = .video
+                photoAsset = .init(localVideoAsset: .init(videoURL: videoURL))
+            }
             if self.config.saveSystemAlbum {
                 self.saveSystemAlbum(
-                    for: image,
-                    mediaType: .image,
+                    for: asset,
+                    mediaType: mediaType,
                     location: location
                 ) { [weak self] in
                     self?.cameraControllerDismiss()
@@ -258,41 +271,7 @@ extension PhotoPickerViewController: CameraControllerDelegate {
                 return
             }
             self.addedCameraPhotoAsset(
-                PhotoAsset(localImageAsset: .init(image: image))
-            ) { [weak self] in
-                self?.cameraControllerDismiss()
-            }
-        }
-    }
-    public func cameraController(
-        _ cameraController: CameraController,
-        didFinishWithVideo videoURL: URL,
-        location: CLLocation?
-    ) {
-        if let picker = pickerController,
-           picker.config.selectMode == .single,
-           config.finishSelectionAfterTakingPhoto {
-            ProgressHUD.showLoading(addedTo: cameraController.view, animated: true)
-        }else {
-            cameraController.dismiss(animated: true)
-        }
-        ProgressHUD.showLoading(
-            addedTo: self.navigationController?.view,
-            animated: true
-        )
-        DispatchQueue.global().async {
-            if self.config.saveSystemAlbum {
-                self.saveSystemAlbum(
-                    for: videoURL,
-                    mediaType: .video,
-                    location: location
-                ) { [weak self] in
-                    self?.cameraControllerDismiss()
-                }
-                return
-            }
-            self.addedCameraPhotoAsset(
-                PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+                photoAsset
             ) { [weak self] in
                 self?.cameraControllerDismiss()
             }

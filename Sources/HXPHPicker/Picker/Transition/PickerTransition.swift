@@ -90,9 +90,9 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             if let photoAsset = photoAsset, let pickerVC = pickerVC {
                 let cell = pickerVC.getCell(for: photoAsset)
                 if cell != nil {
-                    pushImageView.image = cell?.imageView.image
-                    pushImageView.frame = cell?.imageView.convert(
-                        cell?.imageView.bounds ?? CGRect.zero,
+                    pushImageView.image = cell?.photoView.image
+                    pushImageView.frame = cell?.photoView.convert(
+                        cell?.photoView.bounds ?? CGRect.zero,
                         to: containerView
                     ) ?? CGRect.zero
                     fromView = cell

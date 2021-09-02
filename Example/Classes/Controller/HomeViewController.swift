@@ -214,23 +214,16 @@ extension UITableViewCell {
 extension HomeViewController: CameraControllerDelegate {
     func cameraController(
         _ cameraController: CameraController,
-        didFinishWithImage image: UIImage,
-        location: CLLocation?
-    ) {
+        didFinishWithResult result: CameraController.Result,
+        location: CLLocation?) {
         cameraController.dismiss(animated: true) {
-            let photoAsset = PhotoAsset(localImageAsset: .init(image: image))
-            let pickerResultVC = PickerResultViewController.init()
-            pickerResultVC.selectedAssets = [photoAsset]
-            self.navigationController?.pushViewController(pickerResultVC, animated: true)
-        }
-    }
-    func cameraController(
-        _ cameraController: CameraController,
-        didFinishWithVideo videoURL: URL,
-        location: CLLocation?
-    ) {
-        cameraController.dismiss(animated: true) {
-            let photoAsset = PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+            let photoAsset: PhotoAsset
+            switch result {
+            case .image(let image):
+                photoAsset = PhotoAsset(localImageAsset: .init(image: image))
+            case .video(let videoURL):
+                photoAsset = PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+            }
             let pickerResultVC = PickerResultViewController.init()
             pickerResultVC.selectedAssets = [photoAsset]
             self.navigationController?.pushViewController(pickerResultVC, animated: true)

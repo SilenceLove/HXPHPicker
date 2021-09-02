@@ -70,7 +70,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.2.0"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.2.1"))
 ]
 ```
 
@@ -98,13 +98,13 @@ github "SilenceLove/HXPHPicker"
 
 按需在你的 Info.plist 中添加以下键值:
 
-| Key | 备注 |
-| ----- | ---- |
-| NSPhotoLibraryUsageDescription | 允许访问相册 |
-| NSPhotoLibraryAddUsageDescription | 允许保存图片至相册 |
-| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | 设置为 `YES` iOS 14+ 以禁用自动弹出添加更多照片的弹框(已适配 Limited 功能，可由用户主动触发，提升用户体验)|
-| NSCameraUsageDescription | 允许使用相机 |
-| NSMicrophoneUsageDescription | 允许使用麦克风 |
+| Key | 模块 | 备注 |
+| ----- | ----  | ---- |
+| NSPhotoLibraryUsageDescription | Picker | 允许访问相册 |
+| NSPhotoLibraryAddUsageDescription | Picker | 允许保存图片至相册 |
+| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | Picker | 设置为 `YES` iOS 14+ 以禁用自动弹出添加更多照片的弹框(Picker 已适配 Limited 功能，可由用户主动触发，提升用户体验)|
+| NSCameraUsageDescription | Camera | 允许使用相机 |
+| NSMicrophoneUsageDescription | Camera | 允许使用麦克风 |
 
 ### 快速上手
 ```swift

@@ -27,9 +27,16 @@ public class CameraConfiguration: BaseConfiguration {
     /// 视频最大录制时长
     public var videoMaximumDuration: TimeInterval = 60
     
+    /// 视频最短录制时长
+    public var videoMinimumDuration: TimeInterval = 1
+    
     /// 主题色
     public var tintColor: UIColor = .systemTintColor {
-        didSet { setupEditorColor() }
+        didSet {
+            #if HXPICKER_ENABLE_EDITOR
+            setupEditorColor()
+            #endif
+        }
     }
     
     /// 摄像头最大缩放比例

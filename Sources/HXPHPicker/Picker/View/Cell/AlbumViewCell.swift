@@ -150,10 +150,9 @@ open class AlbumViewCell: UITableViewCell {
     }
     
     public func cancelRequest() {
-        if requestID != nil {
-            PHImageManager.default().cancelImageRequest(requestID!)
-            requestID = nil
-        }
+        guard let requestID = requestID else { return }
+        PHImageManager.default().cancelImageRequest(requestID)
+        self.requestID = nil
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

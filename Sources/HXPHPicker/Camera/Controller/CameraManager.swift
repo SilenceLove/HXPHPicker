@@ -53,6 +53,8 @@ class CameraManager: NSObject {
     var recordDuration: TimeInterval = 0
     var activeVideoInput: AVCaptureDeviceInput?
     private(set) var flashMode: AVCaptureDevice.FlashMode = .auto
+    
+    private var photoWillCapture: (() -> Void)?
     private var photoCompletion: ((Data?) -> Void)?
     private var videoRecordingProgress: ((Float, TimeInterval) -> Void)?
     private var videoCompletion: ((URL, Error?) -> Void)?
@@ -447,13 +449,22 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
         return settings
     }
     
-    func capturePhoto(completion: @escaping (Data?) -> Void) {
+    func capturePhoto(
+        willBegin: @escaping () -> Void,
+        completion: @escaping (Data?) -> Void
+    ) {
+        photoWillCapture = willBegin
         photoCompletion = completion
         let connection = photoOutput.connection(with: .video)
         connection?.videoOrientation = currentOrienation
         photoOutput.capturePhoto(with: photoCaptureSettings(), delegate: self)
     }
-    
+    func photoOutput(
+        _ output: AVCapturePhotoOutput,
+        willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings
+    ) {
+        photoWillCapture?()
+    }
     @available(iOS 11.0, *)
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         let data = photo.fileDataRepresentation()
@@ -546,7 +557,7 @@ extension CameraManager: AVCaptureFileOutputRecordingDelegate {
         error: Error?
     ) {
         invalidateTimer()
-        if recordDuration < 1 {
+        if recordDuration < config.videoMinimumDuration {
             videoCompletion?(
                 outputFileURL,
                 NSError(

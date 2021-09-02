@@ -19,6 +19,7 @@ protocol PhotoPreviewVideoViewDelegate: AnyObject {
     
     func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool)
     
+    func videoView(readyForDisplay videoView: VideoPlayerView)
     func videoView(resetPlay videoView: VideoPlayerView)
     func videoView(_ videoView: VideoPlayerView, readyToPlay duration: CGFloat)
     func videoView(_ videoView: VideoPlayerView, didChangedBuffer duration: CGFloat)
@@ -33,6 +34,7 @@ extension PhotoPreviewVideoViewDelegate {
     func videoView(showMaskView videoView: VideoPlayerView) {}
     func videoView(hideMaskView videoView: VideoPlayerView) {}
     func videoView(_ videoView: VideoPlayerView, isPlaybackLikelyToKeepUp: Bool) {}
+    func videoView(readyForDisplay videoView: VideoPlayerView) {}
     func videoView(resetPlay videoView: VideoPlayerView) {}
     func videoView(_ videoView: VideoPlayerView, readyToPlay duration: CGFloat) {}
     func videoView(_ videoView: VideoPlayerView, didChangedBuffer duration: CGFloat) {}
@@ -256,10 +258,12 @@ class PhotoPreviewVideoView: VideoPlayerView {
             if object as? AVPlayerLayer != playerLayer {
                 return
             }
-            if playerLayer.isReadyForDisplay &&
-                !didEnterBackground &&
-                (videoPlayType == .auto || videoPlayType == .once) {
-                startPlay()
+            if playerLayer.isReadyForDisplay {
+                delegate?.videoView(readyForDisplay: self)
+                if !didEnterBackground &&
+                    (videoPlayType == .auto || videoPlayType == .once) {
+                    startPlay()
+                }
             }
             if playerTime > 0 {
                 seek(to: TimeInterval(playerTime), isPlay: true)

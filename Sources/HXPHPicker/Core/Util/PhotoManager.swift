@@ -70,7 +70,7 @@ public class PhotoManager: NSObject {
     var downloadFileURLs: [String: URL] = [:]
     var downloadExts: [String: Any] = [:]
     
-    var cameraPreviewImage: UIImage?
+    var cameraPreviewImage: UIImage? = PhotoTools.getCameraPreviewImage()
     
     func saveCameraPreview() {
         if let image = cameraPreviewImage {
@@ -83,9 +83,6 @@ public class PhotoManager: NSObject {
     private override init() {
         super.init()
         createBundle()
-        DispatchQueue.global().async {
-            self.cameraPreviewImage = PhotoTools.getCameraPreviewImage()
-        }
     }
     
     @discardableResult

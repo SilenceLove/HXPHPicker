@@ -177,7 +177,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         if photoAsset.mediaType == .video {
             openVideoEditor(
                 photoAsset: photoAsset,
-                coverImage: cell?.imageView.image,
+                coverImage: cell?.photoView.image,
                 animated: animated
             )
         }else {

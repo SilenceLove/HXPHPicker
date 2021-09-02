@@ -154,8 +154,8 @@ class WeChatViewCell: UITableViewCell {
         layer.borderWidth = 0.0
         return layer
     }()
-    lazy var pictureView: UIImageView = {
-        let view = UIImageView()
+    lazy var pictureView: PhotoThumbnailView = {
+        let view = PhotoThumbnailView()
         view.backgroundColor = UIColor(hexString: "#dadada")
         view.layer.cornerRadius = 5
         view.layer.masksToBounds = true
@@ -175,12 +175,10 @@ class WeChatViewCell: UITableViewCell {
         view.hidesWhenStopped = true
         return view
     }()
-    var requestID: PHImageRequestID?
     var photoAsset: PhotoAsset! {
         didSet {
-            if let requestId = requestID {
-                PHImageManager.default().cancelImageRequest(requestId)
-            }
+            pictureView.cancelRequest()
+            pictureView.photoAsset = photoAsset
             if photoAsset.isGifAsset {
                 if let photoEdit = photoAsset.photoEdit {
                     stateLb.text = photoEdit.imageType == .gif ? "GIF" : nil
@@ -213,22 +211,16 @@ class WeChatViewCell: UITableViewCell {
             }
             playIcon.isHidden = true
             loadingView.startAnimating()
+            pictureView.placeholder = nil
             let targetWidth = hx.width * 2
-            pictureView.image = nil
-            requestID = photoAsset.requestThumbnailImage(
+            pictureView.requestThumbnailImage(
                 targetWidth: targetWidth
-            ) { [weak self] image, photoAsset, info in
+            ) { [weak self] image, photoAsset in
                 guard let self = self else { return }
                 self.loadingView.stopAnimating()
                 if self.photoAsset == photoAsset {
-                    if let image = image {
-                        self.pictureView.image = image
-                    }
                     if photoAsset.mediaType == .video {
                         self.playIcon.isHidden = false
-                    }
-                    if !AssetManager.assetIsDegraded(for: info) {
-                        self.requestID = nil
                     }
                 }
             }

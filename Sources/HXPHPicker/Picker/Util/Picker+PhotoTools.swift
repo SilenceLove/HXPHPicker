@@ -112,7 +112,7 @@ extension PhotoTools {
                 }
             }
             if let url = url {
-                getVideoThumbnailImage(url: url, atTime: 0.1) { (videoURL, coverImage) in
+                getVideoThumbnailImage(url: url, atTime: 0.1) { (videoURL, coverImage, result) in
                     if photoAsset.isNetworkAsset {
                         photoAsset.networkVideoAsset?.coverImage = coverImage
                     }else {
@@ -229,7 +229,7 @@ extension PhotoTools {
                 }
             }
             if let url = url {
-                let avAsset = AVAsset.init(url: url)
+                let avAsset = AVURLAsset(url: url)
                 avAsset.loadValuesAsynchronously(forKeys: ["duration"]) {
                     let duration = avAsset.duration.seconds
                     if photoAsset.isNetworkAsset {

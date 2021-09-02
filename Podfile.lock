@@ -1,20 +1,20 @@
 PODS:
-  - HXPHPicker (1.2.0):
-    - HXPHPicker/Full (= 1.2.0)
-  - HXPHPicker/Camera (1.2.0):
+  - HXPHPicker (1.2.1):
+    - HXPHPicker/Full (= 1.2.1)
+  - HXPHPicker/Camera (1.2.1):
     - HXPHPicker/Core
-  - HXPHPicker/Core (1.2.0)
-  - HXPHPicker/Editor (1.2.0):
+  - HXPHPicker/Core (1.2.1)
+  - HXPHPicker/Editor (1.2.1):
     - HXPHPicker/Core
-  - HXPHPicker/Full (1.2.0):
+  - HXPHPicker/Full (1.2.1):
     - HXPHPicker/Lite
     - Kingfisher (~> 6.0)
-  - HXPHPicker/Lite (1.2.0):
+  - HXPHPicker/Lite (1.2.1):
     - HXPHPicker/Camera
     - HXPHPicker/Core
     - HXPHPicker/Editor
     - HXPHPicker/Picker
-  - HXPHPicker/Picker (1.2.0):
+  - HXPHPicker/Picker (1.2.1):
     - HXPHPicker/Core
   - Kingfisher (6.3.0)
   - SwiftLint (0.43.1)
@@ -33,7 +33,7 @@ EXTERNAL SOURCES:
     :path: "./"
 
 SPEC CHECKSUMS:
-  HXPHPicker: fb1a53200a1f1e7fd9ddad48428a8ebbdb4bb05c
+  HXPHPicker: ad5634401e8515f6003338624acb4f39c341ba4d
   Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
 

@@ -10,25 +10,14 @@ import CoreLocation
 
 public protocol CameraControllerDelegate: AnyObject {
     
-    /// 拍照完成
+    /// 拍摄完成
     /// - Parameters:
     ///   - cameraController: 对应的 CameraController
-    ///   - image: 照片
+    ///   - result: 拍摄结果
     ///   - locatoin: 定位信息
     func cameraController(
         _ cameraController: CameraController,
-        didFinishWithImage image: UIImage,
-        location: CLLocation?
-    )
-    
-    /// 录制完成
-    /// - Parameters:
-    ///   - cameraController: 对应的 CameraController
-    ///   - videoURL: 视频地址
-    ///   - locatoin: 定位信息
-    func cameraController(
-        _ cameraController: CameraController,
-        didFinishWithVideo videoURL: URL,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     )
     
@@ -38,18 +27,10 @@ public protocol CameraControllerDelegate: AnyObject {
 }
 
 public extension CameraControllerDelegate {
+    
     func cameraController(
         _ cameraController: CameraController,
-        didFinishWithImage image: UIImage,
-        location: CLLocation?
-    ) {
-        if !cameraController.autoDismiss {
-            cameraController.dismiss(animated: true)
-        }
-    }
-    func cameraController(
-        _ cameraController: CameraController,
-        didFinishWithVideo videoURL: URL,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     ) {
         if !cameraController.autoDismiss {
@@ -65,25 +46,14 @@ public extension CameraControllerDelegate {
 
 public protocol CameraViewControllerDelegate: AnyObject {
     
-    /// 拍照完成
+    /// 拍摄完成
     /// - Parameters:
     ///   - cameraViewController: 对应的 CameraViewController
-    ///   - image: 照片
+    ///   - result: 拍摄结果
     ///   - locatoin: 定位信息
     func cameraViewController(
         _ cameraViewController: CameraViewController,
-        didFinishWithImage image: UIImage,
-        location: CLLocation?
-    )
-    
-    /// 录制完成
-    /// - Parameters:
-    ///   - cameraViewController: 对应的 CameraViewController
-    ///   - videoURL: 视频地址
-    ///   - locatoin: 定位信息
-    func cameraViewController(
-        _ cameraViewController: CameraViewController,
-        didFinishWithVideo videoURL: URL,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     )
     
@@ -95,16 +65,7 @@ public protocol CameraViewControllerDelegate: AnyObject {
 public extension CameraViewControllerDelegate {
     func cameraViewController(
         _ cameraViewController: CameraViewController,
-        didFinishWithImage image: UIImage,
-        location: CLLocation?
-    ) {
-        if !cameraViewController.autoDismiss {
-            cameraViewController.dismiss(animated: true)
-        }
-    }
-    func cameraViewController(
-        _ cameraViewController: CameraViewController,
-        didFinishWithVideo videoURL: URL,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     ) {
         if !cameraViewController.autoDismiss {

@@ -10,10 +10,19 @@ import CoreLocation
 
 open class CameraController: UINavigationController {
     
+    /// 相机类型
     public enum CameraType {
         case photo
         case video
         case all
+    }
+    
+    /// 拍摄结果
+    public enum Result {
+        /// 图片
+        case image(UIImage)
+        /// 视频地址
+        case video(URL)
     }
     
     public weak var cameraDelegate: CameraControllerDelegate?
@@ -25,7 +34,10 @@ open class CameraController: UINavigationController {
             vc?.autoDismiss = autoDismiss
         }
     }
+    
+    /// 相机配置
     public let config: CameraConfiguration
+    
     /// 相机初始化
     /// - Parameters:
     ///   - config: 相机配置
@@ -47,6 +59,32 @@ open class CameraController: UINavigationController {
         viewControllers = [cameraVC]
     }
     
+    public typealias CaptureCompletion = (Result, CLLocation?) -> Void
+    
+    /// 跳转相机
+    /// - Parameters:
+    ///   - config: 相机配置
+    ///   - type: 相机类型
+    ///   - completion: 拍摄完成
+    /// - Returns: 相机对应的 CameraController
+    @discardableResult
+    public class func capture(
+        config: CameraConfiguration,
+        type: CameraType = .all,
+        fromVC: UIViewController? = nil,
+        completion: @escaping CaptureCompletion
+    ) -> CameraController {
+        let controller = CameraController(
+            config: config,
+            type: type
+        )
+        controller.completion = completion
+        (fromVC ?? UIViewController.topViewController)?.present(controller, animated: true)
+        return controller
+    }
+    
+    public var completion: CaptureCompletion?
+    
     open override var prefersStatusBarHidden: Bool {
         config.prefersStatusBarHidden
     }
@@ -64,23 +102,13 @@ open class CameraController: UINavigationController {
 extension CameraController: CameraViewControllerDelegate {
     public func cameraViewController(
         _ cameraViewController: CameraViewController,
-        didFinishWithImage image: UIImage,
+        didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     ) {
+        completion?(result, location)
         cameraDelegate?.cameraController(
             self,
-            didFinishWithImage: image,
-            location: location
-        )
-    }
-    public func cameraViewController(
-        _ cameraViewController: CameraViewController,
-        didFinishWithVideo videoURL: URL,
-        location: CLLocation?
-    ) {
-        cameraDelegate?.cameraController(
-            self,
-            didFinishWithVideo: videoURL,
+            didFinishWithResult: result,
             location: location
         )
     }

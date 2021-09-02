@@ -52,7 +52,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     var requestCompletion: Bool = false
     var requestNetworkCompletion: Bool = false
     var networkVideoLoading: Bool = false
-    
+    var imageTask: Any?
     var videoPlayType: PhotoPreviewViewController.PlayType = .normal {
         didSet {
             if type == .video {
@@ -107,7 +107,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 showLoadingView(text: "正在下载".localized)
             }
         }
-        imageView.setImage(
+        imageTask = imageView.setImage(
             for: photoAsset,
             urlType: .original
         ) { [weak self] (receivedData, totolData) in
@@ -116,6 +116,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 let percentage = Double(receivedData) / Double(totolData)
                 self.requestUpdateProgress(progress: percentage, isICloud: false)
             }
+        } imageGenerator: { [weak self] imageGenerator in
+            self?.imageTask = imageGenerator
         } completionHandler: { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
@@ -134,7 +136,11 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
         }
         #else
-        imageView.setVideoCoverImage(for: photoAsset) { [weak self] (image, photoAsset) in
+        imageTask = imageView.setVideoCoverImage(
+            for: photoAsset
+        ) { [weak self] imageGenerator in
+            self?.imageTask = imageGenerator
+        } completionHandler: { [weak self] (image, photoAsset) in
             guard let self = self else { return }
             if let image = image, self.photoAsset == photoAsset {
                 self.imageView.image = image
@@ -196,16 +202,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 if let url = url {
                     if let image = self.photoAsset.networkVideoAsset?.coverImage {
                         self.updateContentSize(image: image)
-                    }else {
-                        PhotoTools.getVideoThumbnailImage(
-                            url: url,
-                            atTime: 0.1
-                        ) { [weak self] _, image in
-                            if let image = image {
-                                self?.photoAsset.networkVideoAsset?.coverImage = image
-                                self?.updateContentSize(image: image)
-                            }
-                        }
+                    }else if let image = PhotoTools.getVideoThumbnailImage(videoURL: url, atTime: 0.1) {
+                        self.photoAsset.networkVideoAsset?.coverImage = image
+                        self.updateContentSize(image: image)
                     }
                     self.checkNetworkVideoFileSize(url)
                     self.requestSucceed()
@@ -502,8 +501,26 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             ProgressHUD.showWarning(addedTo: hudSuperview(), text: text.localized, animated: true, delayHide: 2)
         }
     }
+    func cancelImageTask() {
+        #if canImport(Kingfisher)
+        if let donwloadTask = imageTask as? Kingfisher.DownloadTask {
+            donwloadTask.cancel()
+        }else if let avAsset = imageTask as? AVAsset {
+            avAsset.cancelLoading()
+        }else if let imageGenerator = imageTask as? AVAssetImageGenerator {
+            imageGenerator.cancelAllCGImageGeneration()
+        }
+        #else
+        if let avAsset = imageTask as? AVAsset {
+            avAsset.cancelLoading()
+        }else if let imageGenerator = imageTask as? AVAssetImageGenerator {
+            imageGenerator.cancelAllCGImageGeneration()
+        }
+        #endif
+    }
     func cancelRequest() {
         guard let photoAsset = photoAsset else { return }
+        cancelImageTask()
         if !isPeek {
             photoAsset.playerTime = 0
         }
