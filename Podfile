@@ -20,7 +20,7 @@ target 'Example' do
   # 只有编辑功能
   # pod 'HXPHPicker/Editor', :path => './'
   
-  pod 'SwiftLint'
+#  pod 'SwiftLint'
 end
 
 post_install do |installer|
