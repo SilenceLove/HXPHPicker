@@ -9,21 +9,18 @@ import UIKit
 
 extension PhotoAsset {
     struct Simplify: Codable {
-        public let phLocalIdentifier: String?
-        public let localImageAsset: LocalImageAsset?
-        public let localVideoAsset: LocalVideoAsset?
-        public let networkVideoAsset: NetworkVideoAsset?
+        let phLocalIdentifier: String?
+        let localImageAsset: LocalImageAsset?
+        let localVideoAsset: LocalVideoAsset?
+        let networkVideoAsset: NetworkVideoAsset?
         
         #if canImport(Kingfisher)
-        public let networkImageAsset: NetworkImageAsset?
+        let networkImageAsset: NetworkImageAsset?
         #endif
         
         #if HXPICKER_ENABLE_EDITOR
-        /// 图片编辑数据
-        public let photoEdit: PhotoEditResult?
-        
-        /// 视频编辑数据
-        public let videoEdit: VideoEditResult?
+        let photoEdit: PhotoEditResult?
+        let videoEdit: VideoEditResult?
         #endif
     }
     

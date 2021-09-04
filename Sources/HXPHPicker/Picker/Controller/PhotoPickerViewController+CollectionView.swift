@@ -237,6 +237,9 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             if isExceedsTheLimit {
                 config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
                 config.defaultState = .cropping
+                config.cropping.maximumVideoCroppingTime = TimeInterval(
+                    pickerController.config.maximumSelectedVideoDuration
+                )
                 config.mustBeTailored = true
             }else {
                 config = pickerController.config.videoEditor

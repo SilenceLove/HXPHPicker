@@ -80,19 +80,4 @@ open class VideoEditorConfiguration: EditorConfiguration {
         config.toolOptions = [chartlet, text, music, crop]
         return config
     }()
-    
-    func mutableCopy() -> Any {
-        let config = VideoEditorConfiguration()
-        config.exportPreset = exportPreset
-        config.videoQuality = videoQuality
-        config.defaultState = defaultState
-        config.mustBeTailored = mustBeTailored
-        config.chartlet = chartlet
-        config.text = text
-        config.music = music
-        config.cropping = cropping
-        config.cropView = cropView
-        config.toolView = toolView
-        return config
-    }
 }

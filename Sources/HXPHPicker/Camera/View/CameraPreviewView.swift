@@ -42,7 +42,9 @@ class CameraPreviewView: UIView {
         return focusView
     }()
     let config: CameraConfiguration
-    var maxScale: CGFloat = 5
+    var maxScale: CGFloat {
+        config.videoMaxZoomScale
+    }
     var effectiveScale: CGFloat = 1
     var beginGestureScale: CGFloat = 1
     var previewLayer: AVCaptureVideoPreviewLayer?
@@ -83,25 +85,7 @@ class CameraPreviewView: UIView {
         
         addGestureRecognizer(pinch)
         addGestureRecognizer(tap)
-        
     }
-    
-//    func addSwipeGesture() {
-//        let leftSwipe = UISwipeGestureRecognizer(
-//            target: self,
-//            action: #selector(handleLeftSwipeGesture(_:))
-//        )
-//        leftSwipe.direction = .left
-//
-//        let rightSwipe = UISwipeGestureRecognizer(
-//            target: self,
-//            action: #selector(handleRightSwipeGesture(_:))
-//        )
-//        leftSwipe.direction = .right
-//
-//        addGestureRecognizer(leftSwipe)
-//        addGestureRecognizer(rightSwipe)
-//    }
 
     @objc
     func handlePinchGesture(_ pinch: UIPinchGestureRecognizer) {
@@ -116,52 +100,13 @@ class CameraPreviewView: UIView {
     @objc
     func handleTapGesture(_ tap: UITapGestureRecognizer) {
         let point = tap.location(in: self)
-        focusViewAnimation(at: point)
+        PhotoTools.focusAnimation(for: focusView, at: point)
         delegate?.previewView(self, tappedToFocusAt: captureDevicePoint(for: point))
-    }
-    
-    @objc
-    func handleLeftSwipeGesture(_ swipe: UISwipeGestureRecognizer) {
-        if swipe.direction == .left {
-            delegate?.previewView(didLeftSwipe: self)
-        }
-    }
-    
-    @objc
-    func handleRightSwipeGesture(_ swipe: UISwipeGestureRecognizer) {
-        if swipe.direction == .right {
-            delegate?.previewView(didRightSwipe: self)
-        }
-    }
-    
-    func focusViewAnimation(at point: CGPoint) {
-        focusView.layer.removeAnimation(forKey: "focusViewAnimation")
-        focusView.center = point
-        focusView.transform = .identity
-        
-        let scaleAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
-        scaleAnimation.duration = 1
-        scaleAnimation.values = [0.9, 1.1, 0.95, 1.05, 1, 0.95, 1.0]
-        scaleAnimation.isRemovedOnCompletion = false
-        
-        let opcityAnimation = CAKeyframeAnimation(keyPath: "opacity")
-        opcityAnimation.duration = 1
-        opcityAnimation.values = [0.2, 1.0, 0.5, 1, 0.35, 1, 0.2, 0.5, 0]
-        opcityAnimation.timingFunction = .init(name: .linear)
-        opcityAnimation.isRemovedOnCompletion = false
-    
-        let group = CAAnimationGroup()
-        group.animations = [scaleAnimation, opcityAnimation]
-        group.duration = 1
-        group.isRemovedOnCompletion = false
-        group.fillMode = .forwards
-        
-        focusView.layer.add(group, forKey: "focusViewAnimation")
     }
     
     func initialFocus() {
         let point = CGPoint(x: width * 0.5, y: height * 0.5)
-        focusViewAnimation(at: point)
+        PhotoTools.focusAnimation(for: focusView, at: point)
         delegate?.previewView(self, tappedToFocusAt: captureDevicePoint(for: point))
     }
     

@@ -33,11 +33,13 @@ public struct PickerResult {
 // MARK: Get Image / Video URL
 public extension PickerResult {
     
-    /// 获取 image (不是原图)
+    /// 获取 image
     /// - Parameters:
+    ///   - compressionScale: 压缩比例，获取系统相册里的资源时有效
     ///   - imageHandler: 每一次获取image都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)
     func getImage(
+        compressionScale: CGFloat = 0.5,
         imageHandler: ((UIImage?, PhotoAsset, Int) -> Void)? = nil,
         completionHandler: @escaping ([UIImage]) -> Void
     ) {
@@ -49,8 +51,8 @@ public extension PickerResult {
                 group: group,
                 execute: DispatchWorkItem(block: {
                     let semaphore = DispatchSemaphore(value: 0)
-                    photoAsset.requestImage { (image, phAsset) in
-                    imageHandler?(image, phAsset, index)
+                    photoAsset.requestImage(compressionScale: compressionScale) { image, phAsset in
+                        imageHandler?(image, phAsset, index)
                         if let image = image {
                             images.append(image)
                         }

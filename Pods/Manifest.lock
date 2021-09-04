@@ -11,12 +11,11 @@ PODS:
     - Kingfisher (~> 6.0)
   - HXPHPicker/Lite (1.2.1):
     - HXPHPicker/Camera
-    - HXPHPicker/Core
     - HXPHPicker/Editor
     - HXPHPicker/Picker
   - HXPHPicker/Picker (1.2.1):
     - HXPHPicker/Core
-  - Kingfisher (6.3.0)
+  - Kingfisher (6.3.1)
   - SwiftLint (0.43.1)
 
 DEPENDENCIES:
@@ -33,10 +32,10 @@ EXTERNAL SOURCES:
     :path: "./"
 
 SPEC CHECKSUMS:
-  HXPHPicker: ad5634401e8515f6003338624acb4f39c341ba4d
-  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
+  HXPHPicker: 330cf150e1319655a3ee416eb9ef571622c3b255
+  Kingfisher: 016c8b653a35add51dd34a3aba36b580041acc74
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
 
-PODFILE CHECKSUM: 2246cd7a5cb59cfa68c41da4fc9c5be3bb5fc2d1
+PODFILE CHECKSUM: fa2fecaa083194d6ae502412be15fa39069b0182
 
 COCOAPODS: 1.10.1

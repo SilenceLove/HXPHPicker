@@ -76,15 +76,15 @@ public struct VideoCropData: Codable {
     /// 0：offsetX ，CollectionView的offset.x
     /// 1：validX ，裁剪框的x
     /// 2：validWidth ，裁剪框的宽度
-    public let cropingData: CropData
+    let cropingData: CropData
     
     /// 裁剪框的位置大小比例
     /// 0：offsetX ，CollectionView的offset.x
     /// 1：validX ，裁剪框的x
     /// 2：validWidth ，裁剪框的宽度
-    public let cropRectData: CropData
+    let cropRectData: CropData
     
-    public init(
+    init(
         startTime: TimeInterval,
         endTime: TimeInterval,
         preferredTimescale: Int32,
@@ -98,7 +98,7 @@ public struct VideoCropData: Codable {
         self.cropRectData = cropRectData
     }
     
-    public struct CropData: Codable {
+    struct CropData: Codable {
         let offsetX: CGFloat
         let validX: CGFloat
         let validWidth: CGFloat

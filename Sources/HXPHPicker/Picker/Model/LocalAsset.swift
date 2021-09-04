@@ -38,7 +38,7 @@ public struct LocalVideoAsset {
     public var duration: TimeInterval
     
     /// 视频尺寸
-    public let videoSize: CGSize
+    public var videoSize: CGSize
     
     public init(videoURL: URL,
                 coverImage: UIImage? = nil,

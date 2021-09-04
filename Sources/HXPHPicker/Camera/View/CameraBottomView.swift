@@ -112,7 +112,7 @@ class CameraBottomView: UIView {
         delegate?.bottomView(didBackButton: self)
     }
     
-    func addGesture(for type: CameraController.CameraType) {
+    func addGesture(for type: CameraController.CaptureType) {
         switch type {
         case .photo:
             takeBgView.addGestureRecognizer(tapGesture)
@@ -165,7 +165,9 @@ class CameraBottomView: UIView {
                 self.takeBgView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
                 self.takeView.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
             } completion: { _ in
-                self.delegate?.bottomView(beganRecording: self)
+                if self.isRecording {
+                    self.delegate?.bottomView(beganRecording: self)
+                }
             }
         case .changed:
             let point = longPress.location(in: self)
@@ -212,7 +214,8 @@ class CameraBottomView: UIView {
             duration
         )
         maskAnimation.isRemovedOnCompletion = false
-        takeMaskLayer.add(maskAnimation, forKey: nil)
+//        maskAnimation.delegate = self
+        takeMaskLayer.add(maskAnimation, forKey: "takeMaskLayer")
     }
     func setTakeMaskLayerPath() {
         let path = UIBezierPath(
@@ -251,3 +254,14 @@ class CameraBottomView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+//    extension CameraBottomView: CAAnimationDelegate {
+//        func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+//            if anim == takeMaskLayer.animation(forKey: "takeMaskLayer") && flag {
+//                delegate?.bottomView(endRecording: self)
+//                stopRecord()
+//            }else {
+//                takeMaskLayer.removeAllAnimations()
+//            }
+//        }
+//    }

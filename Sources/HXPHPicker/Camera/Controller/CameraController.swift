@@ -10,8 +10,14 @@ import CoreLocation
 
 open class CameraController: UINavigationController {
     
-    /// 相机类型
     public enum CameraType {
+        case normal
+        #if canImport(GPUImage)
+        case gpu
+        #endif
+    }
+    
+    public enum CaptureType {
         case photo
         case video
         case all
@@ -45,7 +51,7 @@ open class CameraController: UINavigationController {
     ///   - delegate: 相机代理
     public init(
         config: CameraConfiguration,
-        type: CameraType,
+        type: CaptureType,
         delegate: CameraControllerDelegate? = nil
     ) {
         self.config = config
@@ -70,7 +76,7 @@ open class CameraController: UINavigationController {
     @discardableResult
     public class func capture(
         config: CameraConfiguration,
-        type: CameraType = .all,
+        type: CaptureType = .all,
         fromVC: UIViewController? = nil,
         completion: @escaping CaptureCompletion
     ) -> CameraController {

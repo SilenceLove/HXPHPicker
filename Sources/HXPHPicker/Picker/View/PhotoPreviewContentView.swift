@@ -116,8 +116,8 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 let percentage = Double(receivedData) / Double(totolData)
                 self.requestUpdateProgress(progress: percentage, isICloud: false)
             }
-        } imageGenerator: { [weak self] imageGenerator in
-            self?.imageTask = imageGenerator
+        } downloadTask: { [weak self] downloadTask in
+            self?.imageTask = downloadTask
         } completionHandler: { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
@@ -178,6 +178,7 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 let url = PhotoTools.getVideoCacheURL(for: key)
                 checkNetworkVideoFileSize(url)
                 networkVideoRequestCompletion(url)
+                delegate?.contentView(updateContentSize: self)
                 return
             }
             if PhotoManager.shared.loadNetworkVideoMode == .play {
@@ -200,11 +201,9 @@ class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 guard let self = self else { return }
                 self.networkVideoLoading = false
                 if let url = url {
-                    if let image = self.photoAsset.networkVideoAsset?.coverImage {
-                        self.updateContentSize(image: image)
-                    }else if let image = PhotoTools.getVideoThumbnailImage(videoURL: url, atTime: 0.1) {
-                        self.photoAsset.networkVideoAsset?.coverImage = image
-                        self.updateContentSize(image: image)
+                    if let videoAsset = self.photoAsset.networkVideoAsset,
+                       videoAsset.videoSize.equalTo(.zero) {
+                        self.delegate?.contentView(updateContentSize: self)
                     }
                     self.checkNetworkVideoFileSize(url)
                     self.requestSucceed()

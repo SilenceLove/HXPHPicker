@@ -53,6 +53,7 @@
 		7B5833DC26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5833DB26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift */; };
 		7B5833DE26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5833DD26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift */; };
 		7B58DA9026E0B07500F853F7 /* PhotoThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B58DA8F26E0B07400F853F7 /* PhotoThumbnailView.swift */; };
+		7B58DA9226E0D47800F853F7 /* CameraGPUImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */; };
 		7B5BF28825F719FB00E21D15 /* VideoEditResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */; };
 		7B5D5B702627DF7200F94E01 /* PhotoEditorCropToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5D5B6F2627DF7200F94E01 /* PhotoEditorCropToolModel.swift */; };
 		7B5DD19C26D0919300320D82 /* picker_example_image.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 7B5DD18D26D0919300320D82 /* picker_example_image.JPG */; };
@@ -160,6 +161,7 @@
 		7BB8A2DC26DF52CB0039D304 /* PhotoTools+Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB8A2DB26DF52CB0039D304 /* PhotoTools+Alert.swift */; };
 		7BB8A2DE26DF54C00039D304 /* CameraViewController+Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB8A2DD26DF54C00039D304 /* CameraViewController+Location.swift */; };
 		7BB8A2E026DF6D160039D304 /* EditorControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB8A2DF26DF6D160039D304 /* EditorControllerProtocol.swift */; };
+		7BB9B38226E1E29F00C675BD /* Camera+PhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB9B38126E1E29F00C675BD /* Camera+PhotoTools.swift */; };
 		7BBA0C6226BBDCE200BA85B1 /* CaptureVideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBA0C6126BBDCE200BA85B1 /* CaptureVideoPreviewView.swift */; };
 		7BBA80D425F5C2EB00CECBA7 /* PickerResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBA80D325F5C2EB00CECBA7 /* PickerResult.swift */; };
 		7BBBD54025AEFC5F00301DCC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD53F25AEFC5F00301DCC /* AppDelegate.swift */; };
@@ -380,6 +382,7 @@
 		7B5833DB26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPreviewViewController+BottomView.swift"; sourceTree = "<group>"; };
 		7B5833DD26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPreviewViewController+CollectionView.swift"; sourceTree = "<group>"; };
 		7B58DA8F26E0B07400F853F7 /* PhotoThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoThumbnailView.swift; sourceTree = "<group>"; };
+		7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraGPUImageView.swift; sourceTree = "<group>"; };
 		7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditResult.swift; sourceTree = "<group>"; };
 		7B5D5B6F2627DF7200F94E01 /* PhotoEditorCropToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorCropToolModel.swift; sourceTree = "<group>"; };
 		7B5DD18D26D0919300320D82 /* picker_example_image.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = picker_example_image.JPG; sourceTree = "<group>"; };
@@ -554,6 +557,7 @@
 		7BB8A2DB26DF52CB0039D304 /* PhotoTools+Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoTools+Alert.swift"; sourceTree = "<group>"; };
 		7BB8A2DD26DF54C00039D304 /* CameraViewController+Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+Location.swift"; sourceTree = "<group>"; };
 		7BB8A2DF26DF6D160039D304 /* EditorControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorControllerProtocol.swift; sourceTree = "<group>"; };
+		7BB9B38126E1E29F00C675BD /* Camera+PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Camera+PhotoTools.swift"; sourceTree = "<group>"; };
 		7BBA0C6126BBDCE200BA85B1 /* CaptureVideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureVideoPreviewView.swift; sourceTree = "<group>"; };
 		7BBA80D325F5C2EB00CECBA7 /* PickerResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerResult.swift; sourceTree = "<group>"; };
 		7BBBD53D25AEFC5F00301DCC /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -728,6 +732,7 @@
 			isa = PBXGroup;
 			children = (
 				7B5460A526DCB26200A65192 /* CameraPreviewView.swift */,
+				7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */,
 				7B54609A26DCB0E900A65192 /* CameraBottomView.swift */,
 			);
 			path = View;
@@ -1141,6 +1146,7 @@
 				7B54609726DCB07800A65192 /* Controller */,
 				7B54609826DCB07E00A65192 /* View */,
 				7B54609926DCB0A000A65192 /* Model */,
+				7BB9B37E26E1D9F800C675BD /* Util */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -1163,6 +1169,14 @@
 				7BB613FF26A03BAE00D38EBD /* EDITOR_GUIDE.md */,
 			);
 			path = Wiki;
+			sourceTree = "<group>";
+		};
+		7BB9B37E26E1D9F800C675BD /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				7BB9B38126E1E29F00C675BD /* Camera+PhotoTools.swift */,
+			);
+			path = Util;
 			sourceTree = "<group>";
 		};
 		7BBBD53E25AEFC5F00301DCC /* Example */ = {
@@ -1560,6 +1574,7 @@
 				7BF42E0A26D63DEF006C556A /* EditorStickerTextView+Delegate.swift in Sources */,
 				7BF42DFE26D636CD006C556A /* EditorImageResizerView+Mask.swift in Sources */,
 				7B5833D026BCD00D001F86F5 /* VideoEditorViewController+CropConfirm.swift in Sources */,
+				7BB9B38226E1E29F00C675BD /* Camera+PhotoTools.swift in Sources */,
 				7B5460A026DCB0F700A65192 /* CameraController.swift in Sources */,
 				7BA856A826CCA275003CF839 /* ExportPreset.swift in Sources */,
 				7BBA0C6226BBDCE200BA85B1 /* CaptureVideoPreviewView.swift in Sources */,
@@ -1703,6 +1718,7 @@
 				7BEA744C26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift in Sources */,
 				7BEA744826BA3A570065FC35 /* PhotoPickerViewController+Editor.swift in Sources */,
 				7BF42DE826D5E055006C556A /* PhotoAsset+FileSize.swift in Sources */,
+				7B58DA9226E0D47800F853F7 /* CameraGPUImageView.swift in Sources */,
 				7B02F2BC2656186500FA94CD /* Core+Data.swift in Sources */,
 				7B80FAA1268EBE7D003C7B35 /* VideoEditorPlayerView.swift in Sources */,
 				7BBBD5B225AEFE9200301DCC /* PhotoPickerBottomView.swift in Sources */,

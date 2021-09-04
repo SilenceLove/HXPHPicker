@@ -70,22 +70,8 @@
       }
     },
     {
-      "name": "Full",
-      "dependencies": {
-        "HXPHPicker/Lite": [
-
-        ],
-        "Kingfisher": [
-          "~> 6.0"
-        ]
-      }
-    },
-    {
       "name": "Lite",
       "dependencies": {
-        "HXPHPicker/Core": [
-
-        ],
         "HXPHPicker/Picker": [
 
         ],
@@ -94,6 +80,17 @@
         ],
         "HXPHPicker/Camera": [
 
+        ]
+      }
+    },
+    {
+      "name": "Full",
+      "dependencies": {
+        "HXPHPicker/Lite": [
+
+        ],
+        "Kingfisher": [
+          "~> 6.0"
         ]
       }
     }

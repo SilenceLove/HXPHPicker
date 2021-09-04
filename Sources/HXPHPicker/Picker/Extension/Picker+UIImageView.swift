@@ -16,16 +16,14 @@ extension UIImageView {
     #if canImport(Kingfisher)
     @discardableResult
     // swiftlint:disable function_body_length
-    // swiftlint:disable cyclomatic_complexity
     func setImage(
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
-        imageGenerator: ((AVAssetImageGenerator) -> Void)? = nil,
+        downloadTask: ((Kingfisher.DownloadTask?) -> Void)? = nil,
         completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
     ) -> Any? {
         // swiftlint:enable function_body_length
-        // swiftlint:enable cyclomatic_complexity
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = asset.photoEdit {
             if urlType == .thumbnail {
@@ -92,32 +90,39 @@ extension UIImageView {
             loadVideoCover = true
             url = videoAsset.videoURL
         }
-        if loadVideoCover {
-            let avAsset = PhotoTools.getVideoThumbnailImage(
-                url: url!,
-                atTime: 0.1,
-                imageGenerator: imageGenerator
-            ) { videoURL, image, result in
-                if result == .cancelled { return }
-                var currentImage = image
-                if urlType == .thumbnail {
-                    currentImage = image?.scaleImage(toScale: 0.5)
-                    if let image = currentImage {
+        if let url = url, loadVideoCover {
+//            func loadVideoCover() {
+                let provider = AVAssetImageDataProvider(assetURL: url, seconds: 0.1)
+                provider.assetImageGenerator.appliesPreferredTrackTransform = true
+                let task = KF.dataProvider(provider)
+                    .onSuccess { (result) in
+                        let image = result.image
+                        let videoSize: CGSize?
                         if asset.isNetworkAsset {
-                            asset.networkVideoAsset?.coverImage = image
+                            videoSize = asset.networkVideoAsset?.videoSize
                         }else {
-                            asset.localVideoAsset?.image = image
+                            videoSize = asset.localVideoAsset?.videoSize
                         }
+                        if let videoSize = videoSize, videoSize.equalTo(.zero) {
+                            asset.localVideoAsset?.videoSize = image.size
+                            asset.networkVideoAsset?.videoSize = image.size
+                        }
+                        completionHandler?(image, nil, asset)
                     }
-                }
-                self.image = currentImage
-                if let image = currentImage {
-                    completionHandler?(image, nil, asset)
-                }else {
-                    completionHandler?(nil, KingfisherError.requestError(reason: .emptyRequest), asset)
-                }
-            }
-            return avAsset
+                    .onFailure { (error) in
+                        completionHandler?(nil, error, asset)
+                    }
+                    .set(to: self)
+//                downloadTask?(task)
+                return task
+//            }
+//            let avAsset = AVURLAsset(url: url)
+//            avAsset.loadValuesAsynchronously(forKeys: ["duration"]) {
+//                DispatchQueue.main.async {
+//                    loadVideoCover()
+//                }
+//            }
+//            return avAsset
         }
         return kf.setImage(
             with: url,
@@ -211,14 +216,14 @@ extension ImageView {
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
-        imageGenerator: ((AVAssetImageGenerator) -> Void)? = nil,
+        downloadTask: ((Kingfisher.DownloadTask?) -> Void)? = nil,
         completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
     ) -> Any? {
         imageView.setImage(
             for: asset,
             urlType: urlType,
             progressBlock: progressBlock,
-            imageGenerator: imageGenerator,
+            downloadTask: downloadTask,
             completionHandler: completionHandler
         )
     }

@@ -50,10 +50,10 @@ class CameraManager: NSObject {
         qos: .background
     )
     
-    var recordDuration: TimeInterval = 0
     var activeVideoInput: AVCaptureDeviceInput?
     private(set) var flashMode: AVCaptureDevice.FlashMode = .auto
     
+    private var recordDuration: TimeInterval = 0
     private var photoWillCapture: (() -> Void)?
     private var photoCompletion: ((Data?) -> Void)?
     private var videoRecordingProgress: ((Float, TimeInterval) -> Void)?
@@ -69,14 +69,15 @@ class CameraManager: NSObject {
     }
     
     func startSession() throws {
-        if !session.canSetSessionPreset(config.sessionPreset) {
+        let sessionPreset = config.sessionPreset.system
+        if !session.canSetSessionPreset(sessionPreset) {
             throw NSError(
                 domain: "Does not support current preset：\(config.sessionPreset)",
                 code: 500,
                 userInfo: nil
             )
         }
-        session.sessionPreset = config.sessionPreset
+        session.sessionPreset = sessionPreset
         let position: AVCaptureDevice.Position = config.position == .back ? .back : .front
         let videoDevice: AVCaptureDevice
         if let device = camera(with: position) {
@@ -230,12 +231,12 @@ extension CameraManager {
         cameraCount() > 1
     }
     
-    func activeCamera() -> AVCaptureDevice? {
+    var activeCamera: AVCaptureDevice? {
         activeVideoInput?.device
     }
     
     func inactiveCamer() -> AVCaptureDevice? {
-        if let device = activeCamera() {
+        if let device = activeCamera {
             if device.position == .back {
                 return camera(with: .front)
             }
@@ -245,14 +246,14 @@ extension CameraManager {
     }
     
     func cameraSupportsTapToFocus() -> Bool {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return false
         }
         return camera.isFocusPointOfInterestSupported
     }
     
     func cameraHasFlash() -> Bool {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return false
         }
         return camera.hasFlash
@@ -267,21 +268,21 @@ extension CameraManager {
     }
     
     func cameraHasTorch() -> Bool {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return false
         }
         return camera.hasTorch
     }
     
     func torchMode() -> AVCaptureDevice.TorchMode {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return .auto
         }
         return camera.torchMode
     }
     
     func setTorchMode(_ mode: AVCaptureDevice.TorchMode) throws {
-        guard let device = activeCamera() else {
+        guard let device = activeCamera else {
             return
         }
         if device.torchMode != mode && device.isTorchModeSupported(mode) {
@@ -292,14 +293,14 @@ extension CameraManager {
     }
     
     var isSupportsZoom: Bool {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return false
         }
         return camera.activeFormat.videoMaxZoomFactor > 1.0
     }
     
     var maxZoomFactor: CGFloat {
-        guard let camera = activeCamera() else {
+        guard let camera = activeCamera else {
             return 1
         }
         return min(camera.activeFormat.videoMaxZoomFactor, config.videoMaxZoomScale)
@@ -307,13 +308,13 @@ extension CameraManager {
     
     var zoomFacto: CGFloat {
         get {
-            guard let camera = activeCamera() else {
+            guard let camera = activeCamera else {
                 return 1
             }
             return camera.videoZoomFactor
         }
         set {
-            guard let camera = activeCamera(),
+            guard let camera = activeCamera,
                   !camera.isRampingVideoZoom else { return }
             let zoom = min(newValue, maxZoomFactor)
             do {
@@ -325,14 +326,14 @@ extension CameraManager {
     }
     
     func rampZoom(to value: CGFloat) throws {
-        guard let camera = activeCamera() else { return }
+        guard let camera = activeCamera else { return }
         try camera.lockForConfiguration()
         camera.ramp(toVideoZoomFactor: value, withRate: 1)
         camera.unlockForConfiguration()
     }
     
     func cancelZoom() throws {
-        guard let camera = activeCamera() else { return }
+        guard let camera = activeCamera else { return }
         try camera.lockForConfiguration()
         camera.cancelVideoZoomRamp()
         camera.unlockForConfiguration()
@@ -375,7 +376,7 @@ extension CameraManager {
     }
     
     func expose(at point: CGPoint) throws {
-        guard let device = activeCamera() else {
+        guard let device = activeCamera else {
             return
         }
         let exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
@@ -440,7 +441,7 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
         settings.isHighResolutionPhotoEnabled = true
         
         // Set flash mode.
-        if let deviceInput = activeCamera() {
+        if let deviceInput = activeCamera {
             if deviceInput.isFlashAvailable && flashModeContains(flashMode) {
                 settings.flashMode = flashMode
             }
@@ -512,6 +513,18 @@ extension CameraManager: AVCaptureFileOutputRecordingDelegate {
         videoCompletion = completion
         if connection.isVideoOrientationSupported {
             connection.videoOrientation = currentOrienation
+        }
+        if UIDevice.belowIphone7 {
+            movieOutput.setOutputSettings(
+                [AVVideoCodecKey: AVVideoCodecH264],
+                for: connection
+            )
+        }
+        if let isSmoothAuto = activeCamera?.isSmoothAutoFocusSupported,
+           isSmoothAuto {
+            try? activeCamera?.lockForConfiguration()
+            activeCamera?.isSmoothAutoFocusEnabled = true
+            activeCamera?.unlockForConfiguration()
         }
         recordDuration = 0
         movieOutput.startRecording(

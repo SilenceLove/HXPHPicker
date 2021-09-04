@@ -11,18 +11,14 @@ import AVFoundation
 // MARK: 相机配置类
 public class CameraConfiguration: BaseConfiguration {
     
-    public enum DevicePosition {
-        /// 后置
-        case back
-        /// 前置
-        case front
-    }
+    /// 相机类型
+    public var cameraType: CameraController.CameraType = .normal
     
     /// 相机预算分辨率
-    public var sessionPreset: AVCaptureSession.Preset = .high
+    public var sessionPreset: Preset = .hd1920x1080
     
     /// 摄像头默认位置
-    public var position: DevicePosition = .back
+    public var position: DevicePosition = .front
     
     /// 视频最大录制时长
     public var videoMaximumDuration: TimeInterval = 60
@@ -66,6 +62,7 @@ public class CameraConfiguration: BaseConfiguration {
         /// 隐藏状态栏
         prefersStatusBarHidden = true
         
+        appearanceStyle = .normal
         #if HXPICKER_ENABLE_EDITOR
         photoEditor.languageType = languageType
         videoEditor.languageType = languageType
@@ -99,6 +96,52 @@ public class CameraConfiguration: BaseConfiguration {
 }
 
 extension CameraConfiguration {
+    
+    public enum DevicePosition {
+        /// 后置
+        case back
+        /// 前置
+        case front
+    }
+    
+    public enum Preset {
+        case vga640x480
+        case iFrame960x540
+        case hd1280x720
+        case hd1920x1080
+        case hd4K3840x2160
+        
+        var system: AVCaptureSession.Preset {
+            switch self {
+            case .vga640x480:
+                return .vga640x480
+            case .iFrame960x540:
+                return .iFrame960x540
+            case .hd1280x720:
+                return .hd1280x720
+            case .hd1920x1080:
+                return .hd1920x1080
+            case .hd4K3840x2160:
+                return .hd4K3840x2160
+            }
+        }
+        
+        var size: CGSize {
+            switch self {
+            case .vga640x480:
+                return CGSize(width: 480, height: 640)
+            case .iFrame960x540:
+                return CGSize(width: 540, height: 960)
+            case .hd1280x720:
+                return CGSize(width: 720, height: 1280)
+            case .hd1920x1080:
+                return CGSize(width: 1080, height: 1920)
+            case .hd4K3840x2160:
+                return CGSize(width: 2160, height: 3840)
+            }
+        }
+    }
+    
     #if HXPICKER_ENABLE_EDITOR
     func setupEditorColor() {
         videoEditor.cropView.finishButtonBackgroundColor = tintColor

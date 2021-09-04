@@ -36,15 +36,26 @@ Pod::Spec.new do |spec|
         camera.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA' }
     end
     
+#    spec.subspec 'GPUCamera' do |camera|
+#        camera.dependency 'HXPHPicker/Camera'
+#        camera.dependency 'GPUImage'
+#    end
+    
+    spec.subspec 'Lite' do |lite|
+        lite.dependency 'HXPHPicker/Picker'
+        lite.dependency 'HXPHPicker/Editor'
+        lite.dependency 'HXPHPicker/Camera'
+    end
+    
     spec.subspec 'Full' do |full|
         full.dependency 'HXPHPicker/Lite'
         full.dependency 'Kingfisher', '~> 6.0'
     end
     
-    spec.subspec 'Lite' do |lite|
-        lite.dependency 'HXPHPicker/Core'
-        lite.dependency 'HXPHPicker/Picker'
-        lite.dependency 'HXPHPicker/Editor'
-        lite.dependency 'HXPHPicker/Camera'
-    end
+#    spec.subspec 'Full_GPUImage' do |full|
+#        full.dependency 'HXPHPicker/Picker'
+#        full.dependency 'HXPHPicker/Editor'
+#        full.dependency 'HXPHPicker/GPUCamera'
+#        full.dependency 'Kingfisher', '~> 6.0'
+#    end
 end

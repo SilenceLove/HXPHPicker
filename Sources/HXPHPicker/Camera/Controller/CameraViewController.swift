@@ -16,13 +16,13 @@ open class CameraViewController: BaseViewController {
     /// 相机配置
     public let config: CameraConfiguration
     /// 相机类型
-    public let type: CameraController.CameraType
+    public let type: CameraController.CaptureType
     /// 自动dismiss
     public var autoDismiss: Bool = true
     
     public init(
         config: CameraConfiguration,
-        type: CameraController.CameraType,
+        type: CameraController.CaptureType,
         delegate: CameraViewControllerDelegate? = nil
     ) {
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
@@ -44,6 +44,14 @@ open class CameraViewController: BaseViewController {
         let manager = CameraManager(config: config)
         return manager
     }()
+    
+    #if canImport(GPUImage)
+    lazy var gpuView: CameraGPUImageView = {
+        let gpuView = CameraGPUImageView(config: config)
+        gpuView.delegate = self
+        return gpuView
+    }()
+    #endif
     
     lazy var bottomView: CameraBottomView = {
         let view = CameraBottomView(tintColor: config.tintColor)
@@ -80,7 +88,13 @@ open class CameraViewController: BaseViewController {
         DeviceOrientationHelper
             .shared
             .startDeviceOrientationNotifier()
-        view.addSubview(previewView)
+        if config.cameraType == .normal {
+            view.addSubview(previewView)
+        }else {
+            #if canImport(GPUImage)
+            view.addSubview(gpuView)
+            #endif
+        }
         view.addSubview(bottomView)
         
         if !UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -113,32 +127,57 @@ open class CameraViewController: BaseViewController {
     @objc
     func willEnterForeground() {
         if requestCameraSuccess {
-            try? cameraManager.addMovieOutput()
+            if config.cameraType == .normal {
+                try? cameraManager.addMovieOutput()
+            }
         }
     }
     
     @objc
-    func didSwichCameraClick() {
-        do {
-            try cameraManager.switchCameras()
-        } catch {
-            print(error)
-            ProgressHUD.showWarning(
-                addedTo: view,
-                text: "摄像头切换失败!".localized,
-                animated: true,
-                delayHide: 1.5
-            )
+    func didSwitchCameraClick() {
+        if config.cameraType == .normal {
+            do {
+                try cameraManager.switchCameras()
+            } catch {
+                print(error)
+                switchCameraFailed()
+            }
+        }else {
+            #if canImport(GPUImage)
+            gpuView.switchCamera()
+            #endif
         }
         resetZoom()
     }
     
+    func switchCameraFailed() {
+        ProgressHUD.showWarning(
+            addedTo: view,
+            text: "摄像头切换失败!".localized,
+            animated: true,
+            delayHide: 1.5
+        )
+    }
+    
     func resetZoom() {
-        try? cameraManager.rampZoom(to: 1)
-        previewView.effectiveScale = 1
+        if config.cameraType == .normal {
+            try? cameraManager.rampZoom(to: 1)
+            previewView.effectiveScale = 1
+        }else {
+            #if canImport(GPUImage)
+            gpuView.rampZoom(to: 1)
+            #endif
+        }
     }
     
     func setupCamera() {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.startRunning()
+            addOutputCompletion()
+            return
+        }
+        #endif
         DispatchQueue.global().async {
             do {
                 self.cameraManager.session.beginConfiguration()
@@ -186,12 +225,7 @@ open class CameraViewController: BaseViewController {
                         try self.cameraManager.addAudioInput()
                     } catch {
                         DispatchQueue.main.async {
-                            ProgressHUD.showWarning(
-                                addedTo: self.view,
-                                text: "麦克风添加失败，录制视频会没有声音哦!".localized,
-                                animated: true,
-                                delayHide: 1.5
-                            )
+                            self.addAudioInputFailed()
                         }
                     }
                 }else {
@@ -202,12 +236,7 @@ open class CameraViewController: BaseViewController {
                             message: "请在设置-隐私-相机中允许访问麦克风".localized,
                             leftActionTitle: "取消".localized,
                         leftHandler: { alertAction in
-                            ProgressHUD.showWarning(
-                                addedTo: self.view,
-                                text: "麦克风添加失败，录制视频会没有声音哦!".localized,
-                                animated: true,
-                                delayHide: 1.5
-                            )
+                            self.addAudioInputFailed()
                         },
                             rightActionTitle: "设置".localized
                         ) { alertAction in
@@ -220,10 +249,21 @@ open class CameraViewController: BaseViewController {
         }
     }
     
+    func addAudioInputFailed() {
+        ProgressHUD.showWarning(
+            addedTo: self.view,
+            text: "麦克风添加失败，录制视频会没有声音哦!".localized,
+            animated: true,
+            delayHide: 1.5
+        )
+    }
+    
     func addOutputCompletion() {
-        self.cameraManager.session.commitConfiguration()
-        self.cameraManager.startRunning()
-        self.previewView.setSession(self.cameraManager.session)
+        if config.cameraType == .normal {
+            self.cameraManager.session.commitConfiguration()
+            self.cameraManager.startRunning()
+            self.previewView.setSession(self.cameraManager.session)
+        }
         self.requestCameraSuccess = true
         DispatchQueue.main.async {
             self.sessionCompletion()
@@ -231,21 +271,34 @@ open class CameraViewController: BaseViewController {
     }
     
     func sessionCompletion() {
-        if cameraManager.canSwitchCameras() {
-            view.layer.addSublayer(topMaskLayer)
-            navigationItem.rightBarButtonItem = UIBarButtonItem(
-                image: "hx_camera_overturn".image,
-                style: .plain,
-                target: self,
-                action: #selector(didSwichCameraClick)
-            )
+        if config.cameraType == .normal {
+            if cameraManager.canSwitchCameras() {
+                addSwithCameraButton()
+            }
+            previewView.setupGestureRecognizer()
+        }else {
+            addSwithCameraButton()
         }
-        previewView.setupGestureRecognizer()
         bottomView.addGesture(for: type)
         startLocation()
     }
     
+    func addSwithCameraButton() {
+        view.layer.addSublayer(topMaskLayer)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: "hx_camera_overturn".image,
+            style: .plain,
+            target: self,
+            action: #selector(didSwitchCameraClick)
+        )
+    }
+    
     @objc open override func deviceOrientationDidChanged(notify: Notification) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.resetMetal()
+        }
+        #endif
         previewView.resetOrientation()
     }
     
@@ -272,25 +325,55 @@ open class CameraViewController: BaseViewController {
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if requestCameraSuccess {
-            cameraManager.startRunning()
+            if config.cameraType == .normal {
+                cameraManager.startRunning()
+            }else {
+                #if canImport(GPUImage)
+                gpuView.startRunning()
+                #endif
+            }
         }
     }
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         PhotoManager.shared.saveCameraPreview()
+        if config.cameraType == .normal {
+            cameraManager.stopRunning()
+        }
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.stopRunning()
+        }
+        #endif
     }
     
     func layoutSubviews() {
+        let previewRect: CGRect
         if UIDevice.isPad || !UIDevice.isPortrait {
             if UIDevice.isPad {
-                previewView.frame = view.bounds
+                previewRect = view.bounds
             }else {
-                previewView.size = CGSize(width: view.height * 16 / 9, height: view.height)
-                previewView.center = CGPoint(x: view.width * 0.5, y: view.height * 0.5)
+                let size = CGSize(width: view.height * 16 / 9, height: view.height)
+                previewRect = CGRect(
+                    x: (view.width - size.width) * 0.5,
+                    y: (view.height - size.height) * 0.5,
+                    width: size.width, height: size.height
+                )
             }
         }else {
-            previewView.size = CGSize(width: view.width, height: view.width / 9 * 16)
-            previewView.center = CGPoint(x: view.width * 0.5, y: view.height * 0.5)
+            let size = CGSize(width: view.width, height: view.width / 9 * 16)
+            previewRect = CGRect(
+                x: (view.width - size.width) * 0.5,
+                y: (view.height - size.height) * 0.5,
+                width: size.width, height: size.height
+            )
+        }
+        if config.cameraType == .normal {
+            previewView.frame = previewRect
+        }else {
+            #if canImport(GPUImage)
+            gpuView.frame = previewRect
+            #endif
         }
         
         let bottomHeight: CGFloat = 130
@@ -302,7 +385,7 @@ open class CameraViewController: BaseViewController {
             }else {
                 bottomMargin = 150
             }
-            bottomY = view.height - bottomMargin - previewView.y
+            bottomY = view.height - bottomMargin - previewRect.minY
         }else {
             bottomY = view.height - bottomHeight
         }
@@ -345,6 +428,15 @@ open class CameraViewController: BaseViewController {
 
 extension CameraViewController: CameraBottomViewDelegate {
     func bottomView(beganTakePictures bottomView: CameraBottomView) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.capturePhoto { [weak self] image in
+                guard let self = self else { return }
+                self.capturePhotoCompletion(image: image)
+            }
+            return
+        }
+        #endif
         if !cameraManager.session.isRunning {
             return
         }
@@ -354,91 +446,151 @@ extension CameraViewController: CameraBottomViewDelegate {
         } completion: { [weak self] data in
             guard let self = self else { return }
             if let data = data ,
-               var image = UIImage(data: data) {
-                if image.imageOrientation != .up,
-                   let nImage = image.normalizedImage() {
-                    image = nImage
-                }
-                self.resetZoom()
-                self.cameraManager.stopRunning()
-                self.previewView.resetMask(image)
-                self.bottomView.isGestureEnable = false
-                self.saveCameraImage(image)
-                #if HXPICKER_ENABLE_EDITOR
-                if self.config.allowsEditing {
-                    self.openPhotoEditor(image)
-                }else {
-                    self.openPhotoResult(image)
-                }
-                #else
-                self.openPhotoResult(image)
-                #endif
+               let image = UIImage(data: data) {
+                self.capturePhotoCompletion(image: image)
             }else {
-                self.bottomView.isGestureEnable = true
-                ProgressHUD.showWarning(
-                    addedTo: self.view,
-                    text: "拍摄失败!".localized,
-                    animated: true,
-                    delayHide: 1.5
-                )
+                self.capturePhotoCompletion(image: nil)
             }
         }
     }
+    func capturePhotoCompletion(image: UIImage?) {
+        if let image = image?.normalizedImage() {
+            resetZoom()
+            if config.cameraType == .normal {
+                cameraManager.stopRunning()
+                previewView.resetMask(image)
+            }else {
+                #if canImport(GPUImage)
+                gpuView.stopRunning()
+                gpuView.resetMask(image)
+                #endif
+            }
+            bottomView.isGestureEnable = false
+            saveCameraImage(image)
+            #if HXPICKER_ENABLE_EDITOR
+            if config.allowsEditing {
+                openPhotoEditor(image)
+            }else {
+                openPhotoResult(image)
+            }
+            #else
+            openPhotoResult(image)
+            #endif
+        }else {
+            bottomView.isGestureEnable = true
+            ProgressHUD.showWarning(
+                addedTo: self.view,
+                text: "拍摄失败!".localized,
+                animated: true,
+                delayHide: 1.5
+            )
+        }
+    }
     func bottomView(beganRecording bottomView: CameraBottomView) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.startRecording { [weak self] duration in
+                self?.bottomView.startTakeMaskLayerPath(duration: duration)
+            } progress: { _, _ in
+                
+            } completion: { [weak self] videoURL, error in
+                guard let self = self else { return }
+                self.recordingCompletion(videoURL: videoURL, error: error)
+            }
+            return
+        }
+        #endif
         cameraManager.startRecording { [weak self] duration in
             self?.bottomView.startTakeMaskLayerPath(duration: duration)
         } progress: { progress, time in
             
         } completion: { [weak self] videoURL, error in
             guard let self = self else { return }
-            self.bottomView.stopRecord()
-            if error == nil {
-                self.resetZoom()
-                self.cameraManager.stopRunning()
-                self.previewView.resetMask(PhotoTools.getVideoThumbnailImage(videoURL: videoURL, atTime: 0.1))
-                self.bottomView.isGestureEnable = false
-                self.saveCameraVideo(videoURL)
-                #if HXPICKER_ENABLE_EDITOR
-                if self.config.allowsEditing {
-                    self.openVideoEditor(videoURL)
-                }else {
-                    self.openVideoResult(videoURL)
-                }
-                #else
-                self.openVideoResult(videoURL)
-                #endif
+            self.recordingCompletion(videoURL: videoURL, error: error)
+        }
+    }
+    func recordingCompletion(videoURL: URL, error: Error?) {
+        bottomView.stopRecord()
+        if error == nil {
+            resetZoom()
+            let image = PhotoTools.getVideoThumbnailImage(videoURL: videoURL, atTime: 0.1)
+            if config.cameraType == .normal {
+                cameraManager.stopRunning()
+                previewView.resetMask(image)
             }else {
-                let text: String
-                if let error = error as NSError?,
-                   error.code == 110 {
-                    text = String(
-                        format: "拍摄时长不足%d秒".localized,
-                        arguments: [Int(self.config.videoMinimumDuration)]
-                    )
-                }else {
-                    text = "拍摄失败!".localized
-                }
-                ProgressHUD.showWarning(
-                    addedTo: self.view,
-                    text: text,
-                    animated: true,
-                    delayHide: 1.5
-                )
+                #if canImport(GPUImage)
+                gpuView.stopRunning()
+                gpuView.resetMask(image)
+                #endif
             }
+            bottomView.isGestureEnable = false
+            saveCameraVideo(videoURL)
+            #if HXPICKER_ENABLE_EDITOR
+            if config.allowsEditing {
+                openVideoEditor(videoURL)
+            }else {
+                openVideoResult(videoURL)
+            }
+            #else
+            openVideoResult(videoURL)
+            #endif
+        }else {
+            let text: String
+            if let error = error as NSError?,
+               error.code == 110 {
+                text = String(
+                    format: "拍摄时长不足%d秒".localized,
+                    arguments: [Int(config.videoMinimumDuration)]
+                )
+            }else {
+                text = "拍摄失败!".localized
+            }
+            ProgressHUD.showWarning(
+                addedTo: view,
+                text: text,
+                animated: true,
+                delayHide: 1.5
+            )
         }
     }
     func bottomView(endRecording bottomView: CameraBottomView) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.stopRecording()
+            return
+        }
+        #endif
         cameraManager.stopRecording()
     }
     func bottomView(longPressDidBegan bottomView: CameraBottomView) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            currentZoomFacto = gpuView.effectiveScale
+            return
+        }
+        #endif
         currentZoomFacto = previewView.effectiveScale
     }
     func bottomView(_ bottomView: CameraBottomView, longPressDidChanged scale: CGFloat) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            let remaining = gpuView.maxScale - currentZoomFacto
+            let zoomScale = currentZoomFacto + remaining * scale
+            gpuView.rampZoom(to: zoomScale)
+            return
+        }
+        #endif
         let remaining = previewView.maxScale - currentZoomFacto
         let zoomScale = currentZoomFacto + remaining * scale
         cameraManager.zoomFacto = zoomScale
     }
     func bottomView(longPressDidEnded bottomView: CameraBottomView) {
+        #if canImport(GPUImage)
+        if config.cameraType == .gpu {
+            gpuView.stopRecording()
+            return
+        }
+        #endif
         previewView.effectiveScale = cameraManager.zoomFacto
     }
     func bottomView(didBackButton bottomView: CameraBottomView) {
@@ -542,3 +694,11 @@ extension CameraViewController: CameraResultViewControllerDelegate {
         }
     }
 }
+#if canImport(GPUImage)
+extension CameraViewController: CameraGPUImageViewDelegate {
+    func gpuImageView(didPreviewing gpuImageView: CameraGPUImageView) {
+        bottomView.isGestureEnable = true
+        bottomView.hiddenTip()
+    }
+}
+#endif

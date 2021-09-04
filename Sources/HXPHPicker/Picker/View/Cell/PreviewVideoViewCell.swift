@@ -58,7 +58,20 @@ open class PreviewVideoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDe
     }
     
     func contentView(updateContentSize contentView: PhotoPreviewContentView) {
-        setupScrollViewContentSize()
+        guard let videoAsset = photoAsset.networkVideoAsset,
+              videoAsset.coverImage == nil,
+              videoAsset.videoSize.equalTo(.zero) else {
+            return
+        }
+        guard let image = PhotoTools.getVideoThumbnailImage(videoURL: videoAsset.videoURL, atTime: 0.1) else {
+            return
+        }
+        let videoScale = image.width / image.height
+        let viewScale = contentView.width / contentView.height
+        if videoScale != viewScale {
+            photoAsset.networkVideoAsset?.videoSize = image.size
+            setupScrollViewContentSize()
+        }
     }
     func contentView(networkImagedownloadSuccess contentView: PhotoPreviewContentView) {
         
@@ -144,21 +157,6 @@ open class PreviewVideoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDe
 
 extension PreviewVideoViewCell: PhotoPreviewVideoViewDelegate {
     func videoView(readyForDisplay videoView: VideoPlayerView) {
-        guard let videoAsset = photoAsset.networkVideoAsset,
-              PhotoManager.shared.loadNetworkVideoMode == .play,
-              videoAsset.coverImage == nil,
-              videoAsset.videoSize.equalTo(.zero) else {
-            return
-        }
-        guard let image = PhotoTools.getVideoThumbnailImage(videoURL: videoAsset.videoURL, atTime: 0.1) else {
-            return
-        }
-        let videoScale = image.width / image.height
-        let viewScale = videoView.width / videoView.height
-        if videoScale != viewScale {
-            photoAsset.networkVideoAsset?.videoSize = image.size
-            setupScrollViewContentSize()
-        }
     }
     func videoView(resetPlay videoView: VideoPlayerView) {
         videoDidChangedPlayTime(duration: 0, isAnimation: false)

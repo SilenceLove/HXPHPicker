@@ -1,6 +1,9 @@
 platform :ios, '10.0'
 
-install! 'cocoapods', disable_input_output_paths: true
+install! 'cocoapods',
+#:deterministic_uuids=>false,
+disable_input_output_paths: true,
+warn_for_unused_master_specs_repo: false
 
 use_frameworks!
 

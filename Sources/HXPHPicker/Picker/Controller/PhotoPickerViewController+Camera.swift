@@ -19,8 +19,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             return
         }
         #if HXPICKER_ENABLE_CAMERA
-        if config.cameraType == .secondary {
-            let type: CameraController.CameraType
+        if config.cameraType == .custom {
+            let type: CameraController.CaptureType
             if pickerController.config.selectOptions.isPhoto &&
                 pickerController.config.selectOptions.isVideo {
                 type = .all
@@ -213,17 +213,13 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
             addedPhotoAsset(for: photoAsset)
             bottomView.updateFinishButtonTitle()
             setupEmptyView()
-            completion?()
             if picker.config.selectMode == .single && config.finishSelectionAfterTakingPhoto {
                 quickSelect(photoAsset)
             }
+            completion?()
         }
-        if DispatchQueue.isMain {
+        DispatchQueue.main.async {
             addPhotoAsset(photoAsset)
-        }else {
-            DispatchQueue.main.async {
-                addPhotoAsset(photoAsset)
-            }
         }
     }
 }
@@ -235,11 +231,17 @@ extension PhotoPickerViewController: CameraControllerDelegate {
         didFinishWithResult result: CameraController.Result,
         location: CLLocation?
     ) {
-        if let picker = pickerController,
-           picker.config.selectMode == .single,
+        guard let picker = pickerController else {
+            cameraController.dismiss(animated: true)
+            return
+        }
+        let didDismiss: Bool
+        if picker.config.selectMode == .single &&
            config.finishSelectionAfterTakingPhoto {
+            didDismiss = false
             ProgressHUD.showLoading(addedTo: cameraController.view, animated: true)
         }else {
+            didDismiss = true
             cameraController.dismiss(animated: true)
         }
         ProgressHUD.showLoading(
@@ -260,28 +262,38 @@ extension PhotoPickerViewController: CameraControllerDelegate {
                 mediaType = .video
                 photoAsset = .init(localVideoAsset: .init(videoURL: videoURL))
             }
+            var canSelect = false
+            if !picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                if !didDismiss {
+                    DispatchQueue.main.sync {
+                        cameraController.dismiss(animated: true)
+                    }
+                }
+                canSelect = true
+            }
             if self.config.saveSystemAlbum {
                 self.saveSystemAlbum(
                     for: asset,
                     mediaType: mediaType,
                     location: location
                 ) { [weak self] in
-                    self?.cameraControllerDismiss()
+                    self?.cameraControllerDismiss(canSelect)
                 }
                 return
             }
             self.addedCameraPhotoAsset(
                 photoAsset
             ) { [weak self] in
-                self?.cameraControllerDismiss()
+                self?.cameraControllerDismiss(canSelect)
             }
         }
     }
     
-    func cameraControllerDismiss() {
+    func cameraControllerDismiss(_ canSelect: Bool) {
         if let picker = pickerController,
            picker.config.selectMode == .single,
-           config.finishSelectionAfterTakingPhoto {
+           config.finishSelectionAfterTakingPhoto,
+           canSelect {
             presentingViewController?.dismiss(animated: true)
         }
     }

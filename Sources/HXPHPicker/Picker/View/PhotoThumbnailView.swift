@@ -73,8 +73,8 @@ open class PhotoThumbnailView: UIView {
             task = imageView.setImage(
                 for: photoAsset,
                 urlType: .thumbnail,
-                imageGenerator: { [weak self] imageGenerator in
-                    self?.task = imageGenerator
+                downloadTask: { [weak self] downloadTask in
+                    self?.task = downloadTask
                 }
             ) { [weak self] (image, error, photoAsset) in
                 guard let self = self else { return }

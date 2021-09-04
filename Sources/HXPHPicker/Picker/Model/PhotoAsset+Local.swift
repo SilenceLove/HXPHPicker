@@ -335,7 +335,8 @@ extension PhotoAsset {
     }
     func checkLoaclVideoImage() {
         if localVideoAsset?.image == nil {
-            localVideoAsset?.image = PhotoTools.getVideoThumbnailImage(videoURL: localVideoAsset?.videoURL, atTime: 0.1)
+            let image = PhotoTools.getVideoThumbnailImage(videoURL: localVideoAsset?.videoURL, atTime: 0.1)
+            localVideoAsset?.image = image
         }
     }
     func getLocalVideoDuration(

@@ -39,9 +39,14 @@ public extension PhotoAsset {
         )
     }
     
-    /// 获取图片（系统相册获取的是压缩后的，不是原图）
+    /// 获取图片
+    /// - Parameters:
+    ///   - compressionScale: 压缩比例，获取系统相册里的资源时有效 
+    ///   - completion: 获取完成
+    /// - Returns: 请求系统相册资源的请求id
     @discardableResult
     func requestImage(
+        compressionScale: CGFloat = 0.5,
         completion: ((UIImage?, PhotoAsset) -> Void)?
     ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
@@ -82,14 +87,11 @@ public extension PhotoAsset {
         ) { (result) in
             switch result {
             case .success(let dataResult):
-                var image = UIImage(
+                let image = UIImage(
                     data: dataResult.imageData
-                )
-                if let cimage = image,
-                   cimage.imageOrientation != UIImage.Orientation.up {
-                    image = cimage.normalizedImage()
-                }
-                image = image?.scaleImage(toScale: 0.5)
+                )?
+                .normalizedImage()?
+                .scaleImage(toScale: compressionScale)
                 completion?(image, self)
             case .failure(_):
                 completion?(nil, self)
