@@ -69,13 +69,9 @@ class CameraManager: NSObject {
     }
     
     func startSession() throws {
-        let sessionPreset = config.sessionPreset.system
+        var sessionPreset = config.sessionPreset.system
         if !session.canSetSessionPreset(sessionPreset) {
-            throw NSError(
-                domain: "Does not support current preset：\(config.sessionPreset)",
-                code: 500,
-                userInfo: nil
-            )
+            sessionPreset = .high
         }
         session.sessionPreset = sessionPreset
         let position: AVCaptureDevice.Position = config.position == .back ? .back : .front

@@ -18,7 +18,7 @@ public class CameraConfiguration: BaseConfiguration {
     public var sessionPreset: Preset = .hd1920x1080
     
     /// 摄像头默认位置
-    public var position: DevicePosition = .front
+    public var position: DevicePosition = .back
     
     /// 视频最大录制时长
     public var videoMaximumDuration: TimeInterval = 60

@@ -54,7 +54,6 @@ open class PhotoThumbnailView: UIView {
     }
     
     /// 下载网络图片时为：Kingfisher.DownloadTask
-    /// 获取视频封面时为：AVAsset / AVAssetImageGenerator
     public var task: Any?
     
     /// 获取图片，重写此方法可以修改图片
