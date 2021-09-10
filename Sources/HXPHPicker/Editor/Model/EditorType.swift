@@ -69,6 +69,30 @@ public extension EditorToolOptions {
     }
 }
 
+extension EditorToolView {
+    
+    struct Options: OptionSet {
+        static let graffiti = Options(rawValue: 1 << 0)
+        static let chartlet = Options(rawValue: 1 << 1)
+        static let text = Options(rawValue: 1 << 2)
+        static let mosaic = Options(rawValue: 1 << 3)
+        static let filter = Options(rawValue: 1 << 4)
+        static let music = Options(rawValue: 1 << 5)
+        static let cropping = Options(rawValue: 1 << 6)
+        let rawValue: Int
+        
+        var isSticker: Bool {
+            if self.contains(.chartlet) || self.contains(.text) {
+                return true
+            }
+            return false
+        }
+        init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+    }
+}
+
 /// 裁剪时遮罩类型
 public extension EditorImageResizerMaskView {
     enum MaskType {

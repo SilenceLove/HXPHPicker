@@ -55,7 +55,6 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     }
     /// 初始化
     open func initView() {
-        isHidden = true
         contentView.addSubview(photoView)
     }
     /// 配置背景颜色
@@ -70,7 +69,7 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     open func requestThumbnailImage() {
         requestThumbnailImage(
             targetWidth: PhotoManager.shared.targetWidth <= 0 ?
-                width * 2 :
+                250 :
                 PhotoManager.shared.targetWidth
         )
     }
@@ -78,10 +77,6 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
         photoView.requestThumbnailImage(targetWidth: targetWidth)
-        if !firstLoadCompletion {
-            isHidden = false
-            firstLoadCompletion = true
-        }
     }
     
     /// 更新已选状态
@@ -101,8 +96,6 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     public func cancelRequest() {
         photoView.cancelRequest()
     }
-    
-    private var firstLoadCompletion: Bool = false
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()

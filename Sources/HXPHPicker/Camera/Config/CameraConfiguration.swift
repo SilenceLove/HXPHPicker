@@ -14,7 +14,7 @@ public class CameraConfiguration: BaseConfiguration {
     /// 相机类型
     public var cameraType: CameraController.CameraType = .normal
     
-    /// 相机预算分辨率
+    /// 相机分辨率
     public var sessionPreset: Preset = .hd1920x1080
     
     /// 摄像头默认位置

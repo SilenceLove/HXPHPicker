@@ -101,7 +101,7 @@ open class PickerConfiguration: BaseConfiguration {
     public var navigationBarDarkStyle: UIBarStyle = .black
     
     /// 导航栏标题颜色
-    public var navigationTitleColor: UIColor = .black
+    public var navigationTitleColor: UIColor = .systemTintColor
     
     /// 暗黑风格下导航栏标题颜色
     public var navigationTitleDarkColor: UIColor = .white

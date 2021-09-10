@@ -16,8 +16,8 @@ extension PhotoPickerViewController {
             fetchAssetCollections()
             title = ""
             navigationItem.titleView = titleView
-            if picker.cameraAssetCollection != nil {
-                assetCollection = picker.cameraAssetCollection
+            if let cameraAssetCollection = picker.cameraAssetCollection {
+                assetCollection = cameraAssetCollection
                 assetCollection.isSelected = true
                 titleView.title = assetCollection.albumName
                 fetchPhotoAssets()

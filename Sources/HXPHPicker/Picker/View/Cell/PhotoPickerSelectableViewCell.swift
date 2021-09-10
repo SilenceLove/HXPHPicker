@@ -11,7 +11,8 @@ open class PhotoPickerSelectableViewCell: PhotoPickerViewCell {
     
     /// 选择按钮
     public lazy var selectControl: SelectBoxView = {
-        let selectControl = SelectBoxView.init()
+        let selectControl = SelectBoxView()
+        selectControl.isHidden = true
         selectControl.backgroundColor = .clear
         selectControl.addTarget(self, action: #selector(didSelectControlClick(control:)), for: .touchUpInside)
         return selectControl
@@ -30,6 +31,22 @@ open class PhotoPickerSelectableViewCell: PhotoPickerViewCell {
         super.initView()
         contentView.addSubview(selectControl)
         contentView.layer.addSublayer(disableMaskLayer)
+    }
+    
+    private var firstLoadCompletion: Bool = false
+    
+    open override func requestThumbnailImage(targetWidth: CGFloat) {
+        photoView.requestThumbnailImage(
+            targetWidth: targetWidth
+        ) { [weak self] image, photoAsset in
+            guard let self = self else { return }
+            if self.photoAsset == photoAsset {
+                if !self.firstLoadCompletion {
+                    self.selectControl.isHidden = false
+                    self.firstLoadCompletion = true
+                }
+            }
+        }
     }
     
     /// 选择框点击事件

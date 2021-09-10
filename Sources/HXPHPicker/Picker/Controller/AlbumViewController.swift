@@ -11,7 +11,7 @@ import Photos
 
 public class AlbumViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
     
-    lazy var tableView: UITableView = {
+    public lazy var tableView: UITableView = {
         let tableView = UITableView(
             frame: .zero,
             style: .plain

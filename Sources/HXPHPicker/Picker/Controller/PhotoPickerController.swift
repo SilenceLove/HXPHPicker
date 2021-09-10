@@ -340,13 +340,28 @@ extension PhotoPickerController {
             configBackgroundColor()
         }
         let isDark = PhotoManager.isDark
-        navigationBar.titleTextAttributes =
-            [NSAttributedString.Key.foregroundColor: isDark ?
-                config.navigationTitleDarkColor :
-                config.navigationTitleColor
-            ]
-        navigationBar.tintColor = isDark ? config.navigationDarkTintColor : config.navigationTintColor
-        navigationBar.barStyle = isDark ? config.navigationBarDarkStyle : config.navigationBarStyle
+        let titleTextAttributes = [NSAttributedString.Key.foregroundColor: isDark ?
+                                   config.navigationTitleDarkColor :
+                                   config.navigationTitleColor
+                               ]
+        navigationBar.titleTextAttributes = titleTextAttributes
+        let tintColor = isDark ? config.navigationDarkTintColor : config.navigationTintColor
+        navigationBar.tintColor = tintColor
+        let barStyle = isDark ? config.navigationBarDarkStyle : config.navigationBarStyle
+        navigationBar.barStyle = barStyle
+        
+        if #available(iOS 15.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.titleTextAttributes = titleTextAttributes
+            switch barStyle {
+            case .default:
+                appearance.backgroundEffect = UIBlurEffect(style: .light)
+            default:
+                appearance.backgroundEffect = UIBlurEffect(style: .dark)
+            }
+            navigationBar.standardAppearance = appearance
+            navigationBar.scrollEdgeAppearance = appearance
+        }
     }
     private func requestAuthorization() {
         if !config.allowLoadPhotoLibrary {

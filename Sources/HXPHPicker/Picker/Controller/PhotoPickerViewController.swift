@@ -32,7 +32,7 @@ public class PhotoPickerViewController: BaseViewController {
         collectionViewLayout.minimumInteritemSpacing = space
         return collectionViewLayout
     }()
-    lazy var collectionView: UICollectionView = {
+    public lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView.init(frame: view.bounds, collectionViewLayout: collectionViewLayout)
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -189,8 +189,7 @@ public class PhotoPickerViewController: BaseViewController {
             view.addGestureRecognizer(swipeSelectPanGR!)
         }
     }
-     
-    public override func deviceOrientationDidChanged(notify: Notification) {
+    public override func deviceOrientationWillChanged(notify: Notification) {
         guard #available(iOS 13.0, *) else {
             beforeOrientationIndexPath = collectionView.indexPathsForVisibleItems.first
             orientationDidChange = true
@@ -527,22 +526,18 @@ extension PhotoPickerViewController {
         )
     }
     func changedAssetCollection(collection: PhotoAssetCollection?) {
+        guard let picker = pickerController else { return }
         ProgressHUD.showLoading(
             addedTo: navigationController?.view,
             animated: true
         )
-        if collection == nil {
-            updateTitle()
-            fetchPhotoAssets()
-            reloadAlbumData()
-            return
+        if let collection = collection {
+            if picker.config.albumShowMode == .popup {
+                assetCollection.isSelected = false
+                collection.isSelected = true
+            }
+            assetCollection = collection
         }
-        guard let picker = pickerController else { return }
-        if picker.config.albumShowMode == .popup {
-            assetCollection.isSelected = false
-            collection?.isSelected = true
-        }
-        assetCollection = collection
         updateTitle()
         fetchPhotoAssets()
         reloadAlbumData()

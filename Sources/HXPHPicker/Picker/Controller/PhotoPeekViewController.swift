@@ -122,7 +122,7 @@ extension PhotoPeekViewController: PhotoPreviewVideoViewDelegate {
         if progress == 0 {
             progressView.width = 0
         }else {
-            UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
+            UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear) {
                 self.progressView.width = self.view.width * self.progress
             }
         }

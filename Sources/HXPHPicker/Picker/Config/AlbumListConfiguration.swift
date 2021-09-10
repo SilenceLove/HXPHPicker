@@ -77,7 +77,7 @@ public class AlbumListConfiguration {
     public lazy var separatorLineDarkColor: UIColor = "#434344".color.withAlphaComponent(0.6)
     
     /// 选中勾勾的颜色
-    public lazy var tickColor: UIColor = "#333333".color
+    public lazy var tickColor: UIColor = .systemTintColor
     
     /// 暗黑风格选中勾勾的颜色
     public lazy var tickDarkColor: UIColor = "#ffffff".color

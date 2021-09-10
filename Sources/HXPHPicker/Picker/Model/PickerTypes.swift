@@ -58,7 +58,7 @@ public enum SelectionTapAction: Equatable {
 public extension PickerResult {
     struct Options: OptionSet {
         public static let photo = Options(rawValue: 1 << 0)
-        public static let video = Options(rawValue: 1 << 0)
+        public static let video = Options(rawValue: 1 << 1)
         public static let any: Options = [.photo, .video]
         public let rawValue: Int
         

@@ -26,13 +26,16 @@ open class PhotoThumbnailView: UIView {
     /// 占位图
     public var placeholder: UIImage? {
         didSet {
+            if _image != nil {
+                return
+            }
             imageView.image = placeholder
         }
     }
     
     /// 当前展示的 UIImage 对象
     public var image: UIImage? {
-        imageView.image
+        _image
     }
     
     /// 请求ID
@@ -48,13 +51,16 @@ open class PhotoThumbnailView: UIView {
     open func requestThumbnailImage() {
         requestThumbnailImage(
             targetWidth: PhotoManager.shared.targetWidth <= 0 ?
-                width * 2 :
+                250 :
                 PhotoManager.shared.targetWidth
         )
     }
     
-    /// 下载网络图片时为：Kingfisher.DownloadTask
+    /// Kingfisher.DownloadTask
+    /// 获取视频封面时为：AVAsset / AVAssetImageGenerator
     public var task: Any?
+    
+    private var _image: UIImage?
     
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(
@@ -78,6 +84,7 @@ open class PhotoThumbnailView: UIView {
             ) { [weak self] (image, error, photoAsset) in
                 guard let self = self else { return }
                 if self.photoAsset == photoAsset {
+                    self._image = image
                     if image != nil {
                         self.downloadStatus = .succeed
                     }else {
@@ -98,6 +105,7 @@ open class PhotoThumbnailView: UIView {
             } completionHandler: { [weak self] (image, photoAsset) in
                 guard let self = self else { return }
                 if self.photoAsset == photoAsset {
+                    self._image = image
                     self.imageView.image = image
                     if image != nil {
                         self.downloadStatus = .succeed
@@ -115,6 +123,7 @@ open class PhotoThumbnailView: UIView {
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
                 if let image = image, self.photoAsset == photoAsset {
+                    self._image = image
                     self.imageView.image = image
                     if !AssetManager.assetIsDegraded(for: info) {
                         self.requestID = nil

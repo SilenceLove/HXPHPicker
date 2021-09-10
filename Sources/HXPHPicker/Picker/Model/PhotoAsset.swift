@@ -171,6 +171,13 @@ open class PhotoAsset: Equatable {
     var pVideoDuration: TimeInterval = 0
     var playerTime: CGFloat = 0
     
+    var identifie: String {
+        if let phAsset = phAsset {
+            return phAsset.localIdentifier
+        }
+        return localAssetIdentifier
+    }
+    
     public static func == (lhs: PhotoAsset, rhs: PhotoAsset) -> Bool {
         lhs.isEqual(rhs)
     }

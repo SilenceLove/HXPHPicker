@@ -295,12 +295,12 @@ extension VideoEditorCropView {
         if avAsset == nil {
             return
         }
-        let startDuration = getStartDuration(real: true)
-        let endDuration = getEndDuration()
-        let totalDuration = round(endDuration - startDuration)
+        let startDuration = round(getStartDuration(real: true))
+        let endDuration = round(getEndDuration())
+        let totalDuration = endDuration - startDuration
         endTimeLb.text = PhotoTools.transformVideoDurationToString(
             duration: TimeInterval(
-                round(endDuration)
+                endDuration
             )
         )
         totalTimeLb.text = PhotoTools.transformVideoDurationToString(
@@ -310,7 +310,7 @@ extension VideoEditorCropView {
         )
         startTimeLb.text = PhotoTools.transformVideoDurationToString(
             duration: TimeInterval(
-                round(endDuration) - totalDuration
+                startDuration
             )
         )
     }

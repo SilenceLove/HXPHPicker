@@ -253,9 +253,27 @@ open class PhotoEditorViewController: BaseViewController {
     var orientationDidChange: Bool = false
     var imageViewDidChange: Bool = true
     var currentToolOption: EditorToolOptions?
-    
+    var toolOptions: EditorToolView.Options = []
     open override func viewDidLoad() {
         super.viewDidLoad()
+        for options in config.toolView.toolOptions {
+            switch options.type {
+            case .graffiti:
+                toolOptions.insert(.graffiti)
+            case .chartlet:
+                toolOptions.insert(.chartlet)
+            case .text:
+                toolOptions.insert(.text)
+            case .cropping:
+                toolOptions.insert(.cropping)
+            case .mosaic:
+                toolOptions.insert(.mosaic)
+            case .filter:
+                toolOptions.insert(.filter)
+            case .music:
+                toolOptions.insert(.music)
+            }
+        }
         let singleTap = UITapGestureRecognizer.init(target: self, action: #selector(singleTap))
         singleTap.delegate = self
         view.addGestureRecognizer(singleTap)
@@ -264,8 +282,10 @@ open class PhotoEditorViewController: BaseViewController {
         view.clipsToBounds = true
         view.addSubview(imageView)
         view.addSubview(toolView)
-        view.addSubview(cropConfirmView)
-        view.addSubview(cropToolView)
+        if toolOptions.contains(.cropping) {
+            view.addSubview(cropConfirmView)
+            view.addSubview(cropToolView)
+        }
         if config.fixedCropState {
             state = .cropping
             toolView.alpha = 0
@@ -274,10 +294,18 @@ open class PhotoEditorViewController: BaseViewController {
             topView.isHidden = true
         }else {
             state = config.state
-            view.addSubview(brushColorView)
-            view.addSubview(chartletView)
-            view.addSubview(mosaicToolView)
-            view.addSubview(filterView)
+            if toolOptions.contains(.graffiti) {
+                view.addSubview(brushColorView)
+            }
+            if toolOptions.contains(.chartlet) {
+                view.addSubview(chartletView)
+            }
+            if toolOptions.contains(.mosaic) {
+                view.addSubview(mosaicToolView)
+            }
+            if toolOptions.contains(.filter) {
+                view.addSubview(filterView)
+            }
         }
         view.layer.addSublayer(topMaskLayer)
         view.addSubview(topView)
@@ -302,10 +330,14 @@ open class PhotoEditorViewController: BaseViewController {
             singleTap()
         }
         imageView.undoAllDraw()
+        if toolOptions.contains(.graffiti) {
+            brushColorView.canUndo = imageView.canUndoDraw
+        }
         imageView.undoAllMosaic()
+        if toolOptions.contains(.mosaic) {
+            mosaicToolView.canUndo = imageView.canUndoMosaic
+        }
         imageView.undoAllSticker()
-        brushColorView.canUndo = imageView.canUndoDraw
-        mosaicToolView.canUndo = imageView.canUndoMosaic
         imageView.reset(false)
         imageView.finishCropping(false)
         if config.fixedCropState {
@@ -340,13 +372,24 @@ open class PhotoEditorViewController: BaseViewController {
             topView.y = UIDevice.generalStatusBarHeight
         }
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
-        cropConfirmView.frame = toolView.frame
-        cropToolView.frame = CGRect(x: 0, y: cropConfirmView.y - 60, width: view.width, height: 60)
-        brushColorView.frame = cropToolView.frame
-        mosaicToolView.frame = brushColorView.frame
-        cropToolView.updateContentInset()
-        setChartletViewFrame()
-        setFilterViewFrame()
+        let cropToolFrame = CGRect(x: 0, y: cropConfirmView.y - 60, width: view.width, height: 60)
+        if toolOptions.contains(.cropping) {
+            cropConfirmView.frame = toolView.frame
+            cropToolView.frame = cropToolFrame
+            cropToolView.updateContentInset()
+        }
+        if toolOptions.contains(.graffiti) {
+            brushColorView.frame = cropToolFrame
+        }
+        if toolOptions.contains(.mosaic) {
+            mosaicToolView.frame = cropToolFrame
+        }
+        if toolOptions.isSticker {
+            setChartletViewFrame()
+        }
+        if toolOptions.contains(.filter) {
+            setFilterViewFrame()
+        }
         if !imageView.frame.equalTo(view.bounds) && !imageView.frame.isEmpty && !imageViewDidChange {
             imageView.frame = view.bounds
             imageView.reset(false)
@@ -361,8 +404,12 @@ open class PhotoEditorViewController: BaseViewController {
 //                setFilterImage()
                 if let editedData = editResult?.editedData {
                     imageView.setEditedData(editedData: editedData)
-                    brushColorView.canUndo = imageView.canUndoDraw
-                    mosaicToolView.canUndo = imageView.canUndoMosaic
+                    if toolOptions.contains(.graffiti) {
+                        brushColorView.canUndo = imageView.canUndoDraw
+                    }
+                    if toolOptions.contains(.mosaic) {
+                        mosaicToolView.canUndo = imageView.canUndoMosaic
+                    }
                 }
                 if state == .cropping {
                     imageView.startCropping(true)

@@ -301,7 +301,6 @@ extension PhotoTools {
         config.photoList.titleView.arrow.backgroundColor = "#B2B2B2".color
         config.photoList.titleView.arrow.arrowColor = "#2E2F30".color
         
-        config.photoList.cell.targetWidth = 250
         config.photoList.cell.selectBox.selectedBackgroundColor = wxColor
         config.photoList.cell.selectBox.titleColor = .white
         

@@ -11,7 +11,7 @@ import UIKit
 public class ArrowViewConfiguration {
     
     /// 箭头背景颜色
-    public lazy var backgroundColor: UIColor = "#333333".color
+    public lazy var backgroundColor: UIColor = .systemTintColor
     
     /// 箭头颜色
     public lazy var arrowColor: UIColor = "#ffffff".color

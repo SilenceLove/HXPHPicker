@@ -928,8 +928,6 @@ class ResultViewCell: PhotoPickerViewCell {
     }
     override func initView() {
         super.initView()
-        // 默认是隐藏的，需要显示出来
-        isHidden = false
         contentView.addSubview(deleteButton)
     }
     

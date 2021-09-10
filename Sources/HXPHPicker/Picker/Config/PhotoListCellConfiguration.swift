@@ -29,7 +29,7 @@ public class PhotoListCellConfiguration {
     public var backgroundDarkColor: UIColor?
     
     /// 缩略图的清晰度，越大越清楚，越小越模糊
-    /// 为0时，默认为 cell.width * 2
+    /// 为0时，默认为 250
     public var targetWidth: CGFloat = 0 {
         didSet { PhotoManager.shared.targetWidth = targetWidth }
     }
