@@ -143,7 +143,7 @@ extension CameraConfiguration {
     }
     
     #if HXPICKER_ENABLE_EDITOR
-    func setupEditorColor() {
+    fileprivate func setupEditorColor() {
         videoEditor.cropView.finishButtonBackgroundColor = tintColor
         videoEditor.cropView.finishButtonDarkBackgroundColor = tintColor
         videoEditor.toolView.finishButtonBackgroundColor = tintColor

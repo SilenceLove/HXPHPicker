@@ -252,7 +252,7 @@ public class PhotoPreviewViewController: BaseViewController {
 // MARK: Function
 extension PhotoPreviewViewController {
      
-    func initView() {
+    private func initView() {
         view.addSubview(collectionView)
         if config.showBottomView {
             view.addSubview(bottomView)

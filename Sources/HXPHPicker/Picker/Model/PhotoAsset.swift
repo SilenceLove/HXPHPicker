@@ -246,13 +246,13 @@ extension PhotoAsset {
         AssetManager.requestImageData(for: phAsset, options: options) { (result) in
             switch result {
             case .success(let dataResult):
+                let image = UIImage(data: dataResult.imageData)?.normalizedImage()
                 if isGif && self.mediaSubType != .imageAnimated {
-                    let image = UIImage(data: dataResult.imageData)
                     if let data = PhotoTools.getImageData(for: image) {
                         originalImage = UIImage(data: data)
                     }
                 }else {
-                    originalImage = UIImage.init(data: dataResult.imageData)
+                    originalImage = image
                 }
             default:
                 break

@@ -177,14 +177,18 @@ extension PhotoPickerController {
                     selectedAssets.append(phAsset)
                     selectedPhotoAssets.append(photoAsset)
                 }else {
-                    let inLocal = self.localAssetArray.contains { (localAsset) -> Bool in
+                    let inLocal = self
+                        .localAssetArray
+                        .contains { (localAsset) -> Bool in
                         if localAsset.isEqual(photoAsset) {
                             self.localAssetArray[self.localAssetArray.firstIndex(of: localAsset)!] = photoAsset
                             return true
                         }
                         return false
                     }
-                    let inLocalCamera = self.localCameraAssetArray.contains(where: { (localAsset) -> Bool in
+                    let inLocalCamera = self
+                        .localCameraAssetArray
+                        .contains(where: { (localAsset) -> Bool in
                         if localAsset.isEqual(photoAsset) {
                             self.localCameraAssetArray[
                                 self.localCameraAssetArray.firstIndex(of: localAsset)!
@@ -211,7 +215,7 @@ extension PhotoPickerController {
             localAssets.append(contentsOf: self.localCameraAssetArray.reversed())
             localAssets.append(contentsOf: self.localAssetArray)
             var photoAssets = [PhotoAsset]()
-            photoAssets.reserveCapacity(assetCollection?.count ?? 0)
+            photoAssets.reserveCapacity(assetCollection?.count ?? 10)
             var lastAsset: PhotoAsset?
             assetCollection?.enumerateAssets(
                 usingBlock: { [weak self] (photoAsset) in
@@ -244,13 +248,13 @@ extension PhotoPickerController {
                     asset = phAsset
                     lastAsset = phAsset
                 }
-                if self.config.reverseOrder == true {
+                if self.config.reverseOrder {
                     photoAssets.insert(asset, at: 0)
                 }else {
                     photoAssets.append(asset)
                 }
             })
-            if self.config.reverseOrder == true {
+            if self.config.reverseOrder {
                 photoAssets.insert(contentsOf: localAssets, at: 0)
             }else {
                 photoAssets.append(contentsOf: localAssets.reversed())

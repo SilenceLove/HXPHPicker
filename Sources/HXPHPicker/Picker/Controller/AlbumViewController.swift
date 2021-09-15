@@ -95,7 +95,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         beforeOrientationIndexPath = tableView.indexPathsForVisibleRows?.first
         orientationDidChange = true
     }
-    func fetchCameraAssetCollection() {
+    private func fetchCameraAssetCollection() {
         if pickerController?.cameraAssetCollection != nil {
             pushPhotoPickerController(
                 assetCollection: pickerController?.cameraAssetCollection,
@@ -131,7 +131,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         }
     }
     
-    func fetchAssetCollections() {
+    private func fetchAssetCollections() {
         ProgressHUD.showLoading(addedTo: view, animated: true)
         pickerController?.fetchAssetCollections()
         pickerController?
@@ -215,7 +215,7 @@ public class AlbumViewController: BaseViewController, UITableViewDataSource, UIT
         myCell.cancelRequest()
     }
     
-    func changeSubviewFrame() {
+    private func changeSubviewFrame() {
         if AssetManager.authorizationStatusIsLimited() {
             promptLb.width = view.width
         }

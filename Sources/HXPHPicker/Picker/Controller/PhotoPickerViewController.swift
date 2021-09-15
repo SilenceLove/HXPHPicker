@@ -316,7 +316,7 @@ public class PhotoPickerViewController: BaseViewController {
 // MARK: Function
 extension PhotoPickerViewController {
     
-    func initView() {
+    private func initView() {
         guard let picker = pickerController else { return }
         extendedLayoutIncludesOpaqueBars = true
         edgesForExtendedLayout = .all
@@ -362,13 +362,13 @@ extension PhotoPickerViewController {
             )
         }
     }
-    func configData() {
+    private func configData() {
         guard let picker = pickerController else { return }
         isMultipleSelect = picker.config.selectMode == .multiple
         videoLoadSingleCell = picker.singleVideo
         updateTitle()
     }
-    func configColor() {
+    private func configColor() {
         guard let picker = pickerController else { return }
         let isDark = PhotoManager.isDark
         view.backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor

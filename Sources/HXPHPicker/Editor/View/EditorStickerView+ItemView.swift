@@ -116,6 +116,8 @@ extension EditorStickerView: EditorStickerItemViewDelegate {
                 audioView = nil
                 delegate?.stickerView(didRemoveAudio: self)
             }
+            itemView.isDelete = true
+            itemView.isEnabled = false
             UIView.animate(withDuration: 0.25) {
                 itemView.alpha = 0
             } completion: { _ in

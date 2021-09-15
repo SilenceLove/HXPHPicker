@@ -128,10 +128,10 @@ open class PhotoBrowser: PhotoPickerController {
     public typealias TransitionHandler = (Int) -> UIView?
     public typealias AssetHandler = (Int, PhotoAsset, PhotoBrowser) -> Void
     
-    let transitionHandler: TransitionHandler?
-    let deleteAssetHandler: AssetHandler?
-    let longPressHandler: AssetHandler?
-    let transitionalImage: UIImage?
+    private let transitionHandler: TransitionHandler?
+    private let deleteAssetHandler: AssetHandler?
+    private let longPressHandler: AssetHandler?
+    private let transitionalImage: UIImage?
     
     lazy var titleLabel: UILabel = {
         let titleLabel = UILabel.init()
