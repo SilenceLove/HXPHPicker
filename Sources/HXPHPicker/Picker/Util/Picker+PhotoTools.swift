@@ -375,8 +375,10 @@ extension PhotoTools {
         #endif
         
         #if HXPICKER_ENABLE_CAMERA
-        config.photoList.camera.videoMaximumDuration = 15
-        config.photoList.camera.tintColor = wxColor
+        let cameraConfig = CameraConfiguration()
+        cameraConfig.videoMaximumDuration = 15
+        cameraConfig.tintColor = wxColor
+        config.photoList.cameraType = .custom(cameraConfig)
         #endif
         
         config.notAuthorized.closeButtonImageName = "hx_picker_notAuthorized_close_dark"

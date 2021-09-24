@@ -224,3 +224,11 @@ extension PickerAssetOptions {
         return result
     }
 }
+
+/// Sort 排序规则
+public enum Sort: Equatable {
+    /// ASC 升序
+    case asc
+    /// DESC 降序
+    case desc
+}

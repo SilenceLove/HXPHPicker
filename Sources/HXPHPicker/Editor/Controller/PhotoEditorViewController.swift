@@ -22,7 +22,7 @@ open class PhotoEditorViewController: BaseViewController {
     /// 当前编辑的图片
     public private(set) var image: UIImage!
     
-    /// 资源类型
+    /// 来源
     public let sourceType: EditorController.SourceType
     
     /// 当前编辑状态
@@ -107,8 +107,8 @@ open class PhotoEditorViewController: BaseViewController {
     var filterHDImage: UIImage?
     var mosaicImage: UIImage?
     var thumbnailImage: UIImage!
-    var needRequest: Bool = false
-    var requestType: Int = 0
+    private var needRequest: Bool = false
+    private var requestType: Int = 0
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -493,80 +493,11 @@ open class PhotoEditorViewController: BaseViewController {
     func setImage(_ image: UIImage) {
         self.image = image
     }
+    func setState(_ state: State) {
+        self.state = state
+    }
 }
 
-extension PhotoEditorViewController: EditorToolViewDelegate {
-    func toolView(didFinishButtonClick toolView: EditorToolView) {
-        exportResources()
-    }
-    func toolView(_ toolView: EditorToolView, didSelectItemAt model: EditorToolOptions) {
-        switch model.type {
-        case .graffiti:
-            currentToolOption = nil
-            imageView.mosaicEnabled = false
-            hiddenMosaicToolView()
-            imageView.drawEnabled = !imageView.drawEnabled
-            toolView.stretchMask = imageView.drawEnabled
-            toolView.layoutSubviews()
-            if imageView.drawEnabled {
-                imageView.stickerEnabled = false
-                showBrushColorView()
-                currentToolOption = model
-            }else {
-                imageView.stickerEnabled = true
-                hiddenBrushColorView()
-            }
-        case .chartlet:
-            chartletView.firstRequest()
-            imageView.deselectedSticker()
-            imageView.drawEnabled = false
-            imageView.mosaicEnabled = false
-            imageView.stickerEnabled = false
-            imageView.isEnabled = false
-            showChartlet = true
-            hidenTopView()
-            showChartletView()
-        case .text:
-            imageView.deselectedSticker()
-            let textVC = EditorStickerTextViewController(config: config.text)
-            textVC.delegate = self
-            let nav = EditorStickerTextController(rootViewController: textVC)
-            nav.modalPresentationStyle = config.text.modalPresentationStyle
-            present(nav, animated: true, completion: nil)
-        case .cropping:
-            imageView.drawEnabled = false
-            imageView.mosaicEnabled = false
-            imageView.stickerEnabled = false
-            state = .cropping
-            imageView.startCropping(true)
-            croppingAction()
-        case .mosaic:
-            currentToolOption = nil
-            imageView.drawEnabled = false
-            hiddenBrushColorView()
-            imageView.mosaicEnabled = !imageView.mosaicEnabled
-            toolView.stretchMask = imageView.mosaicEnabled
-            toolView.layoutSubviews()
-            if imageView.mosaicEnabled {
-                imageView.stickerEnabled = false
-                showMosaicToolView()
-                currentToolOption = model
-            }else {
-                imageView.stickerEnabled = true
-                hiddenMosaicToolView()
-            }
-        case .filter:
-            imageView.drawEnabled = false
-            imageView.mosaicEnabled = false
-            imageView.stickerEnabled = false
-            isFilter = true
-            hidenTopView()
-            showFilterView()
-        default:
-            break
-        }
-    }
-}
 extension PhotoEditorViewController: PhotoEditorBrushColorViewDelegate {
     func brushColorView(didUndoButton colorView: PhotoEditorBrushColorView) {
         imageView.undoDraw()
@@ -651,8 +582,10 @@ extension PhotoEditorViewController: PhotoEditorViewDelegate {
         mosaicToolView.canUndo = editorView.canUndoMosaic
     }
     func editorView(_ editorView: PhotoEditorView, updateStickerText item: EditorStickerItem) {
-        let textVC = EditorStickerTextViewController(config: config.text,
-                                                     stickerItem: item)
+        let textVC = EditorStickerTextViewController(
+            config: config.text,
+            stickerItem: item
+        )
         textVC.delegate = self
         let nav = EditorStickerTextController(rootViewController: textVC)
         nav.modalPresentationStyle = config.text.modalPresentationStyle
@@ -686,67 +619,6 @@ extension PhotoEditorViewController: PhotoEditorMosaicToolViewDelegate {
         mosaicToolView.canUndo = imageView.canUndoMosaic
     }
 }
-extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
-    func filterView(shouldSelectFilter filterView: PhotoEditorFilterView) -> Bool {
-        true
-    }
-    
-    func filterView(
-        _ filterView: PhotoEditorFilterView,
-        didSelected filter: PhotoEditorFilter,
-        atItem: Int
-    ) {
-        if filter.isOriginal {
-            imageView.imageResizerView.filter = nil
-            imageView.updateImage(image)
-            imageView.setMosaicOriginalImage(mosaicImage)
-            return
-        }
-        imageView.imageResizerView.filter = filter
-        ProgressHUD.showLoading(addedTo: view, animated: true)
-        let value = filterView.sliderView.value
-        let lastImage = imageView.image
-        DispatchQueue.global().async {
-            let filterInfo = self.config.filter.infos[atItem]
-            if let newImage = filterInfo.filterHandler(self.thumbnailImage, lastImage, value, .touchUpInside) {
-                let mosaicImage = newImage.mosaicImage(level: self.config.mosaic.mosaicWidth)
-                DispatchQueue.main.sync {
-                    ProgressHUD.hide(forView: self.view, animated: true)
-                    self.imageView.updateImage(newImage)
-                    self.imageView.imageResizerView.filterValue = value
-                    self.imageView.setMosaicOriginalImage(mosaicImage)
-                }
-            }else {
-                DispatchQueue.main.sync {
-                    ProgressHUD.hide(forView: self.view, animated: true)
-                    ProgressHUD.showWarning(addedTo: self.view, text: "设置失败!".localized, animated: true, delayHide: 1.5)
-                }
-            }
-        }
-    }
-    func filterView(_ filterView: PhotoEditorFilterView,
-                    didChanged value: Float) {
-        let filterInfo = config.filter.infos[filterView.currentSelectedIndex - 1]
-        if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .valueChanged) {
-            imageView.updateImage(newImage)
-            imageView.imageResizerView.filterValue = value
-            if mosaicToolView.canUndo {
-                let mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
-                imageView.setMosaicOriginalImage(mosaicImage)
-            }
-        }
-    }
-    func filterView(_ filterView: PhotoEditorFilterView, touchUpInside value: Float) {
-        let filterInfo = config.filter.infos[filterView.currentSelectedIndex - 1]
-        if let newImage = filterInfo.filterHandler(thumbnailImage, imageView.image, value, .touchUpInside) {
-            imageView.updateImage(newImage)
-            imageView.imageResizerView.filterValue = value
-            let mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)
-            imageView.setMosaicOriginalImage(mosaicImage)
-        }
-    }
-}
-
 extension PhotoEditorViewController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         if touch.view is EditorStickerContentView {
@@ -762,89 +634,5 @@ extension PhotoEditorViewController: UIGestureRecognizerDelegate {
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
         true
-    }
-}
-
-extension PhotoEditorViewController: EditorStickerTextViewControllerDelegate {
-    func stickerTextViewController(
-        _ controller: EditorStickerTextViewController,
-        didFinish stickerItem: EditorStickerItem
-    ) {
-        imageView.updateSticker(item: stickerItem)
-    }
-    
-    func stickerTextViewController(
-        _ controller: EditorStickerTextViewController,
-        didFinish stickerText: EditorStickerText
-    ) {
-        let item = EditorStickerItem(
-            image: stickerText.image,
-            imageData: nil,
-            text: stickerText
-        )
-        imageView.addSticker(item: item, isSelected: false)
-    }
-}
-
-extension PhotoEditorViewController: EditorChartletViewDelegate {
-    func chartletView(
-        _ chartletView: EditorChartletView,
-        loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void
-    ) {
-        if let editorDelegate = delegate {
-            editorDelegate.photoEditorViewController(
-                self,
-                loadTitleChartlet: response
-            )
-        }else {
-            #if canImport(Kingfisher)
-            let titles = PhotoTools.defaultTitleChartlet()
-            response(titles)
-            #else
-            response([])
-            #endif
-        }
-    }
-    func chartletView(backClick chartletView: EditorChartletView) {
-        singleTap()
-    }
-    func chartletView(
-        _ chartletView: EditorChartletView,
-        titleChartlet: EditorChartlet,
-        titleIndex: Int,
-        loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void
-    ) {
-        if let editorDelegate = delegate {
-            editorDelegate.photoEditorViewController(
-                self,
-                titleChartlet: titleChartlet,
-                titleIndex: titleIndex,
-                loadChartletList: response
-            )
-        }else {
-            /// 默认加载这些贴图
-            #if canImport(Kingfisher)
-            let chartletList = PhotoTools.defaultNetworkChartlet()
-            response(titleIndex, chartletList)
-            #else
-            response(titleIndex, [])
-            #endif
-        }
-    }
-    func chartletView(
-        _ chartletView: EditorChartletView,
-        didSelectImage image: UIImage,
-        imageData: Data?
-    ) {
-        let item = EditorStickerItem(
-            image: image,
-            imageData: imageData,
-            text: nil
-        )
-        imageView.addSticker(
-            item: item,
-            isSelected: false
-        )
-        singleTap()
     }
 }

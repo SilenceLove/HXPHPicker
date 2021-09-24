@@ -51,7 +51,6 @@ public class CameraConfiguration: BaseConfiguration {
     #endif
     
     /// 允许启动定位
-    /// 需要在跳转之前请求授权，内部不会主动请求授权
     public var allowLocation: Bool = true
     
     public override init() {
@@ -160,8 +159,7 @@ extension CameraConfiguration {
         photoEditor.cropConfimView.finishButtonDarkBackgroundColor = tintColor
         photoEditor.cropping.aspectRatioSelectedColor = tintColor
         photoEditor.filter = .init(
-            infos: PhotoTools.defaultFilters(),
-            selectedColor: tintColor
+            infos: PhotoTools.defaultFilters()
         )
         photoEditor.text.tintColor = tintColor
     }

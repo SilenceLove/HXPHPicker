@@ -33,9 +33,8 @@ public final class SelectBoxView: UIControl {
         }
     }
     var textSize: CGSize = CGSize.zero
-    lazy var config: SelectBoxConfiguration = {
-        return SelectBoxConfiguration.init()
-    }()
+    public lazy var config: SelectBoxConfiguration = .init()
+    
     lazy var backgroundLayer: CAShapeLayer = {
         let backgroundLayer = CAShapeLayer.init()
         backgroundLayer.contentsScale = UIScreen.main.scale
@@ -55,7 +54,7 @@ public final class SelectBoxView: UIControl {
         return tickLayer
     }()
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         layer.addSublayer(backgroundLayer)
         layer.addSublayer(textLayer)

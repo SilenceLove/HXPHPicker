@@ -143,49 +143,6 @@ extension EditorImageResizerView {
     }
 }
 
-extension EditorChartletConfig {
-    func mutableCopy() -> EditorChartletConfig {
-        let config = EditorChartletConfig()
-        config.viewHeight = viewHeight
-        config.rowCount = rowCount
-        config.loadScene = loadScene
-        config.titles = titles
-        return config
-    }
-}
-
-extension VideoCroppingConfiguration {
-    func mutableCopy() -> VideoCroppingConfiguration {
-        let config = VideoCroppingConfiguration()
-        config.maximumVideoCroppingTime = maximumVideoCroppingTime
-        config.minimumVideoCroppingTime = minimumVideoCroppingTime
-        return config
-    }
-}
-extension EditorTextConfig {
-    func mutableCopy() -> EditorTextConfig {
-        let config = EditorTextConfig()
-        config.colors = colors
-        config.tintColor = tintColor
-        config.font = font
-        config.maximumLimitTextLength = maximumLimitTextLength
-        config.modalPresentationStyle = modalPresentationStyle
-        return config
-    }
-}
-
-extension VideoEditorConfiguration.MusicConfig {
-    func mutableCopy() -> VideoEditorConfiguration.MusicConfig {
-        let config = VideoEditorConfiguration.MusicConfig()
-        config.showSearch = showSearch
-        config.tintColor = tintColor
-        config.placeholder = placeholder
-        config.autoPlayWhenScrollingStops = autoPlayWhenScrollingStops
-        config.infos = infos
-        return config
-    }
-}
-
 extension VideoEditorConfiguration {
     func mutableCopy() -> Any {
         let config = VideoEditorConfiguration()
@@ -196,7 +153,7 @@ extension VideoEditorConfiguration {
         config.chartlet = chartlet
         config.text = text
         config.music = music
-        config.cropping = cropping.mutableCopy()
+        config.cropping = cropping
         config.cropView = cropView
         config.toolView = toolView
         return config

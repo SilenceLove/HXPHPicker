@@ -218,7 +218,7 @@ extension PhotoPickerController {
             photoAssets.reserveCapacity(assetCollection?.count ?? 10)
             var lastAsset: PhotoAsset?
             assetCollection?.enumerateAssets(
-                usingBlock: { [weak self] (photoAsset) in
+                usingBlock: { [weak self] (photoAsset, index, stop) in
                 guard let self = self else { return }
                 if self.selectOptions.contains(.gifPhoto) {
                     if photoAsset.phAsset!.isImageAnimated {
@@ -248,13 +248,14 @@ extension PhotoPickerController {
                     asset = phAsset
                     lastAsset = phAsset
                 }
-                if self.config.reverseOrder {
-                    photoAssets.insert(asset, at: 0)
-                }else {
+//                if self.config.photoList.sort == .desc {
+//                    photoAssets.insert(asset, at: 0)
+//                }else {
                     photoAssets.append(asset)
-                }
+//                }
             })
-            if self.config.reverseOrder {
+            if self.config.photoList.sort == .desc {
+                photoAssets.reverse()
                 photoAssets.insert(contentsOf: localAssets, at: 0)
             }else {
                 photoAssets.append(contentsOf: localAssets.reversed())

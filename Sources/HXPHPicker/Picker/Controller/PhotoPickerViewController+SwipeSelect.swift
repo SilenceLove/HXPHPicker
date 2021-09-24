@@ -224,6 +224,10 @@ extension PhotoPickerViewController {
         updateCellSelectedState(for: index, isSelected: state == .select)
     }
     private func swipeSelectAutoScroll() {
+        guard let pickerController = pickerController,
+              !pickerController.config.allowSyncICloudWhenSelectPhoto else {
+            return
+        }
         if !config.swipeSelectAllowAutoScroll {
             return
         }

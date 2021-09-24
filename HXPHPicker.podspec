@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker"
-    spec.version                = "1.2.1"
+    spec.version                = "1.2.2"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
@@ -46,16 +46,4 @@ Pod::Spec.new do |spec|
         full.dependency 'HXPHPicker/Lite'
         full.dependency 'Kingfisher', '~> 6.0'
     end
-    
-#    spec.subspec 'GPUCamera' do |camera|
-#        camera.dependency 'HXPHPicker/Camera'
-#        camera.dependency 'GPUImage'
-#    end
-    
-#    spec.subspec 'Full_GPUImage' do |full|
-#        full.dependency 'HXPHPicker/Picker'
-#        full.dependency 'HXPHPicker/Editor'
-#        full.dependency 'HXPHPicker/GPUCamera'
-#        full.dependency 'Kingfisher', '~> 6.0'
-#    end
 end

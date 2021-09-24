@@ -88,7 +88,7 @@ public class PhotoPickerViewController: BaseViewController {
     
     var cameraCell: PickerCamerViewCell {
         var indexPath: IndexPath
-        if !pickerController!.config.reverseOrder {
+        if config.sort == .asc {
             indexPath = IndexPath(item: assets.count, section: 0)
         }else {
             indexPath = IndexPath(item: 0, section: 0)
@@ -117,8 +117,7 @@ public class PhotoPickerViewController: BaseViewController {
     var isMultipleSelect: Bool = false
     var videoLoadSingleCell = false
     var needOffset: Bool {
-        pickerController != nil &&
-            pickerController!.config.reverseOrder &&
+        config.sort == .desc &&
             config.allowAddCamera &&
             canAddCamera
     }
@@ -438,8 +437,7 @@ extension PhotoPickerViewController {
         }
     }
     func scrollToAppropriatePlace(photoAsset: PhotoAsset?) {
-        guard let picker = pickerController, !assets.isEmpty else { return }
-        var item = !picker.config.reverseOrder ? assets.count - 1 : 0
+        var item = config.sort == .asc ? assets.count - 1 : 0
         if let photoAsset = photoAsset {
             item = assets.firstIndex(of: photoAsset) ?? item
             if needOffset {
@@ -501,9 +499,8 @@ extension PhotoPickerViewController {
         return photoAsset
     }
     func addedPhotoAsset(for photoAsset: PhotoAsset) {
-        guard let picker = pickerController else { return }
         let indexPath: IndexPath
-        if picker.config.reverseOrder {
+        if config.sort == .desc {
             assets.insert(photoAsset, at: 0)
             indexPath = IndexPath(
                 item: needOffset ? 1 : 0,

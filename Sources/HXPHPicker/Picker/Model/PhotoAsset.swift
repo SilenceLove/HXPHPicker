@@ -170,6 +170,7 @@ open class PhotoAsset: Equatable {
     var pVideoTime: String?
     var pVideoDuration: TimeInterval = 0
     var playerTime: CGFloat = 0
+    var isScrolling = false
     
     var identifie: String {
         if let phAsset = phAsset {

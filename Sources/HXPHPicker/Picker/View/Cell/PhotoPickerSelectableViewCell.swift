@@ -108,11 +108,24 @@ open class PhotoPickerSelectableViewCell: PhotoPickerViewCell {
         if selectControl.frame.equalTo(rect) {
             return
         }
-        selectControl.frame = rect
+        if let photoAsset = photoAsset, photoAsset.isScrolling {
+            let x = selectControl.x
+            selectControl.frame = rect
+            selectControl.x = x
+        }else {
+            selectControl.frame = rect
+        }
     }
     
     open override func layoutView() {
         super.layoutView()
-        updateSelectControlSize(width: selectControl.width, height: selectControl.height)
+        updateSelectControlSize()
+    }
+    
+    func updateSelectControlSize() {
+        updateSelectControlSize(
+            width: selectControl.width,
+            height: selectControl.height
+        )
     }
 }

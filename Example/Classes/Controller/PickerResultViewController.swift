@@ -415,7 +415,7 @@ class PickerResultViewController: UIViewController,
                 style = .automatic
             }
         }
-        let config = PhotoBrowser.Configuration()
+        var config = PhotoBrowser.Configuration()
         config.showDelete = true
         config.modalPresentationStyle = style
         let cell = collectionView.cellForItem(at: indexPath) as? ResultViewCell

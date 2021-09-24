@@ -47,12 +47,13 @@ open class PhotoThumbnailView: UIView {
     /// 对应资源的 PhotoAsset 对象
     open var photoAsset: PhotoAsset?
     
+    /// 缩略图的清晰度，越大越清楚，越小越模糊
+    open var targetWidth: CGFloat = 250
+    
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage() {
         requestThumbnailImage(
-            targetWidth: PhotoManager.shared.targetWidth <= 0 ?
-                250 :
-                PhotoManager.shared.targetWidth
+            targetWidth: targetWidth
         )
     }
     
@@ -67,9 +68,7 @@ open class PhotoThumbnailView: UIView {
         targetWidth: CGFloat,
         completion: ((UIImage?, PhotoAsset) -> Void)? = nil
     ) {
-        guard let photoAsset = photoAsset else {
-            return
-        }
+        guard let photoAsset = photoAsset else { return }
         if photoAsset.isNetworkAsset ||
             photoAsset.mediaSubType == .localVideo {
             
@@ -105,8 +104,7 @@ open class PhotoThumbnailView: UIView {
             } completionHandler: { [weak self] (image, photoAsset) in
                 guard let self = self else { return }
                 if self.photoAsset == photoAsset {
-                    self._image = image
-                    self.imageView.image = image
+                    self.requestCompletion(image)
                     if image != nil {
                         self.downloadStatus = .succeed
                     }else {
@@ -123,8 +121,7 @@ open class PhotoThumbnailView: UIView {
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
                 if let image = image, self.photoAsset == photoAsset {
-                    self._image = image
-                    self.imageView.image = image
+                    self.requestCompletion(image)
                     if !AssetManager.assetIsDegraded(for: info) {
                         self.requestID = nil
                     }
@@ -132,6 +129,10 @@ open class PhotoThumbnailView: UIView {
                 completion?(image, photoAsset)
             })
         }
+    }
+    private func requestCompletion(_ image: UIImage?) {
+        _image = image
+        imageView.image = image
     }
     /// 布局，重写此方法修改布局
     open func layoutView() {
@@ -142,6 +143,9 @@ open class PhotoThumbnailView: UIView {
         if let requestID = requestID {
             PHImageManager.default().cancelImageRequest(requestID)
             self.requestID = nil
+        }
+        if task == nil {
+            return
         }
         #if canImport(Kingfisher)
         if let donwloadTask = task as? Kingfisher.DownloadTask {
@@ -158,6 +162,7 @@ open class PhotoThumbnailView: UIView {
             imageGenerator.cancelAllCGImageGeneration()
         }
         #endif
+        task = nil
     }
     
     public override init(frame: CGRect) {

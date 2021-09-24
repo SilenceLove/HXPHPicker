@@ -173,15 +173,15 @@ open class VideoEditorViewController: BaseViewController {
     
     /// 请求获取AVAsset完成
     var reqeustAssetCompletion: Bool = false
-    var needRequest: Bool = false
-    var requestType: Int = 0
+    private var needRequest: Bool = false
+    private var requestType: Int = 0
     var loadingView: ProgressHUD?
     
     var onceState: State = .normal
     var assetRequestID: PHImageRequestID?
     var didEdited: Bool = false
     var firstPlay: Bool = false
-    var firstLayoutSubviews: Bool = true
+    private var firstLayoutSubviews: Bool = true
     var videoSize: CGSize = .zero
     
     /// 不是在音乐列表选中的音乐数据（不包括搜索）

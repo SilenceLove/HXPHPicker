@@ -59,17 +59,19 @@ public extension PHAsset {
             return isICloud
         }
         if mediaType == PHAssetMediaType.video {
-            if let isICloud = self.value(forKey: "isCloudPlaceholder") as? Bool,
-               isICloud {
-                return true
-            }
-            let resourceArray = PHAssetResource.assetResources(for: self)
-            let bIsLocallayAvailable = resourceArray.first?.value(forKey: "locallyAvailable") as? Bool ?? true
-            if !bIsLocallayAvailable {
-                isICloud = true
-            }
+            isICloud = !isLocallayAvailable
         }
         return isICloud
+    }
+    
+    var isLocallayAvailable: Bool {
+        if let isICloud = self.value(forKey: "isCloudPlaceholder") as? Bool,
+           isICloud {
+            return false
+        }
+        let resourceArray = PHAssetResource.assetResources(for: self)
+        let isLocallayAvailable = resourceArray.first?.value(forKey: "locallyAvailable") as? Bool ?? true
+        return isLocallayAvailable
     }
     
     func checkAdjustmentStatus(completion: @escaping (Bool) -> Void) {
