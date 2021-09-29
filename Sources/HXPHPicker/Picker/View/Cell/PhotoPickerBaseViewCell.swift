@@ -25,13 +25,16 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     public weak var delegate: PhotoPickerViewCellDelegate?
     /// 配置
     public var config: PhotoListCellConfiguration? {
-        didSet { configColor() }
+        didSet {
+            configColor()
+        }
     }
     /// 展示图片
     public lazy var photoView: PhotoThumbnailView = {
         let photoView = PhotoThumbnailView()
         return photoView
     }()
+    
     /// 是否可以选择
     open var canSelect = true
     
@@ -53,6 +56,7 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
             requestThumbnailImage()
         }
     }
+    
     /// 初始化
     open func initView() {
         contentView.addSubview(photoView)
@@ -109,6 +113,9 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
                 configColor()
             }
         }
+    }
+    deinit {
+        cancelRequest()
     }
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

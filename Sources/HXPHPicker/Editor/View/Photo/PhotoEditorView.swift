@@ -26,8 +26,9 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropping,
                                                            mosaicConfig: config.mosaic)
         imageResizerView.exportScale = config.scale
-        imageResizerView.imageView.drawView.lineColor = config.brushColors[config.defaultBrushColorIndex].color
-        imageResizerView.imageView.drawView.lineWidth = config.brushLineWidth
+        let brush = config.brush
+        imageResizerView.imageView.drawView.lineColor = brush.colors[brush.defaultColorIndex].color
+        imageResizerView.imageView.drawView.lineWidth = brush.lineWidth
         imageResizerView.delegate = self
         imageResizerView.imageView.delegate = self
         return imageResizerView
@@ -37,14 +38,27 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         didSet { imageResizerView.zoomScale = zoomScale }
     }
     
+    /// 编辑配置
     var config: PhotoEditorConfiguration
-    
+    /// 当前裁剪状态
     var state: State = .normal
+    /// 图片缩放比例
     var imageScale: CGFloat = 1
+    /// 是否可以缩放
     var canZoom = true
+    /// 裁剪大小
     var cropSize: CGSize = .zero
-    
+    /// 当前编辑的图片
     var image: UIImage? { imageResizerView.imageView.image }
+    /// 画笔宽度
+    var brushLineWidth: CGFloat {
+        get {
+            imageResizerView.imageView.drawView.lineWidth
+        }
+        set {
+            imageResizerView.imageView.drawView.lineWidth = newValue
+        }
+    }
     
     var isEnabled: Bool = false {
         didSet {

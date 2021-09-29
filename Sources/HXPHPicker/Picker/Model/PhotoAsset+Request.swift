@@ -210,7 +210,9 @@ public extension PhotoAsset {
         if mediaSubType == .imageAnimated {
             version = .original
         }
-        downloadStatus = .downloading
+        if downloadStatus != .succeed {
+            downloadStatus = .downloading
+        }
         let isGif = phAsset.isImageAnimated
         return AssetManager.requestImageData(for: phAsset, version: version) { iCloudRequestID in
             iCloudHandler?(self, iCloudRequestID)
@@ -289,7 +291,9 @@ public extension PhotoAsset {
             failure?(self, nil, .invalidPHAsset)
             return 0
         }
-        downloadStatus = .downloading
+        if downloadStatus != .succeed {
+            downloadStatus = .downloading
+        }
         return AssetManager.requestLivePhoto(for: phAsset!, targetSize: targetSize) { (iCloudRequestID) in
             iCloudHandler?(self, iCloudRequestID)
         } progressHandler: { (progress, error, stop, info) in
@@ -436,7 +440,9 @@ public extension PhotoAsset {
             }
             return 0
         }
-        downloadStatus = .downloading
+        if downloadStatus != .succeed {
+            downloadStatus = .downloading
+        }
         return AssetManager.requestAVAsset(for: phAsset!, deliveryMode: deliveryMode) { (iCloudRequestID) in
             iCloudHandler?(self, iCloudRequestID)
         } progressHandler: { (progress, error, stop, info) in

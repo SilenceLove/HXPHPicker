@@ -69,6 +69,7 @@ open class PhotoThumbnailView: UIView {
         completion: ((UIImage?, PhotoAsset) -> Void)? = nil
     ) {
         guard let photoAsset = photoAsset else { return }
+        cancelRequest()
         if photoAsset.isNetworkAsset ||
             photoAsset.mediaSubType == .localVideo {
             

@@ -79,16 +79,18 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 isSelected: photoAsset.isSelected,
                 animated: false
             )
+//            let pickerCell = myCell as? PhotoPickerViewCell
+//            pickerCell?.requestICloudState()
         }
     }
-    public func collectionView(
-        _ collectionView: UICollectionView,
-        didEndDisplaying cell: UICollectionViewCell,
-        forItemAt indexPath: IndexPath
-    ) {
-        let myCell = cell as? PhotoPickerBaseViewCell
-        myCell?.cancelRequest()
-    }
+//    public func collectionView(
+//        _ collectionView: UICollectionView,
+//        didEndDisplaying cell: UICollectionViewCell,
+//        forItemAt indexPath: IndexPath
+//    ) {
+//        let myCell = cell as? PhotoPickerBaseViewCell
+//        myCell?.cancelRequest()
+//    }
     public func collectionView(
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
@@ -126,13 +128,24 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                     PhotoTools.showNotCameraAuthorizedAlert(viewController: self)
                 }
             }
-        }else if cell is PhotoPickerBaseViewCell {
-            let myCell = cell as! PhotoPickerBaseViewCell
+            return
+        }
+        if let myCell = cell as? PhotoPickerBaseViewCell,
+           let photoAsset = myCell.photoAsset {
             if !myCell.canSelect {
                 return
             }
+            
+            if let pickerCell = myCell as? PhotoPickerViewCell,
+               pickerCell.inICloud {
+                photoAsset.syncICloud(
+                    hudAddedTo: navigationController?.view
+                ) { [weak self] photoAsset, _ in
+                    self?.resetICloud(for: photoAsset)
+                }
+                return
+            }
             let item = needOffset ? indexPath.item - 1 : indexPath.item
-            let photoAsset = myCell.photoAsset!
             if let pickerController = pickerController {
                 if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset, index: item) {
                     return
@@ -296,6 +309,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 width = max(120, width)
                 height = max(120, height)
                 let vc = PhotoPeekViewController(photoAsset)
+                vc.delegate = self
                 vc.preferredContentSize = CGSize(width: width, height: height)
                 return vc
             }else if sCell is PickerCamerViewCell &&
@@ -365,5 +379,16 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 animated: false
             )
         }
+    }
+}
+
+extension PhotoPickerViewController: PhotoPeekViewControllerDelegate {
+    public func photoPeekViewController(
+        requestSucceed photoPeekViewController: PhotoPeekViewController
+    ) {
+        guard let photoAsset = photoPeekViewController.photoAsset else {
+            return
+        }
+        resetICloud(for: photoAsset)
     }
 }

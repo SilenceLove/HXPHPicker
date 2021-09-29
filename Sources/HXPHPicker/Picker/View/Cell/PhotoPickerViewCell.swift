@@ -10,6 +10,14 @@ import UIKit
 import Photos
 
 open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
+    
+    public lazy var iCloudMarkView: UIImageView = {
+        let view = UIImageView(image: "hx_picker_photo_icloud_mark".image)
+        view.size = view.image?.size ?? .zero
+        view.isHidden = true
+        return view
+    }()
+    
     /// 资源类型标签背景
     public lazy var assetTypeMaskView: UIView = {
         let assetTypeMaskView = UIView.init()
@@ -49,9 +57,8 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     
     /// 禁用遮罩
     public lazy var disableMaskLayer: CALayer = {
-        let disableMaskLayer = CALayer.init()
+        let disableMaskLayer = CALayer()
         disableMaskLayer.backgroundColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        disableMaskLayer.frame = bounds
         disableMaskLayer.isHidden = true
         return disableMaskLayer
     }()
@@ -106,7 +113,36 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
                 #endif
             }
             assetTypeIcon.isHidden = photoAsset.mediaType != .video
+            requestICloudState()
         }
+    }
+    
+    /// 是否在iCloud上，只有获取过iCloud状态之后才确定
+    open var inICloud: Bool = false
+    
+    /// 获取iCloud上的状态的请求id
+    public var iCloudRequestID: PHImageRequestID?
+    
+    /// 获取是否在iCloud
+    open func requestICloudState() {
+        guard let config = config,
+              config.showICloudMark else {
+            return
+        }
+        cancelICloudRequest()
+        iCloudRequestID = photoAsset.requestICloudState { [weak self] photoAsset, inICloud in
+            guard let self = self else { return }
+            if self.photoAsset != photoAsset { return }
+            self.iCloudRequestID = nil
+            self.requestICloudStateCompletion(inICloud)
+        }
+    }
+    
+    /// 获取iCloud上状态完成
+    open func requestICloudStateCompletion(_ inICloud: Bool) {
+        self.inICloud = inICloud
+        iCloudMarkView.isHidden = !inICloud
+        setupDisableMask()
     }
     
     /// 选中遮罩
@@ -135,6 +171,7 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         contentView.addSubview(assetTypeIcon)
         contentView.addSubview(assetEditMarkIcon)
         contentView.layer.addSublayer(disableMaskLayer)
+        contentView.addSubview(iCloudMarkView)
     }
     
     /// 触发选中回调
@@ -144,11 +181,18 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
     
     /// 设置禁用遮罩
     open func setupDisableMask() {
+        if inICloud {
+            disableMaskLayer.isHidden = false
+            return
+        }
         disableMaskLayer.isHidden = canSelect
     }
     /// 布局
     open override func layoutView() {
         super.layoutView()
+        iCloudMarkView.x = width - iCloudMarkView.width - 5
+        iCloudMarkView.y = 5
+        
         selectMaskLayer.frame = photoView.bounds
         disableMaskLayer.frame = photoView.bounds
         assetTypeMaskView.frame = CGRect(x: 0, y: photoView.height - 25, width: width, height: 25)
@@ -175,11 +219,24 @@ open class PhotoPickerViewCell: PhotoPickerBaseViewCell {
         }
     }
     
+    open func cancelICloudRequest() {
+        iCloudMarkView.isHidden = true
+        inICloud = false
+        if let id = iCloudRequestID {
+            PHImageManager.default().cancelImageRequest(id)
+            iCloudRequestID = nil
+        }
+    }
+    
     /// 设置高亮遮罩
     open func setupHighlightedMask() {
         guard let photoAsset = photoAsset else { return }
         if !photoAsset.isSelected {
             selectMaskLayer.isHidden = !isHighlighted
         }
+    }
+    
+    deinit {
+        cancelICloudRequest()
     }
 }

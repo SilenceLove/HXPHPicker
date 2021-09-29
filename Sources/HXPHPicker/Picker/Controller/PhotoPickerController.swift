@@ -377,6 +377,9 @@ extension PhotoPickerController {
         let barStyle = isDark ? config.navigationBarDarkStyle : config.navigationBarStyle
         navigationBar.barStyle = barStyle
         
+        if !config.adaptiveBarAppearance {
+            return
+        }
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.titleTextAttributes = titleTextAttributes

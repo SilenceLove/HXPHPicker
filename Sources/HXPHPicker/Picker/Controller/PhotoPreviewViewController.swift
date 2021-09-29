@@ -31,6 +31,14 @@ protocol PhotoPreviewViewControllerDelegate: AnyObject {
     func previewViewController(
         didFinishButton previewController: PhotoPreviewViewController
     )
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        requestSucceed photoAsset: PhotoAsset
+    )
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        requestFailed photoAsset: PhotoAsset
+    )
 }
 extension PhotoPreviewViewControllerDelegate {
     func previewViewController(
@@ -53,6 +61,14 @@ extension PhotoPreviewViewControllerDelegate {
     ) { }
     func previewViewController(
         didFinishButton previewController: PhotoPreviewViewController
+    ) { }
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        requestSucceed photoAsset: PhotoAsset
+    ) { }
+    func previewViewController(
+        _ previewController: PhotoPreviewViewController,
+        requestFailed photoAsset: PhotoAsset
     ) { }
 }
 
