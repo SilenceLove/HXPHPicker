@@ -440,6 +440,17 @@ extension WindowPickerViewController: PhotoPickerViewDelegate {
         let point = gestureRecognizer.location(in: UIApplication.shared.keyWindow)
         if point.y < sendBgView.frame.maxY {
             view.hx.showSuccess(text: "发送成功", delayHide: 1.5, animated: true)
+            /*
+             获取Asset的URL
+             photoAsset.getAssetURL { result in
+                 switch result {
+                 case .success(let result):
+                     print(result.url)
+                 case .failure(let error):
+                     print(error)
+                 }
+             }
+             */
             if photoAsset.isSelected {
                 pickerView.deselect(at: photoAsset)
             }
