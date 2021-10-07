@@ -264,6 +264,9 @@ class WindowPickerViewController: UIViewController {
         changeButton.hx.centerX = view.hx.width * 0.5
         view.addSubview(changeButton)
         pickerView.fetchAsset()
+        
+        /// 获取相册列表
+//        print(manager.fetchAssetCollections(for: .init()))
     }
     
     @objc
