@@ -177,6 +177,8 @@ open class VideoEditorViewController: BaseViewController {
     private var requestType: Int = 0
     var loadingView: ProgressHUD?
     
+    var setAssetCompletion: Bool = false
+    var transitionCompletion: Bool = true
     var onceState: State = .normal
     var assetRequestID: PHImageRequestID?
     var didEdited: Bool = false
@@ -512,7 +514,7 @@ open class VideoEditorViewController: BaseViewController {
             setPlayerViewFrame()
             setCropViewFrame()
             if firstLayoutSubviews {
-                if state == .cropping {
+                if state == .cropping && transitionCompletion {
                     pState = .normal
                     croppingAction()
                 }
@@ -564,8 +566,10 @@ open class VideoEditorViewController: BaseViewController {
                         validWithScale: rotateBeforeStorageData.2
                     )
                 }
-                playerView.resetPlay()
-                startPlayTimer()
+                if transitionCompletion {
+                    playerView.resetPlay()
+                    startPlayTimer()
+                }
             }
             DispatchQueue.main.async {
                 self.orientationDidChange = false
@@ -612,15 +616,19 @@ open class VideoEditorViewController: BaseViewController {
         let vaildWidth = validMaxWidth * validWithScale
         currentValidRect = CGRect(x: validX, y: 0, width: vaildWidth, height: cropView.itemHeight)
     }
-    func setPlayerViewFrame() {
-        scrollView.minimumZoomScale = 1
-        scrollView.zoomScale = 1
+    func getPlayerViewFrame(_ videoSize: CGSize) -> CGRect {
         let playerFrame: CGRect
         if UIDevice.isPad {
             playerFrame = PhotoTools.transformImageSize(videoSize, toViewSize: view.size, directions: [.horizontal])
         }else {
             playerFrame = PhotoTools.transformImageSize(videoSize, to: view)
         }
+        return playerFrame
+    }
+    func setPlayerViewFrame() {
+        scrollView.minimumZoomScale = 1
+        scrollView.zoomScale = 1
+        let playerFrame = getPlayerViewFrame(videoSize)
         if !playerView.frame.equalTo(playerFrame) && orientationDidChange {
             playerView.frame = playerFrame
         }
@@ -628,7 +636,7 @@ open class VideoEditorViewController: BaseViewController {
         if !scrollView.contentSize.equalTo(playerView.size) {
             scrollView.contentSize = playerView.size
         }
-        if state == .cropping {
+        if state == .cropping && transitionCompletion {
             setupScrollViewScale()
         }
     }
@@ -704,6 +712,7 @@ open class VideoEditorViewController: BaseViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
     deinit {
+        avAsset.cancelLoading()
         exportSession?.cancelExport()
 //        print("deinit \(self)")
     }
@@ -730,5 +739,21 @@ extension VideoEditorViewController: UIScrollViewDelegate, UIGestureRecognizerDe
         public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
             return false
         }
+    }
+}
+
+extension VideoEditorViewController: UINavigationControllerDelegate {
+    public func navigationController(
+        _ navigationController: UINavigationController,
+        animationControllerFor operation: UINavigationController.Operation,
+        from fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        if operation == .push {
+            return EditorTransition(mode: .push)
+        }else if operation == .pop {
+            return EditorTransition(mode: .pop)
+        }
+        return nil
     }
 }

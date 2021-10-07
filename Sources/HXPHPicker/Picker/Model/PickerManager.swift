@@ -70,8 +70,39 @@ public class PickerManager: NSObject {
     var didDeselectAsset: ((PhotoAsset, Int) -> Void)?
     
     deinit {
+        cancelFetchAssetQueue()
+        cancelRequestAssetFileSize()
 //        print("deinit\(self)")
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
+    }
+}
+
+public extension PickerManager {
+    
+    /// 获取相册集合
+    /// - Parameters:
+    ///   - options: 获取 PHFetchResult 中的 PHAsset 时的选项
+    ///   - showEmptyCollection: 是否显示空集合
+    /// - Returns: 相册集合
+    func fetchAssetCollections(
+        for options: PHFetchOptions,
+        showEmptyCollection: Bool = false
+    ) -> [PhotoAssetCollection] {
+        var assetCollectionsArray: [PhotoAssetCollection] = []
+        PhotoManager.shared.fetchAssetCollections(
+            for: options,
+            showEmptyCollection: showEmptyCollection
+        ) { (assetCollection, isCameraRoll) in
+            guard let assetCollection = assetCollection else { return }
+            // 获取封面
+            assetCollection.fetchCoverAsset()
+            if isCameraRoll {
+                assetCollectionsArray.insert(assetCollection, at: 0)
+            }else {
+                assetCollectionsArray.append(assetCollection)
+            }
+        }
+        return assetCollectionsArray
     }
 }
 
@@ -84,12 +115,17 @@ extension PickerManager {
             canAddAsset = true
             return
         }
-        for photoAsset in selectedAssetArray {
+        
+        let array = selectedAssetArray
+        for photoAsset in array {
             if photoAsset.mediaType == .photo {
                 selectedPhotoAssetArray.append(photoAsset)
             }else if photoAsset.mediaType == .video {
                 if singleVideo {
-                    selectedAssetArray.remove(at: selectedAssetArray.firstIndex(of: photoAsset)!)
+                    if let index = selectedAssetArray.firstIndex(of: photoAsset) {
+                        canAddAsset = false
+                        selectedAssetArray.remove(at: index)
+                    }
                 }else {
                     selectedVideoAssetArray.append(photoAsset)
                 }
@@ -113,12 +149,12 @@ extension PickerManager {
     }
     
     func fetchAssets(
-        completion: @escaping ([PhotoAsset], PhotoAsset?) -> Void
+        completion: (([PhotoAsset], PhotoAsset?) -> Void)?
     ) {
         fetchAssetsCompletion = completion
         fetchCameraAssetCollection { [weak self] assetCollection in
             guard let self = self else {
-                completion([], nil)
+                completion?([], nil)
                 return
             }
             self.fetchPhotoAssets(
@@ -128,7 +164,9 @@ extension PickerManager {
     }
     
     /// 获取相机胶卷资源集合
-    func fetchCameraAssetCollection(completion: @escaping (PhotoAssetCollection) -> Void) {
+    func fetchCameraAssetCollection(
+        completion: ((PhotoAssetCollection) -> Void)?
+    ) {
         if !config.allowLoadPhotoLibrary {
             let collection: PhotoAssetCollection
             if let assetCollection = cameraAssetCollection {
@@ -140,7 +178,7 @@ extension PickerManager {
                 )
                 cameraAssetCollection = collection
             }
-            completion(collection)
+            completion?(collection)
             return
         }
         if config.creationDate {
@@ -153,17 +191,18 @@ extension PickerManager {
             options: options
         ) { [weak self] (assetCollection) in
             guard let self = self else { return }
-            if assetCollection.count == 0 {
-                self.cameraAssetCollection = PhotoAssetCollection(
+            var collection = assetCollection
+            if collection.count == 0 {
+                collection = PhotoAssetCollection(
                     albumName: self.config.albumList.emptyAlbumName.localized,
                     coverImage: self.config.albumList.emptyCoverImageName.image
                 )
             }else {
                 // 获取封面
-                self.cameraAssetCollection = assetCollection
-                self.cameraAssetCollection?.fetchCoverAsset()
+                assetCollection.fetchCoverAsset()
             }
-            completion(self.cameraAssetCollection!)
+            self.cameraAssetCollection = collection
+            completion?(collection)
         }
     }
     
@@ -239,7 +278,14 @@ extension PickerManager {
             assetCollection?.enumerateAssets(
                 options: self.fetchLimit > 0 ? .reverse : .concurrent,
                 usingBlock: { [weak self] (photoAsset, index, stop) in
-                guard let self = self else { return }
+                guard let self = self else {
+                    stop.pointee = true
+                    return
+                }
+                if self.fetchAssetQueueIsCancel() {
+                    stop.pointee = true
+                    return
+                }
                 if self.selectOptions.contains(.gifPhoto) {
                     if photoAsset.phAsset!.isImageAnimated {
                         photoAsset.mediaSubType = .imageAnimated
@@ -285,11 +331,8 @@ extension PickerManager {
             }else {
                 photoAssets.append(contentsOf: localAssets.reversed())
             }
-            if let operation =
-                self.fetchAssetQueue.operations.first {
-                if operation.isCancelled || operation.name != self.fetchAssetOperationName {
-                    return
-                }
+            if self.fetchAssetQueueIsCancel() {
+                return
             }
             DispatchQueue.main.async {
                 self.fetchAssetsCompletion?(photoAssets, lastAsset)
@@ -302,6 +345,16 @@ extension PickerManager {
     private func cancelFetchAssetQueue() {
         fetchAssetOperationName = nil
         fetchAssetQueue.cancelAllOperations()
+    }
+    
+    private func fetchAssetQueueIsCancel() -> Bool {
+        if let operation =
+            self.fetchAssetQueue.operations.first {
+            if operation.isCancelled || operation.name != self.fetchAssetOperationName {
+                return true
+            }
+        }
+        return false
     }
 }
 
@@ -323,11 +376,8 @@ public extension PickerManager {
             var total: Int = 0
              
             func calculationCompletion(_ totalSize: Int) {
-                if let operation =
-                    self.requestAssetBytesQueue.operations.first {
-                    if operation.isCancelled || operation.name != self.bytesOperationName {
-                        return
-                    }
+                if self.assetBytesQueueIsCancel() {
+                    return
                 }
                 DispatchQueue.main.async {
                     completion(
@@ -406,6 +456,16 @@ public extension PickerManager {
     func cancelRequestAssetFileSize() {
         bytesOperationName = nil
         requestAssetBytesQueue.cancelAllOperations()
+    }
+    
+    private func assetBytesQueueIsCancel() -> Bool {
+        if let operation =
+            self.requestAssetBytesQueue.operations.first {
+            if operation.isCancelled || operation.name != self.bytesOperationName {
+                return true
+            }
+        }
+        return false
     }
 }
 

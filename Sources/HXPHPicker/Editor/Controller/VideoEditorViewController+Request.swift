@@ -33,8 +33,9 @@ extension VideoEditorViewController {
         } success: { [weak self] (photoAsset, avAsset, info) in
             ProgressHUD.hide(forView: self?.view, animated: false)
             self?.pAVAsset = avAsset
-            self?.reqeustAssetCompletion = true
-            self?.assetRequestComplete()
+            self?.avassetLoadValuesAsynchronously()
+//            self?.reqeustAssetCompletion = true
+//            self?.assetRequestComplete()
         } failure: { [weak self] (photoAsset, info, error) in
             if let info = info, !info.isCancel {
                 ProgressHUD.hide(forView: self?.view, animated: false)
@@ -78,19 +79,29 @@ extension VideoEditorViewController {
             }
         }
         playerView.avAsset = avAsset
-        playerView.configAsset()
         cropView.avAsset = avAsset
         if orientationDidChange {
             setCropViewFrame()
         }
+        if state != .cropping {
+            setPlayerViewFrame()
+        }
+        if transitionCompletion {
+            setAsset()
+        }
+    }
+    
+    func setAsset() {
+        if setAssetCompletion {
+            return
+        }
+        playerView.configAsset()
         if state == .cropping {
             pState = .normal
             if playerView.playerLayer.isReadyForDisplay {
                 firstPlay = false
                 croppingAction()
             }
-        }else {
-            setPlayerViewFrame()
         }
         if let editResult = editResult {
             playerView.player.volume = editResult.videoSoundVolume
@@ -103,6 +114,11 @@ extension VideoEditorViewController {
                 backgroundMusicVolume = editResult.backgroundMusicVolume
             }
         }
+        if !orientationDidChange {
+            playerView.resetPlay()
+            startPlayTimer()
+        }
+        setAssetCompletion = true
     }
 }
 
@@ -150,9 +166,14 @@ extension VideoEditorViewController {
     
     func avassetLoadValuesAsynchronously() {
         avAsset.loadValuesAsynchronously(forKeys: ["duration"]) { [weak self] in
+            guard let self = self else { return }
             DispatchQueue.main.async {
-                self?.reqeustAssetCompletion = true
-                self?.assetRequestComplete()
+                if self.avAsset.statusOfValue(forKey: "duration", error: nil) != .loaded {
+                    self.assetRequestFailure()
+                    return
+                }
+                self.reqeustAssetCompletion = true
+                self.assetRequestComplete()
             }
         }
     }

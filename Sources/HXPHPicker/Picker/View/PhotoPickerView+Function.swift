@@ -175,7 +175,7 @@ extension PhotoPickerView {
         }
     }
     func resetICloud(for photoAsset: PhotoAsset) {
-        guard let cell = getCell(for: photoAsset) as? PhotoPickerViewCell,
+        guard let cell = getCell(for: photoAsset),
               cell.inICloud else {
             return
         }

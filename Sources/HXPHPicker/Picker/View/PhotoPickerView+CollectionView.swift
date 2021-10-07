@@ -464,7 +464,7 @@ extension PhotoPickerView: UICollectionViewDelegateFlowLayout {
                 }
             }
         }
-        let maxWidth = maxHeight / 9 * 14
+        let maxWidth = min(width - 60, maxHeight / 9 * 14)
         let photoAsset = getPhotoAsset(for: indexPath.item)
         let assetSize = photoAsset.imageSize
         let aspectRatio = assetSize.width / assetSize.height

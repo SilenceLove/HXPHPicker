@@ -17,7 +17,7 @@ public enum PickerTransitionType {
 }
 
 class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
-    var type: PickerTransitionType = .push
+    let type: PickerTransitionType
     var requestID: PHImageRequestID?
     lazy var pushImageView: UIImageView = {
         let imageView = UIImageView.init()
@@ -27,8 +27,8 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
     }()
     
     init(type: PickerTransitionType) {
-        super.init()
         self.type = type
+        super.init()
     }
     
     public func transitionDuration(

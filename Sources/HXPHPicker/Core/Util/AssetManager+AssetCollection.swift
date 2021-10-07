@@ -45,7 +45,7 @@ public extension AssetManager {
     static func enumerateAllAlbums(
         filterInvalid: Bool,
         options: PHFetchOptions?,
-        usingBlock :@escaping (PHAssetCollection) -> Void
+        usingBlock :@escaping (PHAssetCollection, Int, UnsafeMutablePointer<ObjCBool>) -> Void
     ) {
         let smartAlbums = fetchSmartAlbums(options: nil)
         let userAlbums = fetchUserAlbums(options: nil)
@@ -65,7 +65,7 @@ public extension AssetManager {
                         return
                     }
                 }
-                usingBlock(collection)
+                usingBlock(collection, index, stop)
             }
         }
     }

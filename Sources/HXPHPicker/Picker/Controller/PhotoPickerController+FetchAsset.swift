@@ -62,7 +62,7 @@ extension PhotoPickerController {
     
     /// 获取相册集合
     func fetchAssetCollections() {
-        assetCollectionsQueue.cancelAllOperations()
+        cancelAssetCollectionsQueue()
         let operation = BlockOperation.init {
             if self.config.creationDate {
                 self.options.sortDescriptors = [
@@ -113,14 +113,17 @@ extension PhotoPickerController {
                 showEmptyCollection: false
             ) { [weak self] (assetCollection, isCameraRoll) in
                 guard let self = self else { return }
-                if assetCollection != nil {
+                if self.assetCollectionsQueueIsCancel() {
+                    return
+                }
+                if let assetCollection = assetCollection {
                     // 获取封面
-                    assetCollection?.fetchCoverAsset()
-                    assetCollection?.count += localCount
+                    assetCollection.fetchCoverAsset()
+                    assetCollection.count += localCount
                     if isCameraRoll {
-                        self.assetCollectionsArray.insert(assetCollection!, at: 0)
+                        self.assetCollectionsArray.insert(assetCollection, at: 0)
                     }else {
-                        self.assetCollectionsArray.append(assetCollection!)
+                        self.assetCollectionsArray.append(assetCollection)
                     }
                 }else {
                     if self.cameraAssetCollection != nil {
@@ -135,18 +138,27 @@ extension PhotoPickerController {
                         }
                     }
                     DispatchQueue.main.async {
-                        if let operation =
-                            self.assetCollectionsQueue.operations.first {
-                            if operation.isCancelled {
-                                return
-                            }
-                        }
                         self.fetchAssetCollectionsCompletion?(self.assetCollectionsArray)
                     }
                 }
             }
         }
+        fetchAssetCollectionOperationName = UUID().uuidString
+        operation.name = fetchAssetCollectionOperationName
         assetCollectionsQueue.addOperation(operation)
+    }
+    func cancelAssetCollectionsQueue() {
+        fetchAssetCollectionOperationName = nil
+        assetCollectionsQueue.cancelAllOperations()
+    }
+    private func assetCollectionsQueueIsCancel() -> Bool {
+        if let operation =
+            self.assetCollectionsQueue.operations.first {
+            if operation.isCancelled || operation.name != self.fetchAssetCollectionOperationName {
+                return true
+            }
+        }
+        return false
     }
     /// 获取相册里的资源
     /// - Parameters:
@@ -154,9 +166,10 @@ extension PhotoPickerController {
     ///   - completion: 完成回调
     func fetchPhotoAssets(
         assetCollection: PhotoAssetCollection?,
-        completion: @escaping ([PhotoAsset], PhotoAsset?) -> Void
+        completion: (([PhotoAsset], PhotoAsset?) -> Void)?
     ) {
-        DispatchQueue.global().async {
+        cancelFetchAssetsQueue()
+        let operation = BlockOperation {
             for photoAsset in self.localAssetArray {
                 photoAsset.isSelected = false
             }
@@ -217,9 +230,15 @@ extension PhotoPickerController {
             var photoAssets = [PhotoAsset]()
             photoAssets.reserveCapacity(assetCollection?.count ?? 10)
             var lastAsset: PhotoAsset?
-            assetCollection?.enumerateAssets(
-                usingBlock: { [weak self] (photoAsset, index, stop) in
-                guard let self = self else { return }
+            assetCollection?.enumerateAssets( usingBlock: { [weak self] (photoAsset, index, stop) in
+                guard let self = self else {
+                    stop.pointee = true
+                    return
+                }
+                if self.assetsQueueIsCancel() {
+                    stop.pointee = true
+                    return
+                }
                 if self.selectOptions.contains(.gifPhoto) {
                     if photoAsset.phAsset!.isImageAnimated {
                         photoAsset.mediaSubType = .imageAnimated
@@ -260,9 +279,28 @@ extension PhotoPickerController {
             }else {
                 photoAssets.append(contentsOf: localAssets.reversed())
             }
+            if self.assetsQueueIsCancel() {
+                return
+            }
             DispatchQueue.main.async {
-                completion(photoAssets, lastAsset)
+                completion?(photoAssets, lastAsset)
             }
         }
+        fetchAssetsOperationName = UUID().uuidString
+        operation.name = fetchAssetsOperationName
+        assetsQueue.addOperation(operation)
+    }
+    func cancelFetchAssetsQueue() {
+        fetchAssetsOperationName = nil
+        assetsQueue.cancelAllOperations()
+    }
+    private func assetsQueueIsCancel() -> Bool {
+        if let operation =
+            self.assetsQueue.operations.first {
+            if operation.isCancelled || operation.name != self.fetchAssetsOperationName {
+                return true
+            }
+        }
+        return false
     }
 }

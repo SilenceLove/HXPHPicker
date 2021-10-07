@@ -32,8 +32,16 @@ extension PhotoPickerViewController: UICollectionViewDataSource {
         }
         let cell: PhotoPickerBaseViewCell
         let photoAsset = getPhotoAsset(for: indexPath.item)
-        if pickerController?.config.selectMode == .single ||
-            (photoAsset.mediaType == .video && videoLoadSingleCell) {
+        let isPickerCell: Bool
+        if let picker = pickerController,
+           picker.config.selectMode == .single {
+            isPickerCell = true
+        }else if photoAsset.mediaType == .video && videoLoadSingleCell {
+            isPickerCell = true
+        }else {
+            isPickerCell = false
+        }
+        if isPickerCell {
             cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier:
                     NSStringFromClass(PhotoPickerViewCell.classForCoder()),
@@ -226,6 +234,9 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 config: config
             )
             photoEditorVC.delegate = self
+            if pickerController.config.editorCustomTransition {
+                navigationController?.delegate = photoEditorVC
+            }
             navigationController?.pushViewController(photoEditorVC, animated: animated)
             return true
         }
@@ -269,6 +280,9 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             )
             videoEditorVC.coverImage = coverImage
             videoEditorVC.delegate = self
+            if pickerController.config.editorCustomTransition {
+                navigationController?.delegate = videoEditorVC
+            }
             navigationController?.pushViewController(videoEditorVC, animated: animated)
             return true
         }

@@ -23,8 +23,10 @@ protocol PhotoEditorViewDelegate: AnyObject {
 class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     weak var editorDelegate: PhotoEditorViewDelegate?
     lazy var imageResizerView: EditorImageResizerView = {
-        let imageResizerView = EditorImageResizerView.init(cropConfig: config.cropping,
-                                                           mosaicConfig: config.mosaic)
+        let imageResizerView = EditorImageResizerView(
+            cropConfig: config.cropping,
+            mosaicConfig: config.mosaic
+        )
         imageResizerView.exportScale = config.scale
         let brush = config.brush
         imageResizerView.imageView.drawView.lineColor = brush.colors[brush.defaultColorIndex].color
@@ -105,7 +107,17 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         }
         addSubview(imageResizerView)
     }
-    
+    func getTransitionImageViewFrame(with imageSize: CGSize, viewSize: CGSize) -> CGRect {
+        let imageScale = imageSize.width / imageSize.height
+        let imageWidth = viewSize.width
+        let imageHeight = imageWidth / imageScale
+        let imageX: CGFloat = 0
+        var imageY: CGFloat = 0
+        if imageHeight < viewSize.height {
+            imageY = (viewSize.height - imageHeight) * 0.5
+        }
+        return CGRect(x: imageX, y: imageY, width: imageWidth, height: imageHeight)
+    }
     func updateImageViewFrame() {
         let imageWidth = width
         var imageHeight: CGFloat

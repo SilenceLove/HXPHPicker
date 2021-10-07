@@ -107,6 +107,9 @@ open class PhotoEditorViewController: BaseViewController {
     var filterHDImage: UIImage?
     var mosaicImage: UIImage?
     var thumbnailImage: UIImage!
+    var transitionalImage: UIImage?
+    var transitionCompletion: Bool = true
+    var isFinishedBack: Bool = false
     private var needRequest: Bool = false
     private var requestType: Int = 0
     
@@ -178,10 +181,12 @@ open class PhotoEditorViewController: BaseViewController {
     }()
     
     @objc func didBackButtonClick() {
+        transitionalImage = image
         didBackClick(true)
     }
     
     func didBackClick(_ isCancel: Bool = false) {
+        imageView.imageResizerView.stopShowMaskBgTimer()
         if isCancel {
             delegate?.photoEditorViewController(didCancel: self)
         }
@@ -413,11 +418,10 @@ open class PhotoEditorViewController: BaseViewController {
                         mosaicToolView.canUndo = imageView.canUndoMosaic
                     }
                 }
-                if state == .cropping {
-                    imageView.startCropping(true)
-                    croppingAction()
-                }
                 imageInitializeCompletion = true
+                if transitionCompletion {
+                    initializeStartCropping()
+                }
             }
         }
         if orientationDidChange {
@@ -428,6 +432,13 @@ open class PhotoEditorViewController: BaseViewController {
             orientationDidChange = false
             imageViewDidChange = true
         }
+    }
+    func initializeStartCropping() {
+        if !imageInitializeCompletion || state != .cropping {
+            return
+        }
+        imageView.startCropping(true)
+        croppingAction()
     }
     func setChartletViewFrame() {
         var viewHeight = config.chartlet.viewHeight
@@ -600,6 +611,7 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     /// - Parameter cropConfirmView: 裁剪视图
     func cropConfirmView(didCancelButtonClick cropConfirmView: EditorCropConfirmView) {
         if config.fixedCropState {
+            transitionalImage = image
             didBackClick(true)
             return
         }
@@ -698,5 +710,21 @@ extension PhotoEditorViewController: UIGestureRecognizerDelegate {
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
         true
+    }
+}
+
+extension PhotoEditorViewController: UINavigationControllerDelegate {
+    public func navigationController(
+        _ navigationController: UINavigationController,
+        animationControllerFor operation: UINavigationController.Operation,
+        from fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        if operation == .push {
+            return EditorTransition(mode: .push)
+        }else if operation == .pop {
+            return EditorTransition(mode: .pop)
+        }
+        return nil
     }
 }

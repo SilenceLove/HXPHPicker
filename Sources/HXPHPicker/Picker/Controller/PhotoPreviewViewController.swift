@@ -90,6 +90,7 @@ public class PhotoPreviewViewController: BaseViewController {
     var viewDidAppear: Bool = false
     var firstLayoutSubviews: Bool = true
     var interactiveTransition: PickerInteractiveTransition?
+    weak var beforeNavDelegate: UINavigationControllerDelegate?
     lazy var selectBoxControl: SelectBoxView = {
         let boxControl = SelectBoxView(
             frame: CGRect(
@@ -467,6 +468,12 @@ extension PhotoPreviewViewController {
             )
         ) as? PhotoPreviewViewCell
         return cell
+    }
+    func getCell(for photoAsset: PhotoAsset) -> PhotoPreviewViewCell? {
+        guard let item = previewAssets.firstIndex(of: photoAsset) else {
+            return nil
+        }
+        return getCell(for: item)
     }
     func setCurrentCellImage(image: UIImage?) {
         guard let image = image,

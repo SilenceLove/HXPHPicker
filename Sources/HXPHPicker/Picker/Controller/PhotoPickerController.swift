@@ -223,8 +223,15 @@ open class PhotoPickerController: UINavigationController {
         return deniedView
     }()
     var singleVideo: Bool = false
+    var fetchAssetCollectionOperationName: String?
     lazy var assetCollectionsQueue: OperationQueue = {
         let assetCollectionsQueue = OperationQueue.init()
+        assetCollectionsQueue.maxConcurrentOperationCount = 1
+        return assetCollectionsQueue
+    }()
+    var fetchAssetsOperationName: String?
+    lazy var assetsQueue: OperationQueue = {
+        let assetCollectionsQueue = OperationQueue()
         assetCollectionsQueue.maxConcurrentOperationCount = 1
         return assetCollectionsQueue
     }()
@@ -331,6 +338,10 @@ open class PhotoPickerController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
+        cancelFetchAssetsQueue()
+        cancelAssetCollectionsQueue()
+        requestAssetBytesQueue.cancelAllOperations()
+        previewRequestAssetBytesQueue.cancelAllOperations()
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
 }
