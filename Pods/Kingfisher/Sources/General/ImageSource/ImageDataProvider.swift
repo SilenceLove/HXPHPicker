@@ -70,6 +70,7 @@ public struct LocalFileImageDataProvider: ImageDataProvider {
 
     /// The file URL from which the image be loaded.
     public let fileURL: URL
+    private let loadingQueue: ExecutionQueue
 
     // MARK: Initializers
 
@@ -79,9 +80,16 @@ public struct LocalFileImageDataProvider: ImageDataProvider {
     ///   - fileURL: The file URL from which the image be loaded.
     ///   - cacheKey: The key is used for caching the image data. By default,
     ///               the `absoluteString` of `fileURL` is used.
-    public init(fileURL: URL, cacheKey: String? = nil) {
+    ///   - loadingQueue: The queue where the file loading should happen. By default, the dispatch queue of
+    ///                   `.global(qos: .userInitiated)` will be used.
+    public init(
+        fileURL: URL,
+        cacheKey: String? = nil,
+        loadingQueue: ExecutionQueue = .dispatch(DispatchQueue.global(qos: .userInitiated))
+    ) {
         self.fileURL = fileURL
         self.cacheKey = cacheKey ?? fileURL.absoluteString
+        self.loadingQueue = loadingQueue
     }
 
     // MARK: Protocol Conforming
@@ -89,8 +97,10 @@ public struct LocalFileImageDataProvider: ImageDataProvider {
     /// The key used in cache.
     public var cacheKey: String
 
-    public func data(handler: (Result<Data, Error>) -> Void) {
-        handler(Result(catching: { try Data(contentsOf: fileURL) }))
+    public func data(handler:@escaping (Result<Data, Error>) -> Void) {
+        loadingQueue.execute {
+            handler(Result(catching: { try Data(contentsOf: fileURL) }))
+        }
     }
 
     /// The URL of the local file on the disk.

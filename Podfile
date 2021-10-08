@@ -1,4 +1,4 @@
-platform :ios, '10.0'
+platform :ios, '12.0'
 
 install! 'cocoapods',
 #:deterministic_uuids=>false,
@@ -8,7 +8,7 @@ warn_for_unused_master_specs_repo: false
 use_frameworks!
 
 target 'Example' do
-  # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 6.0'
+  # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 7.0'
   pod 'HXPHPicker', :path => './'
   
   # 不带网络图片功能

@@ -159,7 +159,7 @@ extension KF.Builder {
     /// - Returns: A task represents the image downloading, if initialized.
     ///            This value is `nil` if the image is being loaded from cache.
     @discardableResult
-    public func set(to attachment: NSTextAttachment, attributedView: KFCrossPlatformView) -> DownloadTask? {
+    public func set(to attachment: NSTextAttachment, attributedView: @autoclosure @escaping () -> KFCrossPlatformView) -> DownloadTask? {
         let placeholderImage = placeholder as? KFCrossPlatformImage ?? nil
         return attachment.kf.setImage(
             with: source,
@@ -382,6 +382,25 @@ extension KF.Builder {
     /// - Returns: A `KF.Builder` with changes applied.
     public func progressiveJPEG(_ progressive: ImageProgressive? = .default) -> Self {
         options.progressiveJPEG = progressive
+        return self
+    }
+}
+
+// MARK: - Deprecated
+extension KF.Builder {
+    /// Starts the loading process of `self` immediately.
+    ///
+    /// By default, a `KFImage` will not load its source until the `onAppear` is called. This is a lazily loading
+    /// behavior and provides better performance. However, when you refresh the view, the lazy loading also causes a
+    /// flickering since the loading does not happen immediately. Call this method if you want to start the load at once
+    /// could help avoiding the flickering, with some performance trade-off.
+    ///
+    /// - Deprecated: This is not necessary anymore since `@StateObject` is used for holding the image data.
+    /// It does nothing now and please just remove it.
+    ///
+    /// - Returns: The `Self` value with changes applied.
+    @available(*, deprecated, message: "This is not necessary anymore since `@StateObject` is used. It does nothing now and please just remove it.")
+    public func loadImmediately(_ start: Bool = true) -> Self {
         return self
     }
 }
