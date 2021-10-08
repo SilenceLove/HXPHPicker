@@ -32,10 +32,14 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
     
     func transitionDuration(
         using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        if let editorVC = transitionContext?.viewController(forKey: .to) as? PhotoEditorViewController {
+        if let editorVC = transitionContext?.viewController(
+            forKey: mode == .push ? .to : .from
+        ) as? PhotoEditorViewController {
             return editorVC.delegate?.photoEditorViewController(transitionDuration: editorVC) ?? 0.55
         }
-        if let editorVC = transitionContext?.viewController(forKey: .to) as? VideoEditorViewController {
+        if let editorVC = transitionContext?.viewController(
+            forKey: mode == .push ? .to : .from
+        ) as? VideoEditorViewController {
             return editorVC.delegate?.videoEditorViewController(transitionDuration: editorVC) ?? 0.55
         }
         return 0.55
@@ -266,7 +270,7 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
         }
         if mode == .push {
             #if HXPICKER_ENABLE_PICKER
-            if let photoAsset = photoAsset {
+            if let photoAsset = photoAsset, !(fromVC is PhotoPreviewViewController) {
                 var reqeustAsset = photoAsset.phAsset != nil
                 if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
                     reqeustAsset = false
@@ -283,8 +287,8 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
         transitionView?.isHidden = true
         let duration = transitionDuration(using: transitionContext)
         UIView.animate(withDuration: duration - 0.15) {
+            contentView.backgroundColor = self.mode == .push ? .black : .clear
             if self.mode == .push {
-                contentView.backgroundColor = .black
                 #if HXPICKER_ENABLE_PICKER
                 if let pickerVC = fromVC as? PhotoPickerViewController {
                     pickerVC.bottomView.alpha = 0
@@ -293,7 +297,6 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }
                 #endif
             }else if self.mode == .pop {
-                contentView.backgroundColor = .clear
                 #if HXPICKER_ENABLE_PICKER
                 if let pickerVC = toVC as? PhotoPickerViewController {
                     pickerVC.bottomView.alpha = 1
@@ -318,8 +321,17 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                         editorVC.cropView.alpha = 0
                         editorVC.cropConfirmView.alpha = 0
                     }
+                    
+                    if let videoPlayerVIew = self.previewView.subviews.first as? VideoEditorPlayerView {
+                        videoPlayerVIew.stickerView.alpha = 0
+                    }
                 }
             }
+        }
+        let tempView = UIView()
+        let frameIsSame = previewView.frame.equalTo(toRect)
+        if frameIsSame {
+            contentView.addSubview(tempView)
         }
         animate(
             withDuration: duration,
@@ -330,7 +342,11 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 self.previewView.alpha = 0
                 return
             }
-            self.previewView.frame = toRect
+            if frameIsSame {
+                tempView.alpha = 0
+            }else {
+                self.previewView.frame = toRect
+            }
             if self.previewView.layer.cornerRadius > 0 {
                 self.previewView.layer.cornerRadius = self.previewView.width * 0.5
             }
@@ -340,7 +356,7 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     subView.transform = transform
                 }
             }
-        } completion: { [weak self] _ in
+        } completion: { [weak self] isFinished in
             guard let self = self else {
                 contentView.removeFromSuperview()
                 transitionContext.completeTransition(true)
@@ -418,7 +434,11 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 completion?(isFinished)
             }
         }else {
-            UIView.animate(withDuration: duration, animations: animations, completion: completion)
+            UIView.animate(
+                withDuration: duration,
+                animations: animations,
+                completion: completion
+            )
         }
     }
     

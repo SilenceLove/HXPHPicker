@@ -172,9 +172,9 @@ func videoEditorViewController(didCancel videoEditorViewController: VideoEditorV
 
 ## 使用要求
 
-- iOS 10.0+
+- iOS 12.0+
 - Xcode 12.0+
-- Swift 5.3+
+- Swift 5.4+
 
 
 ## 准备工作

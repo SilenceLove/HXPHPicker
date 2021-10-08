@@ -54,13 +54,11 @@ public class PickerManager: NSObject {
         requestAssetBytesQueue.maxConcurrentOperationCount = 1
         return requestAssetBytesQueue
     }()
-    fileprivate var bytesOperationName: String?
     fileprivate lazy var fetchAssetQueue: OperationQueue = {
         let fetchAssetQueue = OperationQueue.init()
         fetchAssetQueue.maxConcurrentOperationCount = 1
         return fetchAssetQueue
     }()
-    fileprivate var fetchAssetOperationName: String?
     
     var fetchAssetsCompletion: (([PhotoAsset], PhotoAsset?) -> Void)?
     var reloadAssetCollection: (() -> Void)?
@@ -92,10 +90,11 @@ public extension PickerManager {
         PhotoManager.shared.fetchAssetCollections(
             for: options,
             showEmptyCollection: showEmptyCollection
-        ) { (assetCollection, isCameraRoll) in
-            guard let assetCollection = assetCollection else { return }
-            // 获取封面
-            assetCollection.fetchCoverAsset()
+        ) { (assetCollection, isCameraRoll, stop) in
+            guard let assetCollection = assetCollection else {
+                stop.pointee = true
+                return
+            }
             if isCameraRoll {
                 assetCollectionsArray.insert(assetCollection, at: 0)
             }else {
@@ -197,9 +196,6 @@ extension PickerManager {
                     albumName: self.config.albumList.emptyAlbumName.localized,
                     coverImage: self.config.albumList.emptyCoverImageName.image
                 )
-            }else {
-                // 获取封面
-                assetCollection.fetchCoverAsset()
             }
             self.cameraAssetCollection = collection
             completion?(collection)
@@ -210,11 +206,14 @@ extension PickerManager {
     /// - Parameters:
     ///   - assetCollection: 相册
     ///   - completion: 完成回调
+    // swiftlint:disable cyclomatic_complexity
     func fetchPhotoAssets(
         assetCollection: PhotoAssetCollection?
     ) {
+        // swiftlint:enable cyclomatic_complexity
         cancelFetchAssetQueue()
-        let operation = BlockOperation {
+        let operation = BlockOperation()
+        operation.addExecutionBlock { [unowned operation] in
             for photoAsset in self.localAssetArray {
                 photoAsset.isSelected = false
             }
@@ -270,19 +269,23 @@ extension PickerManager {
                     }
                 }
             }
+            if operation.isCancelled {
+                return
+            }
             localAssets.append(contentsOf: self.localCameraAssetArray.reversed())
             localAssets.append(contentsOf: self.localAssetArray)
             var photoAssets = [PhotoAsset]()
             photoAssets.reserveCapacity(assetCollection?.count ?? 10)
             var lastAsset: PhotoAsset?
-            assetCollection?.enumerateAssets(
-                options: self.fetchLimit > 0 ? .reverse : .concurrent,
-                usingBlock: { [weak self] (photoAsset, index, stop) in
+            assetCollection?
+                .enumerateAssets(
+                    options: self.fetchLimit > 0 ? .reverse : .concurrent,
+                    usingBlock: { [weak self] (photoAsset, index, stop) in
                 guard let self = self else {
                     stop.pointee = true
                     return
                 }
-                if self.fetchAssetQueueIsCancel() {
+                if operation.isCancelled {
                     stop.pointee = true
                     return
                 }
@@ -314,11 +317,7 @@ extension PickerManager {
                     asset = phAsset
                     lastAsset = phAsset
                 }
-//                if self.config.photoList.sort == .desc {
-//                    photoAssets.insert(asset, at: 0)
-//                }else {
-                    photoAssets.append(asset)
-//                }
+                photoAssets.append(asset)
                 if self.fetchLimit > 0 && photoAssets.count > self.fetchLimit {
                     stop.pointee = true
                 }
@@ -331,30 +330,17 @@ extension PickerManager {
             }else {
                 photoAssets.append(contentsOf: localAssets.reversed())
             }
-            if self.fetchAssetQueueIsCancel() {
+            if operation.isCancelled {
                 return
             }
             DispatchQueue.main.async {
                 self.fetchAssetsCompletion?(photoAssets, lastAsset)
             }
         }
-        fetchAssetOperationName = UUID().uuidString
-        operation.name = fetchAssetOperationName
         fetchAssetQueue.addOperation(operation)
     }
     private func cancelFetchAssetQueue() {
-        fetchAssetOperationName = nil
         fetchAssetQueue.cancelAllOperations()
-    }
-    
-    private func fetchAssetQueueIsCancel() -> Bool {
-        if let operation =
-            self.fetchAssetQueue.operations.first {
-            if operation.isCancelled || operation.name != self.fetchAssetOperationName {
-                return true
-            }
-        }
-        return false
     }
 }
 
@@ -371,14 +357,12 @@ public extension PickerManager {
             completion(0, "")
             return
         }
-        let operation = BlockOperation.init {
+        let operation = BlockOperation()
+        operation.addExecutionBlock { [unowned operation] in
             var totalFileSize = 0
             var total: Int = 0
              
             func calculationCompletion(_ totalSize: Int) {
-                if self.assetBytesQueueIsCancel() {
-                    return
-                }
                 DispatchQueue.main.async {
                     completion(
                         totalSize,
@@ -390,6 +374,9 @@ public extension PickerManager {
             }
             
             for photoAsset in self.selectedAssetArray {
+                if operation.isCancelled {
+                    return
+                }
                 if let fileSize = photoAsset.getPFileSize() {
                     totalFileSize += fileSize
                     total += 1
@@ -398,9 +385,12 @@ public extension PickerManager {
                     }
                     continue
                 }
-                photoAsset.checkAdjustmentStatus { (isAdjusted, asset) in
+                let requestId = photoAsset.checkAdjustmentStatus { (isAdjusted, asset) in
                     if isAdjusted {
                         if asset.mediaType == .photo {
+                            if operation.isCancelled {
+                                return
+                            }
                             asset.requestImageData(
                                 iCloudHandler: nil,
                                 progressHandler: nil
@@ -421,6 +411,9 @@ public extension PickerManager {
                                 }
                             }
                         }else {
+                            if operation.isCancelled {
+                                return
+                            }
                             asset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (sAsset, avAsset, info) in
                                 if let urlAsset = avAsset as? AVURLAsset {
                                     totalFileSize += urlAsset.url.fileSize
@@ -445,27 +438,23 @@ public extension PickerManager {
                         calculationCompletion(totalFileSize)
                     }
                 }
+                if let id = requestId {
+                    photoAsset.adjustmentStatusId = id
+                }
             }
         }
-        bytesOperationName = UUID().uuidString
-        operation.name = bytesOperationName
         requestAssetBytesQueue.addOperation(operation)
     }
     
     /// 取消获取资源文件大小
     func cancelRequestAssetFileSize() {
-        bytesOperationName = nil
-        requestAssetBytesQueue.cancelAllOperations()
-    }
-    
-    private func assetBytesQueueIsCancel() -> Bool {
-        if let operation =
-            self.requestAssetBytesQueue.operations.first {
-            if operation.isCancelled || operation.name != self.bytesOperationName {
-                return true
+        for photoAsset in selectedAssetArray {
+            if let id = photoAsset.adjustmentStatusId {
+                photoAsset.phAsset?.cancelContentEditingInputRequest(id)
+                photoAsset.adjustmentStatusId = nil
             }
         }
-        return false
+        requestAssetBytesQueue.cancelAllOperations()
     }
 }
 

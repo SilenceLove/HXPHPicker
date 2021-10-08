@@ -25,7 +25,8 @@ extension PhotoManager {
             objc_setAssociatedObject(
                 self,
                 &AssociatedKeys.loadNetworkVideoMode,
-                newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
         }
     }
@@ -96,16 +97,12 @@ extension PhotoManager {
     public func fetchAssetCollections(
         for options: PHFetchOptions,
         showEmptyCollection: Bool,
-        usingBlock: ((PhotoAssetCollection?, Bool) -> Void)?
+        usingBlock: ((PhotoAssetCollection?, Bool, UnsafeMutablePointer<ObjCBool>) -> Void)?
     ) {
         AssetManager.enumerateAllAlbums(
             filterInvalid: true,
             options: nil
         ) { (collection, index, stop) in
-            guard let block = usingBlock else {
-                stop.pointee = true
-                return
-            }
             let assetCollection = PhotoAssetCollection(
                 collection: collection,
                 options: options
@@ -113,9 +110,10 @@ extension PhotoManager {
             if showEmptyCollection == false && assetCollection.count == 0 {
                 return
             }
-            block(assetCollection, collection.isCameraRoll)
+            usingBlock?(assetCollection, collection.isCameraRoll, stop)
         }
-        usingBlock?(nil, false)
+        var result = ObjCBool(true)
+        usingBlock?(nil, false, &result)
     }
     
     /// 获取相机胶卷资源集合

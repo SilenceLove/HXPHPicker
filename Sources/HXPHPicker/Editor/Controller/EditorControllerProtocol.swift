@@ -56,6 +56,7 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
         didCancel photoEditorViewController: PhotoEditorViewController
     )
     
+    // MARK: 只支持 push/pop ，跳转之前需要 navigationController?.delegate = photoEditorVC
     /// 转场过渡动画时展示的image
     /// - Parameters:
     ///   - photoEditorViewController: 对应的 PhotoEditorViewController
@@ -68,12 +69,12 @@ public protocol PhotoEditorViewControllerDelegate: AnyObject {
         transitionDuration photoEditorViewController: PhotoEditorViewController
     ) -> TimeInterval
     
-    /// 跳转界面时起始的视图，用于获取位置大小。与 presentPreviewImageAt 一样
+    /// 跳转界面时起始的视图，用于获取位置大小。与 transitioBegenPreviewFrame 一样
     func photoEditorViewController(
         transitioBegenPreviewView photoEditorViewController: PhotoEditorViewController
     ) -> UIView?
     
-    /// 界面返回时对应的视图，用于获取位置大小。与 presentPreviewFrameAt 一样
+    /// 界面返回时对应的视图，用于获取位置大小。与 transitioEndPreviewFrame 一样
     func photoEditorViewController(
         transitioEndPreviewView photoEditorViewController: PhotoEditorViewController
     ) -> UIView?

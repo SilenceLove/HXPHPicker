@@ -77,8 +77,12 @@ public extension PHAsset {
         return isLocallayAvailable
     }
     
-    func checkAdjustmentStatus(completion: @escaping (Bool) -> Void) {
-        self.requestContentEditingInput(with: nil) { (input, info) in
+    @discardableResult
+    func checkAdjustmentStatus(completion: @escaping (Bool) -> Void) -> PHContentEditingInputRequestID {
+        requestContentEditingInput(with: nil) { (input, info) in
+            if let isCancel = info[PHContentEditingInputCancelledKey] as? Int, isCancel == 1 {
+                return
+            }
             let avAsset = input?.audiovisualAsset
             var isAdjusted: Bool = false
             if let path = avAsset != nil ? avAsset?.description : input?.fullSizeImageURL?.path {

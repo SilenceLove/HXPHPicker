@@ -249,9 +249,11 @@ open class PhotoEditorViewController: BaseViewController {
     lazy var filterView: PhotoEditorFilterView = {
         let filter = editResult?.editedData.filter
         let value = editResult?.editedData.filterValue
-        let view = PhotoEditorFilterView.init(filterConfig: config.filter,
-                                              sourceIndex: filter?.sourceIndex ?? -1,
-                                              value: value ?? 0)
+        let view = PhotoEditorFilterView(
+            filterConfig: config.filter,
+            sourceIndex: filter?.sourceIndex ?? -1,
+            value: value ?? 0
+        )
         view.delegate = self
         return view
     }()

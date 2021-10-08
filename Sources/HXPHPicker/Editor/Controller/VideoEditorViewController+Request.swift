@@ -82,8 +82,6 @@ extension VideoEditorViewController {
         cropView.avAsset = avAsset
         if orientationDidChange {
             setCropViewFrame()
-        }
-        if state != .cropping {
             setPlayerViewFrame()
         }
         if transitionCompletion {
@@ -96,13 +94,6 @@ extension VideoEditorViewController {
             return
         }
         playerView.configAsset()
-        if state == .cropping {
-            pState = .normal
-            if playerView.playerLayer.isReadyForDisplay {
-                firstPlay = false
-                croppingAction()
-            }
-        }
         if let editResult = editResult {
             playerView.player.volume = editResult.videoSoundVolume
             musicView.originalSoundButton.isSelected = editResult.videoSoundVolume > 0
@@ -111,6 +102,7 @@ extension VideoEditorViewController {
                 musicView.backgroundButton.isSelected = true
                 PhotoManager.shared.playMusic(filePath: audioURL.path) {
                 }
+                playerView.stickerView.audioView?.contentView.startTimer()
                 backgroundMusicVolume = editResult.backgroundMusicVolume
             }
         }
@@ -165,7 +157,9 @@ extension VideoEditorViewController {
     }
     
     func avassetLoadValuesAsynchronously() {
-        avAsset.loadValuesAsynchronously(forKeys: ["duration"]) { [weak self] in
+        avAsset.loadValuesAsynchronously(
+            forKeys: ["duration"]
+        ) { [weak self] in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 if self.avAsset.statusOfValue(forKey: "duration", error: nil) != .loaded {

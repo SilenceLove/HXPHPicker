@@ -32,9 +32,6 @@ open class PhotoAssetCollection: Equatable {
     /// 是否是相机胶卷
     public var isCameraRoll: Bool = false
     
-    /// 封面PHAsset
-    weak var coverAsset: PHAsset?
-    
     /// 真实的封面图片，如果不为nil就是封面
     var realCoverImage: UIImage?
     
@@ -75,16 +72,17 @@ extension PhotoAssetCollection {
             completion?(realCoverImage, self, nil)
             return nil
         }
-        guard let coverAsset = coverAsset else {
-            completion?(coverImage, self, nil)
-            return nil
+        if let result = result, result.count > 0 {
+            let asset = result.object(at: result.count - 1)
+            return AssetManager.requestThumbnailImage(
+                for: asset,
+                targetWidth: 160
+            ) { (image, info) in
+                completion?(image, self, info)
+            }
         }
-        return AssetManager.requestThumbnailImage(
-            for: coverAsset,
-            targetWidth: 160
-        ) { (image, info) in
-            completion?(image, self, info)
-        }
+        completion?(coverImage, self, nil)
+        return nil
     }
     
     /// 枚举相册里的资源
@@ -92,29 +90,23 @@ extension PhotoAssetCollection {
         options opts: NSEnumerationOptions = .concurrent,
         usingBlock: ((PhotoAsset, Int, UnsafeMutablePointer<ObjCBool>) -> Void)?
     ) {
-        guard let result = result else {
+        if result == nil {
             fetchResult()
+        }
+        guard let result = result else {
             return
         }
         if opts == .reverse {
             result.enumerateObjects(
                 options: opts
             ) { asset, index, stop in
-                guard let block = usingBlock else {
-                    stop.pointee = true
-                    return
-                }
                 let photoAsset = PhotoAsset(asset: asset)
-                block(photoAsset, index, stop)
+                usingBlock?(photoAsset, index, stop)
             }
         }else {
             result.enumerateObjects { asset, index, stop in
-                guard let block = usingBlock else {
-                    stop.pointee = true
-                    return
-                }
                 let photoAsset = PhotoAsset(asset: asset)
-                block(photoAsset, index, stop)
+                usingBlock?(photoAsset, index, stop)
             }
         }
     }
@@ -136,14 +128,6 @@ extension PhotoAssetCollection {
         count = result.count
         if let collection = collection {
             albumName = PhotoTools.transformAlbumName(for: collection)
-        }
-    }
-    
-    func fetchCoverAsset() {
-        if let coverAsset = result?.lastObject {
-            self.coverAsset = coverAsset
-        }else {
-            coverAsset = nil
         }
     }
     

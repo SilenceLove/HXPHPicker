@@ -1,5 +1,27 @@
 # 更新日志
 
+## 1.2.3
+
+### 新增
+
+- 调整最低部署版本为 `iOS 12.0+`
+- Kingfisher 升级为 `v7.0.0`
+- Picker
+  - `iCloud`标示
+- Editor
+  - `PhotoEditor`动态改变画笔宽度
+
+### 优化
+
+- Picker
+  - 获取`iCloud`状态逻辑
+  - `PhotoBrowser`适配`iOS 15`
+
+### 修复
+
+- Editor
+  - `VideoEditor`视频裁剪框拖动到最后一段时视频裁剪出错
+
 ## 1.2.2
 
 ### 修复
