@@ -10,16 +10,6 @@ use_frameworks!
 target 'Example' do
   # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 7.0'
   pod 'HXPHPicker', :path => './'
-  
-  # 不带网络图片功能
-  # pod 'HXPHPicker/Lite', :path => './'
-  
-  # 只有选择功能
-  # pod 'HXPHPicker/Picker', :path => './'
-  
-  # 只有编辑功能
-  # pod 'HXPHPicker/Editor', :path => './'
-  
   pod 'SwiftLint'
 end
 

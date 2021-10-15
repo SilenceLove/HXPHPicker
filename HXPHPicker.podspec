@@ -19,15 +19,27 @@ Pod::Spec.new do |spec|
     end
   
     spec.subspec 'Picker' do |picker|
-        picker.source_files   = "Sources/HXPHPicker/Picker/**/*.{swift}"
-        picker.dependency 'HXPHPicker/Core'
-        picker.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_PICKER' }
+        picker.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Picker/**/*.{swift}"
+            lite.dependency 'HXPHPicker/Core'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_PICKER' }
+        end
+        picker.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker/Picker/Lite'
+            kf.dependency 'Kingfisher', '~> 7.0'
+        end
     end
   
     spec.subspec 'Editor' do |editor|
-        editor.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
-        editor.dependency 'HXPHPicker/Core'
-        editor.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
+        editor.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
+            lite.dependency 'HXPHPicker/Core'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
+        end
+        editor.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker/Editor/Lite'
+            kf.dependency 'Kingfisher', '~> 7.0'
+        end
     end
     
     spec.subspec 'Camera' do |camera|
@@ -37,13 +49,14 @@ Pod::Spec.new do |spec|
     end
     
     spec.subspec 'Lite' do |lite|
-        lite.dependency 'HXPHPicker/Picker'
-        lite.dependency 'HXPHPicker/Editor'
+        lite.dependency 'HXPHPicker/Picker/Lite'
+        lite.dependency 'HXPHPicker/Editor/Lite'
         lite.dependency 'HXPHPicker/Camera'
     end
     
     spec.subspec 'Full' do |full|
-        full.dependency 'HXPHPicker/Lite'
-        full.dependency 'Kingfisher', '~> 7.0'
+        full.dependency 'HXPHPicker/Picker'
+        full.dependency 'HXPHPicker/Editor'
+        full.dependency 'HXPHPicker/Camera'
     end
 end

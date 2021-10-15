@@ -200,25 +200,26 @@ extension PhotoTools {
         return nil
     }
     
+    @discardableResult
     public static func getVideoDuration(
         for photoAsset: PhotoAsset,
         completionHandler:
             @escaping (PhotoAsset, TimeInterval) -> Void
-    ) {
+    ) -> AVAsset? {
         if photoAsset.mediaType == .video {
             var url: URL?
             if let videoAsset = photoAsset.localVideoAsset,
                photoAsset.isLocalAsset {
                 if videoAsset.duration > 0 {
                     completionHandler(photoAsset, videoAsset.duration)
-                    return
+                    return nil
                 }
                 url = videoAsset.videoURL
             }else if let videoAsset = photoAsset.networkVideoAsset,
                      photoAsset.mediaSubType.isNetwork {
                 if videoAsset.duration > 0 {
                     completionHandler(photoAsset, videoAsset.duration)
-                    return
+                    return nil
                 }
                 let key = videoAsset.videoURL.absoluteString
                 if isCached(forVideo: key) {
@@ -247,8 +248,10 @@ extension PhotoTools {
                         completionHandler(photoAsset, duration)
                     }
                 }
+                return avAsset
             }
         }
+        return nil
     }
     
     /// 将字节转换成字符串

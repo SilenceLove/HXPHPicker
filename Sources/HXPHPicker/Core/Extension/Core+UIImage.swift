@@ -308,6 +308,14 @@ extension UIImage {
         }
         return (images, delays, gifDuration)
     }
+    func merge(_ image: UIImage, origin: CGPoint, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        image.draw(in: CGRect(origin: origin, size: size))
+        let mergeImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return mergeImage
+    }
     func merge(images: [UIImage], scale: CGFloat = UIScreen.main.scale) -> UIImage? {
         if images.isEmpty {
             return self

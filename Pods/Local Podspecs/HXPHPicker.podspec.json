@@ -35,27 +35,59 @@
     },
     {
       "name": "Picker",
-      "source_files": "Sources/HXPHPicker/Picker/**/*.{swift}",
-      "dependencies": {
-        "HXPHPicker/Core": [
+      "subspecs": [
+        {
+          "name": "Lite",
+          "source_files": "Sources/HXPHPicker/Picker/**/*.{swift}",
+          "dependencies": {
+            "HXPHPicker/Core": [
 
-        ]
-      },
-      "pod_target_xcconfig": {
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_PICKER"
-      }
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_PICKER"
+          }
+        },
+        {
+          "name": "KF",
+          "dependencies": {
+            "HXPHPicker/Picker/Lite": [
+
+            ],
+            "Kingfisher": [
+              "~> 7.0"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Editor",
-      "source_files": "Sources/HXPHPicker/Editor/**/*.{swift}",
-      "dependencies": {
-        "HXPHPicker/Core": [
+      "subspecs": [
+        {
+          "name": "Lite",
+          "source_files": "Sources/HXPHPicker/Editor/**/*.{swift}",
+          "dependencies": {
+            "HXPHPicker/Core": [
 
-        ]
-      },
-      "pod_target_xcconfig": {
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITOR"
-      }
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITOR"
+          }
+        },
+        {
+          "name": "KF",
+          "dependencies": {
+            "HXPHPicker/Editor/Lite": [
+
+            ],
+            "Kingfisher": [
+              "~> 7.0"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Camera",
@@ -72,10 +104,10 @@
     {
       "name": "Lite",
       "dependencies": {
-        "HXPHPicker/Picker": [
+        "HXPHPicker/Picker/Lite": [
 
         ],
-        "HXPHPicker/Editor": [
+        "HXPHPicker/Editor/Lite": [
 
         ],
         "HXPHPicker/Camera": [
@@ -86,11 +118,14 @@
     {
       "name": "Full",
       "dependencies": {
-        "HXPHPicker/Lite": [
+        "HXPHPicker/Picker": [
 
         ],
-        "Kingfisher": [
-          "~> 7.0"
+        "HXPHPicker/Editor": [
+
+        ],
+        "HXPHPicker/Camera": [
+
         ]
       }
     }
