@@ -24,7 +24,7 @@ PODS:
     - Kingfisher (~> 7.0)
   - HXPHPicker/Picker/Lite (1.2.4):
     - HXPHPicker/Core
-  - Kingfisher (7.1.0)
+  - Kingfisher (7.1.1)
   - SwiftLint (0.43.1)
 
 DEPENDENCIES:
@@ -42,7 +42,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   HXPHPicker: 5b5f9a0b330fb7cbe050ac4a6cd15350a42f8cdd
-  Kingfisher: cdabaf49be7ee7cc124f0f276b355edf61903cf8
+  Kingfisher: f738f9c4a3415823b8e2985d10aa2d6a9f37bc4d
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
 
 PODFILE CHECKSUM: 727558d0d95adefa870de0d0144911f3c4e4e107
