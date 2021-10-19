@@ -309,7 +309,8 @@ extension PhotoTools {
         completion: ((URL?, Error?) -> Void)?
     ) -> AVAssetExportSession? {
         var timeRang = timeRang
-        if AVAssetExportSession.exportPresets(compatibleWith: avAsset).contains(exportPreset.name) {
+        let exportPresets = AVAssetExportSession.exportPresets(compatibleWith: avAsset)
+        if exportPresets.contains(exportPreset.name) {
             do {
                 guard let videoTrack = avAsset.tracks(withMediaType: .video).first else {
                     throw NSError(domain: "Video track is nil", code: 500, userInfo: nil)

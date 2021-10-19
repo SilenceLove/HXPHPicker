@@ -2,9 +2,20 @@
 
 ## 1.2.4
 
+### 新增
+
+- Core
+  - `ProgressHUD`添加进度显示
+- Picker
+  - 新增`PhotoManager.shared.cacheCameraAlbum`是否缓存相机胶卷`PHFetchResult`，缓存之后再次加载可以快速显示照片列表 
+  - 同步iCloud时添加进度显示
+- Editor
+  - 编辑视频导出时添加进度显示
+
 ### 修复
 
 - Editor
+  - `iOS 15`编辑视频，选择配乐之后滑动配乐列表导致崩溃
   - 编辑网络视频时，在还未下载完成之前退出控制器导致崩溃
 
 ## 1.2.3

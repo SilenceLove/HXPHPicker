@@ -637,13 +637,10 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
         isOriginal = result.isOriginal
         collectionView.reloadData()
         updateCollectionViewHeight()
-        result.getVideoURL { session, photoAsset, index in
-            print("\n", session, "\n", index)
-        } videoURLHandler: { result, photoAsset, index in
-            print("\n", index)
-        } completionHandler: { urls in
-            print("\n", urls)
-        }
+        
+//        result.getURLs { urls in
+//            print(urls)
+//        }
 
 //        result.getImage { (image, photoAsset, index) in
 //            if let image = image {

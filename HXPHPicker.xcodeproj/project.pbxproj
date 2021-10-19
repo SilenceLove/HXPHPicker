@@ -267,6 +267,9 @@
 		7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */; };
 		7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */; };
 		7BCF087426CA3F5A008C8C0E /* Core+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */; };
+		7BCF98AD271E740D00ED7E39 /* CameraViewController+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF98AC271E740D00ED7E39 /* CameraViewController+Preview.swift */; };
+		7BCF98AF271E743900ED7E39 /* CameraViewController+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF98AE271E743900ED7E39 /* CameraViewController+Result.swift */; };
+		7BCF98B1271E747700ED7E39 /* CameraViewController+BottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF98B0271E747700ED7E39 /* CameraViewController+BottomView.swift */; };
 		7BDAE9BC26803AB000DF0362 /* VideoEditorMusic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDAE9BB26803AB000DF0362 /* VideoEditorMusic.swift */; };
 		7BDC310E2685D90C0060BC24 /* Editor+UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BDC310D2685D90C0060BC24 /* Editor+UIImage.swift */; };
 		7BE1CA2126F4692D0069ACB6 /* PhotoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE1CA2026F4692D0069ACB6 /* PhotoPickerView.swift */; };
@@ -594,6 +597,9 @@
 		7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextConfig.swift; sourceTree = "<group>"; };
 		7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletConfig.swift; sourceTree = "<group>"; };
 		7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIViewController.swift"; sourceTree = "<group>"; };
+		7BCF98AC271E740D00ED7E39 /* CameraViewController+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+Preview.swift"; sourceTree = "<group>"; };
+		7BCF98AE271E743900ED7E39 /* CameraViewController+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+Result.swift"; sourceTree = "<group>"; };
+		7BCF98B0271E747700ED7E39 /* CameraViewController+BottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+BottomView.swift"; sourceTree = "<group>"; };
 		7BDAE9BB26803AB000DF0362 /* VideoEditorMusic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorMusic.swift; sourceTree = "<group>"; };
 		7BDC310D2685D90C0060BC24 /* Editor+UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Editor+UIImage.swift"; sourceTree = "<group>"; };
 		7BE1CA2026F4692D0069ACB6 /* PhotoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerView.swift; sourceTree = "<group>"; };
@@ -754,7 +760,10 @@
 				7B81EA3F26DE0C15001E82BE /* CameraControllerProtocol.swift */,
 				7B54609E26DCB0F700A65192 /* CameraController.swift */,
 				7B54609F26DCB0F700A65192 /* CameraViewController.swift */,
+				7BCF98AC271E740D00ED7E39 /* CameraViewController+Preview.swift */,
+				7BCF98B0271E747700ED7E39 /* CameraViewController+BottomView.swift */,
 				7BB8A2DD26DF54C00039D304 /* CameraViewController+Location.swift */,
+				7BCF98AE271E743900ED7E39 /* CameraViewController+Result.swift */,
 				7B81EA3D26DE0AED001E82BE /* CameraViewController+Editor.swift */,
 				7B81EA3B26DDBD38001E82BE /* CameraResultViewController.swift */,
 				7B5460AD26DCCB8B00A65192 /* CameraManager.swift */,
@@ -1663,6 +1672,7 @@
 				7BBBD57F25AEFE9100301DCC /* AssetManager+ImageData.swift in Sources */,
 				7BBBD58025AEFE9100301DCC /* AssetManager+ImageURL.swift in Sources */,
 				7BF42E0C26D63E2B006C556A /* EditorStickerTextView+Draw.swift in Sources */,
+				7BCF98B1271E747700ED7E39 /* CameraViewController+BottomView.swift in Sources */,
 				7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */,
 				7B80FAA0268EBE7D003C7B35 /* VideoEditorMusicView.swift in Sources */,
 				7B5BC70126F5753400B3AA69 /* PhotoPickerViewProtocol.swift in Sources */,
@@ -1750,6 +1760,7 @@
 				7BEA744A26BA3B2C0065FC35 /* PhotoPickerViewController+Preview.swift in Sources */,
 				7BBBD59A25AEFE9100301DCC /* PhotoListCellConfiguration.swift in Sources */,
 				7BBBD59B25AEFE9100301DCC /* PickerBottomViewConfiguration.swift in Sources */,
+				7BCF98AF271E743900ED7E39 /* CameraViewController+Result.swift in Sources */,
 				7B09599725FB37DB005DB27B /* PreviewPhotoViewCell.swift in Sources */,
 				7BBBD59C25AEFE9100301DCC /* PreviewViewConfiguration.swift in Sources */,
 				7BDC310E2685D90C0060BC24 /* Editor+UIImage.swift in Sources */,
@@ -1760,6 +1771,7 @@
 				7BBBD59F25AEFE9100301DCC /* NotAuthorizedConfiguration.swift in Sources */,
 				7BBBD5A025AEFE9100301DCC /* PhotoPickerController.swift in Sources */,
 				7BBBD5A125AEFE9100301DCC /* AlbumViewController.swift in Sources */,
+				7BCF98AD271E740D00ED7E39 /* CameraViewController+Preview.swift in Sources */,
 				7B5D5B702627DF7200F94E01 /* PhotoEditorCropToolModel.swift in Sources */,
 				7BBBD5A225AEFE9100301DCC /* PhotoPickerViewController.swift in Sources */,
 				7BF42DF626D62C95006C556A /* PhotoPickerController+Internal.swift in Sources */,
@@ -2011,7 +2023,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.4;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence3.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2039,7 +2051,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence3.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -2069,7 +2081,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2103,7 +2115,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.2.3;
+				MARKETING_VERSION = 1.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

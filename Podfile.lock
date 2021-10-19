@@ -1,28 +1,28 @@
 PODS:
-  - HXPHPicker (1.2.3):
-    - HXPHPicker/Full (= 1.2.3)
-  - HXPHPicker/Camera (1.2.3):
+  - HXPHPicker (1.2.4):
+    - HXPHPicker/Full (= 1.2.4)
+  - HXPHPicker/Camera (1.2.4):
     - HXPHPicker/Core
-  - HXPHPicker/Core (1.2.3)
-  - HXPHPicker/Editor (1.2.3):
-    - HXPHPicker/Editor/KF (= 1.2.3)
-    - HXPHPicker/Editor/Lite (= 1.2.3)
-  - HXPHPicker/Editor/KF (1.2.3):
+  - HXPHPicker/Core (1.2.4)
+  - HXPHPicker/Editor (1.2.4):
+    - HXPHPicker/Editor/KF (= 1.2.4)
+    - HXPHPicker/Editor/Lite (= 1.2.4)
+  - HXPHPicker/Editor/KF (1.2.4):
     - HXPHPicker/Editor/Lite
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Editor/Lite (1.2.3):
+  - HXPHPicker/Editor/Lite (1.2.4):
     - HXPHPicker/Core
-  - HXPHPicker/Full (1.2.3):
+  - HXPHPicker/Full (1.2.4):
     - HXPHPicker/Camera
     - HXPHPicker/Editor
     - HXPHPicker/Picker
-  - HXPHPicker/Picker (1.2.3):
-    - HXPHPicker/Picker/KF (= 1.2.3)
-    - HXPHPicker/Picker/Lite (= 1.2.3)
-  - HXPHPicker/Picker/KF (1.2.3):
+  - HXPHPicker/Picker (1.2.4):
+    - HXPHPicker/Picker/KF (= 1.2.4)
+    - HXPHPicker/Picker/Lite (= 1.2.4)
+  - HXPHPicker/Picker/KF (1.2.4):
     - HXPHPicker/Picker/Lite
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Picker/Lite (1.2.3):
+  - HXPHPicker/Picker/Lite (1.2.4):
     - HXPHPicker/Core
   - Kingfisher (7.1.0)
   - SwiftLint (0.43.1)
@@ -41,10 +41,10 @@ EXTERNAL SOURCES:
     :path: "./"
 
 SPEC CHECKSUMS:
-  HXPHPicker: 4549a98ef30d72417e69cf1047f00c18224ca469
+  HXPHPicker: 5b5f9a0b330fb7cbe050ac4a6cd15350a42f8cdd
   Kingfisher: cdabaf49be7ee7cc124f0f276b355edf61903cf8
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
 
-PODFILE CHECKSUM: f9e20e17317d8a19b5a44be25ff8fa6447090bd4
+PODFILE CHECKSUM: 727558d0d95adefa870de0d0144911f3c4e4e107
 
 COCOAPODS: 1.10.1
