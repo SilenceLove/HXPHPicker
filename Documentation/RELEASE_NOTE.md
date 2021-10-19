@@ -7,7 +7,7 @@
 - Core
   - `ProgressHUD`添加进度显示
 - Picker
-  - 新增`PhotoManager.shared.cacheCameraAlbum`是否缓存相机胶卷`PHFetchResult`，缓存之后再次加载可以快速显示照片列表 
+  - 新增`isCacheCameraAlbum`是否缓存相机胶卷`PHFetchResult`，缓存之后再次加载可以快速显示照片列表 
   - 同步iCloud时添加进度显示
 - Editor
   - 编辑视频导出时添加进度显示
