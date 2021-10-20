@@ -28,6 +28,8 @@ extension PhotoManager {
                 return
             }
             PHPhotoLibrary.shared().unregisterChangeObserver(self)
+            cameraAlbumResult = nil
+            cameraAlbumResultOptions = nil
             didRegisterObserver = false
         }
     }
