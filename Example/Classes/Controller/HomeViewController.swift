@@ -228,7 +228,8 @@ extension HomeViewController: CameraControllerDelegate {
             case .image(let image):
                 photoAsset = PhotoAsset(localImageAsset: .init(image: image))
             case .video(let videoURL):
-                photoAsset = PhotoAsset(localVideoAsset: .init(videoURL: videoURL))
+                let videoDuration = PhotoTools.getVideoDuration(videoURL: videoURL)
+                photoAsset = .init(localVideoAsset: .init(videoURL: videoURL, duration: videoDuration))
             }
             let pickerResultVC = PickerResultViewController.init()
             pickerResultVC.selectedAssets = [photoAsset]
