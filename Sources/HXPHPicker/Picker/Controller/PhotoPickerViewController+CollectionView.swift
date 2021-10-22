@@ -6,29 +6,59 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 
 // MARK: UICollectionViewDataSource
 extension PhotoPickerViewController: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        config.allowAddCamera &&
-            canAddCamera &&
-            pickerController != nil ? assets.count + 1 : assets.count
+        if pickerController == nil {
+            return assets.count
+        }
+        if canAddCamera && canAddLimit {
+            return assets.count + 2
+        }else if canAddCamera || canAddLimit {
+            return assets.count + 1
+        }else {
+            return assets.count
+        }
     }
-    
-    public func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
-        if config.allowAddCamera && canAddCamera {
+    func getAdditiveCell(_ indexPath: IndexPath) -> UICollectionViewCell? {
+        if canAddCamera && canAddLimit {
             if config.sort == .asc {
-                if indexPath.item == assets.count {
+                if indexPath.item == assets.count + 1 {
                     return cameraCell
+                }
+                if indexPath.item == assets.count {
+                    return limitAddCell
                 }
             }else {
                 if indexPath.item == 0 {
                     return cameraCell
                 }
+                if indexPath.item == 1 {
+                    return limitAddCell
+                }
             }
+        }else if canAddCamera || canAddLimit {
+            if config.sort == .asc {
+                if indexPath.item == assets.count {
+                    return canAddCamera ? cameraCell : limitAddCell
+                }
+            }else {
+                if indexPath.item == 0 {
+                    return canAddCamera ? cameraCell : limitAddCell
+                }
+            }
+        }
+        return nil
+    }
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        if let cell = getAdditiveCell(indexPath) {
+            return cell
         }
         let cell: PhotoPickerBaseViewCell
         let photoAsset = getPhotoAsset(for: indexPath.item)
@@ -128,6 +158,12 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             }
             return
         }
+        if cell is PhotoPickerLimitCell {
+            if #available(iOS 14, *) {
+                PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: self)
+            }
+            return
+        }
         if let myCell = cell as? PhotoPickerBaseViewCell,
            let photoAsset = myCell.photoAsset {
             if !myCell.canSelect {
@@ -143,7 +179,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 }
                 return
             }
-            let item = needOffset ? indexPath.item - 1 : indexPath.item
+            let item = needOffset ? indexPath.item - offsetIndex : indexPath.item
             if let pickerController = pickerController {
                 if !pickerController.shouldClickCell(photoAsset: myCell.photoAsset, index: item) {
                     return

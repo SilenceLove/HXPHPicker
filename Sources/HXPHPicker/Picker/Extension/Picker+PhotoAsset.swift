@@ -60,6 +60,8 @@ extension PhotoAsset {
                 completion: completion
             )
             return true
+        }else {
+            downloadStatus = .succeed
         }
         return false
     }

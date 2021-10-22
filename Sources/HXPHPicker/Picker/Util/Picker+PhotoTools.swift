@@ -328,6 +328,10 @@ extension PhotoTools {
         
         config.photoList.cameraCell.cameraImageName = "hx_picker_photoList_photograph_white"
         
+        config.photoList.limitCell.backgroundColor = "#333333".color
+        config.photoList.limitCell.lineColor = .white
+        config.photoList.limitCell.titleColor = .white
+        
         config.photoList.bottomView.barStyle = .black
         config.photoList.bottomView.previewButtonTitleColor = .white
         

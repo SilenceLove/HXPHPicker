@@ -96,6 +96,12 @@ public struct PhotoListConfiguration {
     /// 保存在自定义相册的名字，为空时则取 BundleName
     public var customAlbumName: String?
     
+    /// 当相册权限为选中的照片时，允许添加更多cell，选择更多照片/视频
+    public var allowAddLimit: Bool = true
+    
+    /// 当相册权限为选中的照片时，添加照片cell的配置
+    public var limitCell: PhotoListLimitCellConfiguration = .init()
+    
     /// 没有资源时展示的相关配置
     public var emptyView: EmptyViewConfiguration = .init()
     
@@ -139,4 +145,27 @@ extension PhotoListConfiguration {
         }
         #endif
     }
+}
+
+public struct PhotoListLimitCellConfiguration {
+    
+    public var backgroundColor: UIColor? = "#f1f1f1".color
+    
+    public var backgroundDarkColor: UIColor? = "#333333".color
+    
+    public var lineColor: UIColor = "#999999".color
+    
+    public var lineDarkColor: UIColor = "#ffffff".color
+    
+    public var lineWidth: CGFloat = 4
+    
+    public var title: String? = "更多"
+    
+    public var titleColor: UIColor = "#999999".color
+    
+    public var titleDarkColor: UIColor = "#ffffff".color
+    
+    public var titleFont: UIFont = .mediumPingFang(ofSize: 14)
+    
+    public init() { }
 }

@@ -71,7 +71,7 @@ extension PhotoPickerViewController {
         guard let picker = pickerController else { return }
         picker.fetchPhotoAssets(assetCollection: assetCollection) { [weak self] (photoAssets, photoAsset) in
             guard let self = self else { return }
-            self.canAddCamera = true
+            self.didFetchAsset = true
             self.assets = photoAssets
             self.setupEmptyView()
             self.collectionView.reloadData()
