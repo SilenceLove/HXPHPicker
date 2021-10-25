@@ -270,7 +270,9 @@ extension PhotoPickerViewController {
                 }
             }else if bottomRect.contains(localPoint) {
                 offsety = self.collectionView.contentOffset.y + margin
-                let maxOffsetY = collectionView.contentSize.height - collectionView.height + collectionView.contentInset.bottom // swiftlint:disable:this line_length
+                let maxOffsetY = collectionView.contentSize.height -
+                    collectionView.height +
+                    collectionView.contentInset.bottom
                 if offsety > maxOffsetY {
                     offsety = maxOffsetY
                 }

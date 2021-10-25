@@ -326,11 +326,13 @@ extension PhotoTools {
         config.photoList.cell.selectBox.selectedBackgroundColor = wxColor
         config.photoList.cell.selectBox.titleColor = .white
         
+        config.photoList.cameraCell.backgroundColor = "#404040".color
         config.photoList.cameraCell.cameraImageName = "hx_picker_photoList_photograph_white"
         
-        config.photoList.limitCell.backgroundColor = "#333333".color
+        config.photoList.limitCell.backgroundColor = "#404040".color
         config.photoList.limitCell.lineColor = .white
         config.photoList.limitCell.titleColor = .white
+        config.photoList.assetNumber.textColor = "#ffffff".color
         
         config.photoList.bottomView.barStyle = .black
         config.photoList.bottomView.previewButtonTitleColor = .white

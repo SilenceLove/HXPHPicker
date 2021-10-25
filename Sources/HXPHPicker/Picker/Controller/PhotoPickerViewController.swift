@@ -81,6 +81,13 @@ public class PhotoPickerViewController: BaseViewController {
                     NSStringFromClass(PhotoPickerLimitCell.classForCoder())
             )
         }
+        if config.showAssetNumber {
+            collectionView.register(
+                PhotoPickerBottomNumberView.self,
+                forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+                withReuseIdentifier: NSStringFromClass(PhotoPickerBottomNumberView.classForCoder())
+            )
+        }
         if #available(iOS 11.0, *) {
             collectionView.contentInsetAdjustmentBehavior = .never
         } else {
@@ -180,6 +187,8 @@ public class PhotoPickerViewController: BaseViewController {
     var swipeSelectAutoScrollTimer: DispatchSourceTimer?
     var swipeSelectPanGR: UIPanGestureRecognizer?
     var swipeSelectLastLocalPoint: CGPoint?
+    var photoCount: Int = 0
+    var videoCount: Int = 0
     
     var didFetchAsset: Bool = false
     var canAddCamera: Bool {
@@ -364,9 +373,6 @@ public class PhotoPickerViewController: BaseViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
 }
 
 // MARK: Function
@@ -500,8 +506,12 @@ extension PhotoPickerViewController {
         var item = config.sort == .asc ? assets.count - 1 : 0
         if let photoAsset = photoAsset {
             item = assets.firstIndex(of: photoAsset) ?? item
-            if needOffset {
-                item += offsetIndex
+        }
+        if config.sort == .asc {
+            if canAddCamera && canAddLimit {
+                item += 2
+            }else if canAddCamera || canAddLimit {
+                item += 1
             }
         }
         collectionView.scrollToItem(
@@ -509,7 +519,7 @@ extension PhotoPickerViewController {
                 item: item,
                 section: 0
             ),
-            at: .centeredVertically,
+            at: config.sort == .asc ? .bottom : .top,
             animated: false
         )
     }

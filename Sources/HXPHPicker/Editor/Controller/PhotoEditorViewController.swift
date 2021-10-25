@@ -195,6 +195,16 @@ open class PhotoEditorViewController: BaseViewController {
     
     func didBackClick(_ isCancel: Bool = false) {
         imageView.imageResizerView.stopShowMaskBgTimer()
+        if let type = currentToolOption?.type {
+            switch type {
+            case .graffiti:
+                hiddenBrushColorView()
+            case .mosaic:
+                hiddenMosaicToolView()
+            default:
+                break
+            }
+        }
         if isCancel {
             delegate?.photoEditorViewController(didCancel: self)
         }

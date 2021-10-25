@@ -24,7 +24,7 @@ class PhotoPickerLimitCell: UICollectionViewCell {
         return label
     }()
     
-    var config: PhotoListLimitCellConfiguration? {
+    var config: PhotoListConfiguration.LimitCell? {
         didSet {
             setConfig()
         }
@@ -40,7 +40,7 @@ class PhotoPickerLimitCell: UICollectionViewCell {
         super.layoutSubviews()
         lineLayer.frame = bounds
         titleLb.x = 0
-        titleLb.y = (height - 20) * 0.5 + 25
+        titleLb.y = (height - 20) * 0.5 + 22
         titleLb.width = width
         titleLb.height = titleLb.textHeight
         setLineLayerPath()
@@ -64,11 +64,12 @@ class PhotoPickerLimitCell: UICollectionViewCell {
         let centerX = width * 0.5
         let margin: CGFloat = config?.title == nil ? 0 : 20
         let centerY = (height - margin) * 0.5
-        path.move(to: CGPoint(x: centerX - 15, y: centerY))
-        path.addLine(to: CGPoint(x: centerX + 15, y: centerY))
+        let linelength = (config?.lineLength ?? 30) * 0.5
+        path.move(to: CGPoint(x: centerX - linelength, y: centerY))
+        path.addLine(to: CGPoint(x: centerX + linelength, y: centerY))
         
-        path.move(to: .init(x: centerX, y: centerY - 15))
-        path.addLine(to: .init(x: centerX, y: centerY + 15))
+        path.move(to: .init(x: centerX, y: centerY - linelength))
+        path.addLine(to: .init(x: centerX, y: centerY + linelength))
         
         lineLayer.path = path.cgPath
     }

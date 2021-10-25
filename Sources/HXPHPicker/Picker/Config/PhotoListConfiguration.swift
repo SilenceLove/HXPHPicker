@@ -79,7 +79,7 @@ public struct PhotoListConfiguration {
     public var allowAddCamera: Bool = true
     
     /// 相机cell配置
-    public var cameraCell: PhotoListCameraCellConfiguration = .init()
+    public var cameraCell: CameraCell = .init()
     
     /// 单选模式下，拍照完成之后直接选中并且完成选择
     public var finishSelectionAfterTakingPhoto: Bool = false
@@ -100,7 +100,12 @@ public struct PhotoListConfiguration {
     public var allowAddLimit: Bool = true
     
     /// 当相册权限为选中的照片时，添加照片cell的配置
-    public var limitCell: PhotoListLimitCellConfiguration = .init()
+    public var limitCell: LimitCell = .init()
+    
+    /// 底部显示 照片/视频 数量
+    public var showAssetNumber: Bool = true
+    
+    public var assetNumber: AssetNumber = .init()
     
     /// 没有资源时展示的相关配置
     public var emptyView: EmptyViewConfiguration = .init()
@@ -147,25 +152,74 @@ extension PhotoListConfiguration {
     }
 }
 
-public struct PhotoListLimitCellConfiguration {
+// MARK: 照片列表相机Cell配置类
+extension PhotoListConfiguration {
     
-    public var backgroundColor: UIColor? = "#f1f1f1".color
+    public struct CameraCell {
+        
+        /// 允许相机预览
+        public var allowPreview: Bool = false
+        
+        /// 背景颜色
+        public var backgroundColor: UIColor? = "#f1f1f1".color
+        
+        /// 暗黑风格下背景颜色
+        public var backgroundDarkColor: UIColor? = "#404040".color
+        
+        /// 相机图标
+        public var cameraImageName: String = "hx_picker_photoList_photograph"
+        
+        /// 暗黑风格下的相机图标 / 相机预览成功之后的图标
+        public var cameraDarkImageName: String = "hx_picker_photoList_photograph_white"
+        
+        public init() { }
+    }
+}
+
+extension PhotoListConfiguration {
     
-    public var backgroundDarkColor: UIColor? = "#333333".color
+    public struct LimitCell {
+        
+        /// 背景颜色
+        public var backgroundColor: UIColor? = "#f1f1f1".color
+        
+        /// 背景颜色
+        public var backgroundDarkColor: UIColor? = "#404040".color
+        
+        /// 加号颜色
+        public var lineColor: UIColor = "#999999".color
+        
+        /// 加号暗黑模式下的颜色
+        public var lineDarkColor: UIColor = "#ffffff".color
+        
+        /// 加号两条线的宽度
+        public var lineWidth: CGFloat = 4
+        
+        /// 加号两条线的长度
+        public var lineLength: CGFloat = 25
+        
+        /// 文字标题
+        public var title: String? = "更多"
+        
+        /// 标题颜色
+        public var titleColor: UIColor = "#999999".color
+        
+        /// 标题暗黑模式下的颜色
+        public var titleDarkColor: UIColor = "#ffffff".color
+        
+        /// 标题字体
+        public var titleFont: UIFont = .mediumPingFang(ofSize: 14)
+        
+        public init() { }
+    }
+}
+
+extension PhotoListConfiguration {
     
-    public var lineColor: UIColor = "#999999".color
-    
-    public var lineDarkColor: UIColor = "#ffffff".color
-    
-    public var lineWidth: CGFloat = 4
-    
-    public var title: String? = "更多"
-    
-    public var titleColor: UIColor = "#999999".color
-    
-    public var titleDarkColor: UIColor = "#ffffff".color
-    
-    public var titleFont: UIFont = .mediumPingFang(ofSize: 14)
-    
-    public init() { }
+    public struct AssetNumber {
+        public var textColor: UIColor = "#333333".color
+        public var textDarkColor: UIColor = "#ffffff".color
+        public var textFont: UIFont = .mediumPingFang(ofSize: 15)
+        public init() { }
+    }
 }

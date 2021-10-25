@@ -163,4 +163,14 @@ public final class SelectBoxView: UIControl {
         }
         return super.hitTest(point, with: event)
     }
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if #available(iOS 13.0, *) {
+            if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+                drawBackgroundLayer()
+                drawTextLayer()
+                drawTickLayer()
+            }
+        }
+    }
 }

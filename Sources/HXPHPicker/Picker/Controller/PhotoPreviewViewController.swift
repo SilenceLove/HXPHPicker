@@ -288,9 +288,6 @@ public class PhotoPreviewViewController: BaseViewController {
             }
         }
     }
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
 }
 
 // MARK: Function

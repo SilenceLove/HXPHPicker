@@ -236,8 +236,8 @@ class PhotoEditorBrushColorViewCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             UIView.animate(withDuration: 0.2) {
-                self.colorBgView.transform = self.isSelected ? .init(scaleX: 1.2, y: 1.2) : .identity
-                self.colorView.transform = self.isSelected ? .init(scaleX: 1.25, y: 1.25) : .identity
+                self.colorBgView.transform = self.isSelected ? .init(scaleX: 1.25, y: 1.25) : .identity
+                self.colorView.transform = self.isSelected ? .init(scaleX: 1.3, y: 1.3) : .identity
             }
         }
     }

@@ -430,6 +430,42 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             )
         }
     }
+    
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        if config.showAssetNumber &&
+            kind == UICollectionView.elementKindSectionFooter &&
+            (photoCount > 0 || videoCount > 0) {
+            let view = collectionView
+                .dequeueReusableSupplementaryView(
+                    ofKind: kind,
+                    withReuseIdentifier: NSStringFromClass(PhotoPickerBottomNumberView.classForCoder()),
+                    for: indexPath
+                ) as! PhotoPickerBottomNumberView
+            view.photoCount = photoCount
+            view.videoCount = videoCount
+            view.config = config.assetNumber
+            return view
+        }
+        return .init()
+    }
+    
+}
+
+extension PhotoPickerViewController: UICollectionViewDelegateFlowLayout {
+    public func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForFooterInSection section: Int
+    ) -> CGSize {
+        if config.showAssetNumber && (photoCount > 0 || videoCount > 0) {
+            return CGSize(width: view.width, height: 50)
+        }
+        return .zero
+    }
 }
 
 extension PhotoPickerViewController: PhotoPeekViewControllerDelegate {

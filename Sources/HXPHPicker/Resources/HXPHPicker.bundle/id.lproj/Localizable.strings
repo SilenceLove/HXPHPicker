@@ -81,6 +81,8 @@
 "无法使用麦克风" = "Tidak dapat menggunakan mikrofon";
 "请在设置-隐私-相机中允许访问麦克风" = "Harap izinkan akses ke mikrofon di Pengaturan-Privasi-Kamera";
 "更多" = "Lagi";
+"张照片" = "Foto";
+"个视频" = "Video";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";
