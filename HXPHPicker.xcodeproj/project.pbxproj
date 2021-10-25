@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7B02F2BC2656186500FA94CD /* Core+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B02F2BB2656186500FA94CD /* Core+Data.swift */; };
+		7B0650B927269B6900FE3F92 /* PhotoPickerWeChatViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0650B827269B6900FE3F92 /* PhotoPickerWeChatViewCell.swift */; };
 		7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */; };
 		7B09599425FB3548005DB27B /* PhotoPickerSelectableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */; };
 		7B09599725FB37DB005DB27B /* PreviewPhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */; };
@@ -343,6 +344,7 @@
 /* Begin PBXFileReference section */
 		673AAF6C9FC36AE5B6E9959D /* Pods_HXPHPicker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HXPHPicker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B02F2BB2656186500FA94CD /* Core+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+Data.swift"; sourceTree = "<group>"; };
+		7B0650B827269B6900FE3F92 /* PhotoPickerWeChatViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerWeChatViewCell.swift; sourceTree = "<group>"; };
 		7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerBaseViewCell.swift; sourceTree = "<group>"; };
 		7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerSelectableViewCell.swift; sourceTree = "<group>"; };
 		7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPhotoViewCell.swift; sourceTree = "<group>"; };
@@ -1033,6 +1035,7 @@
 				7B09599025FB351A005DB27B /* PhotoPickerBaseViewCell.swift */,
 				7B73D6B5259C88A90045DA42 /* PhotoPickerViewCell.swift */,
 				7B09599325FB3548005DB27B /* PhotoPickerSelectableViewCell.swift */,
+				7B0650B827269B6900FE3F92 /* PhotoPickerWeChatViewCell.swift */,
 				7B73D6B2259C88A90045DA42 /* PhotoPreviewViewCell.swift */,
 				7B09599625FB37DB005DB27B /* PreviewPhotoViewCell.swift */,
 				7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */,
@@ -1870,6 +1873,7 @@
 				7BDAE9BC26803AB000DF0362 /* VideoEditorMusic.swift in Sources */,
 				7BBBD5C625AEFE9200301DCC /* PhotoEditorViewController.swift in Sources */,
 				7BBBD5C725AEFE9200301DCC /* VideoEditorViewController.swift in Sources */,
+				7B0650B927269B6900FE3F92 /* PhotoPickerWeChatViewCell.swift in Sources */,
 				7B4D86BC25F776E7008B923A /* PhotoPickerControllerProtocol.swift in Sources */,
 				7BEA744626BA39090065FC35 /* PhotoPickerViewController+CollectionView.swift in Sources */,
 				7BBBD5C825AEFE9200301DCC /* EditorToolOptions.swift in Sources */,
