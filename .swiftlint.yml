@@ -16,7 +16,7 @@ excluded:
 force_try: warning
     
 function_body_length:
-    warning: 100
+    warning: 120
     error: 150
     
 file_length:
