@@ -24,7 +24,7 @@ public extension AssetManager {
         targetWidth: CGFloat,
         completion: ImageResultHandler?
     ) -> PHImageRequestID {
-        let options = PHImageRequestOptions.init()
+        let options = PHImageRequestOptions()
         options.resizeMode = .fast
         return requestImage(
             for: asset,
@@ -34,10 +34,8 @@ public extension AssetManager {
             ),
             options: options
         ) { (image, info) in
-            if completion != nil {
-                DispatchQueue.main.async {
-                    completion!(image, info)
-                }
+            DispatchQueue.main.async {
+                completion?(image, info)
             }
         }
     }

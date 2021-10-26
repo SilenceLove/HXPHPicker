@@ -31,12 +31,10 @@ extension PhotoPickerViewController {
         }
     }
     // swiftlint:disable cyclomatic_complexity
-    // swiftlint:disable function_body_length
     func changedPanGestureRecognizer(
         panGR: UIPanGestureRecognizer,
         localPoint: CGPoint) {
         // swiftlint:enable cyclomatic_complexity
-        // swiftlint:enable function_body_length
         let lastIndexPath = collectionView.indexPathForItem(at: localPoint)
         if let lastIndex = lastIndexPath?.item,
            let lastIndexPath = lastIndexPath {

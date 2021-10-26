@@ -18,6 +18,7 @@ extension UIImageView {
     func setImage(
         for asset: PhotoAsset,
         urlType: DonwloadURLType,
+        indicatorColor: UIColor? = nil,
         progressBlock: DownloadProgressBlock? = nil,
         downloadTask: ((Kingfisher.DownloadTask?) -> Void)? = nil,
         completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
@@ -29,7 +30,7 @@ extension UIImageView {
                 completionHandler?(photoEdit.editedImage, nil, asset)
             }else {
                 do {
-                    let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
+                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
                     let img = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))!
                     let kfView = self as? AnimatedImageView
                     kfView?.image = img
@@ -48,6 +49,9 @@ extension UIImageView {
         let isThumbnail = urlType == .thumbnail
         if isThumbnail {
             kf.indicatorType = .activity
+            if let color = indicatorColor {
+                (kf.indicator?.view as? UIActivityIndicatorView)?.color = color
+            }
         }
         var url = URL(string: "")
         var placeholderImage: UIImage?

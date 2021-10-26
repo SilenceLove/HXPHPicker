@@ -61,6 +61,10 @@ open class PhotoThumbnailView: UIView {
     /// 获取视频封面时为：AVAsset / AVAssetImageGenerator
     public var task: Any?
     
+    #if canImport(Kingfisher)
+    public var kf_indicatorColor: UIColor?
+    #endif
+    
     private var _image: UIImage?
     private var firstLoadImage: Bool = true
     
@@ -84,6 +88,7 @@ open class PhotoThumbnailView: UIView {
             task = imageView.setImage(
                 for: photoAsset,
                 urlType: .thumbnail,
+                indicatorColor: kf_indicatorColor,
                 downloadTask: { [weak self] downloadTask in
                     self?.task = downloadTask
                 }

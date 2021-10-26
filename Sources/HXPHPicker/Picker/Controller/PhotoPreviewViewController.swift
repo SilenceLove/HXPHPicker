@@ -155,8 +155,7 @@ public class PhotoPreviewViewController: BaseViewController {
             config: config.bottomView,
             allowLoadPhotoLibrary: allowLoadPhotoLibrary,
             isMultipleSelect: isMultipleSelect,
-            isPreview: true,
-            isExternalPreview: isExternalPreview
+            sourceType: isExternalPreview ? .browser : .preview
         )
         bottomView.hx_delegate = self
         if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {

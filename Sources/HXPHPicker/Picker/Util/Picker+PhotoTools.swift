@@ -280,9 +280,7 @@ extension PhotoTools {
     }
     
     /// 获取和微信主题一致的配置
-    // swiftlint:disable function_body_length
     public static func getWXPickerConfig(isMoment: Bool = false) -> PickerConfiguration {
-        // swiftlint:enable function_body_length
         let config = PickerConfiguration.init()
         if isMoment {
             config.maximumSelectedCount = 9
@@ -328,6 +326,10 @@ extension PhotoTools {
         config.photoList.cell.selectBox.titleColor = .white
         config.photoList.cell.selectBox.style = .tick
         config.photoList.cell.selectBox.size = CGSize(width: 23, height: 23)
+        
+        #if canImport(Kingfisher)
+        config.photoList.cell.kf_indicatorColor = .white
+        #endif
         
         config.photoList.cameraCell.backgroundColor = "#404040".color
         config.photoList.cameraCell.cameraImageName = "hx_picker_photoList_photograph_white"

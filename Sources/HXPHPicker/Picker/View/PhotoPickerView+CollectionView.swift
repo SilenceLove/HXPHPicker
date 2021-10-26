@@ -475,25 +475,23 @@ extension PhotoPickerView: UICollectionViewDelegateFlowLayout {
         let maxHeight = height - contentInset.top - contentInset.bottom
         let minWidth = maxHeight / 16 * 9
         if canAddCamera && canAddLimit {
-            if canAddCamera && canAddLimit {
-                if config.sort == .asc {
-                    if indexPath.item == assets.count + 1 || indexPath.item == assets.count {
-                        return CGSize(width: minWidth, height: maxHeight)
-                    }
-                }else {
-                    if indexPath.item == 0 || indexPath.item == 1 {
-                        return CGSize(width: minWidth, height: maxHeight)
-                    }
+            if config.sort == .asc {
+                if indexPath.item == assets.count + 1 || indexPath.item == assets.count {
+                    return CGSize(width: minWidth, height: maxHeight)
                 }
-            }else if canAddCamera || canAddLimit {
-                if config.sort == .asc {
-                    if indexPath.item == assets.count {
-                        return CGSize(width: minWidth, height: maxHeight)
-                    }
-                }else {
-                    if indexPath.item == 0 {
-                        return CGSize(width: minWidth, height: maxHeight)
-                    }
+            }else {
+                if indexPath.item == 0 || indexPath.item == 1 {
+                    return CGSize(width: minWidth, height: maxHeight)
+                }
+            }
+        }else if canAddCamera || canAddLimit {
+            if config.sort == .asc {
+                if indexPath.item == assets.count {
+                    return CGSize(width: minWidth, height: maxHeight)
+                }
+            }else {
+                if indexPath.item == 0 {
+                    return CGSize(width: minWidth, height: maxHeight)
                 }
             }
         }

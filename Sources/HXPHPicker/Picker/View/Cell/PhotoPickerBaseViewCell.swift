@@ -26,6 +26,9 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     /// 配置
     public var config: PhotoListCellConfiguration? {
         didSet {
+            #if canImport(Kingfisher)
+            photoView.kf_indicatorColor = config?.kf_indicatorColor
+            #endif
             configColor()
         }
     }
@@ -80,7 +83,14 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(targetWidth: CGFloat) {
-        photoView.requestThumbnailImage(targetWidth: targetWidth)
+        photoView.requestThumbnailImage(targetWidth: targetWidth) { [weak self] in
+            guard let self = self, self.photoAsset == $1 else { return }
+            self.requestThumbnailCompletion($0)
+        }
+    }
+    
+    open func requestThumbnailCompletion(_ image: UIImage?) {
+        
     }
     
     /// 更新已选状态
