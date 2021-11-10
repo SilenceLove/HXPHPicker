@@ -100,7 +100,7 @@ extension PhotoAsset {
         }
         let options = PHVideoRequestOptions()
         options.isNetworkAccessAllowed = false
-        options.deliveryMode = .fastFormat
+        options.deliveryMode = .highQualityFormat
         return AssetManager.requestAVAsset(
             for: phAsset,
             options: options

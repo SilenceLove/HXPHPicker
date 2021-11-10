@@ -53,6 +53,7 @@ open class PhotoPickerSelectableViewCell: PhotoPickerViewCell {
     open override func requestICloudStateCompletion(_ inICloud: Bool) {
         super.requestICloudStateCompletion(inICloud)
         selectControl.isHidden = inICloud
+        selectControl.isEnabled = !inICloud
     }
     
     /// 选择框点击事件

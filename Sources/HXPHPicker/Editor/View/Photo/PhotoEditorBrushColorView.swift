@@ -29,7 +29,7 @@ protocol PhotoEditorBrushColorViewDelegate: AnyObject {
 
 public class PhotoEditorBrushColorView: UIView {
     weak var delegate: PhotoEditorBrushColorViewDelegate?
-    let config: PhotoEditorConfiguration.BrushConfig
+    let config: EditorBrushConfiguration
     let brushColors: [String]
     lazy var brushSizeSlider: UISlider = {
         let slider = UISlider()
@@ -127,7 +127,7 @@ public class PhotoEditorBrushColorView: UIView {
         delegate?.brushColorView(didUndoButton: self)
     }
     
-    init(config: PhotoEditorConfiguration.BrushConfig) {
+    init(config: EditorBrushConfiguration) {
         self.config = config
         self.brushColors = config.colors
         super.init(frame: .zero)

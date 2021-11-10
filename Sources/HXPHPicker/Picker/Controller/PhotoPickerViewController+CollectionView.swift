@@ -298,7 +298,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             let config: VideoEditorConfiguration
             if isExceedsTheLimit {
                 config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
-                config.defaultState = .cropping
+                config.defaultState = .cropTime
                 config.cropping.maximumVideoCroppingTime = TimeInterval(
                     pickerController.config.maximumSelectedVideoDuration
                 )
@@ -452,7 +452,29 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
         return .init()
     }
-    
+    public func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
+        PhotoManager.shared.thumbnailLoadModeDidChange(.complete)
+        scrollToTop = false
+    }
+    public func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        scrollToTop = true
+        PhotoManager.shared.thumbnailLoadModeDidChange(.simplify)
+        return true
+    }
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        if !config.loadClearImageWhenScrollingStops {
+            return
+        }
+        PhotoManager.shared.thumbnailLoadModeDidChange(.simplify)
+    }
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if !config.loadClearImageWhenScrollingStops {
+            return
+        }
+        if !scrollView.isTracking && !scrollToTop {
+            PhotoManager.shared.thumbnailLoadModeDidChange(.complete)
+        }
+    }
 }
 
 extension PhotoPickerViewController: UICollectionViewDelegateFlowLayout {

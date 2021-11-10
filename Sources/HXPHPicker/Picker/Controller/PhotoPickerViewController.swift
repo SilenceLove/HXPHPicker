@@ -96,46 +96,6 @@ public class PhotoPickerViewController: BaseViewController {
         }
         return collectionView
     }()
-    var limitAddCell: PhotoPickerLimitCell {
-        let indexPath: IndexPath
-        if config.sort == .asc {
-            if canAddCamera {
-                indexPath = IndexPath(item: assets.count - 1, section: 0)
-            }else {
-                indexPath = IndexPath(item: assets.count, section: 0)
-            }
-        }else {
-            if canAddCamera {
-                indexPath = IndexPath(item: 1, section: 0)
-            }else {
-                indexPath = IndexPath(item: 0, section: 0)
-            }
-        }
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: NSStringFromClass(
-                PhotoPickerLimitCell.classForCoder()
-            ),
-            for: indexPath
-        ) as! PhotoPickerLimitCell
-        cell.config = config.limitCell
-        return cell
-    }
-    var cameraCell: PickerCamerViewCell {
-        let indexPath: IndexPath
-        if config.sort == .asc {
-            indexPath = IndexPath(item: assets.count, section: 0)
-        }else {
-            indexPath = IndexPath(item: 0, section: 0)
-        }
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: NSStringFromClass(
-                PickerCamerViewCell.classForCoder()
-            ),
-            for: indexPath
-        ) as! PickerCamerViewCell
-        cell.config = config.cameraCell
-        return cell
-    }
     
     private lazy var emptyView: EmptyView = {
         let emptyView = EmptyView.init(frame: CGRect(x: 0, y: 0, width: view.width, height: 0))
@@ -183,13 +143,69 @@ public class PhotoPickerViewController: BaseViewController {
         bottomView.boxControl.isSelected = pickerController!.isOriginal
         return bottomView
     }()
+    
+    var showLoading: Bool = false
+    /// 允许加载系统相册库
     var allowLoadPhotoLibrary: Bool = true
+    /// 是否为多选模式
+    var isMultipleSelect: Bool = false
+    /// 视频 Cell 为单选类型
+    var videoLoadSingleCell = false
+    /// 照片数量
+    var photoCount: Int = 0
+    /// 视频数量
+    var videoCount: Int = 0
+    
+    // MARK: 屏幕旋转相关
+    var orientationDidChange: Bool = false
+    var beforeOrientationIndexPath: IndexPath?
+    
+    // MARK: 滑动选择相关
     var swipeSelectAutoScrollTimer: DispatchSourceTimer?
     var swipeSelectPanGR: UIPanGestureRecognizer?
     var swipeSelectLastLocalPoint: CGPoint?
-    var photoCount: Int = 0
-    var videoCount: Int = 0
     
+    // MARK: 相机/更多 Cell 相关
+    var limitAddCell: PhotoPickerLimitCell {
+        let indexPath: IndexPath
+        if config.sort == .asc {
+            if canAddCamera {
+                indexPath = IndexPath(item: assets.count - 1, section: 0)
+            }else {
+                indexPath = IndexPath(item: assets.count, section: 0)
+            }
+        }else {
+            if canAddCamera {
+                indexPath = IndexPath(item: 1, section: 0)
+            }else {
+                indexPath = IndexPath(item: 0, section: 0)
+            }
+        }
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: NSStringFromClass(
+                PhotoPickerLimitCell.classForCoder()
+            ),
+            for: indexPath
+        ) as! PhotoPickerLimitCell
+        cell.config = config.limitCell
+        return cell
+    }
+    var cameraCell: PickerCamerViewCell {
+        let indexPath: IndexPath
+        if config.sort == .asc {
+            indexPath = IndexPath(item: assets.count, section: 0)
+        }else {
+            indexPath = IndexPath(item: 0, section: 0)
+        }
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: NSStringFromClass(
+                PickerCamerViewCell.classForCoder()
+            ),
+            for: indexPath
+        ) as! PickerCamerViewCell
+        cell.config = config.cameraCell
+        return cell
+    }
     var didFetchAsset: Bool = false
     var canAddCamera: Bool {
         if didFetchAsset && config.allowAddCamera {
@@ -203,11 +219,6 @@ public class PhotoPickerViewController: BaseViewController {
         }
         return false
     }
-    var orientationDidChange: Bool = false
-    var beforeOrientationIndexPath: IndexPath?
-    var showLoading: Bool = false
-    var isMultipleSelect: Bool = false
-    var videoLoadSingleCell = false
     var needOffset: Bool {
         if config.sort == .desc {
             if canAddCamera || canAddLimit {
@@ -229,6 +240,10 @@ public class PhotoPickerViewController: BaseViewController {
         }
     }
     
+    // MARK: UIScrollView滚动相关
+    var scrollToTop = false
+    
+    // MARK: function
     public override func viewDidLoad() {
         super.viewDidLoad()
         guard let picker = pickerController else {

@@ -21,28 +21,11 @@ extension UIImageView {
         indicatorColor: UIColor? = nil,
         progressBlock: DownloadProgressBlock? = nil,
         downloadTask: ((Kingfisher.DownloadTask?) -> Void)? = nil,
-        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
+        completionHandler: ImageView.ImageCompletion? = nil
     ) -> Any? {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = asset.photoEdit {
-            if urlType == .thumbnail {
-                image = photoEdit.editedImage
-                completionHandler?(photoEdit.editedImage, nil, asset)
-            }else {
-                do {
-                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
-                    let img = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))!
-                    let kfView = self as? AnimatedImageView
-                    kfView?.image = img
-                }catch {
-                    image = photoEdit.editedImage
-                }
-                completionHandler?(photoEdit.editedImage, nil, asset)
-            }
-            return nil
-        }else if let videoEdit = asset.videoEdit {
-            image = videoEdit.coverImage
-            completionHandler?(videoEdit.coverImage, nil, asset)
+        if asset.photoEdit != nil || asset.videoEdit != nil {
+            getEditedImage(asset, urlType: urlType, completionHandler: completionHandler)
             return nil
         }
         #endif
@@ -147,6 +130,31 @@ extension UIImageView {
             }
         }
     }
+    private func getEditedImage(
+        _ photoAsset: PhotoAsset,
+        urlType: DonwloadURLType,
+        completionHandler: ImageView.ImageCompletion?
+    ) {
+        if let photoEdit = photoAsset.photoEdit {
+            if urlType == .thumbnail {
+                image = photoEdit.editedImage
+                completionHandler?(photoEdit.editedImage, nil, photoAsset)
+            }else {
+                do {
+                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
+                    let img = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))!
+                    let kfView = self as? AnimatedImageView
+                    kfView?.image = img
+                }catch {
+                    image = photoEdit.editedImage
+                }
+                completionHandler?(photoEdit.editedImage, nil, photoAsset)
+            }
+        }else if let videoEdit = photoAsset.videoEdit {
+            image = videoEdit.coverImage
+            completionHandler?(videoEdit.coverImage, nil, photoAsset)
+        }
+    }
     #else
     @discardableResult
     func setVideoCoverImage(
@@ -202,6 +210,8 @@ extension UIImageView {
 
 extension ImageView {
     
+    typealias ImageCompletion = (UIImage?, KingfisherError?, PhotoAsset) -> Void
+    
     #if canImport(Kingfisher)
     @discardableResult
     func setImage(
@@ -209,7 +219,7 @@ extension ImageView {
         urlType: DonwloadURLType,
         progressBlock: DownloadProgressBlock? = nil,
         downloadTask: ((Kingfisher.DownloadTask?) -> Void)? = nil,
-        completionHandler: ((UIImage?, KingfisherError?, PhotoAsset) -> Void)? = nil
+        completionHandler: ImageCompletion? = nil
     ) -> Any? {
         imageView.setImage(
             for: asset,

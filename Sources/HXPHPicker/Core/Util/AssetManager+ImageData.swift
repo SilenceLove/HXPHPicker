@@ -13,7 +13,7 @@ public extension AssetManager {
     
     struct ImageDataResult {
         public let imageData: Data
-        public let dataUTI: String
+        public let dataUTI: String?
         public let imageOrientation: UIImage.Orientation
         public let info: [AnyHashable: Any]?
     }
@@ -147,7 +147,7 @@ public extension AssetManager {
                     .success(
                         .init(
                             imageData: imageData,
-                            dataUTI: dataUTI!,
+                            dataUTI: dataUTI,
                             imageOrientation: imageOrientation,
                             info: info
                         )

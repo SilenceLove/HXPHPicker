@@ -69,7 +69,30 @@ open class PhotoThumbnailView: UIView {
     private var firstLoadImage: Bool = true
     
     var fadeImage: Bool = false
+    var loadCompletion: Bool = false
     
+    public override init(frame: CGRect) {
+        super.init(frame: .zero)
+        addSubview(imageView)
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        layoutView()
+    }
+    
+    /// 布局，重写此方法修改布局
+    open func layoutView() {
+        imageView.frame = bounds
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+// MARK: request
+extension PhotoThumbnailView {
     /// 获取图片，重写此方法可以修改图片
     open func requestThumbnailImage(
         targetWidth: CGFloat,
@@ -79,6 +102,7 @@ open class PhotoThumbnailView: UIView {
         if _image != nil {
             firstLoadImage = false
         }
+        loadCompletion = false
         cancelRequest()
         if photoAsset.isNetworkAsset ||
             photoAsset.mediaSubType == .localVideo {
@@ -105,6 +129,7 @@ open class PhotoThumbnailView: UIView {
                             self.downloadStatus = .failed
                         }
                     }
+                    self.loadCompletion = true
                 }
                 completion?(image, photoAsset)
             }
@@ -122,13 +147,14 @@ open class PhotoThumbnailView: UIView {
                     }else {
                         self.downloadStatus = .failed
                     }
+                    self.loadCompletion = true
                 }
                 completion?(image, photoAsset)
             }
             #endif
         }else {
             requestID = photoAsset.requestThumbnailImage(
-                targetWidth: targetWidth
+                targetWidth: PhotoManager.shared.thumbnailLoadMode == .simplify ? 10 : targetWidth
             ) { [weak self] (image, photoAsset, info) in
                 guard let self = self else { return }
                 if let info = info, info.isCancel { return }
@@ -136,23 +162,14 @@ open class PhotoThumbnailView: UIView {
                     self.requestCompletion(image)
                     if !AssetManager.assetIsDegraded(for: info) {
                         self.requestID = nil
+                        if PhotoManager.shared.thumbnailLoadMode == .complete {
+                            self.loadCompletion = true
+                        }
                     }
                 }
                 completion?(image, photoAsset)
             }
         }
-    }
-    private func requestCompletion(_ image: UIImage?) {
-        if fadeImage {
-            imageView.setImage(image, animated: _image == nil ? false : firstLoadImage)
-        }else {
-            imageView.image = image
-        }
-        _image = image
-    }
-    /// 布局，重写此方法修改布局
-    open func layoutView() {
-        imageView.frame = bounds
     }
     /// 取消请求资源图片
     public func cancelRequest() {
@@ -180,18 +197,28 @@ open class PhotoThumbnailView: UIView {
         #endif
         task = nil
     }
+}
+
+// MARK: private
+extension PhotoThumbnailView {
     
-    public override init(frame: CGRect) {
-        super.init(frame: .zero)
-        addSubview(imageView)
+    private func requestCompletion(_ image: UIImage?) {
+        if fadeImage {
+            imageView.setImage(image, animated: _image == nil ? false : firstLoadImage)
+        }else {
+            imageView.image = image
+        }
+        _image = image
     }
-    
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        layoutView()
-    }
-    
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+}
+
+extension PhotoThumbnailView {
+    func reloadImage() {
+        if !loadCompletion {
+            _image = nil
+            firstLoadImage = true
+            fadeImage = true
+            requestThumbnailImage()
+        }
     }
 }

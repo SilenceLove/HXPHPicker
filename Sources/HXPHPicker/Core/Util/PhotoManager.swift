@@ -67,6 +67,8 @@ public final class PhotoManager: NSObject {
     var firstLoadAssets: Bool = true
     var cameraAlbumResult: PHFetchResult<PHAsset>?
     var cameraAlbumResultOptions: PickerAssetOptions?
+    
+    var thumbnailLoadMode: ThumbnailLoadMode = .complete
     #endif
     
     #if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_EDITOR
@@ -143,3 +145,22 @@ public final class PhotoManager: NSObject {
         return self.bundle
     }
 }
+
+#if HXPICKER_ENABLE_PICKER
+extension NSNotification.Name {
+    static let ThumbnailLoadModeDidChange: NSNotification.Name = .init("ThumbnailLoadModeDidChange")
+}
+extension PhotoManager {
+    enum ThumbnailLoadMode {
+        case simplify
+        case complete
+    }
+    func thumbnailLoadModeDidChange(_ mode: ThumbnailLoadMode) {
+        if thumbnailLoadMode == mode {
+            return
+        }
+        thumbnailLoadMode = mode
+        NotificationCenter.default.post(name: .ThumbnailLoadModeDidChange, object: nil)
+    }
+}
+#endif

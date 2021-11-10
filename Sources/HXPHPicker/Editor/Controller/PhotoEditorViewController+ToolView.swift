@@ -41,7 +41,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             deselectedDraw()
             imageView.deselectedSticker()
             presentText()
-        case .cropping:
+        case .cropSize:
             disableImageSubView()
             setState(.cropping)
             imageView.startCropping(true)

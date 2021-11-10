@@ -115,7 +115,7 @@ public final class SelectBoxView: UIControl {
             width: textWidth,
             height: textHeight
         )
-        textLayer.font = CGFont.init(font.fontName as CFString)
+        textLayer.font = CGFont(font.fontName as CFString)
         textLayer.fontSize = config.titleFontSize
         textLayer.foregroundColor = PhotoManager.isDark ? config.titleDarkColor.cgColor : config.titleColor.cgColor
     }

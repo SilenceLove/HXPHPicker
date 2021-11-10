@@ -124,7 +124,13 @@ open class PhotoEditorViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     lazy var imageView: PhotoEditorView = {
-        let imageView = PhotoEditorView(config: config)
+        let imageView = PhotoEditorView(
+            editType: .image,
+            cropConfig: config.cropping,
+            mosaicConfig: config.mosaic,
+            brushConfig: config.brush,
+            exportScale: config.scale
+        )
         imageView.editorDelegate = self
         return imageView
     }()
@@ -291,14 +297,16 @@ open class PhotoEditorViewController: BaseViewController {
                 toolOptions.insert(.chartlet)
             case .text:
                 toolOptions.insert(.text)
-            case .cropping:
-                toolOptions.insert(.cropping)
+            case .cropSize:
+                toolOptions.insert(.cropSize)
             case .mosaic:
                 toolOptions.insert(.mosaic)
             case .filter:
                 toolOptions.insert(.filter)
             case .music:
                 toolOptions.insert(.music)
+            default:
+                break
             }
         }
         let singleTap = UITapGestureRecognizer.init(target: self, action: #selector(singleTap))
@@ -309,7 +317,7 @@ open class PhotoEditorViewController: BaseViewController {
         view.clipsToBounds = true
         view.addSubview(imageView)
         view.addSubview(toolView)
-        if toolOptions.contains(.cropping) {
+        if toolOptions.contains(.cropSize) {
             view.addSubview(cropConfirmView)
             view.addSubview(cropToolView)
         }
@@ -400,7 +408,7 @@ open class PhotoEditorViewController: BaseViewController {
         }
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
         let cropToolFrame = CGRect(x: 0, y: cropConfirmView.y - 60, width: view.width, height: 60)
-        if toolOptions.contains(.cropping) {
+        if toolOptions.contains(.cropSize) {
             cropConfirmView.frame = toolView.frame
             cropToolView.frame = cropToolFrame
             cropToolView.updateContentInset()
@@ -687,6 +695,9 @@ extension PhotoEditorViewController: PhotoEditorViewDelegate {
         let nav = EditorStickerTextController(rootViewController: textVC)
         nav.modalPresentationStyle = config.text.modalPresentationStyle
         present(nav, animated: true, completion: nil)
+    }
+    func editorView(didRemoveAudio editorView: PhotoEditorView) {
+        
     }
 }
 
