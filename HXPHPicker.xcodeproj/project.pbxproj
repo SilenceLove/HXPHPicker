@@ -132,7 +132,6 @@
 		7B8FB6BB26FB0D5700FA440B /* PhotoPickerSwitchLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8FB6BA26FB0D5700FA440B /* PhotoPickerSwitchLayout.swift */; };
 		7B9369B92631121800B7C531 /* PhotoEditResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9369B82631121800B7C531 /* PhotoEditResult.swift */; };
 		7B95AC8826ABB66D00FE0561 /* EditorChartletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B95AC8726ABB66D00FE0561 /* EditorChartletView.swift */; };
-		7B9876EE26253F08003854FD /* PhotoCroppingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9876ED26253F08003854FD /* PhotoCroppingConfiguration.swift */; };
 		7B996A04268AB3960020A10F /* 野孩子.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B9969F4268AB3960020A10F /* 野孩子.mp3 */; };
 		7B996A05268AB3960020A10F /* 嘉宾 in Resources */ = {isa = PBXBuildFile; fileRef = 7B9969F5268AB3960020A10F /* 嘉宾 */; };
 		7B996A06268AB3960020A10F /* 无赖.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B9969F6268AB3960020A10F /* 无赖.mp3 */; };
@@ -250,7 +249,7 @@
 		7BBBD5BF25AEFE9200301DCC /* PickerInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73D67F259C88A90045DA42 /* PickerInteractiveTransition.swift */; };
 		7BBBD5C025AEFE9200301DCC /* EditorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058125A954CF00B39BE5 /* EditorConfiguration.swift */; };
 		7BBBD5C125AEFE9200301DCC /* VideoEditorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058425A954D600B39BE5 /* VideoEditorConfiguration.swift */; };
-		7BBBD5C225AEFE9200301DCC /* VideoCroppingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */; };
+		7BBBD5C225AEFE9200301DCC /* VideoCropTimeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B250BB625AB07BA00387A8D /* VideoCropTimeConfiguration.swift */; };
 		7BBBD5C325AEFE9200301DCC /* EditorToolViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB058C25A9851C00B39BE5 /* EditorToolViewConfiguration.swift */; };
 		7BBBD5C425AEFE9200301DCC /* CropConfirmViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB059225A9934500B39BE5 /* CropConfirmViewConfiguration.swift */; };
 		7BBBD5C525AEFE9200301DCC /* EditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB056525A93FBF00B39BE5 /* EditorController.swift */; };
@@ -267,8 +266,8 @@
 		7BBBD5F125AF1D0F00301DCC /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */; };
 		7BC4CF282660C93700B2FBB7 /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A1B88CE8E4B4FE1AA36BCC /* Pods_Example.framework */; };
 		7BC4CF292660C93700B2FBB7 /* Pods_Example.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D3A1B88CE8E4B4FE1AA36BCC /* Pods_Example.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */; };
-		7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */; };
+		7BCF087026CA08BD008C8C0E /* EditorTextConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF086F26CA08BD008C8C0E /* EditorTextConfiguration.swift */; };
+		7BCF087226CA08D6008C8C0E /* EditorChartletConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087126CA08D6008C8C0E /* EditorChartletConfiguration.swift */; };
 		7BCF087426CA3F5A008C8C0E /* Core+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */; };
 		7BCF98AD271E740D00ED7E39 /* CameraViewController+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF98AC271E740D00ED7E39 /* CameraViewController+Preview.swift */; };
 		7BCF98AF271E743900ED7E39 /* CameraViewController+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCF98AE271E743900ED7E39 /* CameraViewController+Result.swift */; };
@@ -352,7 +351,7 @@
 		7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideoViewCell.swift; sourceTree = "<group>"; };
 		7B09599F25FB39AD005DB27B /* ProgressImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressImageView.swift; sourceTree = "<group>"; };
 		7B0959A325FB5E95005DB27B /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
-		7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCroppingConfiguration.swift; sourceTree = "<group>"; };
+		7B250BB625AB07BA00387A8D /* VideoCropTimeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCropTimeConfiguration.swift; sourceTree = "<group>"; };
 		7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Codable.swift"; sourceTree = "<group>"; };
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		7B2A0BE625A7043900E949FD /* Core+PHAssetCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+PHAssetCollection.swift"; sourceTree = "<group>"; };
@@ -543,7 +542,6 @@
 		7B8FB6BA26FB0D5700FA440B /* PhotoPickerSwitchLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerSwitchLayout.swift; sourceTree = "<group>"; };
 		7B9369B82631121800B7C531 /* PhotoEditResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditResult.swift; sourceTree = "<group>"; };
 		7B95AC8726ABB66D00FE0561 /* EditorChartletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletView.swift; sourceTree = "<group>"; };
-		7B9876ED26253F08003854FD /* PhotoCroppingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCroppingConfiguration.swift; sourceTree = "<group>"; };
 		7B9969F4268AB3960020A10F /* 野孩子.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "野孩子.mp3"; sourceTree = "<group>"; };
 		7B9969F5268AB3960020A10F /* 嘉宾 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "嘉宾"; sourceTree = "<group>"; };
 		7B9969F6268AB3960020A10F /* 无赖.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "无赖.mp3"; sourceTree = "<group>"; };
@@ -600,8 +598,8 @@
 		7BBBD5E925AF1C4500301DCC /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5FC25AF1EA300301DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = Sources/Info.plist; sourceTree = SOURCE_ROOT; };
-		7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextConfig.swift; sourceTree = "<group>"; };
-		7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletConfig.swift; sourceTree = "<group>"; };
+		7BCF086F26CA08BD008C8C0E /* EditorTextConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextConfiguration.swift; sourceTree = "<group>"; };
+		7BCF087126CA08D6008C8C0E /* EditorChartletConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletConfiguration.swift; sourceTree = "<group>"; };
 		7BCF087326CA3F59008C8C0E /* Core+UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UIViewController.swift"; sourceTree = "<group>"; };
 		7BCF98AC271E740D00ED7E39 /* CameraViewController+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+Preview.swift"; sourceTree = "<group>"; };
 		7BCF98AE271E743900ED7E39 /* CameraViewController+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraViewController+Result.swift"; sourceTree = "<group>"; };
@@ -1376,13 +1374,12 @@
 			children = (
 				7BEB058125A954CF00B39BE5 /* EditorConfiguration.swift */,
 				7BAAD30B2605D59F005C36B7 /* PhotoEditorConfiguration.swift */,
-				7B9876ED26253F08003854FD /* PhotoCroppingConfiguration.swift */,
 				7BEB058425A954D600B39BE5 /* VideoEditorConfiguration.swift */,
-				7B250BB625AB07BA00387A8D /* VideoCroppingConfiguration.swift */,
+				7B250BB625AB07BA00387A8D /* VideoCropTimeConfiguration.swift */,
 				7BEB058C25A9851C00B39BE5 /* EditorToolViewConfiguration.swift */,
 				7BEB059225A9934500B39BE5 /* CropConfirmViewConfiguration.swift */,
-				7BCF086F26CA08BD008C8C0E /* EditorTextConfig.swift */,
-				7BCF087126CA08D6008C8C0E /* EditorChartletConfig.swift */,
+				7BCF086F26CA08BD008C8C0E /* EditorTextConfiguration.swift */,
+				7BCF087126CA08D6008C8C0E /* EditorChartletConfiguration.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -1724,7 +1721,6 @@
 				7B80FA9E268EBE7D003C7B35 /* VideoEditorCropViewCell.swift in Sources */,
 				7B4CA1C8265B4C0C009FEC18 /* LocalAsset.swift in Sources */,
 				7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */,
-				7B9876EE26253F08003854FD /* PhotoCroppingConfiguration.swift in Sources */,
 				7B64A9C0268C00E30002109E /* SelectBoxView.swift in Sources */,
 				7B80FAA3268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift in Sources */,
 				7BEC59F526F2EECD00123B89 /* PhotoEditorViewController+Sticker.swift in Sources */,
@@ -1732,7 +1728,7 @@
 				7B09599125FB351A005DB27B /* PhotoPickerBaseViewCell.swift in Sources */,
 				7B80FA95268EBE76003C7B35 /* PhotoEditorDrawView.swift in Sources */,
 				7B80FAA7268F12F7003C7B35 /* Editor+UIImageView.swift in Sources */,
-				7BCF087226CA08D6008C8C0E /* EditorChartletConfig.swift in Sources */,
+				7BCF087226CA08D6008C8C0E /* EditorChartletConfiguration.swift in Sources */,
 				7BA856AA26CCB6CF003CF839 /* ImageView.swift in Sources */,
 				7BBBD58A25AEFE9100301DCC /* Core+Bundle.swift in Sources */,
 				7BF42E0026D63789006C556A /* EditorImageResizerView+Cropping.swift in Sources */,
@@ -1824,7 +1820,7 @@
 				7BBBD5B625AEFE9200301DCC /* PhotoPreviewVideoView.swift in Sources */,
 				7BF42DFC26D6363E006C556A /* EditorImageResizerView+Initial.swift in Sources */,
 				7B3D040F264E0F91002EB37C /* Core+DispatchQueue.swift in Sources */,
-				7BCF087026CA08BD008C8C0E /* EditorTextConfig.swift in Sources */,
+				7BCF087026CA08BD008C8C0E /* EditorTextConfiguration.swift in Sources */,
 				7B5460A626DCB26200A65192 /* CameraPreviewView.swift in Sources */,
 				7BBBD5B725AEFE9200301DCC /* PickerTypes.swift in Sources */,
 				7B540AEB26663D560042DD68 /* PhotoTools+File.swift in Sources */,
@@ -1857,7 +1853,7 @@
 				7B54609D26DCB0EF00A65192 /* DeviceOrientationHelper.swift in Sources */,
 				7BBBD5C025AEFE9200301DCC /* EditorConfiguration.swift in Sources */,
 				7BBBD5C125AEFE9200301DCC /* VideoEditorConfiguration.swift in Sources */,
-				7BBBD5C225AEFE9200301DCC /* VideoCroppingConfiguration.swift in Sources */,
+				7BBBD5C225AEFE9200301DCC /* VideoCropTimeConfiguration.swift in Sources */,
 				7B80FAA5268EC58F003C7B35 /* PhotoEditorMosaicView.swift in Sources */,
 				7B5833DA26BD1E73001F86F5 /* PhotoPreviewViewController+Editor.swift in Sources */,
 				7B82EBC626A66EEF002A33F1 /* EditorStickerItemView.swift in Sources */,
@@ -2035,9 +2031,9 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence3.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence4.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2063,8 +2059,8 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.2.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence3.Example;
+				MARKETING_VERSION = 1.2.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence4.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -2093,7 +2089,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2127,7 +2123,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
