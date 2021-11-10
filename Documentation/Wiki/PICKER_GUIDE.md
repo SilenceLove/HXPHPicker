@@ -18,6 +18,7 @@
   - [视频编辑器搜索配乐数据](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E8%A7%86%E9%A2%91%E7%BC%96%E8%BE%91%E5%99%A8%E6%90%9C%E7%B4%A2%E9%85%8D%E4%B9%90%E6%95%B0%E6%8D%AE)
   - [预览界面](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%A2%84%E8%A7%88%E7%95%8C%E9%9D%A2)
   - [单独预览时的自定义转场动画](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E5%8D%95%E7%8B%AC%E9%A2%84%E8%A7%88%E6%97%B6%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BD%AC%E5%9C%BA%E5%8A%A8%E7%94%BB)
+  - [照片列表视图](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E7%85%A7%E7%89%87%E5%88%97%E8%A1%A8%E8%A7%86%E5%9B%BE)
   - [控制器的生命周期](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F)
 - [配置项说明](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#%E9%85%8D%E7%BD%AE%E9%A1%B9%E8%AF%B4%E6%98%8E)
   - [LanguageType](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#languagetype)
@@ -33,7 +34,6 @@
   - [SelectionTapAction](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectionTapAction)
   - [AllowSelectedTogether](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#allowSelectedTogether)
   - [CreationDate](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#creationDate)
-  - [ReverseOrder](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#reverseOrder)
   - [SelectedCount](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#selectedCount)
   - [EditorOptions](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#editorOptions)
   - [AlbumList](https://github.com/SilenceLove/HXPHPicker/wiki/Picker%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E#albumList)
@@ -49,7 +49,25 @@
 
 ## 调用/回调说明
 
-首先我们初始化好选择器并且推出
+方法一：
+
+```swift
+let config = PickerConfiguration()
+Photo.picker(
+    config
+) { result, pickerController in
+    // 选择完成的回调
+    // result 选择结果
+    //  .photoAssets 当前选择的数据
+    //  .isOriginal 是否选中了原图
+    // photoPickerController 对应的照片选择控制器
+} cancel: { pickerController in
+    // 取消的回调
+    // photoPickerController 对应的照片选择控制器 
+}
+```
+
+方法二：首先我们初始化好选择器并且推出
 
 ```swift
 let config = PickerConfiguration()
@@ -321,7 +339,7 @@ func pickerController(_ pickerController: PhotoPickerController,
 ### 配置视频编辑器的配乐列表数据
 
 ```swift
-/// 视频编辑器加载配乐信息，当musicConfig.infos为空时触发
+/// 视频编辑器加载配乐信息，当music.infos为空时触发
 /// 返回 true 内部会显示加载状态，调用 completionHandler 后恢复
 /// - Parameters:
 ///   - pickerController: 对应的 PhotoPickerController
@@ -501,6 +519,94 @@ func pickerController(_ pickerController: PhotoPickerController,
                       previewDismissComplete atIndex: Int) {
     // dismiss completion
 }
+```
+
+### 照片列表视图
+
+我们单独提供一个照片列表视图的类`PhotoPickerView`，可以将照片列表视图添加到在你想添加的位置
+
+```swift
+// 照片选择视频的数据管理类 
+let manager = PickerManager()
+
+let pickerView = PhotoPickerView(
+    manager: manager,
+    scrollDirection: .horizontal,   // 视图滚动方向
+    delegate: self  // 代理对象
+)
+addSubview(pickerView)
+```
+
+`PhotoPickerView`公开方法
+
+```swift
+/// 获取相机胶卷相册集合里的Asset
+public func fetchAsset()
+
+/// 重新加载相机胶卷相册
+public func reloadCameraAsset()
+
+/// 重新加载Asset
+/// 可以通过获取相册集合 manager.fetchAssetCollections()
+/// - Parameter assetCollection: 相册
+public func reloadAsset(assetCollection: PhotoAssetCollection?)
+
+/// 取消选择
+/// - Parameter index: 对应的索引
+public func deselect(at index: Int)
+
+/// 取消选择
+/// - Parameter photoAsset: 对应的 PhotoAsset
+public func deselect(at photoAsset: PhotoAsset)
+
+/// 全部取消选择
+public func deselectAll()
+
+/// 移除选择的内容
+/// 只是移除的manager里的已选数据
+/// cell选中状态需要调用 deselectAll()
+public func removeSelectedAssets()
+
+/// 清空
+public func clear()
+```
+
+`PickerManager`公开属性/方法
+
+```swift
+/// 相关配置
+public var config: PickerConfiguration
+
+/// fetch Assets 时的选项配置
+public var options: PHFetchOptions
+
+/// 限制加载数量，默认0，不限制
+public var fetchLimit: Int
+
+/// 当前被选择的资源对应的 PhotoAsset 对象数组
+public var selectedAssetArray: [PhotoAsset]
+```
+
+```swift
+/// 获取相册集合
+/// - Parameters:
+///   - options: 获取 PHFetchResult 中的 PHAsset 时的选项
+///   - showEmptyCollection: 是否显示空集合
+/// - Returns: 相册集合
+func fetchAssetCollections(
+    for options: PHFetchOptions,
+    showEmptyCollection: Bool = false
+) -> [PhotoAssetCollection]
+
+/// 获取已选资源的总大小
+/// - Parameters:
+///   - completion: 完成回调
+func requestSelectedAssetFileSize(
+    completion: @escaping (Int, String) -> Void
+)
+
+/// 取消获取资源文件大小
+func cancelRequestAssetFileSize()
 ```
 
 ### 控制器的生命周期
@@ -713,10 +819,6 @@ enum SelectionTapAction: Equatable {
 #### CreationDate
 
 `creationDate`获取资源列表时是否按创建时间排序，默认`false`
-
-#### ReverseOrder
-
-`reverseOrder`获取资源列表后是否按倒序展示，默认`false`
 
 #### SelectedCount
 
@@ -978,3 +1080,8 @@ previewConfig.previewView.singleClickCellAutoPlayVideo = false
 // 更换为带进度条的cell
 previewConfig.previewView.customVideoCellClass = PreviewVideoControlViewCell.self
 ```
+
+
+## 下一步
+
+- [Editor使用说明](https://github.com/SilenceLove/HXPHPicker/wiki/Editor%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)

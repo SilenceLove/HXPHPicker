@@ -7,7 +7,7 @@
 ```swift
 dependencies: [
     .package(url: "https://github.com/SilenceLove/HXPHPicker.git",
-    .upToNextMajor(from: "1.2.4"))
+    .upToNextMajor(from: "1.2.5"))
 ]
 ```
 
@@ -40,6 +40,8 @@ $ pod install
 pod 'HXPHPicker' # 引入所有默认模块
 pod 'HXPHPicker', :subspecs => ['Picker'] # 只引入图片选择器
 pod 'HXPHPicker', :subspecs => ['Picker', 'Editor'] # 引入图片选择器和编辑器
+pod 'HXPHPicker', :subspecs => ['Editor'] # 只引入编辑器
+pod 'HXPHPicker', :subspecs => ['Camera'] # 只引入相机
 ```
 
 ### 子模块列表
@@ -47,6 +49,7 @@ pod 'HXPHPicker', :subspecs => ['Picker', 'Editor'] # 引入图片选择器和�
 ```ruby
 'Picker'  # 图片选择器，默认模块
 'Editor'  # 编辑器，默认模块 
+'Camera'  # 相机，默认模块 
 ```
 
 

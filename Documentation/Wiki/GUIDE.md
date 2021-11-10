@@ -44,12 +44,36 @@
 - [x] 多平台支持
     - [x] iOS
     - [x] iPadOS
+    
+### Camera
+
+- [x] 拍摄类型
+    - [x] 照片
+    - [x] 视频
 
 
 ## 使用方式
 
 ### Picker
 
+方法一：
+```swift
+let config = PickerConfiguration()
+Photo.picker(
+    config
+) { result, pickerController in
+    // 选择完成的回调
+    // result 选择结果
+    //  .photoAssets 当前选择的数据
+    //  .isOriginal 是否选中了原图
+    // photoPickerController 对应的照片选择控制器
+} cancel: { pickerController in
+    // 取消的回调
+    // photoPickerController 对应的照片选择控制器 
+}
+```
+
+方法二：
 首先我们初始化好选择器并且推出
 
 ```swift
@@ -168,6 +192,25 @@ func videoEditorViewController(didCancel videoEditorViewController: VideoEditorV
 }
 ```
 
+
+### Camera
+
+```swift
+let config = CameraConfiguration()
+CameraController.capture(
+    config: config, // 相机配置
+    type: .all, // 相机类型
+) { result, location in
+    // result: 拍摄的结果
+    // location: 如果允许定位的情况则会有当前定位信息
+    switch result {
+    case .image(let image):
+        // image: 拍摄的图片
+    case .video(let videoURL):
+        // videoURL: 录制的视频地址
+    }
+}
+```
 
 
 ## 使用要求

@@ -1,5 +1,33 @@
 # 更新日志
 
+## 1.2.5
+
+### 新增
+
+- Picker
+  - 相册权限为"选中的照片"时，照片列表添加更多按钮
+  - 添加微信样式`Cell`
+  
+### 优化
+
+- 完善暗黑模式
+- Picker
+  - 快速滑动过程中只加载模糊的小图，停止滑动时才加载清晰的图片
+- Editor
+  - 画笔颜色选中时的效果放大
+  - 编辑图片在涂鸦模式下点击返回按钮转场动画时隐藏工具栏
+  - 使用`Kingfisher`加载GIF贴纸时跳过内存缓存
+  
+### 修复
+
+- Picker
+  - 选择视频`dataUTI`为空时闪退
+  
+### 修改
+
+- 暗黑模式下的主题色修改为与系统主题色一致
+- 照片列表相机`Cell`取消默认实时预览
+
 ## 1.2.4
 
 ### 新增
@@ -163,8 +191,8 @@ func pickerController(_ pickerController: PhotoPickerController,
 ### 优化
 
 - Editor
-  - `PhotoEditorConfiguration.ChartletConfig`公开初始化方法
-  - `PhotoEditorConfiguration.MosaicConfig`公开初始化方法
+  - `PhotoEditorConfiguration.Chartlet`公开初始化方法
+  - `PhotoEditorConfiguration.Mosaic`公开初始化方法
   - 裁剪框显示优化
 
 ## 1.1.6
