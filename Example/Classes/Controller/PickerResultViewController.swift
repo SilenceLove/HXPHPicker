@@ -529,8 +529,11 @@ class PickerResultViewController: UIViewController,
             .init(
                 title: "删除",
                 style: .destructive,
-                handler: { alertAction in
-            photoBrowser.deleteCurrentPreviewPhotoAsset()
+                handler: { [weak self] alertAction in
+                    photoBrowser.deleteCurrentPreviewPhotoAsset()
+                    if let index = photoBrowser.previewViewController()?.currentPreviewIndex {
+                        self?.previewDidDeleteAsset(index: index)
+                    }
         }))
         alert.addAction(.init(title: "取消", style: .cancel, handler: nil))
         if UIDevice.isPad {

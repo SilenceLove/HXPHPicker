@@ -8,16 +8,26 @@
 import UIKit
 import HXPHPicker
 import CoreLocation
+#if canImport(GDPerformanceView_Swift)
+import GDPerformanceView_Swift
+#endif
 
 class HomeViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationItem.title = "Photo Picker"
         tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.tableFooterView = UIView(frame: .zero)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        #if canImport(GDPerformanceView_Swift)
+        PerformanceMonitor.shared().pause()
+        PerformanceMonitor.shared().start()
+        #endif
     }
     
     // MARK: - Table view data source
