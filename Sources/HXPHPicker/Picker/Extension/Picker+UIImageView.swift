@@ -130,6 +130,7 @@ extension UIImageView {
             }
         }
     }
+    #if HXPICKER_ENABLE_EDITOR
     private func getEditedImage(
         _ photoAsset: PhotoAsset,
         urlType: DonwloadURLType,
@@ -155,6 +156,7 @@ extension UIImageView {
             completionHandler?(videoEdit.coverImage, nil, photoAsset)
         }
     }
+    #endif
     #else
     @discardableResult
     func setVideoCoverImage(
@@ -210,9 +212,9 @@ extension UIImageView {
 
 extension ImageView {
     
+    #if canImport(Kingfisher)
     typealias ImageCompletion = (UIImage?, KingfisherError?, PhotoAsset) -> Void
     
-    #if canImport(Kingfisher)
     @discardableResult
     func setImage(
         for asset: PhotoAsset,

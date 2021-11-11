@@ -48,13 +48,13 @@ public extension VideoEditorViewController {
 /// 编辑工具
 public extension EditorToolOptions {
     enum `Type` {
-        /// photo - 涂鸦
+        /// 涂鸦
         case graffiti
         
-        /// photo - 贴图
+        /// 贴图
         case chartlet
         
-        /// photo - 文本
+        /// 文本
         case text
         
         /// photo - 马赛克
@@ -66,10 +66,10 @@ public extension EditorToolOptions {
         /// video - 配乐
         case music
         
-        /// 尺寸裁剪（视频-未完成）
+        /// 尺寸裁剪（video-未完成）
         case cropSize
         
-        /// 视频时长裁剪
+        /// video - 时长裁剪
         case cropTime
     }
 }
