@@ -1,6 +1,6 @@
 {
   "name": "HXPHPicker",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "summary": "Photo selector - Support LivePhoto, GIF selection",
   "homepage": "https://github.com/SilenceLove/HXPHPicker",
   "license": {
@@ -18,7 +18,7 @@
   },
   "source": {
     "git": "https://github.com/SilenceLove/HXPHPicker.git",
-    "tag": "1.2.5"
+    "tag": "1.2.6"
   },
   "frameworks": [
     "UIKit",
