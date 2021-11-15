@@ -53,7 +53,7 @@ public struct PhotoListConfiguration {
     /// 允许 Haptic Touch 预览，iOS13 以上
     public var allowHapticTouchPreview: Bool = true
     
-    /// Haptic Touch 预览时允许添加菜案，iOS13 以上
+    /// Haptic Touch 预览时允许添加菜单，iOS13 以上
     public var allowAddMenuElements: Bool = true
     
     /// 允许滑动选择

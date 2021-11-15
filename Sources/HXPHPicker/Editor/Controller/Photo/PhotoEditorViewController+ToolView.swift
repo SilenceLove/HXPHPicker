@@ -43,7 +43,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             presentText()
         case .cropSize:
             disableImageSubView()
-            setState(.cropping)
+            pState = .cropping
             imageView.startCropping(true)
             croppingAction()
         case .mosaic:

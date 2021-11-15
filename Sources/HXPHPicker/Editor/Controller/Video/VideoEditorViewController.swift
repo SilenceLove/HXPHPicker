@@ -236,8 +236,9 @@ open class VideoEditorViewController: BaseViewController {
         if config.sizeCrop.fixedRatio || config.sizeCrop.isRoundCrop {
             showRatios = false
         }
-        let view = PhotoEditorCropToolView.init(showRatios: showRatios)
+        let view = PhotoEditorCropToolView(showRatios: showRatios)
         view.delegate = self
+        view.isVideo = true
         view.themeColor = config.sizeCrop.aspectRatioSelectedColor
         view.alpha = 0
         view.isHidden = true

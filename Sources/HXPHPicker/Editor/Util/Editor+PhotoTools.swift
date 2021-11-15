@@ -658,7 +658,11 @@ extension PhotoTools {
                     overlaylayer.addSublayer(imageLayer)
                 }
             }
-            overlaylayer.frame = bounds
+            overlaylayer.frame = getOverlayFrame(
+                cropOrientation: cropOrientation,
+                cropRect: cropRect,
+                rect: bounds
+            )
             
             /// 这种方式模拟器会崩溃
             /// https://developer.apple.com/forums/thread/133681
@@ -790,8 +794,45 @@ extension PhotoTools {
         default:
             trans = .identity
         }
-        videoLayerInstruction.setTransform(trans, at: .zero)
+//        trans = trans.translatedBy(x: -renderRect.minX, y: -renderRect.minY)
+//        videoLayerInstruction.setTransform(trans, at: .zero)
         return videoLayerInstruction
+    }
+    static func getOverlayFrame(
+        cropOrientation: UIImage.Orientation,
+        cropRect: CGRect,
+        rect: CGRect
+    ) -> CGRect {
+        rect
+//        var x: CGFloat = 0
+//        var y: CGFloat = 0
+//        switch cropOrientation {
+//        case .up:
+////            x = -cropRect.minX
+//            break
+//        case .upMirrored:
+//
+//            break
+//        case .left:
+//
+//            break
+//        case .rightMirrored:
+//
+//            break
+//        case .down:
+//
+//            break
+//        case .downMirrored:
+//
+//            break
+//        case .right:
+//
+//            break
+//        case .leftMirrored:
+//
+//            break
+//        }
+//        return CGRect(x: x, y: y, width: rect.width, height: rect.height)
     }
     static func cropOrientation(
         _ cropSizeData: VideoEditorCropSizeData
@@ -997,4 +1038,4 @@ extension PhotoTools {
         animationLayer.add(group, forKey: nil)
         return animationLayer
     }
-} // swiftlint:disable:this superfluous_disable_command
+} // swiftlint:disable:this file_length
