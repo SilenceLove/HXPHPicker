@@ -473,10 +473,8 @@ extension PhotoPickerController {
         }
     }
     private func getViewController(for viewControllerClass: UIViewController.Type) -> UIViewController? {
-        for viewController in viewControllers {
-            if viewController.isMember(of: viewControllerClass) {
-                return viewController
-            }
+        for vc in viewControllers where vc.isMember(of: viewControllerClass) {
+            return vc
         }
         return nil
     }

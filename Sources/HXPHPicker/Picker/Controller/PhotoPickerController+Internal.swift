@@ -53,9 +53,9 @@ extension PhotoPickerController {
     }
     func cancelCallback() {
         #if HXPICKER_ENABLE_EDITOR
-        for photoAsset in editedPhotoAssetArray {
-            photoAsset.photoEdit = photoAsset.initialPhotoEdit
-            photoAsset.videoEdit = photoAsset.initialVideoEdit
+        editedPhotoAssetArray.forEach {
+            $0.photoEdit = $0.initialPhotoEdit
+            $0.videoEdit = $0.initialVideoEdit
         }
         editedPhotoAssetArray.removeAll()
         #endif
