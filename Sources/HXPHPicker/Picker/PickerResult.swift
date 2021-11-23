@@ -52,8 +52,8 @@ public extension PickerResult {
     
     /// 获取视频地址
     /// - Parameters:
-    ///   - exportPreset: 视频分辨率，默认ratio_640x480，传 nil 获取则是原始视频
-    ///   - videoQuality: 视频质量[0-10]，默认4
+    ///   - exportPreset: 视频分辨率，默认`ratio_640x480`，传 nil 获取则是原始视频
+    ///   - videoQuality: 视频质量[0-10]，默认4，`exportPreset`不为nil时有效
     ///   - exportSession: 导出视频时对应的 AVAssetExportSession，exportPreset不为nil时触发
     ///   - videoURLHandler: 每一次获取视频地址都会触发
     ///   - completionHandler: 全部获取完成(失败的不会添加)

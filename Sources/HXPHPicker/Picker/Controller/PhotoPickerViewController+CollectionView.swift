@@ -464,21 +464,29 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         return true
     }
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        if !config.loadClearImageWhenScrollingStops {
-            return
-        }
         if collectionView.contentSize.height < collectionView.height {
             return
         }
-        PhotoManager.shared.thumbnailLoadModeDidChange(.simplify)
+        changeCellLoadMode(.simplify)
+    }
+    public func scrollViewDidEndDragging(
+        _ scrollView: UIScrollView,
+        willDecelerate decelerate: Bool
+    ) {
+        if !decelerate && !scrollToTop {
+            changeCellLoadMode(.complete)
+        }
     }
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if !scrollView.isTracking && !scrollToTop {
+            changeCellLoadMode(.complete)
+        }
+    }
+    func changeCellLoadMode(_ mode: PhotoManager.ThumbnailLoadMode) {
         if !config.loadClearImageWhenScrollingStops {
             return
         }
-        if !scrollView.isTracking && !scrollToTop {
-            PhotoManager.shared.thumbnailLoadModeDidChange(.complete)
-        }
+        PhotoManager.shared.thumbnailLoadModeDidChange(mode)
     }
 }
 

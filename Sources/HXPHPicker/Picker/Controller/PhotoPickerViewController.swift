@@ -249,6 +249,7 @@ public class PhotoPickerViewController: BaseViewController {
         guard let picker = pickerController else {
             return
         }
+        PhotoManager.shared.hasThumbnailLoadMode = picker.config.photoList.loadClearImageWhenScrollingStops
         allowLoadPhotoLibrary = picker.config.allowLoadPhotoLibrary
         if AssetManager.authorizationStatus() == .notDetermined {
             didFetchAsset = true

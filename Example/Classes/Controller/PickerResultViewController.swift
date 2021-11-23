@@ -531,7 +531,7 @@ class PickerResultViewController: UIViewController,
                 style: .destructive,
                 handler: { [weak self] alertAction in
                     photoBrowser.deleteCurrentPreviewPhotoAsset()
-                    if let index = photoBrowser.previewViewController()?.currentPreviewIndex {
+                    if let index = photoBrowser.previewViewController?.currentPreviewIndex {
                         self?.previewDidDeleteAsset(index: index)
                     }
         }))
