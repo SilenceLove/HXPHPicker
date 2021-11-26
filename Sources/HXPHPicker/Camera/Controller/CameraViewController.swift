@@ -385,13 +385,11 @@ open class CameraViewController: BaseViewController {
         let bottomHeight: CGFloat = 130
         let bottomY: CGFloat
         if UIDevice.isPortrait && !UIDevice.isPad {
-            let bottomMargin: CGFloat
             if UIDevice.isAllIPhoneX {
-                bottomMargin = 110
+                bottomY = view.height - 110 - previewRect.minY
             }else {
-                bottomMargin = 150
+                bottomY = view.height - bottomHeight
             }
-            bottomY = view.height - bottomMargin - previewRect.minY
         }else {
             bottomY = view.height - bottomHeight
         }
