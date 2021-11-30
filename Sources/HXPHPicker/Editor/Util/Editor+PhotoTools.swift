@@ -579,7 +579,7 @@ extension PhotoTools {
         }
         return audioMix
     }
-    
+    // swiftlint:disable function_body_length
     static func videoComposition(
         for videoAsset: AVAsset,
         videoTrack: AVAssetTrack,
@@ -588,6 +588,7 @@ extension PhotoTools {
         animationBeginTime: CFTimeInterval,
         videoDuration: TimeInterval
     ) throws -> AVMutableVideoComposition {
+        // swiftlint:enable function_body_length
         let videoComposition = AVMutableVideoComposition(propertiesOf: mixComposition)
         var renderSize = videoComposition.renderSize
         let cropRect = CGRect(
@@ -595,6 +596,11 @@ extension PhotoTools {
             y: renderSize.height * cropSizeData.cropRect.minY,
             width: renderSize.width * cropSizeData.cropRect.width,
             height: renderSize.height * cropSizeData.cropRect.height
+        )
+        // https://stackoverflow.com/a/45013962
+        renderSize = CGSize(
+            width: floor(renderSize.width / 16) * 16,
+            height: floor(renderSize.height / 16) * 16
         )
         
         let cropOrientation = cropOrientation(cropSizeData)
@@ -689,14 +695,25 @@ extension PhotoTools {
             let watermarkLayerInstruction = AVMutableVideoCompositionLayerInstruction()
             watermarkLayerInstruction.trackID = watermarkLayerTrackID
             
-            let videoInstruction = AVMutableVideoCompositionInstruction()
-            videoInstruction.timeRange = CMTimeRange(
-                start: CMTime.zero,
-                duration: videoTrack.timeRange.duration
-            )
-            let videoLayerInstruction = AVMutableVideoCompositionLayerInstruction(
-                assetTrack: videoTrack
-            )
+            let videoInstruction: AVMutableVideoCompositionInstruction
+            let videoLayerInstruction: AVMutableVideoCompositionLayerInstruction
+            if let instructions = videoComposition.instructions.first as? AVMutableVideoCompositionInstruction {
+                videoInstruction = instructions
+            }else {
+                videoInstruction = AVMutableVideoCompositionInstruction()
+                videoInstruction.timeRange = CMTimeRange(
+                    start: CMTime.zero,
+                    duration: videoTrack.timeRange.duration
+                )
+            }
+            if let layerInstruction = videoInstruction
+                .layerInstructions.last as? AVMutableVideoCompositionLayerInstruction {
+                videoLayerInstruction = layerInstruction
+            }else {
+                videoLayerInstruction = AVMutableVideoCompositionLayerInstruction(
+                    assetTrack: videoTrack
+                )
+            }
             videoInstruction.layerInstructions = [
                 cropSizeData.canReset ? videoLayerInstructionFixed(
                     videoComposition: videoComposition,
@@ -715,14 +732,25 @@ extension PhotoTools {
             videoComposition.instructions = [videoInstruction]
         }else {
             if cropSizeData.canReset {
-                let videoInstruction = AVMutableVideoCompositionInstruction()
-                videoInstruction.timeRange = CMTimeRange(
-                    start: CMTime.zero,
-                    duration: videoTrack.timeRange.duration
-                )
-                let videoLayerInstruction = AVMutableVideoCompositionLayerInstruction(
-                    assetTrack: videoTrack
-                )
+                let videoInstruction: AVMutableVideoCompositionInstruction
+                let videoLayerInstruction: AVMutableVideoCompositionLayerInstruction
+                if let instructions = videoComposition.instructions.first as? AVMutableVideoCompositionInstruction {
+                    videoInstruction = instructions
+                }else {
+                    videoInstruction = AVMutableVideoCompositionInstruction()
+                    videoInstruction.timeRange = CMTimeRange(
+                        start: CMTime.zero,
+                        duration: videoTrack.timeRange.duration
+                    )
+                }
+                if let layerInstruction = videoInstruction
+                    .layerInstructions.last as? AVMutableVideoCompositionLayerInstruction {
+                    videoLayerInstruction = layerInstruction
+                }else {
+                    videoLayerInstruction = AVMutableVideoCompositionLayerInstruction(
+                        assetTrack: videoTrack
+                    )
+                }
                 videoInstruction.layerInstructions = [
                     videoLayerInstructionFixed(
                         videoComposition: videoComposition,
@@ -743,11 +771,6 @@ extension PhotoTools {
                 break
             }
         }
-        // https://stackoverflow.com/a/45013962
-        renderSize = CGSize(
-            width: floor(renderSize.width / 16) * 16,
-            height: floor(renderSize.height / 16) * 16
-        )
         videoComposition.renderScale = 1
         videoComposition.renderSize = renderSize
         videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 60)
