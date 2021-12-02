@@ -74,7 +74,7 @@ public class PhotoPickerViewController: BaseViewController {
                     NSStringFromClass(PickerCamerViewCell.classForCoder())
             )
         }
-        if config.allowAddLimit && AssetManager.authorizationStatusIsLimited() {
+        if #available(iOS 14.0, *), config.allowAddLimit {
             collectionView.register(
                 PhotoPickerLimitCell.self,
                 forCellWithReuseIdentifier:

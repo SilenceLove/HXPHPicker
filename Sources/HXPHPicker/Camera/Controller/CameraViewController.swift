@@ -161,7 +161,7 @@ open class CameraViewController: BaseViewController {
     
     func resetZoom() {
         if config.cameraType == .normal {
-            try? cameraManager.rampZoom(to: 1)
+            cameraManager.zoomFacto = 1
             previewView.effectiveScale = 1
         }else {
             #if canImport(GPUImage)

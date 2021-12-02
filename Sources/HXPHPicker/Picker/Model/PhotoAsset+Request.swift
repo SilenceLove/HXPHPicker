@@ -146,8 +146,10 @@ public extension PhotoAsset {
         filterEditor: Bool = false,
         iCloudHandler: PhotoAssetICloudHandler?,
         progressHandler: PhotoAssetProgressHandler?,
-        resultHandler: ((PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>
-        ) -> Void)?) -> PHImageRequestID {
+        resultHandler: (
+            (PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>
+        ) -> Void)?
+    ) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoEdit, !filterEditor {
             do {

@@ -249,6 +249,8 @@ open class PhotoPickerController: UINavigationController {
         requestAssetBytesQueue.maxConcurrentOperationCount = 1
         return requestAssetBytesQueue
     }()
+    lazy var previewRequestAdjustmentStatusIds: [[PHContentEditingInputRequestID: PHAsset]] = []
+    lazy var requestAdjustmentStatusIds: [[PHContentEditingInputRequestID: PHAsset]] = []
     public override var modalPresentationStyle: UIModalPresentationStyle {
         didSet {
             if (isPreviewAsset || isExternalPickerPreview) && modalPresentationStyle == .custom {
