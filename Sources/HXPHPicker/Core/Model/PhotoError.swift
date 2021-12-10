@@ -62,4 +62,6 @@ public enum AssetError: Error {
     case exportLivePhotoVideoURLFailed(Error?)
     /// 导出livePhoto里的地址失败（图片失败信息,视频失败信息）
     case exportLivePhotoURLFailed(Error?, Error?)
+    /// 图片压缩失败
+    case imageCompressionFailed
 }

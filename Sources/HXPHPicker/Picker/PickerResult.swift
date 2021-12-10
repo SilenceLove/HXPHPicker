@@ -77,34 +77,40 @@ public extension PickerResult {
 // MARK: Get Original URL
 public extension PickerResult {
     
-    /// 获取已选资源的地址（原图）
+    /// 获取已选资源的地址
     /// 不包括网络资源，如果网络资源编辑过则会获取
     /// - Parameters:
     ///   - options: 获取的类型
+    ///   - compression: 压缩参数，nil - 原图
     ///   - completion: result
     func getURLs(
         options: Options = .any,
+        compression: PhotoAsset.Compression? = nil,
         completion: @escaping ([URL]) -> Void
     ) {
         photoAssets.getURLs(
             options: options,
+            compression: compression,
             completion: completion
         )
     }
     
-    /// 获取已选资源的地址（原图）
+    /// 获取已选资源的地址
     /// 包括网络图片
     /// - Parameters:
     ///   - options: 获取的类型
+    ///   - compression: 压缩参数，nil - 原图
     ///   - handler: 获取到url的回调
     ///   - completionHandler: 全部获取完成
     func getURLs(
         options: Options = .any,
+        compression: PhotoAsset.Compression? = nil,
         urlReceivedHandler handler: URLHandler? = nil,
         completionHandler: @escaping ([URL]) -> Void
     ) {
         photoAssets.getURLs(
             options: options,
+            compression: compression,
             urlReceivedHandler: handler,
             completionHandler: completionHandler
         )

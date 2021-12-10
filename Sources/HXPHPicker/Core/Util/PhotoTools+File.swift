@@ -163,10 +163,10 @@ public extension PhotoTools {
     /// 将UIImage转换成Data
     @discardableResult
     static func getImageData(for image: UIImage?) -> Data? {
-        if let pngData = image?.pngData() {
-            return pngData
-        }else if let jpegData = image?.jpegData(compressionQuality: 1) {
+        if let jpegData = image?.jpegData(compressionQuality: 1) {
             return jpegData
+        }else if let pngData = image?.pngData() {
+            return pngData
         }
         return nil
     }

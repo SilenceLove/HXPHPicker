@@ -10,6 +10,7 @@ import UIKit
 
 class HXPHPicker {}
 
+#if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_CAMERA || HXPICKER_ENABLE_EDITOR
 public enum Photo {
     
     #if HXPICKER_ENABLE_PICKER
@@ -159,6 +160,7 @@ public enum Photo {
     }
     #endif
 }
+#endif
 
 public struct HXPickerWrapper<Base> {
     public let base: Base
