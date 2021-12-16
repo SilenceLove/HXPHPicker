@@ -7,7 +7,7 @@
 ```swift
 dependencies: [
     .package(url: "https://github.com/SilenceLove/HXPHPicker.git",
-    .upToNextMajor(from: "1.2.9"))
+    .upToNextMajor(from: "1.3.0"))
 ]
 ```
 
