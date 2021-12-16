@@ -59,4 +59,5 @@ Pod::Spec.new do |spec|
         full.dependency 'HXPHPicker/Editor'
         full.dependency 'HXPHPicker/Camera'
     end
+    
 end
