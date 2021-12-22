@@ -607,6 +607,9 @@
 		7BBBD5E925AF1C4500301DCC /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5F025AF1D0F00301DCC /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		7BBBD5FC25AF1EA300301DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = Sources/Info.plist; sourceTree = SOURCE_ROOT; };
+		7BBD0F972773133D007BA9FB /* README_CN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_CN.md; sourceTree = "<group>"; };
+		7BBD0F9A27731833007BA9FB /* RELEASE_NOTE_CN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RELEASE_NOTE_CN.md; sourceTree = "<group>"; };
+		7BBD0F9B27731833007BA9FB /* RELEASE_NOTE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RELEASE_NOTE.md; sourceTree = "<group>"; };
 		7BC8472A2742030200E5D50C /* PhotoEditorViewController+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoEditorViewController+Navigation.swift"; sourceTree = "<group>"; };
 		7BC8472C2742032300E5D50C /* PhotoEditorViewController+UIGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoEditorViewController+UIGestureRecognizer.swift"; sourceTree = "<group>"; };
 		7BC8472E2742034900E5D50C /* PhotoEditorViewController+MosaicToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoEditorViewController+MosaicToolView.swift"; sourceTree = "<group>"; };
@@ -673,7 +676,6 @@
 		7BF42E0926D63DEF006C556A /* EditorStickerTextView+Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerTextView+Delegate.swift"; sourceTree = "<group>"; };
 		7BF42E0B26D63E2B006C556A /* EditorStickerTextView+Draw.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerTextView+Draw.swift"; sourceTree = "<group>"; };
 		7BF42E0D26D63E8A006C556A /* EditorStickerView+ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorStickerView+ItemView.swift"; sourceTree = "<group>"; };
-		7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = RELEASE_NOTE.md; sourceTree = "<group>"; };
 		98BBBE43DD88BF719F1FA7D1 /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9954A16ACB03271F6C07C4AC /* Pods-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.debug.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.debug.xcconfig"; sourceTree = "<group>"; };
 		D3A1B88CE8E4B4FE1AA36BCC /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1438,7 +1440,9 @@
 			isa = PBXGroup;
 			children = (
 				7BB613F926A02FA500D38EBD /* Wiki */,
-				7BFD79FD25AC8AF700694499 /* RELEASE_NOTE.md */,
+				7BBD0F9A27731833007BA9FB /* RELEASE_NOTE_CN.md */,
+				7BBD0F9B27731833007BA9FB /* RELEASE_NOTE.md */,
+				7BBD0F972773133D007BA9FB /* README_CN.md */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";

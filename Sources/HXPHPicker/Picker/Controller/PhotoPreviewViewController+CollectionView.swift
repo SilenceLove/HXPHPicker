@@ -28,6 +28,7 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
                 ) as! PreviewLivePhotoViewCell
                 let livePhotoCell = cell as! PreviewLivePhotoViewCell
                 livePhotoCell.livePhotoPlayType = config.livePhotoPlayType
+                livePhotoCell.liveMarkConfig = config.livePhotoMark
             }else {
                 cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: NSStringFromClass(PreviewPhotoViewCell.self),
@@ -150,8 +151,8 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
         }
         navigationController!.setNavigationBarHidden(statusBarShouldBeHidden, animated: true)
         let currentCell = getCell(for: currentPreviewIndex)
+        currentCell?.statusBarShouldBeHidden = statusBarShouldBeHidden
         let videoCell = currentCell as? PreviewVideoViewCell
-        videoCell?.statusBarShouldBeHidden = statusBarShouldBeHidden
         if !statusBarShouldBeHidden {
             if config.showBottomView {
                 bottomView.isHidden = false
@@ -160,11 +161,17 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
                 currentCell?.scrollContentView.videoView.stopPlay()
             }
             videoCell?.showToolView()
+            if let liveCell = currentCell as? PreviewLivePhotoViewCell {
+                liveCell.showMark()
+            }
         }else {
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
                 currentCell?.scrollContentView.videoView.startPlay()
             }
             videoCell?.hideToolView()
+            if let liveCell = currentCell as? PreviewLivePhotoViewCell {
+                liveCell.hideMark()
+            }
         }
         if config.showBottomView {
             UIView.animate(withDuration: 0.25) {

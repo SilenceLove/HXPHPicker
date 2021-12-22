@@ -19,6 +19,8 @@ public protocol PhotoPreviewContentViewDelete: AnyObject {
     func contentView(networkImagedownloadSuccess contentView: PhotoPreviewContentView)
     func contentView(networkImagedownloadFailed contentView: PhotoPreviewContentView)
     func contentView(updateContentSize contentView: PhotoPreviewContentView)
+    func contentView(livePhotoWillBeginPlayback contentView: PhotoPreviewContentView)
+    func contentView(livePhotoDidEndPlayback contentView: PhotoPreviewContentView)
 }
 
 public extension PhotoPreviewContentViewDelete {
@@ -27,9 +29,11 @@ public extension PhotoPreviewContentViewDelete {
     func contentView(networkImagedownloadSuccess contentView: PhotoPreviewContentView) { }
     func contentView(networkImagedownloadFailed contentView: PhotoPreviewContentView) { }
     func contentView(updateContentSize contentView: PhotoPreviewContentView) { }
+    func contentView(livePhotoWillBeginPlayback contentView: PhotoPreviewContentView) { }
+    func contentView(livePhotoDidEndPlayback contentView: PhotoPreviewContentView) { }
 }
 
-open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
+open class PhotoPreviewContentView: UIView {
     
     public enum `Type`: Int {
         case photo
@@ -44,7 +48,7 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }()
     @available(iOS 9.1, *)
     lazy var livePhotoView: PHLivePhotoView = {
-        let livePhotoView = PHLivePhotoView.init()
+        let livePhotoView = PHLivePhotoView()
         livePhotoView.delegate = self
         return livePhotoView
     }()
@@ -53,6 +57,8 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         videoView.alpha = 0
         return videoView
     }()
+    
+    var livePhotoIsAnimating: Bool = false
     
     var isBacking: Bool = false
     var isPeek = false
@@ -109,6 +115,135 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
     }
     
+    func updateContentSize(image: UIImage) {
+        let needUpdate = width / height != image.width / image.height
+        if needUpdate {
+            delegate?.contentView(updateContentSize: self)
+        }
+    }
+    
+    var loadingView: ProgressHUD?
+    
+    var setAnimatedImageCompletion: Bool = false
+    
+    init(type: Type) {
+        super.init(frame: CGRect.zero)
+        self.type = type
+        addSubview(imageView)
+        if type == .livePhoto {
+            if #available(iOS 9.1, *) {
+                addSubview(livePhotoView)
+            }
+        }else if type == .video {
+            addSubview(videoView)
+        }
+    }
+    
+    func hudSuperview() -> UIView? {
+        if !isPeek {
+            if let view = superview?.superview {
+                return view
+            }
+        }
+        return self
+    }
+    func showLoadingView(text: String?) {
+        loadingView = ProgressHUD.showProgress(
+            addedTo: hudSuperview(),
+            text: text?.localized,
+            animated: true
+        )
+    }
+    
+    func stopVideo() {
+        if photoAsset.mediaType == .video {
+            if photoAsset.isNetworkAsset && !requestNetworkCompletion {
+                cancelRequest()
+                requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
+            }else {
+                videoView.stopPlay()
+            }
+        }
+    }
+    func showOtherSubview() {
+        if photoAsset.mediaType == .video {
+            if photoAsset.isNetworkAsset {
+                if requestNetworkCompletion {
+                    videoView.showPlayButton()
+                }else {
+                    videoView.showMaskView()
+                }
+            }else {
+                videoView.showPlayButton()
+            }
+        }
+        if photoAsset.mediaSubType == .livePhoto {
+            delegate?.contentView(livePhotoDidEndPlayback: self)
+        }
+        if !requestNetworkCompletion {
+            loadingView?.isHidden = false
+        }
+    }
+    func hiddenOtherSubview() {
+        if photoAsset.mediaType == .video {
+            if photoAsset.isNetworkAsset {
+                if requestNetworkCompletion {
+                    videoView.hiddenPlayButton()
+                }else {
+                    videoView.hiddenMaskView()
+                }
+            }else {
+                videoView.hiddenPlayButton()
+            }
+        }
+        if photoAsset.mediaSubType == .livePhoto {
+            delegate?.contentView(livePhotoWillBeginPlayback: self)
+        }
+        if requestNetworkCompletion {
+            loadingView = nil
+            ProgressHUD.hide(forView: hudSuperview(), animated: false)
+        }else {
+            loadingView?.isHidden = true
+        }
+    }
+    func startAnimatedImage() {
+        if photoAsset.mediaSubType.isGif {
+            imageView.startAnimatedImage()
+        }
+    }
+    func stopAnimatedImage() {
+        if photoAsset.mediaSubType.isGif {
+            imageView.stopAnimatedImage()
+        }
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView.frame = bounds
+        if type == .livePhoto {
+            if #available(iOS 9.1, *) {
+                livePhotoView.frame = bounds
+            }
+        }else if type == .video {
+            videoView.frame = bounds
+        }
+    }
+    deinit {
+        cancelRequest()
+        
+//        if photoAsset.isNetworkAsset && photoAsset.mediaType == .video {
+//            print("deinit \(self)")
+//        }
+    }
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
+// MARK: Request Network
+extension PhotoPreviewContentView {
+    
     func requestNetworkImage() {
         requestCompletion = true
         #if canImport(Kingfisher)
@@ -158,18 +293,6 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             }
         }
         #endif
-    }
-    func updateContentSize(image: UIImage) {
-        let needUpdate = width / height != image.width / image.height
-        if needUpdate {
-            delegate?.contentView(updateContentSize: self)
-        }
-    }
-    func checkNetworkVideoFileSize(_ url: URL) {
-        if let fileSize = photoAsset.networkVideoAsset?.fileSize,
-           fileSize == 0 {
-            photoAsset.networkVideoAsset?.fileSize = url.fileSize
-        }
     }
     func requestNetworkVideo() {
         if requestNetworkCompletion || networkVideoLoading {
@@ -229,6 +352,13 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
     }
     
+    func checkNetworkVideoFileSize(_ url: URL) {
+        if let fileSize = photoAsset.networkVideoAsset?.fileSize,
+           fileSize == 0 {
+            photoAsset.networkVideoAsset?.fileSize = url.fileSize
+        }
+    }
+    
     func cancelRequestNetworkVideo() {
         if let videoURL = photoAsset.networkVideoAsset?.videoURL {
             PhotoManager.shared.suspendTask(videoURL)
@@ -246,23 +376,10 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
             self.videoView.alpha = 1
         }
     }
-    
-    var loadingView: ProgressHUD?
-    
-    var setAnimatedImageCompletion: Bool = false
-    
-    init(type: Type) {
-        super.init(frame: CGRect.zero)
-        self.type = type
-        addSubview(imageView)
-        if type == .livePhoto {
-            if #available(iOS 9.1, *) {
-                addSubview(livePhotoView)
-            }
-        }else if type == .video {
-            addSubview(videoView)
-        }
-    }
+}
+
+// MARK: Request Asset
+extension PhotoPreviewContentView {
     
     func requestPreviewAsset() {
         switch photoAsset.mediaSubType {
@@ -429,7 +546,7 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
                 }
                 if self.livePhotoPlayType == .auto ||
                     self.livePhotoPlayType == .once {
-                    self.livePhotoView.startPlayback(with: PHLivePhotoViewPlaybackStyle.full)
+                    self.livePhotoView.startPlayback(with: .full)
                 }
                 self.requestID = nil
                 self.requestCompletion = true
@@ -481,21 +598,6 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
     }
     func requestUpdateProgress(progress: Double, isICloud: Bool) {
         loadingView?.progress = CGFloat(progress)
-    }
-    func hudSuperview() -> UIView? {
-        if !isPeek {
-            if let view = superview?.superview {
-                return view
-            }
-        }
-        return self
-    }
-    func showLoadingView(text: String?) {
-        loadingView = ProgressHUD.showProgress(
-            addedTo: hudSuperview(),
-            text: text?.localized,
-            animated: true
-        )
     }
     func resetLoadingState() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -573,90 +675,25 @@ open class PhotoPreviewContentView: UIView, PHLivePhotoViewDelegate {
         }
         requestCompletion = false
     }
-    func stopVideo() {
-        if photoAsset.mediaType == .video {
-            if photoAsset.isNetworkAsset && !requestNetworkCompletion {
-                cancelRequest()
-                requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
-            }else {
-                videoView.stopPlay()
-            }
-        }
-    }
-    func showOtherSubview() {
-        if photoAsset.mediaType == .video {
-            if photoAsset.isNetworkAsset {
-                if requestNetworkCompletion {
-                    videoView.showPlayButton()
-                }else {
-                    videoView.showMaskView()
-                }
-            }else {
-                videoView.showPlayButton()
-            }
-        }
-        if !requestNetworkCompletion {
-            loadingView?.isHidden = false
-        }
-    }
-    func hiddenOtherSubview() {
-        if photoAsset.mediaType == .video {
-            if photoAsset.isNetworkAsset {
-                if requestNetworkCompletion {
-                    videoView.hiddenPlayButton()
-                }else {
-                    videoView.hiddenMaskView()
-                }
-            }else {
-                videoView.hiddenPlayButton()
-            }
-        }
-        if requestNetworkCompletion {
-            loadingView = nil
-            ProgressHUD.hide(forView: hudSuperview(), animated: false)
-        }else {
-            loadingView?.isHidden = true
-        }
-    }
-    func startAnimatedImage() {
-        if photoAsset.mediaSubType.isGif {
-            imageView.startAnimatedImage()
-        }
-    }
-    func stopAnimatedImage() {
-        if photoAsset.mediaSubType.isGif {
-            imageView.stopAnimatedImage()
-        }
+}
+
+// MARK: PHLivePhotoViewDelegate
+extension PhotoPreviewContentView: PHLivePhotoViewDelegate {
+    public func livePhotoView(
+        _ livePhotoView: PHLivePhotoView,
+        willBeginPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle
+    ) {
+        livePhotoIsAnimating = true
+        delegate?.contentView(livePhotoWillBeginPlayback: self)
     }
     public func livePhotoView(
         _ livePhotoView: PHLivePhotoView,
         didEndPlaybackWith playbackStyle: PHLivePhotoViewPlaybackStyle
     ) {
+        livePhotoIsAnimating = false
+        delegate?.contentView(livePhotoDidEndPlayback: self)
         if livePhotoPlayType == .auto {
             livePhotoView.startPlayback(with: .full)
         }
     }
-    
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        imageView.frame = bounds
-        if type == .livePhoto {
-            if #available(iOS 9.1, *) {
-                livePhotoView.frame = bounds
-            }
-        }else if type == .video {
-            videoView.frame = bounds
-        }
-    }
-    deinit {
-        cancelRequest()
-        
-//        if photoAsset.isNetworkAsset && photoAsset.mediaType == .video {
-//            print("deinit \(self)")
-//        }
-    }
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
 }

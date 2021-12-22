@@ -400,9 +400,10 @@ extension PhotoTools {
         config.previewView.backgroundColor = .black
         config.previewView.selectBox.tickColor = .white
         config.previewView.selectBox.selectedBackgroundColor = wxColor
-        
+        config.previewView.livePhotoMark.blurStyle = .dark
+        config.previewView.livePhotoMark.textColor = "#ffffff".color
+        config.previewView.livePhotoMark.imageColor = "#ffffff".color
         config.previewView.bottomView.barStyle = .black
-        
         config.previewView.bottomView.originalButtonTitleColor = .white
         config.previewView.bottomView.originalSelectBox.backgroundColor = .clear
         config.previewView.bottomView.originalSelectBox.borderColor = .white
