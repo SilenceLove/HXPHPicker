@@ -15,6 +15,9 @@
 		7B09599A25FB37F6005DB27B /* PreviewLivePhotoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599925FB37F6005DB27B /* PreviewLivePhotoViewCell.swift */; };
 		7B09599D25FB380D005DB27B /* PreviewVideoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */; };
 		7B0959A025FB39AD005DB27B /* ProgressImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B09599F25FB39AD005DB27B /* ProgressImageView.swift */; };
+		7B1988522783E5C00099853B /* Picker+LivePhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1988512783E5C00099853B /* Picker+LivePhotoTools.swift */; };
+		7B198854278440FE0099853B /* livephoto_video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7B198853278440FE0099853B /* livephoto_video.mp4 */; };
+		7B1988562784410E0099853B /* livephoto_image.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 7B1988552784410D0099853B /* livephoto_image.jpeg */; };
 		7B27910826AFB57200DC985B /* PhotoAsset+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */; };
 		7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */; };
 		7B35F34A26B28BEC007EBD79 /* VideoEditorSearchMusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B35F34926B28BEC007EBD79 /* VideoEditorSearchMusicView.swift */; };
@@ -359,6 +362,9 @@
 		7B09599C25FB380D005DB27B /* PreviewVideoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideoViewCell.swift; sourceTree = "<group>"; };
 		7B09599F25FB39AD005DB27B /* ProgressImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressImageView.swift; sourceTree = "<group>"; };
 		7B0959A325FB5E95005DB27B /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
+		7B1988512783E5C00099853B /* Picker+LivePhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Picker+LivePhotoTools.swift"; sourceTree = "<group>"; };
+		7B198853278440FE0099853B /* livephoto_video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = livephoto_video.mp4; sourceTree = "<group>"; };
+		7B1988552784410D0099853B /* livephoto_image.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = livephoto_image.jpeg; sourceTree = "<group>"; };
 		7B250BB625AB07BA00387A8D /* VideoCropTimeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCropTimeConfiguration.swift; sourceTree = "<group>"; };
 		7B27910726AFB57200DC985B /* PhotoAsset+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoAsset+Codable.swift"; sourceTree = "<group>"; };
 		7B2A0BDF25A6EE2E00E949FD /* HXPHPicker.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HXPHPicker.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -821,6 +827,7 @@
 		7B5DD18C26D0919300320D82 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				7B1988552784410D0099853B /* livephoto_image.jpeg */,
 				7B5DD19226D0919300320D82 /* hx_sticker_chongya.png */,
 				7B5DD19B26D0919300320D82 /* hx_sticker_haoxinqing.png */,
 				7B5DD18F26D0919300320D82 /* hx_sticker_housailei.png */,
@@ -843,6 +850,7 @@
 		7B5DD1AB26D0919900320D82 /* Video */ = {
 			isa = PBXGroup;
 			children = (
+				7B198853278440FE0099853B /* livephoto_video.mp4 */,
 				7B5DD1AC26D0919900320D82 /* videoeditormatter.MP4 */,
 			);
 			path = Video;
@@ -927,6 +935,7 @@
 			children = (
 				7B73D68C259C88A90045DA42 /* Picker+PhotoManager.swift */,
 				7B2A0C0B25A7189F00E949FD /* Picker+PhotoTools.swift */,
+				7B1988512783E5C00099853B /* Picker+LivePhotoTools.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1541,6 +1550,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B1988562784410E0099853B /* livephoto_image.jpeg in Resources */,
 				7B996A12268AB3960020A10F /* 世间美好与你环环相扣.mp3 in Resources */,
 				7B996A04268AB3960020A10F /* 野孩子.mp3 in Resources */,
 				7B996A0F268AB3960020A10F /* 野孩子 in Resources */,
@@ -1549,6 +1559,7 @@
 				7B996A05268AB3960020A10F /* 嘉宾 in Resources */,
 				7B996A07268AB3960020A10F /* 爱你.mp3 in Resources */,
 				7B996A09268AB3960020A10F /* 时光正好.mp3 in Resources */,
+				7B198854278440FE0099853B /* livephoto_video.mp4 in Resources */,
 				7B5DD1A426D0919300320D82 /* hx_sticker_yuanqishaonv.png in Resources */,
 				7B5DD1A326D0919300320D82 /* hx_sticker_wow.png in Resources */,
 				7B996A06268AB3960020A10F /* 无赖.mp3 in Resources */,
@@ -1793,6 +1804,7 @@
 				7BBBD58F25AEFE9100301DCC /* Core+UIImage.swift in Sources */,
 				7BBBD59025AEFE9100301DCC /* Core+UIView.swift in Sources */,
 				7BBBD59125AEFE9100301DCC /* Core+Dictionary.swift in Sources */,
+				7B1988522783E5C00099853B /* Picker+LivePhotoTools.swift in Sources */,
 				7BBBD59225AEFE9100301DCC /* Core+PHAssetCollection.swift in Sources */,
 				7BBBD59325AEFE9100301DCC /* Core+UIImageView.swift in Sources */,
 				7BBBD59425AEFE9100301DCC /* PickerConfiguration.swift in Sources */,
@@ -2083,7 +2095,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence6.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2111,7 +2123,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence6.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -2141,7 +2153,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2175,7 +2187,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

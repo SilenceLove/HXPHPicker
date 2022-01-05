@@ -181,6 +181,17 @@ class PickerResultViewController: UIViewController,
             let networkVideoAsset1 = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL1))
             selectedAssets.append(networkVideoAsset1)
             localAssetArray.append(networkVideoAsset1)
+            
+            let livePhoto_image = Bundle.main.path(forResource: "livephoto_image", ofType: "jpeg")!
+            let livePhoto_video = Bundle.main.path(forResource: "livephoto_video", ofType: "mp4")!
+            let localLivePhotoAsset = PhotoAsset(
+                localLivePhoto: .init(
+                    imageURL: URL(fileURLWithPath: livePhoto_image),
+                    videoURL: URL(fileURLWithPath: livePhoto_video)
+                )
+            )
+            selectedAssets.append(localLivePhotoAsset)
+            localAssetArray.append(localLivePhotoAsset)
         }
     }
     
@@ -471,6 +482,24 @@ class PickerResultViewController: UIViewController,
                 style: .default,
                 handler: { alertAction in
             photoBrowser.view.hx.show(animated: true)
+            if photoAsset.mediaSubType == .localLivePhoto {
+                photoAsset.requestLocalLivePhoto { imageURL, videoURL in
+                    guard let imageURL = imageURL, let videoURL = videoURL else {
+                        photoBrowser.view.hx.hide(animated: true)
+                        photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
+                        return
+                    }
+                    AssetManager.saveLivePhotoToAlbum(imageURL: imageURL, videoURL: videoURL) {
+                        photoBrowser.view.hx.hide(animated: true)
+                        if $0 != nil {
+                            photoBrowser.view.hx.showSuccess(text: "保存成功", delayHide: 1.5, animated: true)
+                        }else {
+                            photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5, animated: true)
+                        }
+                    }
+                }
+                return
+            }
             func saveImage(_ image: UIImage) {
                 AssetManager.saveSystemAlbum(forImage: image) { phAsset in
                     if phAsset != nil {
@@ -506,6 +535,7 @@ class PickerResultViewController: UIViewController,
                                 }
                             })
                         }else {
+                            photoBrowser.view.hx.hide(animated: true)
                             let image = UIImage(contentsOfFile: response.url.path)!
                             saveImage(image)
                         }
@@ -522,6 +552,7 @@ class PickerResultViewController: UIViewController,
                                 }
                             }
                         }else {
+                            photoBrowser.view.hx.hide(animated: true)
                             saveVideo(response.url)
                         }
                     }

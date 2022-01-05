@@ -79,7 +79,7 @@ class EditorImageResizerView: UIView {
         )
         imageView.itemViewMoveToCenter = { [weak self] rect -> Bool in
             guard let self = self,
-                  let view = self.viewController()?.view else { return false }
+                  let view = self.viewController?.view else { return false }
             var newRect = self.convert(self.bounds, to: view)
             if newRect.width > view.width {
                 newRect.origin.x = 0
@@ -105,7 +105,7 @@ class EditorImageResizerView: UIView {
             min(35 / itemSize.width, 35 / itemSize.height)
         }
         imageView.stickerMaxScale = { [weak self] itemSize -> CGFloat in
-            guard let self = self, let view = self.viewController()?.view else { return 0 }
+            guard let self = self, let view = self.viewController?.view else { return 0 }
             var newRect = self.convert(self.bounds, to: view)
             if newRect.width > view.width {
                 newRect.origin.x = 0

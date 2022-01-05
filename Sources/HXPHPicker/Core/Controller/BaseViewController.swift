@@ -47,6 +47,11 @@ open class BaseViewController: UIViewController {
         deviceOrientationDidChanged(notify: .init(name: UIApplication.didChangeStatusBarOrientationNotification))
     }
     
+    open override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        PhotoTools.removeCache()
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

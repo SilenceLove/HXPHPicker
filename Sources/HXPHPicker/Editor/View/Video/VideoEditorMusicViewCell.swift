@@ -168,9 +168,9 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     }
     func showLoading() {
         loadingView.style = .gray
-        loadingView.isHidden = false
         loadingView.startAnimating()
-        let visualEffect = UIBlurEffect.init(style: .extraLight)
+        loadingView.isHidden = false
+        let visualEffect = UIBlurEffect(style: .extraLight)
         bgView.effect = visualEffect
         musicIconView.tintColor = "#333333".color
         songNameLb.textColor = "#333333".color
@@ -180,8 +180,8 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     func hideLoading() {
         songNameLb.isHidden = false
         collectionView.isHidden = false
-        loadingView.isHidden = true
         loadingView.stopAnimating()
+        loadingView.isHidden = true
     }
     func didPlay(audioPath: String) {
         isPlaying = true
@@ -289,8 +289,7 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     }
     func resetStatus() {
         isPlaying = false
-        songNameLb.isHidden = false
-        collectionView.isHidden = false
+        hideLoading()
         let visualEffect = UIBlurEffect.init(style: .light)
         bgView.effect = visualEffect
         musicIconView.tintColor = .white
@@ -367,8 +366,8 @@ extension VideoEditorMusicViewCell: UICollectionViewDataSource,
         let lyric = music.lyrics[indexPath.item]
         let cellWidth = lyric.lyric.width(
             ofFont: UIFont.mediumPingFang(ofSize: 16),
-            maxHeight: collectionView.height
+            maxHeight: shadeView.height
         )
-        return CGSize(width: cellWidth, height: collectionView.height)
+        return CGSize(width: cellWidth, height: shadeView.height)
     }
 }

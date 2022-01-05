@@ -18,10 +18,14 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
     lazy var liveMarkView: UIVisualEffectView = {
         let effect = UIBlurEffect(style: .light)
         let view = UIVisualEffectView(effect: effect)
-        if let nav = UIViewController.topViewController?.navigationController {
+        if let nav = UIViewController.topViewController?.navigationController, !nav.navigationBar.isHidden {
             view.y = nav.navigationBar.frame.maxY + 5
         }else {
-            view.y = UIDevice.navigationBarHeight + 5
+            if UIApplication.shared.isStatusBarHidden {
+                view.y = UIDevice.navigationBarHeight + UIDevice.generalStatusBarHeight + 5
+            }else {
+                view.y = UIDevice.navigationBarHeight + 5
+            }
         }
         view.x = 5
         view.height = 24
@@ -51,9 +55,31 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
             configLiveMark()
         }
     }
-    
+    override var photoAsset: PhotoAsset! {
+        didSet {
+            #if HXPICKER_ENABLE_EDITOR
+            if photoAsset.photoEdit != nil {
+                liveMarkView.isHidden = true
+            }
+            else {
+                if liveMarkConfig?.allowShow == true {
+                    liveMarkView.isHidden = false
+                }
+            }
+            #else
+            if liveMarkConfig?.allowShow == true {
+                liveMarkView.isHidden = false
+            }
+            #endif
+        }
+    }
     func configLiveMark() {
         guard let liveMarkConfig = liveMarkConfig else {
+            liveMarkView.isHidden = true
+            return
+        }
+        if !liveMarkConfig.allowShow {
+            liveMarkView.isHidden = true
             return
         }
         liveMarkView.effect = UIBlurEffect(
@@ -92,6 +118,17 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
     }
     
     func showMark() {
+        guard let liveMarkConfig = liveMarkConfig else {
+            return
+        }
+        #if HXPICKER_ENABLE_EDITOR
+        if photoAsset.photoEdit != nil {
+            return
+        }
+        #endif
+        if !liveMarkConfig.allowShow {
+            return
+        }
         if scrollContentView.livePhotoIsAnimating ||
             scrollContentView.isBacking ||
             statusBarShouldBeHidden { return }
@@ -102,6 +139,17 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
         }
     }
     func hideMark() {
+        guard let liveMarkConfig = liveMarkConfig else {
+            return
+        }
+        #if HXPICKER_ENABLE_EDITOR
+        if photoAsset.photoEdit != nil {
+            return
+        }
+        #endif
+        if !liveMarkConfig.allowShow {
+            return
+        }
         if liveMarkView.isHidden { return }
         UIView.animate(withDuration: 0.25) {
             self.liveMarkView.alpha = 0

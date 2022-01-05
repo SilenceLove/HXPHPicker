@@ -24,7 +24,7 @@
     - [x] Photo
     - [x] Video
     - [x] GIF
-    - [ ] Live Photo
+    - [x] Live Photo
 - [x] Supported network media types：
     - [x] Photo
     - [x] Video
@@ -58,6 +58,7 @@
     - [x] Korean (ko)
     - [x] Thai (th)
     - [x] Indonesian (id)
+    - [x] Vietnamese (vi)
     - [x] Custom language (custom)
     - [ ] More support... (Pull requests welcome)
 
@@ -75,7 +76,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.0"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.1"))
 ]
 ```
 
@@ -179,6 +180,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | Version | Release Date | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.3.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#131) | 2022-01-05 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#130) | 2021-12-16 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#129) | 2021-12-02 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.8](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#128) | 2021-11-26 | 12.5.1 | 5.4.2 | 12.0+ |

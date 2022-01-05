@@ -91,6 +91,9 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     var drawColorHex: String = "#ffffff" {
         didSet { imageResizerView.imageView.drawView.lineColor = drawColorHex.color }
     }
+    var drawColor: UIColor = .white {
+        didSet { imageResizerView.imageView.drawView.lineColor = drawColor }
+    }
     var mosaicType: PhotoEditorMosaicView.MosaicType = .mosaic {
         didSet { imageResizerView.imageView.mosaicView.type = mosaicType }
     }

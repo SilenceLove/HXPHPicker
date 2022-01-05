@@ -55,5 +55,11 @@ public struct EditorBrushConfiguration {
     /// 显示画笔尺寸大小滑动条
     public var showSlider: Bool = true
     
+    /// 添加自定义颜色 - iOS14 以上有效
+    public var addCustomColor: Bool = true
+    
+    /// 自定义默认颜色 - iOS14 以上有效
+    public var customDefaultColor: UIColor = "#9EB6DC".color
+    
     public init() { }
 }

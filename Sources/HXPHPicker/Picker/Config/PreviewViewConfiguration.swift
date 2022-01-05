@@ -75,7 +75,9 @@ public struct PreviewViewConfiguration {
 extension PreviewViewConfiguration {
     public struct LivePhotoMark {
         
-        var blurStyle: UIBlurEffect.Style = .light
+        var allowShow: Bool = true
+        
+        var blurStyle: UIBlurEffect.Style = .extraLight
         var blurDarkStyle: UIBlurEffect.Style = .dark
         
         var imageColor: UIColor = "#666666".color

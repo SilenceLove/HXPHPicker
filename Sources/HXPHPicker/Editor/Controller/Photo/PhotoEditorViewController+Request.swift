@@ -30,7 +30,15 @@ extension PhotoEditorViewController {
         ProgressHUD.showLoading(addedTo: view, animated: true)
         DispatchQueue.global().async {
             if self.photoAsset.mediaType == .photo {
-                var image = self.photoAsset.localImageAsset!.image!
+                var image: UIImage
+                if let img = self.photoAsset.localImageAsset?.image {
+                    image = img
+                }else if let localLivePhoto = self.photoAsset.localLivePhoto,
+                   let img = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
+                    image = img
+                }else {
+                    image = UIImage()
+                }
                 image = self.fixImageOrientation(image)
                 if self.photoAsset.mediaSubType.isGif {
                     if let imageData = self.photoAsset.localImageAsset?.imageData {
@@ -61,7 +69,12 @@ extension PhotoEditorViewController {
                     self.requestAssetCompletion(image: image)
                 }
             }else {
-                let image = self.fixImageOrientation(self.photoAsset.localVideoAsset!.image!)
+                var image: UIImage
+                if let img = self.photoAsset.localVideoAsset?.image {
+                    image = img
+                }else {
+                    image = UIImage()
+                }
                 self.filterHDImageHandler(image: image)
                 DispatchQueue.main.async {
                     ProgressHUD.hide(forView: self.view, animated: true)
