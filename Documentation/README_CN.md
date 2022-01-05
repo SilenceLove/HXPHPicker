@@ -20,7 +20,7 @@
     - [x] Photo
     - [x] Video
     - [x] GIF
-    - [ ] Live Photo
+    - [x] Live Photo
 - [x] 支持的网络资源类型：
     - [x] Photo
     - [x] Video
@@ -54,6 +54,7 @@
     - [x] 韩语 (ko)
     - [x] 泰语 (th)
     - [x] 印尼语 (id)
+    - [x] 越南语 (vi)
     - [x] 自定义语言 (custom)
     - [ ] 更多支持... (欢迎PR)
 
@@ -71,7 +72,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.0"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.1"))
 ]
 ```
 
@@ -175,6 +176,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.3.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#131) | 2022-01-05 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#130) | 2021-12-16 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#129) | 2021-12-02 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.8](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#128) | 2021-11-26 | 12.5.1 | 5.4.2 | 12.0+ |

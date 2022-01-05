@@ -1,5 +1,20 @@
 # Release Notes
 
+## 1.3.1
+
+### Added
+ 
+- Picker
+  - Add LivePhoto logo
+  - Support adding local LivePhoto
+- Editor
+  - Add custom colors to the brush
+
+### Resolved
+
+- English internationalization issues
+- The downloaded video may not have a callback
+
 ## 1.3.0
 
 - Picker
