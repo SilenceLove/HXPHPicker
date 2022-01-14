@@ -79,7 +79,7 @@ public struct AssetManager {
     
     /// 保存图片到系统相册
     public static func saveSystemAlbum(
-        forImage image: UIImage,
+        forImage image: Any,
         customAlbumName: String? = nil,
         completion: @escaping (PHAsset?) -> Void
     ) {

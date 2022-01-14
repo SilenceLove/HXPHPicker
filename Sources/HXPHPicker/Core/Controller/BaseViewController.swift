@@ -44,7 +44,13 @@ open class BaseViewController: UIViewController {
             return
         }
         deviceOrientationWillChanged(notify: .init(name: UIApplication.willChangeStatusBarOrientationNotification))
-        deviceOrientationDidChanged(notify: .init(name: UIApplication.didChangeStatusBarOrientationNotification))
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.deviceOrientationDidChanged(
+                notify: .init(
+                    name: UIApplication.didChangeStatusBarOrientationNotification
+                )
+            )
+        }
     }
     
     open override func didReceiveMemoryWarning() {

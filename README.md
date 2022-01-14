@@ -9,7 +9,7 @@
 
 `HXPHPicker` is a photo/video selector-supports LivePhoto, GIF selection, iCloud resource online download, photo/video editing
 
-> [中文说明](./Documentation/README_CN.md)
+> [中文说明](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/README_CN.md)
 
 ## <a id="Features"></a> Features
 
@@ -44,6 +44,7 @@
     - [x] Text
     - [x] Soundtrack (support lyrics and subtitles)
     - [x] Crop
+    - [x] Filter
 - [x] Album display mode
     - [x] Separate list
     - [x] Pop-ups
@@ -180,6 +181,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | Version | Release Date | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.3.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#132) | 2022-01-14 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#131) | 2022-01-05 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#130) | 2021-12-16 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#129) | 2021-12-02 | 13.1.0 | 5.4.2 | 12.0+ |

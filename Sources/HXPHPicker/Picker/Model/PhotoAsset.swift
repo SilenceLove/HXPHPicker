@@ -312,11 +312,16 @@ extension PhotoAsset {
             }else if let localLivePhoto = localLivePhoto,
                      let image = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
                 size = image.size
-            }else if let videoSize = localVideoAsset?.videoSize,
-                     !videoSize.equalTo(.zero) {
-                size = videoSize
-            }else if let localImage = localVideoAsset?.image {
-                size = localImage.size
+            }else if let localVideoAsset = localVideoAsset {
+                if !localVideoAsset.videoSize.equalTo(.zero) {
+                    size = localVideoAsset.videoSize
+                }else if let localImage = localVideoAsset.image {
+                    size = localImage.size
+                }else {
+                    let image = PhotoTools.getVideoThumbnailImage(videoURL: localVideoAsset.videoURL, atTime: 0.1)
+                    self.localVideoAsset?.image = image
+                    size = image?.size ?? .init(width: 200, height: 200)
+                }
             }else if let networkVideo = networkVideoAsset {
                 if !networkVideo.videoSize.equalTo(.zero) {
                     size = networkVideo.videoSize
@@ -425,7 +430,7 @@ extension PhotoAsset {
             if mediaSubType == .imageAnimated {
                 suffix = "gif"
             }else {
-                suffix = "jpeg"
+                suffix = "png"
             }
             imageFileURL = PhotoTools.getTmpURL(for: suffix)
         }

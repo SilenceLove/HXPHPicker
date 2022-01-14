@@ -23,11 +23,34 @@ extension PhotoTools {
         return cachePath
     }
     
+    static func getLocalURLKey(for url: URL) -> String {
+        var key = url.absoluteString
+        if url.isFileURL {
+            let components = url.pathComponents
+            var i = 0
+            for (index, path) in components.enumerated()
+            where path == "Application" {
+                i = index
+                break
+            }
+            var path = ""
+            for index in i..<components.count
+            where index > i + 1 {
+                let str = components[index]
+                path += str
+            }
+            if i > 0 {
+                key = path
+            }
+        }
+        return key
+    }
+    
     static func getLivePhotoJPGURL(
         _ origianURL: URL,
         completion: (URL?) -> Void
     ) {
-        let jpgPath = getLivePhotoImageCachePath(for: origianURL.absoluteString)
+        let jpgPath = getLivePhotoImageCachePath(for: getLocalURLKey(for: origianURL))
         let jpgURL = URL(fileURLWithPath: jpgPath)
         if FileManager.default.fileExists(atPath: jpgURL.path) {
             completion(jpgURL)
@@ -54,7 +77,7 @@ extension PhotoTools {
         header: (AVAssetWriter?, AVAssetWriterInput?, AVAssetReader?, AVAssetWriterInput?, AVAssetReader?) -> Void,
         completion: (URL?) -> Void
     ) {
-        let movPath = getLivePhotoVideoCachePath(for: originMovURL.absoluteString)
+        let movPath = getLivePhotoVideoCachePath(for: getLocalURLKey(for: originMovURL))
         let movURL = URL(fileURLWithPath: movPath)
         if FileManager.default.fileExists(atPath: movURL.path) {
             completion(movURL)
@@ -203,17 +226,17 @@ extension PhotoTools {
             kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType: "com.apple.metadata.datatype.int8"
         ]
         
-        let desc = UnsafeMutablePointer<CMMetadataFormatDescription?>.allocate(capacity: 1)
+        var desc: CMMetadataFormatDescription?
         CMMetadataFormatDescriptionCreateWithMetadataSpecifications(
             allocator: kCFAllocatorDefault,
             metadataType: kCMMetadataFormatType_Boxed,
             metadataSpecifications: [spec] as CFArray,
-            formatDescriptionOut: desc
+            formatDescriptionOut: &desc
         )
         let input = AVAssetWriterInput(
             mediaType: .metadata,
             outputSettings: nil,
-            sourceFormatHint: desc.pointee
+            sourceFormatHint: desc
         )
         return AVAssetWriterInputMetadataAdaptor(assetWriterInput: input)
     }

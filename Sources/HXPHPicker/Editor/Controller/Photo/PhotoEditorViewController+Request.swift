@@ -270,7 +270,7 @@ extension PhotoEditorViewController {
                 return
             }
             if editedData.mosaicData.isEmpty &&
-               editedData.filter == nil {
+               !editedData.hasFilter {
                 return
             }
         }
@@ -283,13 +283,13 @@ extension PhotoEditorViewController {
                 hasMosaic = true
             }
         }
-        var value: Float = 0
-        if hasFilter {
+        if hasFilter || hasMosaic {
             var minSize: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-            DispatchQueue.main.sync {
-                value = filterView.sliderView.value
-                if !view.size.equalTo(.zero) {
-                    minSize = min(view.width, view.height) * 2
+            if hasFilter {
+                DispatchQueue.main.sync {
+                    if !view.size.equalTo(.zero) {
+                        minSize = min(view.width, view.height) * 2
+                    }
                 }
             }
             if image.width > minSize {
@@ -300,13 +300,9 @@ extension PhotoEditorViewController {
                 thumbnailImage = image
             }
         }
-        if let filter = editResult?.editedData.filter, hasFilter {
-            var newImage: UIImage?
-            if !config.filter.infos.isEmpty {
-                let info = config.filter.infos[filter.sourceIndex]
-                newImage = info.filterHandler(thumbnailImage, image, value, .touchUpInside)
-            }
-            if let newImage = newImage {
+        
+        if let result = editResult, result.editedData.hasFilter, hasFilter {
+            if let newImage = UIImage(contentsOfFile: result.editedImageURL.path) {
                 filterHDImage = newImage
                 if hasMosaic {
                     mosaicImage = newImage.mosaicImage(level: config.mosaic.mosaicWidth)

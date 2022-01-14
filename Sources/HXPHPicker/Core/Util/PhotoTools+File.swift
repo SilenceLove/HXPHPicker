@@ -197,7 +197,7 @@ public extension PhotoTools {
     static func write(
         toFile fileURL: URL? = nil,
         imageData: Data) -> URL? {
-        let imageURL = fileURL == nil ? getImageTmpURL(imageData.isGif ? .gif : .jpg) : fileURL!
+        let imageURL = fileURL == nil ? getImageTmpURL(imageData.isGif ? .gif : .png) : fileURL!
         do {
             if FileManager.default.fileExists(atPath: imageURL.path) {
                 try FileManager.default.removeItem(at: imageURL)

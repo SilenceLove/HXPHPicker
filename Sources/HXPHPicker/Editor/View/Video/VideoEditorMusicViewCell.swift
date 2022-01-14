@@ -114,35 +114,26 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     var playTimer: DispatchSourceTimer?
     func playMusic(completion: @escaping (String, VideoEditorMusic) -> Void) {
         hideLoading()
-        switch music.urlType {
-        case .local:
+        if music.audioURL.isFileURL {
             playLocalMusic(completion: completion)
-        case .network:
+        }else {
             playNetworkMusic(completion: completion)
-        case .unknown:
-            if PhotoTools.checkLocalURL(for: music.audioURL.path) {
-                playLocalMusic(completion: completion)
-            }else if PhotoTools.checkNetworkURL(for: music.audioURL) {
-                playNetworkMusic(completion: completion)
-            }else {
-                resetStatus()
-            }
         }
     }
     func playLocalMusic(completion: @escaping (String, VideoEditorMusic) -> Void) {
         music.localAudioPath = music.audioURL.path
-        completion(music.audioURL.path, music)
         didPlay(audioPath: music.audioURL.path)
         music.isSelected = true
+        completion(music.audioURL.path, music)
     }
     func playNetworkMusic(completion: @escaping (String, VideoEditorMusic) -> Void) {
         let key = music.audioURL.absoluteString
         let audioTmpURL = PhotoTools.getAudioTmpURL(for: key)
         if PhotoTools.isCached(forAudio: key) {
             music.localAudioPath = audioTmpURL.path
-            completion(audioTmpURL.path, music)
             didPlay(audioPath: audioTmpURL.path)
             music.isSelected = true
+            completion(audioTmpURL.path, music)
             return
         }
         showLoading()
@@ -154,13 +145,13 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
             self.hideLoading()
             if let audioURL = audioURL,
                let music = ext as? VideoEditorMusic {
-                completion(audioURL.path, music)
                 if music == self.music {
                     self.didPlay(audioPath: audioURL.path)
                 }else {
                     PhotoManager.shared.playMusic(filePath: audioURL.path) {}
                 }
                 music.isSelected = true
+                completion(audioURL.path, music)
             }else {
                 self.resetStatus()
             }
@@ -277,13 +268,9 @@ class VideoEditorMusicViewCell: UICollectionViewCell {
     
     func stopMusic() {
         music.isSelected = false
-        if music.urlType == .network {
+        if !music.audioURL.isFileURL {
             PhotoManager.shared.suspendTask(music.audioURL)
-        }else {
-            if PhotoTools.checkNetworkURL(for: music.audioURL) {
-                PhotoManager.shared.suspendTask(music.audioURL)
-            }
-        }
+        } 
         PhotoManager.shared.stopPlayMusic()
         resetStatus()
     }
