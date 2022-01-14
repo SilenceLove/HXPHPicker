@@ -1,5 +1,23 @@
 # Release Notes
 
+## 1.3.2
+
+### Added
+
+- Editor
+  - Soundtrack and soundtrack volume can be adjusted when video editor adds soundtrack
+  - Video editing supports adding filter effects
+- Camera
+  - Support click method when shooting video `takePhotoMode`
+  - Click the shooting method to support unlimited maximum time
+  
+### Resolved
+
+- Editor
+  - Crash when setting a single type in the bottom toolbar
+- Camera
+  - The camera screen is displayed incorrectly after rotating the screen
+  
 ## 1.3.1
 
 ### Added

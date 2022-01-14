@@ -40,6 +40,7 @@
     - [x] 文字
     - [x] 配乐（支持歌词字幕）
     - [x] 裁剪
+    - [x] 滤镜
 - [x] 相册展现方式
     - [x] 单独列表
     - [x] 弹窗
@@ -176,6 +177,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.3.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#132) | 2022-01-14 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#131) | 2022-01-05 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#130) | 2021-12-16 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.2.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#129) | 2021-12-02 | 13.1.0 | 5.4.2 | 12.0+ |
