@@ -314,7 +314,10 @@ extension PhotoTools {
         animationBeginTime: CFTimeInterval,
         videoDuration: TimeInterval
     ) throws -> AVMutableVideoComposition {
-        let videoComposition = AVMutableVideoComposition(propertiesOf: mixComposition)
+        let videoComposition = videoFixed(
+            composition: mixComposition,
+            assetOrientation: videoAsset.videoOrientation
+        )
         videoComposition.customVideoCompositorClass = VideoFilterCompositor.self
         let renderSize = videoComposition.renderSize
         // https://stackoverflow.com/a/45013962
@@ -332,7 +335,6 @@ extension PhotoTools {
         if !stickerInfos.isEmpty || drawImage != nil {
             let bounds = CGRect(origin: .zero, size: renderSize)
             let overlaylayer = CALayer()
-            overlaylayer.backgroundColor = UIColor.clear.cgColor
             if let drawImage = drawImage {
                 let drawLayer = CALayer()
                 drawLayer.contents = drawImage.cgImage
@@ -407,6 +409,7 @@ extension PhotoTools {
             let newInstruction = CustomVideoCompositionInstruction(
                 sourceTrackIDs: sourceTrackIDs,
                 timeRange: instruction.timeRange,
+                videoOrientation: videoAsset.videoOrientation,
                 hasSticker: watermarkLayerTrackID == nil ? false : true,
                 filterInfo: cropSizeData.filter,
                 filterValue: cropSizeData.filterValue
@@ -422,7 +425,8 @@ extension PhotoTools {
             let newInstruction = CustomVideoCompositionInstruction(
                 sourceTrackIDs: sourceTrackIDs,
                 timeRange: videoTrack.timeRange,
-                hasSticker: watermarkLayerTrackID == nil ? false : true,
+                videoOrientation: videoAsset.videoOrientation,
+                hasSticker: watermarkLayerTrackID != nil,
                 filterInfo: cropSizeData.filter,
                 filterValue: cropSizeData.filterValue
             )
@@ -460,6 +464,9 @@ extension PhotoTools {
             textLayer.alignmentMode = .left
             textLayer.foregroundColor = UIColor.white.cgColor
             textLayer.frame = CGRect(origin: .zero, size: textSize)
+            textLayer.shadowColor = UIColor.black.withAlphaComponent(0.6).cgColor
+            textLayer.shadowOpacity = 0.5
+            textLayer.shadowOffset = CGSize(width: 0, height: -1)
             if index > 0 || lyric.startTime > 0 {
                 textLayer.opacity = 0
             }else {
@@ -587,5 +594,44 @@ extension PhotoTools {
         group.repeatCount = MAXFLOAT
         animationLayer.add(group, forKey: nil)
         return animationLayer
+    }
+    
+    static func videoFixed(
+        composition: AVMutableComposition,
+        assetOrientation: AVCaptureVideoOrientation
+    ) -> AVMutableVideoComposition {
+        let videoComposition = AVMutableVideoComposition(propertiesOf: composition)
+        guard assetOrientation != .landscapeRight else {
+            return videoComposition
+        }
+        guard let videoTrack = composition.tracks(withMediaType: .video).first else {
+            return videoComposition
+        }
+        let naturalSize = videoTrack.naturalSize
+        if assetOrientation == .portrait {
+            // 顺时针旋转90°
+            videoComposition.renderSize = CGSize(width: naturalSize.height, height: naturalSize.width)
+        } else if assetOrientation == .landscapeLeft {
+            // 顺时针旋转180°
+            videoComposition.renderSize = CGSize(width: naturalSize.width, height: naturalSize.height)
+        } else if assetOrientation == .portraitUpsideDown {
+            // 顺时针旋转270°
+            videoComposition.renderSize = CGSize(width: naturalSize.height, height: naturalSize.width)
+        }
+        return videoComposition
+    }
+    
+    static func createPixelBuffer(_ size: CGSize) -> CVPixelBuffer? {
+        var pixelBuffer: CVPixelBuffer?
+        let pixelBufferAttributes = [kCVPixelBufferIOSurfacePropertiesKey: [:]]
+        CVPixelBufferCreate(
+            nil,
+            Int(size.width),
+            Int(size.height),
+            kCVPixelFormatType_32BGRA,
+            pixelBufferAttributes as CFDictionary,
+            &pixelBuffer
+        )
+        return pixelBuffer
     }
 }

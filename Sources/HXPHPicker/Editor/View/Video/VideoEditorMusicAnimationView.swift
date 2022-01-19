@@ -29,6 +29,9 @@ class VideoEditorMusicAnimationLayer: CALayer {
             shapeLayer.fillColor = UIColor.clear.cgColor
             shapeLayer.strokeColor = hexColor.color.cgColor
             shapeLayer.lineWidth = 1 * scale
+            shapeLayer.shadowColor = UIColor.black.withAlphaComponent(0.6).cgColor
+            shapeLayer.shadowOpacity = 0.5
+            shapeLayer.shadowOffset = CGSize(width: 0, height: -1)
             addSublayer(shapeLayer)
             animationLayers.append(shapeLayer)
         }

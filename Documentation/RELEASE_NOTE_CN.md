@@ -1,5 +1,20 @@
 # 更新日志
 
+## 1.3.3
+
+### 新增
+
+- Editor
+  - 新增3种滤镜效果
+- Camera
+  - 新增配置`modalPresentationStyle`
+  - `sessionPreset`默认修改为`hd1280x720`
+  
+### 修复
+
+- Editor
+  - 编辑拍摄的视频，画面旋转了90°
+  
 ## 1.3.2
 
 ### 新增

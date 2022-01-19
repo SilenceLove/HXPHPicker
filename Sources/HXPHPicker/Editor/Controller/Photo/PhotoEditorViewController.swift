@@ -155,6 +155,7 @@ open class PhotoEditorViewController: BaseViewController {
             isFilter = false
             resetOtherOption()
             hiddenFilterView()
+            imageView.canLookOriginal = false
             return
         }
         if showChartlet {

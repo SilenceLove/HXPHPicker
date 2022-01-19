@@ -320,7 +320,8 @@ extension PhotoTools {
         isMoment: Bool = false
     ) -> PickerConfiguration {
         // swiftlint:enable function_body_length
-        let config = PickerConfiguration.init()
+        let config = PickerConfiguration()
+        PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if isMoment {
             config.maximumSelectedCount = 9
             config.maximumSelectedVideoCount = 1

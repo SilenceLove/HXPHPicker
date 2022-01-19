@@ -74,7 +74,8 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
         }
         if !instruction.hasSticker {
             guard let trackID = instruction.requiredSourceTrackIDs?.first as? CMPersistentTrackID,
-                  let sourcePixelBuffer = request.sourceFrame(byTrackID: trackID) else {
+                  let pixelBuffer = request.sourceFrame(byTrackID: trackID),
+                  let sourcePixelBuffer = fixOrientation(pixelBuffer, instruction.videoOrientation) else {
                       return renderContext?.newPixelBuffer()
             }
             guard let resultPixelBuffer = instruction.applyFillter(sourcePixelBuffer) else {
@@ -84,7 +85,8 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
         }
         let sourceTrackID = instruction.requiredSourceTrackIDs?[1] as? CMPersistentTrackID
         guard let trackID = sourceTrackID,
-              let sourcePixelBuffer = request.sourceFrame(byTrackID: trackID) else {
+              let pixelBuffer = request.sourceFrame(byTrackID: trackID),
+              let sourcePixelBuffer = fixOrientation(pixelBuffer, instruction.videoOrientation) else {
                   return renderContext?.newPixelBuffer()
         }
         guard let resultPixelBuffer = instruction.applyFillter(sourcePixelBuffer) else {
@@ -101,6 +103,36 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
             return addWatermark(watermarkPixelBuffer, resultPixelBuffer)
         }
         return resultPixelBuffer
+    }
+    
+    func fixOrientation(
+        _ pixelBuffer: CVPixelBuffer,
+        _ videoOrientation: AVCaptureVideoOrientation
+    ) -> CVPixelBuffer? {
+        var ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        var size = CGSize(
+            width: CVPixelBufferGetWidth(pixelBuffer),
+            height: CVPixelBufferGetHeight(pixelBuffer)
+        )
+        switch videoOrientation {
+        case .portrait:
+            ciImage = ciImage.oriented(.right)
+            size = .init(width: size.height, height: size.width)
+        case .portraitUpsideDown:
+            ciImage = ciImage.oriented(.left)
+        case .landscapeRight:
+            break
+        case .landscapeLeft:
+            ciImage = ciImage.oriented(.down)
+            size = .init(width: size.height, height: size.width)
+        @unknown default:
+            break
+        }
+        if let newPixelBuffer = PhotoTools.createPixelBuffer(size) {
+            context.render(ciImage, to: newPixelBuffer)
+            return newPixelBuffer
+        }
+        return nil
     }
     
     func addWatermark(
@@ -141,12 +173,14 @@ class CustomVideoCompositionInstruction: NSObject, AVVideoCompositionInstruction
     
     var passthroughTrackID: CMPersistentTrackID
     
+    let videoOrientation: AVCaptureVideoOrientation
     let filterInfo: PhotoEditorFilterInfo?
     let filterValue: Float
     let hasSticker: Bool
     init(
         sourceTrackIDs: [NSValue],
         timeRange: CMTimeRange,
+        videoOrientation: AVCaptureVideoOrientation,
         hasSticker: Bool,
         filterInfo: PhotoEditorFilterInfo? = nil,
         filterValue: Float = 0
@@ -156,6 +190,7 @@ class CustomVideoCompositionInstruction: NSObject, AVVideoCompositionInstruction
         passthroughTrackID = kCMPersistentTrackID_Invalid
         containsTweening = true
         enablePostProcessing = false
+        self.videoOrientation = videoOrientation
         self.hasSticker = hasSticker
         self.filterInfo = filterInfo
         self.filterValue = filterValue
@@ -170,24 +205,10 @@ class CustomVideoCompositionInstruction: NSObject, AVVideoCompositionInstruction
             height: CVPixelBufferGetHeight(pixelBuffer)
         )
         if let outputImage = filterInfo?.videoFilterHandler?(ciImage, filterValue),
-           let newPixelBuffer = createPixelBuffer(size) {
+           let newPixelBuffer = PhotoTools.createPixelBuffer(size) {
             context.render(outputImage, to: newPixelBuffer)
             return newPixelBuffer
         }
-        return pixelBuffer
-    }
-    
-    func createPixelBuffer(_ size: CGSize) -> CVPixelBuffer? {
-        var pixelBuffer: CVPixelBuffer?
-        let pixelBufferAttributes = [kCVPixelBufferIOSurfacePropertiesKey: [:]]
-        CVPixelBufferCreate(
-            nil,
-            Int(size.width),
-            Int(size.height),
-            kCVPixelFormatType_32BGRA,
-            pixelBufferAttributes as CFDictionary,
-            &pixelBuffer
-        )
         return pixelBuffer
     }
 }

@@ -1,5 +1,20 @@
 # Release Notes
 
+## 1.3.3
+
+### Added
+
+- Editor
+  - Added 3 filter effects
+- Camera
+  - Add configuration`modalPresentationStyle`
+  - `sessionPreset`The default is modified to`hd1280x720`
+  
+### Resolved
+
+- Editor
+  - Edit the captured video, the screen is rotated 90°
+
 ## 1.3.2
 
 ### Added

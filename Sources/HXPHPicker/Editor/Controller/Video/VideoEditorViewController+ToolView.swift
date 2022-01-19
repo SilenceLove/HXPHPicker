@@ -319,6 +319,7 @@ extension VideoEditorViewController: EditorToolViewDelegate {
         hiddenBrushColorView()
         hidenTopView()
         showFilterView()
+        videoView.canLookOriginal = true
     }
     
     func showBrushColorView() {

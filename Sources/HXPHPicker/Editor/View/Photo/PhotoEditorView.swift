@@ -100,6 +100,11 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     var playerView: VideoEditorPlayerView {
         imageResizerView.imageView.videoView
     }
+    var canLookOriginal: Bool = false {
+        didSet {
+            imageResizerView.imageView.longPressGesture.isEnabled = canLookOriginal
+        }
+    }
     var canUndoDraw: Bool { imageResizerView.imageView.drawView.canUndo }
     var canUndoMosaic: Bool { imageResizerView.imageView.mosaicView.canUndo }
     var hasSticker: Bool { imageResizerView.imageView.stickerView.count > 0 }

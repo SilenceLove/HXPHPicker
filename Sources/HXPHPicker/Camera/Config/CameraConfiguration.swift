@@ -11,11 +11,13 @@ import AVFoundation
 // MARK: 相机配置类
 public class CameraConfiguration: BaseConfiguration {
     
+    public var modalPresentationStyle: UIModalPresentationStyle
+    
     /// 相机类型
     public var cameraType: CameraController.CameraType = .normal
     
     /// 相机分辨率
-    public var sessionPreset: Preset = .hd1920x1080
+    public var sessionPreset: Preset = .hd1280x720
     
     /// 摄像头默认位置
     public var position: DevicePosition = .back
@@ -62,6 +64,11 @@ public class CameraConfiguration: BaseConfiguration {
     public var allowLocation: Bool = true
     
     public override init() {
+        if #available(iOS 13.0, *) {
+            modalPresentationStyle = .automatic
+        } else {
+            modalPresentationStyle = .fullScreen
+        }
         super.init()
         /// shouldAutorotate 能够旋转
         /// supportedInterfaceOrientations 支持的方向

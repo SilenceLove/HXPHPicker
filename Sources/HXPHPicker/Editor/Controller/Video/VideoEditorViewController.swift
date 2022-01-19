@@ -270,7 +270,8 @@ open class VideoEditorViewController: BaseViewController {
     lazy var filterView: PhotoEditorFilterView = {
         let view = PhotoEditorFilterView(
             filterConfig: config.filter,
-            hasLastFilter: editResult?.sizeData?.filter != nil
+            hasLastFilter: editResult?.sizeData?.filter != nil,
+            isVideo: true
         )
         view.delegate = self
         return view
@@ -616,7 +617,11 @@ extension VideoEditorViewController: UIGestureRecognizerDelegate {
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        true
+        if otherGestureRecognizer is UILongPressGestureRecognizer &&
+            otherGestureRecognizer.view is PhotoEditorContentView {
+            return false
+        }
+        return true
     }
 }
 
@@ -641,6 +646,7 @@ extension VideoEditorViewController {
         if isFilter {
             videoView.stickerEnabled = true
             hiddenFilterView()
+            videoView.canLookOriginal = false
         }
         if showChartlet {
             showChartlet = false
