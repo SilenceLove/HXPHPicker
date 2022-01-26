@@ -205,12 +205,14 @@ extension UIImageView {
             atTime: 0.1,
             imageGenerator: imageGenerator
         ) { videoURL, image, result in
-            if asset.isNetworkAsset {
-                asset.networkVideoAsset?.videoSize = image.size
-                asset.networkVideoAsset?.coverImage = image
-            }else {
-                asset.localVideoAsset?.videoSize = image.size
-                asset.localVideoAsset?.image = image
+            if let image = image {
+                if asset.isNetworkAsset {
+                    asset.networkVideoAsset?.videoSize = image.size
+                    asset.networkVideoAsset?.coverImage = image
+                }else {
+                    asset.localVideoAsset?.videoSize = image.size
+                    asset.localVideoAsset?.image = image
+                }
             }
             if result == .cancelled { return }
             completionHandler?(image, asset)
