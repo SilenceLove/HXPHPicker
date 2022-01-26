@@ -421,13 +421,15 @@ extension PhotoTools {
         config.previewView.bottomView.finishButtonDisableBackgroundColor = "#666666".color.withAlphaComponent(0.3)
         
         config.previewView.bottomView.selectedViewTickColor = wxColor
+        config.previewView.disableFinishButtonWhenNotSelected = true
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white
         
-        config.videoEditor.cropping.maximumVideoCroppingTime = 60
-        config.videoEditor.cropView.finishButtonBackgroundColor = wxColor
-        config.videoEditor.cropView.finishButtonDarkBackgroundColor = wxColor
+        config.videoEditor.cropTime.maximumVideoCroppingTime = 60
+        config.videoEditor.cropSize.aspectRatioSelectedColor = wxColor
+        config.videoEditor.cropConfirmView.finishButtonBackgroundColor = wxColor
+        config.videoEditor.cropConfirmView.finishButtonDarkBackgroundColor = wxColor
         config.videoEditor.toolView.finishButtonBackgroundColor = wxColor
         config.videoEditor.toolView.finishButtonDarkBackgroundColor = wxColor
         config.videoEditor.toolView.toolSelectedColor = wxColor

@@ -165,14 +165,20 @@ extension CameraConfiguration {
     
     #if HXPICKER_ENABLE_EDITOR
     fileprivate func setupEditorColor() {
-        videoEditor.cropView.finishButtonBackgroundColor = tintColor
-        videoEditor.cropView.finishButtonDarkBackgroundColor = tintColor
+        
+        videoEditor.cropConfirmView.finishButtonBackgroundColor = tintColor
+        videoEditor.cropConfirmView.finishButtonDarkBackgroundColor = tintColor
+        videoEditor.cropSize.aspectRatioSelectedColor = tintColor
         videoEditor.toolView.finishButtonBackgroundColor = tintColor
         videoEditor.toolView.finishButtonDarkBackgroundColor = tintColor
         videoEditor.toolView.toolSelectedColor = tintColor
         videoEditor.toolView.musicSelectedColor = tintColor
         videoEditor.music.tintColor = tintColor
         videoEditor.text.tintColor = tintColor
+        videoEditor.filter = .init(
+            infos: videoEditor.filter.infos,
+            selectedColor: tintColor
+        )
         
         photoEditor.toolView.toolSelectedColor = tintColor
         photoEditor.toolView.finishButtonBackgroundColor = tintColor
@@ -181,7 +187,8 @@ extension CameraConfiguration {
         photoEditor.cropConfimView.finishButtonDarkBackgroundColor = tintColor
         photoEditor.cropping.aspectRatioSelectedColor = tintColor
         photoEditor.filter = .init(
-            infos: PhotoTools.defaultFilters()
+            infos: photoEditor.filter.infos,
+            selectedColor: tintColor
         )
         photoEditor.text.tintColor = tintColor
     }

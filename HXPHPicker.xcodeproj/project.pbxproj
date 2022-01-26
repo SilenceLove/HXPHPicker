@@ -154,7 +154,6 @@
 		7B996A11268AB3960020A10F /* 时光正好 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A01268AB3960020A10F /* 时光正好 */; };
 		7B996A12268AB3960020A10F /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A02268AB3960020A10F /* 世间美好与你环环相扣.mp3 */; };
 		7B996A13268AB3960020A10F /* 少女的祈祷.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A03268AB3960020A10F /* 少女的祈祷.mp3 */; };
-		7BA827DC278D2B680032BF2F /* VideoCrop+PhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA827DB278D2B680032BF2F /* VideoCrop+PhotoTools.swift */; };
 		7BA827DE278D61330032BF2F /* VideoEditorVolumeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA827DD278D61330032BF2F /* VideoEditorVolumeView.swift */; };
 		7BA856A826CCA275003CF839 /* ExportPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA856A726CCA275003CF839 /* ExportPreset.swift */; };
 		7BA856AA26CCB6CF003CF839 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA856A926CCB6CF003CF839 /* ImageView.swift */; };
@@ -580,7 +579,6 @@
 		7B996A01268AB3960020A10F /* 时光正好 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "时光正好"; sourceTree = "<group>"; };
 		7B996A02268AB3960020A10F /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
 		7B996A03268AB3960020A10F /* 少女的祈祷.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "少女的祈祷.mp3"; sourceTree = "<group>"; };
-		7BA827DB278D2B680032BF2F /* VideoCrop+PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VideoCrop+PhotoTools.swift"; sourceTree = "<group>"; };
 		7BA827DD278D61330032BF2F /* VideoEditorVolumeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorVolumeView.swift; sourceTree = "<group>"; };
 		7BA856A726CCA275003CF839 /* ExportPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportPreset.swift; sourceTree = "<group>"; };
 		7BA856A926CCB6CF003CF839 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
@@ -1453,7 +1451,6 @@
 				7B7C5EFB27229C81005B9B4B /* Editor+PhotoManager.swift */,
 				7BEB058825A959D100B39BE5 /* Editor+PhotoTools.swift */,
 				7B79FDC3275870E200F632AA /* VideoEditor+PhotoTools.swift */,
-				7BA827DB278D2B680032BF2F /* VideoCrop+PhotoTools.swift */,
 				7B80FAA6268F12F7003C7B35 /* Editor+UIImageView.swift */,
 				7BB34D15279020B000B88F6E /* CustomVideoCompositionInstruction.swift */,
 			);
@@ -1925,7 +1922,6 @@
 				7B8E7F7B26705D0800F4A3FD /* AssetManager+AVAssetExportSession.swift in Sources */,
 				7BE1CA2D26F497830069ACB6 /* PhotoPickerView+Editor.swift in Sources */,
 				7B7C5EFC27229C81005B9B4B /* Editor+PhotoManager.swift in Sources */,
-				7BA827DC278D2B680032BF2F /* VideoCrop+PhotoTools.swift in Sources */,
 				7B64A9C2268C02320002109E /* SelectBoxConfiguration.swift in Sources */,
 				7B4CA1CC265B9521009FEC18 /* NetworkAsset.swift in Sources */,
 				7BBBD5BE25AEFE9200301DCC /* PickerTransition.swift in Sources */,
@@ -2115,7 +2111,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence7.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2143,7 +2139,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence7.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -2173,7 +2169,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2207,7 +2203,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

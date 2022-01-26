@@ -149,15 +149,10 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
-                defaultValue: 0.5
+                defaultValue: 0.2
             ) { (image, lastImage, value, event) in
                 if event == .touchUpInside {
-                    return image.filter(
-                        name: "CIGaussianBlur",
-                        parameters: [
-                            kCIInputRadiusKey: NSNumber(value: 10 * value)
-                        ]
-                    )
+                    return image.blurredImage(50 * value)
                 }
                 return nil
             },
@@ -266,23 +261,16 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
-                defaultValue: 0.5
+                defaultValue: 0.2
             ) { (image, lastImage, value, event) in
                 if event == .touchUpInside {
-                    return image.filter(
-                        name: "CIGaussianBlur",
-                        parameters: [
-                            kCIInputRadiusKey: NSNumber(value: 10 * value)
-                        ]
-                    )
+                    return image.blurredImage(50.0 * value)
                 }
                 return nil
             } videoFilterHandler: {
                 $0.filter(
                     name: "CIGaussianBlur",
-                    parameters: [
-                        kCIInputRadiusKey: NSNumber(value: 10 * $1)
-                    ]
+                    parameters: [kCIInputRadiusKey: 50.0 * $1]
                 )
             },
             PhotoEditorFilterInfo(

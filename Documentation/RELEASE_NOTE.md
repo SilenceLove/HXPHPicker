@@ -1,5 +1,19 @@
 # Release Notes
 
+## 1.3.4
+
+### Added
+
+- Editor
+  - Add crop size function to video (same as picture crop)
+  
+### Resolved
+
+- Picker
+  - `PhotoBrowser` may appear when the video screen is square when browsing web videos
+- Editor
+  - In special cases, the screen cropping result is wrong after multiple rotations and mirroring
+
 ## 1.3.3
 
 ### Added
