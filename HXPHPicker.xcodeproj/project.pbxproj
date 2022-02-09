@@ -59,7 +59,6 @@
 		7B5833DC26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5833DB26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift */; };
 		7B5833DE26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5833DD26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift */; };
 		7B58DA9026E0B07500F853F7 /* PhotoThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B58DA8F26E0B07400F853F7 /* PhotoThumbnailView.swift */; };
-		7B58DA9226E0D47800F853F7 /* CameraGPUImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */; };
 		7B5BC70126F5753400B3AA69 /* PhotoPickerViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5BC70026F5753400B3AA69 /* PhotoPickerViewProtocol.swift */; };
 		7B5BF28825F719FB00E21D15 /* VideoEditResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */; };
 		7B5D5B702627DF7200F94E01 /* PhotoEditorCropToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5D5B6F2627DF7200F94E01 /* PhotoEditorCropToolModel.swift */; };
@@ -425,7 +424,6 @@
 		7B5833DB26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPreviewViewController+BottomView.swift"; sourceTree = "<group>"; };
 		7B5833DD26BD1EEF001F86F5 /* PhotoPreviewViewController+CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoPreviewViewController+CollectionView.swift"; sourceTree = "<group>"; };
 		7B58DA8F26E0B07400F853F7 /* PhotoThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoThumbnailView.swift; sourceTree = "<group>"; };
-		7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraGPUImageView.swift; sourceTree = "<group>"; };
 		7B5BC70026F5753400B3AA69 /* PhotoPickerViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerViewProtocol.swift; sourceTree = "<group>"; };
 		7B5BF28725F719FB00E21D15 /* VideoEditResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditResult.swift; sourceTree = "<group>"; };
 		7B5D5B6F2627DF7200F94E01 /* PhotoEditorCropToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorCropToolModel.swift; sourceTree = "<group>"; };
@@ -810,7 +808,6 @@
 			isa = PBXGroup;
 			children = (
 				7B5460A526DCB26200A65192 /* CameraPreviewView.swift */,
-				7B58DA9126E0D47800F853F7 /* CameraGPUImageView.swift */,
 				7B54609A26DCB0E900A65192 /* CameraBottomView.swift */,
 			);
 			path = View;
@@ -1888,7 +1885,6 @@
 				7BEA744C26BA3B6D0065FC35 /* PhotoPickerViewController+Camera.swift in Sources */,
 				7BEA744826BA3A570065FC35 /* PhotoPickerViewController+Editor.swift in Sources */,
 				7BF42DE826D5E055006C556A /* PhotoAsset+FileSize.swift in Sources */,
-				7B58DA9226E0D47800F853F7 /* CameraGPUImageView.swift in Sources */,
 				7B02F2BC2656186500FA94CD /* Core+Data.swift in Sources */,
 				7B80FAA1268EBE7D003C7B35 /* VideoEditorPlayerView.swift in Sources */,
 				7BBBD5B225AEFE9200301DCC /* PhotoPickerBottomView.swift in Sources */,
@@ -2111,7 +2107,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.3.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence7.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2139,7 +2135,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.3.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence7.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -2169,7 +2165,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.3.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2203,7 +2199,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.3.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

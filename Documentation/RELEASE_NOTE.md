@@ -1,5 +1,14 @@
 # Release Notes
 
+## 1.3.5
+
+### Resolved
+
+- Picker
+  - The photo list cell does not display the icon when there is editing data
+- Editor
+  - Error in original image when editing image again
+
 ## 1.3.4
 
 ### Added
