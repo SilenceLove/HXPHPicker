@@ -30,6 +30,7 @@ class CameraManager: NSObject {
                 preferredTimescale: timeScale
             )
             output.maxRecordedDuration = maxDuration
+            output.movieFragmentInterval = .invalid
         }
         return output
     }()

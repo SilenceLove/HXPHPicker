@@ -78,7 +78,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.5"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.6"))
 ]
 ```
 
@@ -196,4 +196,4 @@ extension ViewController: PhotoPickerControllerDelegate {
 HXPHPicker is released under the MIT license. See LICENSE for details.
 
 
-[Top](#readme)
+[🔝](#readme)

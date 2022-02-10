@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.3.6
+
+### Resolved
+
+- Camera
+  - Fixed losing audio track when recording video longer than 10 seconds
+
 ## 1.3.5
 
 ### Resolved
