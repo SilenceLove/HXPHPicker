@@ -12,6 +12,7 @@ target 'Example' do
   pod 'HXPHPicker', :path => './'
   pod 'SwiftLint'
   pod 'GDPerformanceView-Swift'
+  pod 'GPUImage'
 end
 
 post_install do |installer|

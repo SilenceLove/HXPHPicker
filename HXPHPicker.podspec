@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker"
-    spec.version                = "1.3.6"
+    spec.version                = "1.3.7"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
@@ -43,7 +43,7 @@ Pod::Spec.new do |spec|
     end
     
     spec.subspec 'Camera' do |camera|
-        camera.source_files   = "Sources/HXPHPicker/Camera/**/*.{swift}"
+        camera.source_files   = "Sources/HXPHPicker/Camera/**/*.{swift,metal}"
         camera.dependency 'HXPHPicker/Core'
         camera.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA' }
     end
