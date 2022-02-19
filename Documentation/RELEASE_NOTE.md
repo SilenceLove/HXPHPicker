@@ -1,5 +1,19 @@
 # Release Notes
 
+## 1.3.7
+
+### Added
+
+- Picker
+  - Support filtering when getting album/photo list
+- Camera
+  - Add filter effects, customizable filters
+
+### Optimizer
+
+- Picker
+  - Loading logic when scrolling fast
+
 ## 1.3.6
 
 ### Resolved

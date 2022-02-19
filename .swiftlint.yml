@@ -7,6 +7,7 @@ disabled_rules:
   - type_body_length
   - function_parameter_count
   - force_cast
+  - large_tuple
 
 excluded:
   - Carthage
@@ -23,4 +24,4 @@ file_length:
     warning: 1000
     error: 1500
     
-cyclomatic_complexity: 25
+cyclomatic_complexity: 40
