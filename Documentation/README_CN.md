@@ -74,7 +74,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.7"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.8"))
 ]
 ```
 
@@ -196,4 +196,4 @@ HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文
 ## 👨🏻‍💻
 <img src="http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/IMG_3838(20211015-101117).PNG" width="200" height="200">
 
-[回到顶部](#readme)
+[🔝回到顶部](#readme)
