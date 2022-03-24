@@ -1,5 +1,12 @@
 # Release Notes
 
+## 1.3.9
+
+### Resolved
+
+- Fix the bug of failing to archive with Xcode 13.3
+- Delete text internationalization
+
 ## 1.3.7
 
 ### Added

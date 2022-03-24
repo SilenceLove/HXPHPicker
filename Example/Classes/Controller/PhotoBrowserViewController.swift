@@ -27,7 +27,7 @@ class PhotoBrowserViewController: UIViewController, UICollectionViewDataSource, 
         return view
     }()
     
-    var row_Count: Int = UI_USER_INTERFACE_IDIOM() == .pad ? 5 : 3
+    var row_Count: Int = UIDevice.current.userInterfaceIdiom == .pad ? 5 : 3
     var previewAssets: [PhotoAsset] = []
     override func viewDidLoad() {
         super.viewDidLoad()
