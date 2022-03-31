@@ -10,9 +10,11 @@ use_frameworks!
 target 'Example' do
   # 包含所有功能，网络图片使用的是 'Kingfisher', '~> 7.0'
   pod 'HXPHPicker', :path => './'
-  pod 'SwiftLint'
+  
   pod 'GDPerformanceView-Swift'
-  pod 'GPUImage'
+  
+#  pod 'SwiftLint' // ${PODS_ROOT}/SwiftLint/swiftlint
+#  pod 'GPUImage'
 end
 
 post_install do |installer|
