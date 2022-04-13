@@ -67,6 +67,7 @@ class HomeViewController: UITableViewController {
                 return
             }
         }
+//        present(rowType.controller, animated: true)
         navigationController?.pushViewController(rowType.controller, animated: true)
     }
 
