@@ -1,5 +1,24 @@
 # 更新日志
 
+## 1.4.0
+
+### 修复
+
+- Editor
+  - `EditorController`少了一个`editResult`的值传递
+
+### 优化
+
+- Picker
+  - `PhotoBrowser`显示效果
+
+### 新增
+
+- Picker
+  - 回调新增编辑图片/视频时可修改编辑配置
+- Editor
+  - 编辑图片时可以指定文件路径
+
 ## 1.3.9
 
 ### 修复

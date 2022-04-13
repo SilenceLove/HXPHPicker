@@ -1,5 +1,24 @@
 # Release Notes
 
+## 1.4.0
+
+### Resolved
+
+- Editor
+  - `EditorController` is missing an `editResult` value passed
+
+### Optimizer
+
+- Picker
+  - `PhotoBrowser` display effect
+
+### Added
+
+- Picker
+  - The editing configuration can be modified when the callback is added to edit pictures/videos
+- Editor
+  - You can specify the file path when editing the picture
+
 ## 1.3.9
 
 ### Resolved

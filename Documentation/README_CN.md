@@ -74,7 +74,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.3.9"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.0"))
 ]
 ```
 
@@ -192,6 +192,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.4.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#140) | 2022-04-13 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#139) | 2022-03-24 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#137) | 2022-02-19 | 13.1.0 | 5.4.2 | 12.0+ |
 | [v1.3.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#135) | 2022-02-09 | 13.1.0 | 5.4.2 | 12.0+ |
