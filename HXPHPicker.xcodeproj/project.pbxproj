@@ -101,6 +101,7 @@
 		7B7C5EFA27225DE4005B9B4B /* PhotoPickerLimitCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7C5EF927225DE4005B9B4B /* PhotoPickerLimitCell.swift */; };
 		7B7C5EFC27229C81005B9B4B /* Editor+PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7C5EFB27229C81005B9B4B /* Editor+PhotoManager.swift */; };
 		7B7C5EFE2722A117005B9B4B /* Core+UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7C5EFD2722A117005B9B4B /* Core+UILabel.swift */; };
+		7B7E746228081EE3004A2581 /* PhotoEditorBrushSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7E746128081EE3004A2581 /* PhotoEditorBrushSizeView.swift */; };
 		7B80FA8D268EBE76003C7B35 /* PhotoEditorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA84268EBE75003C7B35 /* PhotoEditorContentView.swift */; };
 		7B80FA8E268EBE76003C7B35 /* PhotoEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA85268EBE75003C7B35 /* PhotoEditorView.swift */; };
 		7B80FA8F268EBE76003C7B35 /* EditorImageResizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B80FA86268EBE75003C7B35 /* EditorImageResizerView.swift */; };
@@ -157,6 +158,8 @@
 		7B996A11268AB3960020A10F /* 时光正好 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A01268AB3960020A10F /* 时光正好 */; };
 		7B996A12268AB3960020A10F /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A02268AB3960020A10F /* 世间美好与你环环相扣.mp3 */; };
 		7B996A13268AB3960020A10F /* 少女的祈祷.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B996A03268AB3960020A10F /* 少女的祈祷.mp3 */; };
+		7B9B3F35283B8D0600BB8C59 /* PickerControllerInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9B3F34283B8D0600BB8C59 /* PickerControllerInteractiveTransition.swift */; };
+		7B9B3F37283B97DD00BB8C59 /* PickerControllerTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9B3F36283B97DD00BB8C59 /* PickerControllerTransition.swift */; };
 		7BA7F55327BF777E00C5101E /* ImageFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA7F55227BF777D00C5101E /* ImageFilter.swift */; };
 		7BA7F55A27BF7C2100C5101E /* GPUImageBeautifyFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BA7F55927BF7C2100C5101E /* GPUImageBeautifyFilter.m */; };
 		7BA827DE278D61330032BF2F /* VideoEditorVolumeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA827DD278D61330032BF2F /* VideoEditorVolumeView.swift */; };
@@ -522,6 +525,7 @@
 		7B7C5EF927225DE4005B9B4B /* PhotoPickerLimitCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPickerLimitCell.swift; sourceTree = "<group>"; };
 		7B7C5EFB27229C81005B9B4B /* Editor+PhotoManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Editor+PhotoManager.swift"; sourceTree = "<group>"; };
 		7B7C5EFD2722A117005B9B4B /* Core+UILabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+UILabel.swift"; sourceTree = "<group>"; };
+		7B7E746128081EE3004A2581 /* PhotoEditorBrushSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorBrushSizeView.swift; sourceTree = "<group>"; };
 		7B80FA84268EBE75003C7B35 /* PhotoEditorContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorContentView.swift; sourceTree = "<group>"; };
 		7B80FA85268EBE75003C7B35 /* PhotoEditorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoEditorView.swift; sourceTree = "<group>"; };
 		7B80FA86268EBE75003C7B35 /* EditorImageResizerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorImageResizerView.swift; sourceTree = "<group>"; };
@@ -587,6 +591,8 @@
 		7B996A01268AB3960020A10F /* 时光正好 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "时光正好"; sourceTree = "<group>"; };
 		7B996A02268AB3960020A10F /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
 		7B996A03268AB3960020A10F /* 少女的祈祷.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "少女的祈祷.mp3"; sourceTree = "<group>"; };
+		7B9B3F34283B8D0600BB8C59 /* PickerControllerInteractiveTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerControllerInteractiveTransition.swift; sourceTree = "<group>"; };
+		7B9B3F36283B97DD00BB8C59 /* PickerControllerTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerControllerTransition.swift; sourceTree = "<group>"; };
 		7BA7F55227BF777D00C5101E /* ImageFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFilter.swift; sourceTree = "<group>"; };
 		7BA7F55427BF7BFC00C5101E /* Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		7BA7F55827BF7C2100C5101E /* GPUImageBeautifyFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPUImageBeautifyFilter.h; sourceTree = "<group>"; };
@@ -940,6 +946,8 @@
 			children = (
 				7B73D680259C88A90045DA42 /* PickerTransition.swift */,
 				7B73D67F259C88A90045DA42 /* PickerInteractiveTransition.swift */,
+				7B9B3F36283B97DD00BB8C59 /* PickerControllerTransition.swift */,
+				7B9B3F34283B8D0600BB8C59 /* PickerControllerInteractiveTransition.swift */,
 			);
 			path = Transition;
 			sourceTree = "<group>";
@@ -1116,6 +1124,7 @@
 				7B80FA85268EBE75003C7B35 /* PhotoEditorView.swift */,
 				7B80FAA2268EC57F003C7B35 /* PhotoEditorMosaicToolView.swift */,
 				7B80FAA4268EC58F003C7B35 /* PhotoEditorMosaicView.swift */,
+				7B7E746128081EE3004A2581 /* PhotoEditorBrushSizeView.swift */,
 			);
 			path = Photo;
 			sourceTree = "<group>";
@@ -1852,6 +1861,7 @@
 				7BBBD59025AEFE9100301DCC /* Core+UIView.swift in Sources */,
 				7BBBD59125AEFE9100301DCC /* Core+Dictionary.swift in Sources */,
 				7B1988522783E5C00099853B /* Picker+LivePhotoTools.swift in Sources */,
+				7B9B3F37283B97DD00BB8C59 /* PickerControllerTransition.swift in Sources */,
 				7B6291A527B7AE5B00466349 /* PreviewMetalView.swift in Sources */,
 				7BBBD59225AEFE9100301DCC /* Core+PHAssetCollection.swift in Sources */,
 				7BBBD59325AEFE9100301DCC /* Core+UIImageView.swift in Sources */,
@@ -1875,6 +1885,7 @@
 				7B81EA3E26DE0AED001E82BE /* CameraViewController+Editor.swift in Sources */,
 				7BEA744A26BA3B2C0065FC35 /* PhotoPickerViewController+Preview.swift in Sources */,
 				7BBBD59A25AEFE9100301DCC /* PhotoListCellConfiguration.swift in Sources */,
+				7B7E746228081EE3004A2581 /* PhotoEditorBrushSizeView.swift in Sources */,
 				7BBBD59B25AEFE9100301DCC /* PickerBottomViewConfiguration.swift in Sources */,
 				7BCF98AF271E743900ED7E39 /* CameraViewController+Result.swift in Sources */,
 				7B09599725FB37DB005DB27B /* PreviewPhotoViewCell.swift in Sources */,
@@ -1911,6 +1922,7 @@
 				7BBBD5AD25AEFE9200301DCC /* AlbumTitleView.swift in Sources */,
 				7BA9562C26BE4411004587FA /* PhotoBrowser.swift in Sources */,
 				7BBBD5AE25AEFE9200301DCC /* AlbumView.swift in Sources */,
+				7B9B3F35283B8D0600BB8C59 /* PickerControllerInteractiveTransition.swift in Sources */,
 				7B7C5EFE2722A117005B9B4B /* Core+UILabel.swift in Sources */,
 				7B76CA23269EBCD000F5590E /* Core+CALayer.swift in Sources */,
 				7BBBD5AF25AEFE9200301DCC /* DeniedAuthorizationView.swift in Sources */,
@@ -2146,9 +2158,9 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence9.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence10.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2177,8 +2189,8 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence9.Example;
+				MARKETING_VERSION = 1.4.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence10.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -2208,7 +2220,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2242,7 +2254,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

@@ -228,6 +228,42 @@ open class VideoEditorViewController: BaseViewController {
     var isMusicState = false
     var isSearchMusic = false
     var isShowVolume = false
+    lazy var brushBlockView: PhotoEditorBrushSizeView = {
+        let view = PhotoEditorBrushSizeView.init(frame: .init(x: 0, y: 0, width: 30, height: 200))
+        view.alpha = 0
+        view.isHidden = true
+        view.value = config.brush.lineWidth / (config.brush.maximumLinewidth - config.brush.minimumLinewidth)
+        view.blockBeganChanged = { [weak self] _ in
+            guard let self = self else { return }
+            let lineWidth = self.videoView.brushLineWidth + 4
+            self.brushSizeView.size = CGSize(width: lineWidth, height: lineWidth)
+            self.brushSizeView.center = CGPoint(x: self.view.width * 0.5, y: self.view.height * 0.5)
+            self.brushSizeView.alpha = 0
+            self.view.addSubview(self.brushSizeView)
+            UIView.animate(withDuration: 0.2) {
+                self.brushSizeView.alpha = 1
+            }
+        }
+        view.blockDidChanged = { [weak self] in
+            guard let self = self else { return }
+            let config = self.config.brush
+            let lineWidth = (
+                config.maximumLinewidth -  config.minimumLinewidth
+            ) * $0 + config.minimumLinewidth
+            self.videoView.brushLineWidth = lineWidth
+            self.brushSizeView.size = CGSize(width: lineWidth + 4, height: lineWidth + 4)
+            self.brushSizeView.center = CGPoint(x: self.view.width * 0.5, y: self.view.height * 0.5)
+        }
+        view.blockEndedChanged = { [weak self] _ in
+            guard let self = self else { return }
+            UIView.animate(withDuration: 0.2) {
+                self.brushSizeView.alpha = 0
+            } completion: { _ in
+                self.brushSizeView.removeFromSuperview()
+            }
+        }
+        return view
+    }()
     lazy var brushColorView: PhotoEditorBrushColorView = {
         let view = PhotoEditorBrushColorView(config: config.brush)
         view.delegate = self
@@ -297,7 +333,7 @@ open class VideoEditorViewController: BaseViewController {
     lazy var topView: UIView = {
         let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
         let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
-        cancelBtn.setImage(UIImage.image(for: "hx_editor_back"), for: .normal)
+        cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
         cancelBtn.addTarget(self, action: #selector(didBackClick), for: .touchUpInside)
         view.addSubview(cancelBtn)
         return view
@@ -381,6 +417,7 @@ open class VideoEditorViewController: BaseViewController {
         view.addSubview(toolView)
         if toolOptions.contains(.graffiti) {
             view.addSubview(brushColorView)
+            view.addSubview(brushBlockView)
         }
         if toolOptions.contains(.music) {
             view.addSubview(musicView)
@@ -521,7 +558,9 @@ open class VideoEditorViewController: BaseViewController {
             cropToolView.updateContentInset()
         }
         if toolOptions.contains(.graffiti) {
-            brushColorView.frame = CGRect(x: 0, y: toolView.y - 85, width: view.width, height: 85)
+            brushColorView.frame = CGRect(x: 0, y: toolView.y - 65, width: view.width, height: 65)
+            brushBlockView.x = view.width - 45 - UIDevice.rightMargin
+            brushBlockView.centerY = view.height * 0.5
         }
         if toolOptions.isSticker {
             setChartletViewFrame()

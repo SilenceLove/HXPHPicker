@@ -94,7 +94,8 @@ open class PhotoPickerView: UIView {
             !manager.config.allowSelectedTogether &&
             manager.config.maximumSelectedVideoCount == 1 &&
             manager.config.selectOptions.isPhoto &&
-            manager.config.selectOptions.isVideo {
+            manager.config.selectOptions.isVideo &&
+            manager.config.photoList.cell.singleVideoHideSelect {
             videoLoadSingleCell = true
         }else {
             videoLoadSingleCell = false

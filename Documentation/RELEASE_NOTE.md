@@ -1,5 +1,25 @@
 # Release Notes
 
+## 1.4.1
+
+### Optimizer
+
+- Preview/edit oversized images
+
+### Resolved
+
+- Picker
+  - After editing, the list display has not changed
+
+- Editor
+  - Editing the problem that the animated picture becomes larger
+  - The problem that the edited address is an absolute path
+  
+### Added
+
+- Picker
+  - `config.preview.disableFinishButtonWhenNotSelected`In multi-select mode, whether to disable the finish button when no resource is selected
+
 ## 1.4.0
 
 ### Resolved

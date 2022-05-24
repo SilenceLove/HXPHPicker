@@ -1,5 +1,25 @@
 # 更新日志
 
+## 1.4.1
+
+### 优化
+
+- 预览/编辑超大图片
+
+### 修复
+
+- Picker
+  - 编辑后列表显示未改变
+
+- Editor
+  - 编辑动图图片变大的问题
+  - 编辑之后的地址为绝对路径的问题
+  
+### 新增
+
+- Picker
+  - `config.preview.disableFinishButtonWhenNotSelected`多选模式下，未选择资源时是否禁用完成按钮
+
 ## 1.4.0
 
 ### 修复

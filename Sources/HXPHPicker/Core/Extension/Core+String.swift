@@ -141,6 +141,10 @@ extension String: HXPickerCompatibleValue {
 
 public extension HXPickerWrapper where Base == String {
     
+    static func fileName(suffix: String) -> String {
+        Base.fileName(suffix: suffix)
+    }
+    
     func size(ofAttributes attributes: [NSAttributedString.Key: Any], maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {
         let constraintRect = CGSize(width: maxWidth, height: maxHeight)
         let boundingBox = base.boundingRect(

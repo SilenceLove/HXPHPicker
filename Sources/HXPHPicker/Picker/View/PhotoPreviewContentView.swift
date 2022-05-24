@@ -63,7 +63,7 @@ open class PhotoPreviewContentView: UIView {
     var isBacking: Bool = false
     var isPeek = false
     
-    var type: Type = .photo
+    var type: `Type` = .photo
     var requestID: PHImageRequestID?
     var requestCompletion: Bool = false
     var requestNetworkCompletion: Bool = false
@@ -79,7 +79,7 @@ open class PhotoPreviewContentView: UIView {
     }
     var livePhotoPlayType: PhotoPreviewViewController.PlayType = .once
     var currentLoadAssetLocalIdentifier: String?
-    var photoAsset: PhotoAsset! {
+    public var photoAsset: PhotoAsset! {
         didSet {
             requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
             setAnimatedImageCompletion = false
@@ -131,7 +131,7 @@ open class PhotoPreviewContentView: UIView {
     
     var setAnimatedImageCompletion: Bool = false
     
-    init(type: Type) {
+    init(type: `Type`) {
         super.init(frame: CGRect.zero)
         self.type = type
         addSubview(imageView)
@@ -507,9 +507,28 @@ extension PhotoPreviewContentView {
                     self.requestCompletion = true
                 }else {
                     DispatchQueue.global().async {
-                        var image = UIImage.init(data: dataResult.imageData)
-                        if dataResult.imageData.count > 3000000 {
-                            image = image?.scaleSuitableSize()
+                        var image: UIImage?
+                        let dataCount = CGFloat(dataResult.imageData.count)
+                        if dataCount > 3000000 {
+                            let compressionQuality: CGFloat
+                            if dataCount > 30000000 {
+                                compressionQuality = 30000000 / dataCount
+                            }else if dataCount > 15000000 {
+                                compressionQuality = 10000000 / dataCount
+                            }else if dataCount > 10000000 {
+                                compressionQuality = 6000000 / dataCount
+                            }else {
+                                compressionQuality = 3000000 / dataCount
+                            }
+                            if let imageData = PhotoTools.imageCompress(
+                                dataResult.imageData,
+                                compressionQuality: compressionQuality
+                            ) {
+                                image = .init(data: imageData)
+                            }
+                        }
+                        if image == nil {
+                            image = UIImage(data: dataResult.imageData)
                         }
                         DispatchQueue.main.async {
                             if asset == self.photoAsset {

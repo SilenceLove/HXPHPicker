@@ -407,7 +407,9 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             let photoAsset = cell.photoAsset!
             if picker.config.selectMode == .multiple {
                 let select = UIAction(
-                    title: photoAsset.isSelected ? "取消选择".localized : "选择".localized
+                    title: photoAsset.isSelected ? "取消选择".localized : "选择".localized,
+                    image: photoAsset.isSelected ? UIImage(systemName: "minus.circle") : UIImage(systemName: "checkmark.circle"),
+                    attributes: photoAsset.isSelected ? [.destructive] : []
                 ) { action in
                     self.updateCellSelectedState(
                         for: indexPath.item,
@@ -426,7 +428,8 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
             }
             if picker.config.editorOptions.contains(options) {
                 let edit = UIAction(
-                    title: "编辑".localized
+                    title: "编辑".localized,
+                    image: UIImage(systemName: "slider.horizontal.3")
                 ) { action in
                     self.openEditor(
                         photoAsset,
