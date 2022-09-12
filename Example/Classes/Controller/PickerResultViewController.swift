@@ -146,7 +146,7 @@ class PickerResultViewController: UIViewController,
             config.maximumSelectedVideoCount = 0
             let networkVideoURL = URL(
                 string:
-                    "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/picker_examle_video.mp4"
+                    "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
             )!
             let networkVideoAsset = PhotoAsset.init(networkVideoAsset: .init(videoURL: networkVideoURL))
             selectedAssets.append(networkVideoAsset)

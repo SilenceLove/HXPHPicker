@@ -149,9 +149,9 @@ open class PhotoPickerView: UIView {
         }
         if config.allowAddCamera {
             collectionView.register(
-                PickerCamerViewCell.self,
+                PickerCameraViewCell.self,
                 forCellWithReuseIdentifier:
-                    NSStringFromClass(PickerCamerViewCell.classForCoder())
+                    NSStringFromClass(PickerCameraViewCell.classForCoder())
             )
         }
         if config.allowAddLimit && AssetManager.authorizationStatusIsLimited() {
@@ -182,7 +182,7 @@ open class PhotoPickerView: UIView {
     let isMultipleSelect: Bool
     let videoLoadSingleCell: Bool
     var assets: [PhotoAsset] = []
-    var cameraCell: PickerCamerViewCell {
+    var cameraCell: PickerCameraViewCell {
         var indexPath: IndexPath
         if config.sort == .asc {
             indexPath = IndexPath(item: assets.count, section: 0)
@@ -191,10 +191,10 @@ open class PhotoPickerView: UIView {
         }
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: NSStringFromClass(
-                PickerCamerViewCell.classForCoder()
+                PickerCameraViewCell.classForCoder()
             ),
             for: indexPath
-        ) as! PickerCamerViewCell
+        ) as! PickerCameraViewCell
         return cell
     }
     var limitAddCell: PhotoPickerLimitCell {

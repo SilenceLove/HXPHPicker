@@ -117,11 +117,15 @@ open class PhotoPreviewContentView: UIView {
     }
     
     func updateContentSize(image: UIImage) {
+        updateContentSize(image.size)
+    }
+    
+    func updateContentSize(_ size: CGSize) {
         if height == 0 || width == 0 {
             delegate?.contentView(updateContentSize: self)
             return
         }
-        let needUpdate = (width / height) != (image.width / image.height)
+        let needUpdate = (width / height) != (size.width / size.height)
         if needUpdate {
             delegate?.contentView(updateContentSize: self)
         }
@@ -320,7 +324,10 @@ extension PhotoPreviewContentView {
                 networkVideoRequestCompletion(url)
                 return
             }
-            if PhotoManager.shared.loadNetworkVideoMode == .play {
+            
+            if PhotoManager.shared.loadNetworkVideoMode == .play ||
+                videoURL.path.hasSuffix("m3u8")
+                || videoURL.path.hasSuffix("M3U8") {
                 videoView.isNetwork = true
                 networkVideoRequestCompletion(videoURL)
                 return
@@ -471,7 +478,7 @@ extension PhotoPreviewContentView {
                 }
             }else {
                 if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
-                    imageView.setImage(image)
+                    imageView.setImage(image, animated: true)
                 }else {
                     imageView.setImage(photoEdit.editedImage, animated: true)
                 }
@@ -549,7 +556,11 @@ extension PhotoPreviewContentView {
     func requestLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoAsset.photoEdit {
-            imageView.setImage(photoEdit.editedImage, animated: true)
+            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+                imageView.setImage(image, animated: true)
+            }else {
+                imageView.setImage(photoEdit.editedImage, animated: true)
+            }
             requestCompletion = true
             return
         }
@@ -592,7 +603,11 @@ extension PhotoPreviewContentView {
     func requestLocalLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
         if let photoEdit = photoAsset.photoEdit {
-            imageView.setImage(photoEdit.editedImage, animated: true)
+            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+                imageView.setImage(image, animated: true)
+            }else {
+                imageView.setImage(photoEdit.editedImage, animated: true)
+            }
             requestCompletion = true
             return
         }

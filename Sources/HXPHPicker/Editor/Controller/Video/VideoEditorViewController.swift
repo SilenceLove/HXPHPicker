@@ -330,7 +330,7 @@ open class VideoEditorViewController: BaseViewController {
         cropConfirmView.delegate = self
         return cropConfirmView
     }()
-    lazy var topView: UIView = {
+    public lazy var topView: UIView = {
         let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
         let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
         cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
@@ -533,13 +533,21 @@ open class VideoEditorViewController: BaseViewController {
         toolView.reloadContentInset()
         topView.width = view.width
         topView.height = navigationController?.navigationBar.height ?? 44
+        let viewControllersCount = navigationController?.viewControllers.count ?? 0
         if let modalPresentationStyle = navigationController?.modalPresentationStyle, UIDevice.isPortrait {
-            if modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom {
+            if modalPresentationStyle == .fullScreen ||
+                modalPresentationStyle == .custom ||
+                viewControllersCount > 1 {
                 topView.y = UIDevice.generalStatusBarHeight
             }
-        }else if (modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom) && UIDevice.isPortrait {
+        }else if (
+            modalPresentationStyle == .fullScreen ||
+            modalPresentationStyle == .custom ||
+            viewControllersCount > 1
+        ) && UIDevice.isPortrait {
             topView.y = UIDevice.generalStatusBarHeight
         }
+        
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
         cropView.frame = CGRect(x: 0, y: toolView.y - (UIDevice.isPortrait ? 100 : 90), width: view.width, height: 100)
         cropConfirmView.frame = toolView.frame
@@ -596,6 +604,9 @@ open class VideoEditorViewController: BaseViewController {
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isPresentText = false
+        if let isHidden = navigationController?.navigationBar.isHidden, !isHidden {
+            navigationController?.setNavigationBarHidden(true, animated: false)
+        }
     }
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)

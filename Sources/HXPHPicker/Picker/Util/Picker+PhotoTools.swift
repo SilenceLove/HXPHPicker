@@ -423,6 +423,7 @@ extension PhotoTools {
         let cameraConfig = CameraConfiguration()
         cameraConfig.videoMaximumDuration = 60
         cameraConfig.tintColor = wxColor
+        cameraConfig.modalPresentationStyle = .fullScreen
         config.photoList.cameraType = .custom(cameraConfig)
         #endif
         

@@ -152,7 +152,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath) else {
             return
         }
-        if cell is PickerCamerViewCell {
+        if cell is PickerCameraViewCell {
             if !UIImagePickerController.isSourceTypeAvailable(.camera) {
                 ProgressHUD.showWarning(
                     addedTo: self.navigationController?.view,
@@ -392,7 +392,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
                 vc.delegate = self
                 vc.preferredContentSize = CGSize(width: width, height: height)
                 return vc
-            }else if sCell is PickerCamerViewCell &&
+            }else if sCell is PickerCameraViewCell &&
                      UIImagePickerController.isSourceTypeAvailable(.camera) &&
                      AssetManager.cameraAuthorizationStatus() == .authorized {
                 let vc = PhotoPeekViewController(isCamera: true)

@@ -114,9 +114,9 @@ class PickerControllerInteractiveTransition: UIPercentDrivenInteractiveTransitio
             if isFinish {
                 finish()
                 UIView.animate(
-                    withDuration: 0.25,
+                    withDuration: 0.2,
                     delay: 0,
-                    options: .curveLinear
+                    options: .curveEaseIn
                 ) {
                     if self.type == .pop {
                         if let transitionContext = self.transitionContext,
@@ -137,9 +137,9 @@ class PickerControllerInteractiveTransition: UIPercentDrivenInteractiveTransitio
             }else {
                 cancel()
                 UIView.animate(
-                    withDuration: 0.25,
+                    withDuration: 0.2,
                     delay: 0,
-                    options: .curveLinear
+                    options: .curveEaseOut
                 ) {
                     if self.type == .pop {
                         if let transitionContext = self.transitionContext,

@@ -443,12 +443,19 @@ open class PhotoEditorViewController: BaseViewController {
         topView.height = navigationController?.navigationBar.height ?? 44
         let cancelButton = topView.subviews.first
         cancelButton?.x = UIDevice.leftMargin
+        let viewControllersCount = navigationController?.viewControllers.count ?? 0
         if let modalPresentationStyle = navigationController?.modalPresentationStyle,
            UIDevice.isPortrait {
-            if modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom {
+            if modalPresentationStyle == .fullScreen ||
+                modalPresentationStyle == .custom ||
+                viewControllersCount > 1 {
                 topView.y = UIDevice.generalStatusBarHeight
             }
-        }else if (modalPresentationStyle == .fullScreen || modalPresentationStyle == .custom) && UIDevice.isPortrait {
+        }else if (
+            modalPresentationStyle == .fullScreen ||
+            modalPresentationStyle == .custom ||
+            viewControllersCount > 1
+        ) && UIDevice.isPortrait {
             topView.y = UIDevice.generalStatusBarHeight
         }
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
@@ -575,6 +582,13 @@ open class PhotoEditorViewController: BaseViewController {
             navigationController?.setNavigationBarHidden(true, animated: false)
         }else {
             navigationController?.setNavigationBarHidden(true, animated: true)
+        }
+    }
+    
+    open override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if let isHidden = navigationController?.navigationBar.isHidden, !isHidden {
+            navigationController?.setNavigationBarHidden(true, animated: false)
         }
     }
     

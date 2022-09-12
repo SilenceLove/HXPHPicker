@@ -25,6 +25,8 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
     ) -> TimeInterval {
         if type == .push {
             return 0.3
+        }else if type == .dismiss {
+            return 0.2
         }
         return 0.25
     }
