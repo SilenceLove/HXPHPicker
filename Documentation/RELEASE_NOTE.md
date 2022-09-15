@@ -1,5 +1,9 @@
 # Release Notes
 
+## 1.4.3
+
+adaptation`iPhone 14 Pro / Pro Max`
+
 ## 1.4.2
 
 ### Resolved
