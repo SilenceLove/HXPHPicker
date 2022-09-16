@@ -434,9 +434,9 @@ open class PhotoEditorViewController: BaseViewController {
         super.viewDidLayoutSubviews()
         toolView.frame = CGRect(
             x: 0,
-            y: view.height - UIDevice.bottomMargin - 50,
+            y: view.height - UIDevice.bottomMargin - 50 - view.safeAreaInsets.bottom,
             width: view.width,
-            height: 50 + UIDevice.bottomMargin
+            height: 50 + UIDevice.bottomMargin + view.safeAreaInsets.bottom
         )
         toolView.reloadContentInset()
         topView.width = view.width
