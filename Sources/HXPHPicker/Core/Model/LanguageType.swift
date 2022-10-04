@@ -32,4 +32,5 @@ public enum LanguageType: Int {
     case german = 10
     /// 法语
     case french = 11
+    case arabic = 12
 }
