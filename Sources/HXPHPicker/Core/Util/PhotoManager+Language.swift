@@ -48,6 +48,8 @@ extension PhotoManager {
                 language = "de"
             case .french:
                 language = "fr"
+            case .arabic:
+                language = "ar"
             default:
                 if let fixedLanguage = fixedCustomLanguage {
                     isCustomLanguage = true
@@ -106,6 +108,9 @@ extension PhotoManager {
                 break
             }else if preferredLanguage.hasPrefix("en") {
                 language = "en"
+                break
+            } else if preferredLanguage.hasPrefix("ar") {
+                language = "ar"
                 break
             }
         }
