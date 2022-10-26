@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 extension CameraViewController: CameraResultViewControllerDelegate {
     func cameraResultViewController(
@@ -24,20 +25,28 @@ extension CameraViewController: CameraResultViewControllerDelegate {
         }
     }
     func didFinish(withImage image: UIImage) {
+        var location: CLLocation?
+        #if HXPICKER_ENABLE_CAMERA_LOCATION
+        location = currentLocation
+        #endif
         delegate?.cameraViewController(
             self,
             didFinishWithResult: .image(image),
-            location: currentLocation
+            location: location
         )
         if autoDismiss {
             dismiss(animated: true, completion: nil)
         }
     }
     func didFinish(withVideo videoURL: URL) {
+        var location: CLLocation?
+        #if HXPICKER_ENABLE_CAMERA_LOCATION
+        location = currentLocation
+        #endif
         delegate?.cameraViewController(
             self,
             didFinishWithResult: .video(videoURL),
-            location: currentLocation
+            location: location
         )
         if autoDismiss {
             dismiss(animated: true, completion: nil)

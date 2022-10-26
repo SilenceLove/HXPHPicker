@@ -60,7 +60,6 @@ public class PickerManager: NSObject {
         fetchAssetQueue.maxConcurrentOperationCount = 1
         return fetchAssetQueue
     }()
-    var requestAdjustmentStatusIds: [[PHContentEditingInputRequestID: PHAsset]] = []
     
     var fetchAssetsCompletion: (([PhotoAsset], PhotoAsset?) -> Void)?
     var reloadAssetCollection: (() -> Void)?
@@ -365,88 +364,23 @@ public extension PickerManager {
         let operation = BlockOperation()
         operation.addExecutionBlock { [unowned operation] in
             var totalFileSize = 0
-            var total: Int = 0
-             
-            func calculationCompletion(_ totalSize: Int) {
-                self.requestAdjustmentStatusIds.removeAll()
-                DispatchQueue.main.async {
-                    completion(
-                        totalSize,
-                        PhotoTools.transformBytesToString(
-                                bytes: totalSize
-                        )
-                    )
-                }
-            }
-            
             for photoAsset in self.selectedAssetArray {
                 if operation.isCancelled {
                     return
                 }
                 if let fileSize = photoAsset.getPFileSize() {
                     totalFileSize += fileSize
-                    total += 1
-                    if total == self.selectedAssetArray.count {
-                        calculationCompletion(totalFileSize)
-                    }
                     continue
                 }
-                let requestId = photoAsset.checkAdjustmentStatus { (isAdjusted, asset) in
-                    if isAdjusted {
-                        if asset.mediaType == .photo {
-                            if operation.isCancelled {
-                                return
-                            }
-                            asset.requestImageData(
-                                iCloudHandler: nil,
-                                progressHandler: nil
-                            ) { sAsset, result in
-                                switch result {
-                                case .success(let dataResult):
-                                    sAsset.updateFileSize(dataResult.imageData.count)
-                                    totalFileSize += sAsset.fileSize
-                                    total += 1
-                                    if total == self.selectedAssetArray.count {
-                                        calculationCompletion(totalFileSize)
-                                    }
-                                case .failure(_):
-                                    total += 1
-                                    if total == self.selectedAssetArray.count {
-                                        calculationCompletion(totalFileSize)
-                                    }
-                                }
-                            }
-                        }else {
-                            if operation.isCancelled {
-                                return
-                            }
-                            asset.requestAVAsset(iCloudHandler: nil, progressHandler: nil) { (sAsset, avAsset, info) in
-                                if let urlAsset = avAsset as? AVURLAsset {
-                                    totalFileSize += urlAsset.url.fileSize
-                                }
-                                total += 1
-                                if total == self.selectedAssetArray.count {
-                                    calculationCompletion(totalFileSize)
-                                }
-                            } failure: { (sAsset, info, error) in
-                                total += 1
-                                if total == self.selectedAssetArray.count {
-                                    calculationCompletion(totalFileSize)
-                                }
-                            }
-                        }
-                        return
-                    }else {
-                        totalFileSize += asset.fileSize
-                    }
-                    total += 1
-                    if total == self.selectedAssetArray.count {
-                        calculationCompletion(totalFileSize)
-                    }
-                }
-                if let id = requestId, let phAsset = photoAsset.phAsset {
-                    self.requestAdjustmentStatusIds.append([id: phAsset])
-                }
+                totalFileSize += photoAsset.fileSize
+            }
+            DispatchQueue.main.async {
+                completion(
+                    totalFileSize,
+                    PhotoTools.transformBytesToString(
+                            bytes: totalFileSize
+                    )
+                )
             }
         }
         requestAssetBytesQueue.addOperation(operation)
@@ -454,12 +388,6 @@ public extension PickerManager {
     
     /// 取消获取资源文件大小
     func cancelRequestAssetFileSize() {
-        for map in requestAdjustmentStatusIds {
-            if let id = map.keys.first, let phAsset = map.values.first {
-                phAsset.cancelContentEditingInputRequest(id)
-            }
-        }
-        requestAdjustmentStatusIds.removeAll()
         requestAssetBytesQueue.cancelAllOperations()
     }
 }

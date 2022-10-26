@@ -14,15 +14,6 @@ class HXPHPicker {}
 public enum Photo {
     
     #if HXPICKER_ENABLE_PICKER
-    /// 照片选择器
-    /// - Parameters:
-    ///   - config: 配置
-    ///   - selectedAssets: 当前选择的 PhotoAsset 对象数组
-    ///   - sender: 跳转的控制器
-    ///   - delegate: 代理
-    ///   - finish: 完成
-    ///   - cancel: 取消
-    /// - Returns: 对应的 PhotoPickerController 对象
     @discardableResult
     public static func picker(
         _ config: PickerConfiguration,

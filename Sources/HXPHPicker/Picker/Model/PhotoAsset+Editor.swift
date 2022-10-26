@@ -33,12 +33,8 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         func result(_ result: Result<AssetURLResult, AssetError>) {
-            if DispatchQueue.isMain {
+            DispatchQueue.main.async {
                 resultHandler(result)
-            }else {
-                DispatchQueue.main.async {
-                    resultHandler(result)
-                }
             }
         }
         if let photoEdit = photoEdit {

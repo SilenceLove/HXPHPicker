@@ -76,7 +76,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             previewVC.config.backgroundDarkColor :
             previewVC.config.backgroundColor
         
-        let photoAsset = previewVC.previewAssets[previewVC.currentPreviewIndex]
+        let photoAsset = previewVC.photoAsset(for: previewVC.currentPreviewIndex)
          
         var fromView: UIView?
         var toView: UIView?
@@ -88,7 +88,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             contentView.backgroundColor = backgroundColor.withAlphaComponent(0)
             contentView.addSubview(pushImageView)
             
-            if let pickerVC = pickerVC {
+            if let pickerVC = pickerVC, let photoAsset = photoAsset {
                 if let cell = pickerVC.getCell(for: photoAsset) {
                     pushImageView.image = cell.photoView.image
                     pushImageView.frame = cell.photoView.convert(
@@ -128,7 +128,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 to: containerView
             ) ?? CGRect.zero
             contentView.addSubview(fromView!)
-            if let pickerVC = pickerVC {
+            if let pickerVC = pickerVC, let photoAsset = photoAsset {
                 toView = pickerVC.getCell(for: photoAsset)
                 pickerVC.setCellLoadMode(.complete)
                 if toView == nil {
@@ -152,9 +152,9 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         
         var rect: CGRect = .zero
         if type == .push {
-            if UIDevice.isPad && photoAsset.mediaType == .video {
+            if UIDevice.isPad && photoAsset?.mediaType == .video {
                 rect = PhotoTools.transformImageSize(
-                    photoAsset.imageSize,
+                    photoAsset?.imageSize ?? .zero,
                     toViewSize: toVC.view.size,
                     directions: [.horizontal]
                 )
@@ -166,7 +166,7 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }
             }else {
                 rect = PhotoTools.transformImageSize(
-                    photoAsset.imageSize,
+                    photoAsset?.imageSize ?? .zero,
                     to: toVC.view
                 )
             }
@@ -364,9 +364,11 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
             var photoAsset: PhotoAsset?
             if pickerController.isExternalPickerPreview {
-                photoAsset = pickerController.previewViewController?.previewAssets[currentPreviewIndex]
+                photoAsset = pickerController.previewViewController?.photoAsset(for: currentPreviewIndex)
             }else if !pickerController.selectedAssetArray.isEmpty {
                 photoAsset = pickerController.selectedAssetArray[currentPreviewIndex]
+            }else {
+                photoAsset = pickerController.previewViewController?.photoAsset(for: currentPreviewIndex)
             }
             
             if let photoAsset = photoAsset {

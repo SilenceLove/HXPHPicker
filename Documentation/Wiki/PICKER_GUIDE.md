@@ -452,8 +452,8 @@ func pickerController(_ pickerController: PhotoPickerController,
 ///   - photoAsset: 对应被删除的 PhotoAsset 数据
 ///   - atIndex: 资源对应的位置索引
 func pickerController(_ pickerController: PhotoPickerController,
-                      previewDidDeleteAsset photoAsset: PhotoAsset,
-                      atIndex: Int) {
+                      previewDidDeleteAssets photoAssets: [PhotoAsset],
+                      at indexs: [Int]) {
     
 }
 

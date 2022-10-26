@@ -345,6 +345,9 @@ class WindowPickerViewController: UIViewController {
         }
         bottomView.hx.y = pickerView.frame.maxY
     }
+    deinit {
+        print("deinit\(self)")
+    }
 }
 
 extension WindowPickerViewController: PhotoPickerViewDelegate {

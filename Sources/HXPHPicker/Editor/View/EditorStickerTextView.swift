@@ -14,7 +14,7 @@ class EditorStickerTextView: UIView {
         textView.backgroundColor = .clear
         textView.delegate = self
         textView.layoutManager.delegate = self
-        textView.textContainerInset = UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+        textView.textContainerInset = UIEdgeInsets(top: 15, left: 15 + UIDevice.leftMargin, bottom: 15, right: 15 + UIDevice.rightMargin)
         textView.contentInset = .zero
         
         textView.becomeFirstResponder()
@@ -218,7 +218,7 @@ class EditorStickerTextView: UIView {
             x: UIDevice.leftMargin,
             y: height - (
                 keyboardFrame.equalTo(.zero) ?
-                    UIDevice.bottomMargin + 50 :
+                UIDevice.bottomMargin + 50 :
                     50 + keyboardFrame.height
             ),
             width: 50,
@@ -231,6 +231,7 @@ class EditorStickerTextView: UIView {
             height: 50
         )
         textView.frame = CGRect(x: 10, y: 0, width: width - 20, height: textButton.y)
+        textView.textContainerInset = UIEdgeInsets(top: 15, left: 15 + UIDevice.leftMargin, bottom: 15, right: 15 + UIDevice.rightMargin)
     }
     
     required init?(coder: NSCoder) {

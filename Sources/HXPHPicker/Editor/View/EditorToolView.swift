@@ -27,6 +27,22 @@ public class EditorToolView: UIView {
         return layer
     }()
     
+    lazy var shadeView: UIView = {
+        let view = UIView()
+        view.addSubview(collectionView)
+        view.layer.mask = shadeMaskLayer
+        return view
+    }()
+    
+    lazy var shadeMaskLayer: CAGradientLayer = {
+        let maskLayer = CAGradientLayer.init()
+        maskLayer.colors = [UIColor.white.cgColor, UIColor.clear.cgColor]
+        maskLayer.startPoint = CGPoint(x: 0, y: 1)
+        maskLayer.endPoint = CGPoint(x: 1, y: 1)
+        maskLayer.locations = [0.95, 1.0]
+        return maskLayer
+    }()
+    
     public lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
         flowLayout.scrollDirection = .horizontal
@@ -78,7 +94,7 @@ public class EditorToolView: UIView {
         self.config = config
         super.init(frame: .zero)
         layer.addSublayer(maskLayer)
-        addSubview(collectionView)
+        addSubview(shadeView)
         addSubview(finishButton)
         configColor()
     }
@@ -142,7 +158,14 @@ public class EditorToolView: UIView {
         finishButton.height = 33
         finishButton.x = width - finishButton.width - 12 - UIDevice.rightMargin
         finishButton.centerY = 25
-        collectionView.width = finishButton.x
+        shadeView.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: finishButton.x,
+            height: 50
+        )
+        collectionView.frame = shadeView.bounds
+        shadeMaskLayer.frame = CGRect(x: 0, y: 0, width: shadeView.width, height: shadeView.height)
     }
     
     required init?(coder: NSCoder) {

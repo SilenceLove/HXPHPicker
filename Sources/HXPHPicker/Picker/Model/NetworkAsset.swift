@@ -79,12 +79,14 @@ public struct NetworkVideoAsset {
     /// 视频封面网络地址
     public var coverImageURL: URL?
     
-    public init(videoURL: URL,
-                duration: TimeInterval = 0,
-                fileSize: Int = 0,
-                coverImage: UIImage? = nil,
-                videoSize: CGSize = .zero,
-                coverImageURL: URL? = nil) {
+    public init(
+        videoURL: URL,
+        duration: TimeInterval = 0,
+        fileSize: Int = 0,
+        coverImage: UIImage? = nil,
+        videoSize: CGSize = .zero,
+        coverImageURL: URL? = nil
+    ) {
         self.videoURL = videoURL
         self.duration = duration
         self.fileSize = fileSize
@@ -93,11 +95,13 @@ public struct NetworkVideoAsset {
         self.coverImageURL = coverImageURL
     }
     #else
-    public init(videoURL: URL,
-                duration: TimeInterval = 0,
-                fileSize: Int = 0,
-                coverImage: UIImage? = nil,
-                videoSize: CGSize = .zero) {
+    public init(
+        videoURL: URL,
+        duration: TimeInterval = 0,
+        fileSize: Int = 0,
+        coverImage: UIImage? = nil,
+        videoSize: CGSize = .zero
+    ) {
         self.videoURL = videoURL
         self.duration = duration
         self.fileSize = fileSize

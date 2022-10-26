@@ -117,31 +117,6 @@ extension VideoEditorViewController: PhotoEditorBrushColorViewDelegate {
     func brushColorView(_ colorView: PhotoEditorBrushColorView, changedColor color: UIColor) {
         videoView.drawColor = color
     }
-    func brushColorView(touchDown colorView: PhotoEditorBrushColorView) {
-        let lineWidth = videoView.brushLineWidth + 4
-        brushSizeView.size = CGSize(width: lineWidth, height: lineWidth)
-        brushSizeView.center = CGPoint(x: view.width * 0.5, y: view.height * 0.5)
-        brushSizeView.alpha = 0
-        view.addSubview(brushSizeView)
-        UIView.animate(withDuration: 0.2) {
-            self.brushSizeView.alpha = 1
-        }
-    }
-    func brushColorView(touchUpOutside colorView: PhotoEditorBrushColorView) {
-        UIView.animate(withDuration: 0.2) {
-            self.brushSizeView.alpha = 0
-        } completion: { _ in
-            self.brushSizeView.removeFromSuperview()
-        }
-    }
-    func brushColorView(
-        _ colorView: PhotoEditorBrushColorView,
-        didChangedBrushLine lineWidth: CGFloat
-    ) {
-        videoView.brushLineWidth = lineWidth
-        brushSizeView.size = CGSize(width: lineWidth + 4, height: lineWidth + 4)
-        brushSizeView.center = CGPoint(x: view.width * 0.5, y: view.height * 0.5)
-    }
 }
 
 extension VideoEditorViewController: EditorChartletViewDelegate {

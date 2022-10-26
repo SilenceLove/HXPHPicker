@@ -264,6 +264,39 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
         atIndex: Int
     )
     
+    /// 预览界面cell即将展示
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应显示的 PhotoAsset 数据
+    ///   - index: 对应显示的位置
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        previewCellWillDisplay photoAsset: PhotoAsset,
+        at index: Int
+    )
+    
+    /// 预览界面cell已经消失
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应显示的 PhotoAsset 数据
+    ///   - index: 对应显示的位置
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        previewCellDidEndDisplaying photoAsset: PhotoAsset,
+        at index: Int
+    )
+    
+    /// 预览界面滚动停止
+    /// - Parameters:
+    ///   - pickerController: 对应的 PhotoPickerController
+    ///   - photoAsset: 对应显示的 PhotoAsset 数据
+    ///   - index: 对应显示的位置
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        previewDidEndDecelerating photoAsset: PhotoAsset,
+        at index: Int
+    )
+    
     /// 预览界面将要删除 Asset
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -277,12 +310,13 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     /// 预览界面已经删除了 Asset
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
-    ///   - photoAsset: 对应被删除的 PhotoAsset 数据
-    ///   - atIndex: 资源对应的位置索引
+    ///   - photoAssets: 对应被删除的 PhotoAsset 数据
+    ///   - at: 资源对应的位置索引
+    
     func pickerController(
         _ pickerController: PhotoPickerController,
-        previewDidDeleteAsset photoAsset: PhotoAsset,
-        atIndex: Int
+        previewDidDeleteAssets photoAssets: [PhotoAsset],
+        at indexs: [Int]
     )
     
     #if canImport(Kingfisher)
@@ -301,6 +335,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     )
     #endif
     
+    // MARK: 控制器生命周期
     /// 视图控制器即将显示
     /// - Parameters:
     ///   - pickerController: 对应的 PhotoPickerController
@@ -591,14 +626,32 @@ public extension PhotoPickerControllerDelegate {
     
     func pickerController(
         _ pickerController: PhotoPickerController,
+        previewCellWillDisplay photoAsset: PhotoAsset,
+        at index: Int
+    ) { }
+    
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        previewCellDidEndDisplaying photoAsset: PhotoAsset,
+        at index: Int
+    ) { }
+    
+    func pickerController(
+        _ pickerController: PhotoPickerController,
+        previewDidEndDecelerating photoAsset: PhotoAsset,
+        at index: Int
+    ) { }
+    
+    func pickerController(
+        _ pickerController: PhotoPickerController,
         previewShouldDeleteAsset photoAsset: PhotoAsset,
         atIndex: Int
     ) -> Bool { true }
     
     func pickerController(
         _ pickerController: PhotoPickerController,
-        previewDidDeleteAsset photoAsset: PhotoAsset,
-        atIndex: Int
+        previewDidDeleteAssets photoAssets: [PhotoAsset],
+        at indexs: [Int]
     ) { }
     
     #if canImport(Kingfisher)

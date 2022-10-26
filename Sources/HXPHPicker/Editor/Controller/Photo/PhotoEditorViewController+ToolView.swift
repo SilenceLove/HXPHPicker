@@ -34,7 +34,7 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
             imageView.deselectedSticker()
             disableImageSubView()
             imageView.isEnabled = false
-            showChartlet = true
+            currentToolOption = model
             hidenTopView()
             showChartletView()
         case .text:
@@ -64,8 +64,8 @@ extension PhotoEditorViewController: EditorToolViewDelegate {
         case .filter:
             deselectedDraw()
             disableImageSubView()
-            isFilter = true
             hidenTopView()
+            currentToolOption = model
             showFilterView()
             imageView.canLookOriginal = true
         default:

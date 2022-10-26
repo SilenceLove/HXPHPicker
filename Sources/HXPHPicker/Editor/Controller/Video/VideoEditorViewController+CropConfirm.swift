@@ -30,6 +30,8 @@ extension VideoEditorViewController: EditorCropConfirmViewDelegate {
             videoView.cancelCropTime(true)
         }else if state == .cropSize {
             pState = .normal
+            cropToolView.tmpLastSelectedModel = cropToolView.currentSelectedModel
+            cropToolView.resetLast()
             videoView.finishCropping(true)
             toolCropSizeAnimation()
         }
@@ -38,6 +40,7 @@ extension VideoEditorViewController: EditorCropConfirmViewDelegate {
     func cropConfirmView(didResetButtonClick cropConfirmView: EditorCropConfirmView) {
         cropConfirmView.resetButton.isEnabled = false
         videoView.reset(true)
+        cropToolView.lastSelectedModel = nil
         cropToolView.reset(animated: true)
     }
     
@@ -54,6 +57,7 @@ extension VideoEditorViewController: EditorCropConfirmViewDelegate {
         }else if state == .cropSize {
             pState = .normal
             videoView.cancelCropping(true)
+            cropToolView.resetLast()
             toolCropSizeAnimation()
         }
     }

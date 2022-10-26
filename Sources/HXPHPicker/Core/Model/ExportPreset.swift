@@ -8,6 +8,25 @@
 import UIKit
 import AVKit
 
+public struct VideoExportParameter {
+    /// 视频导出的分辨率
+    public let preset: ExportPreset
+    /// 视频质量 [1 - 10]
+    public let quality: Int
+    
+    /// 设置视频导出参数
+    /// - Parameters:
+    ///   - exportPreset: 视频导出的分辨率
+    ///   - videoQuality: 视频质量 [1 - 10]
+    public init(
+        preset: ExportPreset,
+        quality: Int
+    ) {
+        self.preset = preset
+        self.quality = quality
+    }
+}
+
 public enum ExportPreset {
     case lowQuality
     case mediumQuality

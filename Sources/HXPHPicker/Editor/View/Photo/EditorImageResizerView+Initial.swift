@@ -78,7 +78,7 @@ extension EditorImageResizerView {
         imageView.videoView.avAsset = asset
     }
     /// 更新图片
-    func updateImage(_ image: UIImage) {
+    func updateImage(_ image: Any) {
         imageView.setImage(image)
     }
     func setMosaicOriginalImage(_ image: UIImage?) {
@@ -101,7 +101,7 @@ extension EditorImageResizerView {
         switch cropConfig.aspectRatioType {
         case .original:
             if cropConfig.fixedRatio {
-                controlView.aspectRatio = imageView.image!.size
+                controlView.aspectRatio = imageSize
             }else {
                 controlView.aspectRatio = .zero
             }
@@ -121,7 +121,7 @@ extension EditorImageResizerView {
             controlView.aspectRatio = CGSize(width: 16, height: 9)
         case .custom(let aspectRatio):
             if aspectRatio.equalTo(.zero) && cropConfig.fixedRatio {
-                controlView.aspectRatio = imageView.image!.size
+                controlView.aspectRatio = imageSize
             }else {
                 controlView.aspectRatio = aspectRatio
             }

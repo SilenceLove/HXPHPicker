@@ -11,7 +11,9 @@ import UIKit
 extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
     
     func bottomView(didEditButtonClick bottomView: PhotoPickerBottomView) {
-        let photoAsset = previewAssets[currentPreviewIndex]
+        guard let photoAsset = photoAsset(for: currentPreviewIndex) else {
+            return
+        }
         openEditor(photoAsset)
     }
     
@@ -120,7 +122,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             pickerController.finishCallback()
             return
         }
-        if previewAssets.isEmpty {
+        if assetCount == 0 {
             ProgressHUD.showWarning(
                 addedTo: view,
                 text: "没有可选资源".localized,
@@ -129,7 +131,9 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             )
             return
         }
-        let photoAsset = previewAssets[currentPreviewIndex]
+        guard let photoAsset = photoAsset(for: currentPreviewIndex) else {
+            return
+        }
         #if HXPICKER_ENABLE_EDITOR
         if photoAsset.mediaType == .video &&
             pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset) &&
@@ -225,17 +229,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         didSelectedItemAt photoAsset: PhotoAsset
     ) {
         if previewAssets.contains(photoAsset) {
-            let index = previewAssets.firstIndex(of: photoAsset) ?? 0
-            if index == currentPreviewIndex {
-                return
-            }
-            getCell(for: currentPreviewIndex)?.cancelRequest()
-            collectionView.scrollToItem(
-                at: IndexPath(item: index, section: 0),
-                at: .centeredHorizontally,
-                animated: false
-            )
-            setupRequestPreviewTimer()
+            scrollToPhotoAsset(photoAsset)
         }else {
             bottomView.selectedView.scrollTo(photoAsset: nil)
         }
@@ -259,7 +253,7 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             cell.requestPreviewAsset()
             requestPreviewTimer = nil
         }else {
-            if previewAssets.isEmpty {
+            if assetCount == 0 {
                 requestPreviewTimer = nil
                 return
             }

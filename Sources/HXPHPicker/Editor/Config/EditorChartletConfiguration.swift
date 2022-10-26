@@ -23,6 +23,13 @@ public struct EditorChartletConfiguration {
     /// 贴图标题
     public var titles: [EditorChartlet] = []
     
+    #if HXPICKER_ENABLE_PICKER
+    /// 是否允许添加 从相册选取
+    public var allowAddAlbum: Bool = false
+    /// 相册配置
+    public var albumPickerConfigHandler: (() -> PickerConfiguration)?
+    #endif
+    
     /// 加载标题, titles 为空时才会触发
     /// titleHandler = { response in
     ///     // 传入标题数据

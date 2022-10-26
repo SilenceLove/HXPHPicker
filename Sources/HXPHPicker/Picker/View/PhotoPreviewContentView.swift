@@ -46,12 +46,13 @@ open class PhotoPreviewContentView: UIView {
         let view = ImageView()
         return view
     }()
-    @available(iOS 9.1, *)
+    
     lazy var livePhotoView: PHLivePhotoView = {
         let livePhotoView = PHLivePhotoView()
         livePhotoView.delegate = self
         return livePhotoView
     }()
+    
     lazy var videoView: PhotoPreviewVideoView = {
         let videoView = PhotoPreviewVideoView.init()
         videoView.alpha = 0

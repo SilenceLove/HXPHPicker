@@ -6,7 +6,9 @@
 //
 
 import UIKit
+#if HXPICKER_ENABLE_CAMERA_LOCATION
 import CoreLocation
+#endif
 import AVFoundation
 
 /// 需要有导航栏
@@ -83,7 +85,7 @@ open class CameraViewController: BaseViewController {
         let layer = PhotoTools.getGradientShadowLayer(true)
         return layer
     }()
-    
+    #if HXPICKER_ENABLE_CAMERA_LOCATION
     lazy var locationManager: CLLocationManager = {
         let manager = CLLocationManager()
         manager.delegate = self
@@ -92,9 +94,10 @@ open class CameraViewController: BaseViewController {
         manager.requestWhenInUseAuthorization()
         return manager
     }()
-    var firstShowFilterName = true
-    var didLocation: Bool = false
     var currentLocation: CLLocation?
+    var didLocation: Bool = false
+    #endif
+    var firstShowFilterName = true
     var currentZoomFacto: CGFloat = 1
     
     private var requestCameraSuccess = false
@@ -310,7 +313,9 @@ open class CameraViewController: BaseViewController {
             addSwithCameraButton()
         }
         bottomView.addGesture(for: type)
+        #if HXPICKER_ENABLE_CAMERA_LOCATION
         startLocation()
+        #endif
     }
     
     func addSwithCameraButton() {
@@ -446,9 +451,11 @@ open class CameraViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
+        #if HXPICKER_ENABLE_CAMERA_LOCATION
         if allowLocation && didLocation {
             locationManager.stopUpdatingLocation()
         }
+        #endif
         DeviceOrientationHelper.shared.stopDeviceOrientationNotifier()
     }
 }

@@ -489,8 +489,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
         backgroundView.frame = pickerViewController.view.bounds
         backgroundView.backgroundColor = previewBackgroundColor
         pickerViewController.view.insertSubview(backgroundView, at: 1)
-        if !previewViewController.previewAssets.isEmpty {
-            let photoAsset = previewViewController.previewAssets[previewViewController.currentPreviewIndex]
+        if let photoAsset = previewViewController.photoAsset(for: previewViewController.currentPreviewIndex) {
             pickerViewController.setCellLoadMode(.complete)
             if let pickerCell = pickerViewController.getCell(for: photoAsset) {
                 pickerViewController.scrollCellToVisibleArea(pickerCell)

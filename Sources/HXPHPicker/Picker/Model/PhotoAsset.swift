@@ -88,11 +88,19 @@ open class PhotoAsset: Equatable {
         setMediaType()
     }
     
+    public convenience init(_ asset: PHAsset) {
+        self.init(asset: asset)
+    }
+    
     /// 根据系统相册里对应的 PHAsset本地唯一标识符 初始化
     /// - Parameter localIdentifier: 系统相册里对应的 PHAsset本地唯一标识符
     public init(localIdentifier: String) {
         phAsset = AssetManager.fetchAsset(withLocalIdentifier: localIdentifier)
         setMediaType()
+    }
+    
+    public convenience init(_ localIdentifier: String) {
+        self.init(localIdentifier: localIdentifier)
     }
     
     /// 本地图片
@@ -111,6 +119,10 @@ open class PhotoAsset: Equatable {
         }else {
             mediaSubType = .localImage
         }
+    }
+    
+    public convenience init(_ localImageAsset: LocalImageAsset) {
+        self.init(localImageAsset: localImageAsset)
     }
     
     /// 本地视频
@@ -132,6 +144,11 @@ open class PhotoAsset: Equatable {
         mediaType = .video
         mediaSubType = .localVideo
     }
+    
+    public convenience init(_ localVideoAsset: LocalVideoAsset) {
+        self.init(localVideoAsset: localVideoAsset)
+    }
+    
     /// 本地LivePhoto
     public var localLivePhoto: LocalLivePhotoAsset?
     
@@ -140,6 +157,10 @@ open class PhotoAsset: Equatable {
         mediaType = .photo
         mediaSubType = .localLivePhoto
         self.localLivePhoto = localLivePhoto
+    }
+    
+    public convenience init(_ localLivePhoto: LocalLivePhotoAsset) {
+        self.init(localLivePhoto: localLivePhoto)
     }
     
     /// 本地/网络Asset的唯一标识符
@@ -153,6 +174,11 @@ open class PhotoAsset: Equatable {
         mediaType = .photo
         mediaSubType = .networkImage(networkImageAsset.originalURL.isGif)
     }
+    
+    public convenience init(_ networkImageAsset: NetworkImageAsset) {
+        self.init(networkImageAsset: networkImageAsset)
+    }
+    
     /// 网络图片
     public var networkImageAsset: NetworkImageAsset?
     
@@ -172,6 +198,10 @@ open class PhotoAsset: Equatable {
             pVideoDuration = networkVideoAsset.duration
             pVideoTime = PhotoTools.transformVideoDurationToString(duration: networkVideoAsset.duration)
         }
+    }
+    
+    public convenience init(_ networkVideoAsset: NetworkVideoAsset) {
+        self.init(networkVideoAsset: networkVideoAsset)
     }
     
     /// iCloud下载状态，确定不在iCloud上的为 .succeed
@@ -442,7 +472,7 @@ extension PhotoAsset {
             switch result {
             case .success(let imageURL):
                 func resultSuccess(_ url: URL) {
-                    if DispatchQueue.isMain {
+                    DispatchQueue.main.async {
                         resultHandler(
                             .success(
                                 .init(
@@ -452,18 +482,6 @@ extension PhotoAsset {
                                 )
                             )
                         )
-                    }else {
-                        DispatchQueue.main.async {
-                            resultHandler(
-                                .success(
-                                    .init(
-                                        url: url,
-                                        urlType: .local,
-                                        mediaType: .photo
-                                    )
-                                )
-                            )
-                        }
                     }
                 }
                 if isGif && self.mediaSubType != .imageAnimated {
@@ -545,8 +563,7 @@ extension PhotoAsset {
     
     func requestAssetVideoURL(
         toFile fileURL: URL? = nil,
-        exportPreset: ExportPreset? = nil,
-        videoQuality: Int? = 5,
+        exportParameter: VideoExportParameter? = nil,
         exportSession: ((AVAssetExportSession) -> Void)? = nil,
         resultHandler: @escaping AssetURLCompletion
     ) {
@@ -569,25 +586,23 @@ extension PhotoAsset {
             return
         }
         let toFile = fileURL == nil ? PhotoTools.getVideoTmpURL() : fileURL!
-        if let exportPreset = exportPreset,
-           let videoQuality = videoQuality {
-            AssetManager.exportVideoURL(
-                forVideo: phAsset,
-                toFile: toFile,
-                exportPreset: exportPreset,
-                videoQuality: videoQuality,
-                exportSession: exportSession
-            ) { (result) in
-                switch result {
-                case .success(let videoURL):
-                    resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
-                case .failure(let error):
-                    resultHandler(.failure(error.error))
-                }
-            }
-            return
-        }
         if mediaSubType == .livePhoto {
+            if let exportParameter = exportParameter {
+                AssetManager.exportVideoURL(
+                    forVideo: phAsset,
+                    toFile: toFile,
+                    exportParameter: exportParameter,
+                    exportSession: exportSession
+                ) { (result) in
+                    switch result {
+                    case .success(let videoURL):
+                        resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
+                    case .failure(let error):
+                        resultHandler(.failure(error.error))
+                    }
+                }
+                return
+            }
             let assetHandler: (URL?, Error?) -> Void = { videoURL, error in
                 if let videoURL = videoURL {
                     resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))
@@ -603,7 +618,11 @@ extension PhotoAsset {
                 resultHandler(.failure(.typeError))
                 return
             }
-            AssetManager.requestVideoURL(for: phAsset, toFile: toFile) { (result) in
+            AssetManager.requestVideoURL(
+                for: phAsset,
+                toFile: toFile,
+                exportParameter: exportParameter
+            ) { (result) in
                 switch result {
                 case .success(let videoURL):
                     resultHandler(.success(.init(url: videoURL, urlType: .local, mediaType: .video)))

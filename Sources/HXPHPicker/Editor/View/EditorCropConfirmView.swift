@@ -20,7 +20,11 @@ public class EditorCropConfirmView: UIView {
     var config: CropConfirmViewConfiguration
     var showReset: Bool {
         didSet {
-            resetButton.isHidden = !showReset
+            if config.isShowResetButton {
+                resetButton.isHidden = !showReset
+            }else {
+                resetButton.isHidden = true
+            }
             configColor()
             layoutSubviews()
         }
@@ -49,7 +53,11 @@ public class EditorCropConfirmView: UIView {
     }()
     public lazy var resetButton: UIButton = {
         let resetButton = UIButton.init(type: .custom)
-        resetButton.isHidden = !showReset
+        if config.isShowResetButton {
+            resetButton.isHidden = !showReset
+        }else {
+            resetButton.isHidden = true
+        }
         resetButton.setTitle("还原".localized, for: .normal)
         resetButton.titleLabel?.font = UIFont.mediumPingFang(ofSize: 16)
         resetButton.layer.cornerRadius = 3
@@ -66,9 +74,15 @@ public class EditorCropConfirmView: UIView {
     @objc func didCancelButtonClick(button: UIButton) {
         delegate?.cropConfirmView(didCancelButtonClick: self)
     }
-    init(config: CropConfirmViewConfiguration,
-         showReset: Bool = false) {
-        self.showReset = showReset
+    init(
+        config: CropConfirmViewConfiguration,
+        showReset: Bool = false
+    ) {
+        if config.isShowResetButton {
+            self.showReset = showReset
+        }else {
+            self.showReset = false
+        }
         self.config = config
         super.init(frame: .zero)
         layer.addSublayer(maskLayer)

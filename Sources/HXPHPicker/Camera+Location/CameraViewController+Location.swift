@@ -5,6 +5,7 @@
 //  Created by Slience on 2021/9/1.
 //
 
+#if HXPICKER_ENABLE_CAMERA_LOCATION
 import UIKit
 import CoreLocation
 
@@ -30,3 +31,4 @@ extension CameraViewController: CLLocationManagerDelegate {
         }
     }
 }
+#endif

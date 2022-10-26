@@ -44,11 +44,11 @@ public struct EditorURLConfig: Codable {
         var filePath: String = ""
         switch pathType {
         case .document:
-            filePath = PhotoTools.getSystemDocumentFolderPath() + "/"
+            filePath = FileManager.documentPath + "/"
         case .caches:
-            filePath = PhotoTools.getSystemCacheFolderPath() + "/"
+            filePath = FileManager.cachesPath + "/"
         case .temp:
-            filePath = PhotoTools.getSystemTempFolderPath()
+            filePath = FileManager.tempPath
         }
         filePath.append(contentsOf: fileName)
         return .init(fileURLWithPath: filePath)

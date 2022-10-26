@@ -13,12 +13,20 @@ open class PhotoPickerController: UINavigationController {
     
     public weak var pickerDelegate: PhotoPickerControllerDelegate?
     
+    public typealias FinishHandler = (PickerResult, PhotoPickerController) -> Void
+    public typealias CancelHandler = (PhotoPickerController) -> Void
+    
+    public var finishHandler: FinishHandler?
+    public var cancelHandler: CancelHandler?
+    
     /// 相关配置
     public let config: PickerConfiguration
     
     /// 当前被选择的资源对应的 PhotoAsset 对象数组
     /// 外部预览时的资源数据
-    public var selectedAssetArray: [PhotoAsset] = [] { didSet { setupSelectedArray() } }
+    public var selectedAssetArray: [PhotoAsset] = [] {
+        didSet { setupSelectedArray() }
+    }
     
     /// 是否选中了原图
     public var isOriginal: Bool = false
@@ -76,6 +84,22 @@ open class PhotoPickerController: UINavigationController {
             return cell.scrollContentView.imageView.imageView
         }
         return nil
+    }
+    
+    /// 预览界面的数据
+    public var previewAssets: [PhotoAsset] {
+        previewViewController?.previewAssets ?? []
+    }
+    
+    /// 预览界面当前显示的页数
+    public var currentPreviewIndex: Int {
+        previewViewController?.currentPreviewIndex ?? 0
+    }
+    
+    /// 获取预览界面当前显示的 image 视图
+    /// - Returns: 对应的 UIImageView
+    public var currentPreviewImageView: UIImageView? {
+        getCurrentPreviewImageView()
     }
     
     /// 相册列表控制器
@@ -140,6 +164,7 @@ open class PhotoPickerController: UINavigationController {
         }
         self.viewControllers = [photoVC]
     }
+    
     /// 选择资源初始化
     /// - Parameter config: 相关配置
     public convenience init(
@@ -159,6 +184,7 @@ open class PhotoPickerController: UINavigationController {
     ///   - modalPresentationStyle: 默认 custom 样式，框架自带动画效果
     public init(
         preview config: PickerConfiguration,
+        previewAssets: [PhotoAsset],
         currentIndex: Int,
         modalPresentationStyle: UIModalPresentationStyle = .custom,
         delegate: PhotoPickerControllerDelegate? = nil
@@ -172,6 +198,7 @@ open class PhotoPickerController: UINavigationController {
         pickerDelegate = delegate
         let vc = PhotoPreviewViewController(config: config.previewView)
         vc.isExternalPreview = true
+        vc.previewAssets = previewAssets
         vc.currentPreviewIndex = currentIndex
         self.viewControllers = [vc]
         self.modalPresentationStyle = modalPresentationStyle
@@ -181,18 +208,14 @@ open class PhotoPickerController: UINavigationController {
         }
     }
     
-    public typealias FinishHandler = (PickerResult, PhotoPickerController) -> Void
-    public typealias CancelHandler = (PhotoPickerController) -> Void
-    
-    public var finishHandler: FinishHandler?
-    public var cancelHandler: CancelHandler?
-    
     let isExternalPickerPreview: Bool
-    init(pickerPreview config: PickerConfiguration,
-         previewAssets: [PhotoAsset],
-         currentIndex: Int,
-         modalPresentationStyle: UIModalPresentationStyle = .custom,
-         delegate: PhotoPickerControllerDelegate? = nil) {
+    init(
+        pickerPreview config: PickerConfiguration,
+        previewAssets: [PhotoAsset],
+        currentIndex: Int,
+        modalPresentationStyle: UIModalPresentationStyle = .custom,
+        delegate: PhotoPickerControllerDelegate? = nil
+    ) {
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -251,8 +274,6 @@ open class PhotoPickerController: UINavigationController {
         requestAssetBytesQueue.maxConcurrentOperationCount = 1
         return requestAssetBytesQueue
     }()
-    lazy var previewRequestAdjustmentStatusIds: [[PHContentEditingInputRequestID: PHAsset]] = []
-    lazy var requestAdjustmentStatusIds: [[PHContentEditingInputRequestID: PHAsset]] = []
     public override var modalPresentationStyle: UIModalPresentationStyle {
         didSet {
             if (isPreviewAsset || isExternalPickerPreview) && modalPresentationStyle == .custom {

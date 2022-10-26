@@ -15,12 +15,21 @@ public struct LocalImageAsset {
     public init(image: UIImage) {
         self.image = image
     }
+    public init(_ image: UIImage) {
+        self.init(image: image)
+    }
     public init(imageData: Data) {
         self.imageData = imageData
         self.image = UIImage(data: imageData)
     }
+    public init(_ imageData: Data) {
+        self.init(imageData: imageData)
+    }
     public init(imageURL: URL) {
         self.imageURL = imageURL
+    }
+    public init(_ imageURL: URL) {
+        self.init(imageURL: imageURL)
     }
     
     var thumbnail: UIImage?
@@ -40,10 +49,12 @@ public struct LocalVideoAsset {
     /// 视频尺寸
     public var videoSize: CGSize
     
-    public init(videoURL: URL,
-                coverImage: UIImage? = nil,
-                duration: TimeInterval = 0,
-                videoSize: CGSize = .zero) {
+    public init(
+        videoURL: URL,
+        coverImage: UIImage? = nil,
+        duration: TimeInterval = 0,
+        videoSize: CGSize = .zero
+    ) {
         self.videoURL = videoURL
         self.image = coverImage
         self.duration = duration

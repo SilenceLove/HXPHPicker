@@ -6,8 +6,19 @@
 //
 
 import UIKit
+#if canImport(Harbeth)
+import Harbeth
+#endif
 
 extension UIImage {
+    #if canImport(Harbeth)
+    func filter(c7s filters: [C7FilterProtocol]) -> UIImage? {
+        try? makeGroup(filters: filters)
+    }
+    func filter(c7 filter: C7FilterProtocol) -> UIImage? {
+        try? make(filter: filter)
+    }
+    #endif
     /// 生成马赛克图片
     func mosaicImage(level: CGFloat) -> UIImage? {
         let screenScale = level / max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)

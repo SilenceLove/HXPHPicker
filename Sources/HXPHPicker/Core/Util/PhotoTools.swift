@@ -349,10 +349,15 @@ public struct PhotoTools {
     
     static func exportSessionFileLengthLimit(
         seconds: Double,
+        maxSize: Int? = nil,
         exportPreset: ExportPreset,
         videoQuality: Int
     ) -> Int64 {
         if videoQuality > 0 {
+            let quality = Double(min(videoQuality, 10))
+            if let maxSize = maxSize {
+                return Int64(Double(maxSize) * (quality / 10))
+            }
             var ratioParam: Double = 0
             if exportPreset == .ratio_640x480 {
                 ratioParam = 0.02
@@ -361,7 +366,6 @@ public struct PhotoTools {
             }else if exportPreset == .ratio_1280x720 {
                 ratioParam = 0.08
             }
-            let quality = Double(min(videoQuality, 10))
             return Int64(seconds * ratioParam * quality * 1000 * 1000)
         }
         return 0

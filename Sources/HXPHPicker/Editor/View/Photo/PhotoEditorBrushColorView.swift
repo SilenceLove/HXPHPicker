@@ -19,73 +19,28 @@ protocol PhotoEditorBrushColorViewDelegate: AnyObject {
     func brushColorView(
         didUndoButton colorView: PhotoEditorBrushColorView
     )
-    func brushColorView(
-        touchDown colorView: PhotoEditorBrushColorView
-    )
-    func brushColorView(
-        _ colorView: PhotoEditorBrushColorView,
-        didChangedBrushLine lineWidth: CGFloat
-    )
-    func brushColorView(
-        touchUpOutside colorView: PhotoEditorBrushColorView
-    )
 }
 
 public class PhotoEditorBrushColorView: UIView {
     weak var delegate: PhotoEditorBrushColorViewDelegate?
     let config: EditorBrushConfiguration
     let brushColors: [String]
-    lazy var brushSizeSlider: UISlider = {
-        let slider = UISlider()
-        slider.maximumTrackTintColor = .white.withAlphaComponent(0.4)
-        slider.minimumTrackTintColor = .white
-        let image = UIImage.image(for: .white, havingSize: CGSize(width: 20, height: 20), radius: 10)
-        slider.setThumbImage(image, for: .normal)
-        slider.setThumbImage(image, for: .highlighted)
-        slider.layer.shadowColor = UIColor.black.withAlphaComponent(0.4).cgColor
-        slider.layer.shadowRadius = 4
-        slider.layer.shadowOpacity = 0.5
-        slider.layer.shadowOffset = CGSize(width: 0, height: 0)
-        slider.value = Float(config.lineWidth / (config.maximumLinewidth - config.minimumLinewidth))
-        slider.addTarget(
-            self,
-            action: #selector(sliderDidChanged(slider:)),
-            for: .valueChanged
-        )
-        slider.addTarget(
-            self,
-            action: #selector(sliderTouchDown(slider:)),
-            for: [
-                .touchDown
-            ]
-        )
-        slider.addTarget(
-            self,
-            action: #selector(sliderTouchUpOutside(slider:)),
-            for: [
-                .touchUpInside,
-                .touchCancel,
-                .touchUpOutside
-            ]
-        )
-        slider.isHidden = !config.showSlider
-        return slider
+    
+    lazy var shadeView: UIView = {
+        let view = UIView.init()
+        view.addSubview(collectionView)
+        view.layer.mask = maskLayer
+        return view
     }()
     
-    @objc func sliderDidChanged(slider: UISlider) {
-        let lineWidth = (
-            config.maximumLinewidth - config.minimumLinewidth
-        ) * CGFloat(slider.value) + config.minimumLinewidth
-        delegate?.brushColorView(self, didChangedBrushLine: lineWidth)
-    }
-    
-    @objc func sliderTouchDown(slider: UISlider) {
-        delegate?.brushColorView(touchDown: self)
-    }
-    
-    @objc func sliderTouchUpOutside(slider: UISlider) {
-        delegate?.brushColorView(touchUpOutside: self)
-    }
+    lazy var maskLayer: CAGradientLayer = {
+        let maskLayer = CAGradientLayer.init()
+        maskLayer.colors = [UIColor.white.cgColor, UIColor.clear.cgColor]
+        maskLayer.startPoint = CGPoint(x: 0, y: 1)
+        maskLayer.endPoint = CGPoint(x: 1, y: 1)
+        maskLayer.locations = [0.925, 1.0]
+        return maskLayer
+    }()
     
     lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout.init()
@@ -149,9 +104,8 @@ public class PhotoEditorBrushColorView: UIView {
         self.config = config
         self.brushColors = config.colors
         super.init(frame: .zero)
-        addSubview(collectionView)
+        addSubview(shadeView)
         addSubview(undoButton)
-//        addSubview(brushSizeSlider)
         collectionView.selectItem(
             at: IndexPath(
                 item: config.defaultColorIndex,
@@ -164,14 +118,15 @@ public class PhotoEditorBrushColorView: UIView {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
-//        brushSizeSlider.frame = CGRect(
-//            x: UIDevice.leftMargin + 20,
-//            y: 0,
-//            width: width - 40 - UIDevice.leftMargin - UIDevice.rightMargin,
-//            height: 20
-//        )
         let cHeight: CGFloat = 60
-        collectionView.frame = CGRect(x: 0, y: 5, width: width, height: cHeight)
+        shadeView.frame = CGRect(
+            x: 0,
+            y: 5,
+            width: width,
+            height: cHeight
+        )
+        collectionView.frame = shadeView.bounds
+        maskLayer.frame = CGRect(x: 0, y: 0, width: shadeView.width - 50 - UIDevice.rightMargin, height: shadeView.height)
         flowLayout.sectionInset = UIEdgeInsets(
             top: 0,
             left: 12 + UIDevice.leftMargin,
@@ -180,7 +135,7 @@ public class PhotoEditorBrushColorView: UIView {
         )
         undoButton.frame = CGRect(
             x: width - UIDevice.rightMargin - cHeight,
-            y: collectionView.y,
+            y: shadeView.y,
             width: cHeight,
             height: cHeight
         )

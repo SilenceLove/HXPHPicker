@@ -52,12 +52,12 @@ extension PhotoPickerView {
                 self.setupDeniedView()
                 return
             }
-            self.manager.reloadAssetCollection = {
-                self.showLoading()
+            self.manager.reloadAssetCollection = { [weak self] in
+                self?.showLoading()
             }
             self.showLoading()
-            self.manager.fetchAssets {
-                self.fetchAssetCompletion($0, $1)
+            self.manager.fetchAssets { [weak self] in
+                self?.fetchAssetCompletion($0, $1)
             }
         }
     }

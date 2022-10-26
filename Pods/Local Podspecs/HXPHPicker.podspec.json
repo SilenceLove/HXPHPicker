@@ -1,6 +1,6 @@
 {
   "name": "HXPHPicker",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "summary": "Photo selector - Support LivePhoto, GIF selection",
   "homepage": "https://github.com/SilenceLove/HXPHPicker",
   "license": {
@@ -18,7 +18,7 @@
   },
   "source": {
     "git": "https://github.com/SilenceLove/HXPHPicker.git",
-    "tag": "1.4.3"
+    "tag": "1.4.4"
   },
   "frameworks": [
     "UIKit",
@@ -91,15 +91,35 @@
     },
     {
       "name": "Camera",
-      "source_files": "Sources/HXPHPicker/Camera/**/*.{swift,metal}",
-      "dependencies": {
-        "HXPHPicker/Core": [
+      "subspecs": [
+        {
+          "name": "Lite",
+          "source_files": "Sources/HXPHPicker/Camera/**/*.{swift,metal}",
+          "dependencies": {
+            "HXPHPicker/Core": [
 
-        ]
-      },
-      "pod_target_xcconfig": {
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA"
-      }
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA"
+          }
+        },
+        {
+          "name": "Location",
+          "source_files": "Sources/HXPHPicker/Camera+Location/**/*.{swift}",
+          "dependencies": {
+            "HXPHPicker/Core": [
+
+            ],
+            "HXPHPicker/Camera/Lite": [
+
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA_LOCATION"
+          }
+        }
+      ]
     },
     {
       "name": "Lite",
@@ -110,7 +130,7 @@
         "HXPHPicker/Editor/Lite": [
 
         ],
-        "HXPHPicker/Camera": [
+        "HXPHPicker/Camera/Lite": [
 
         ]
       }

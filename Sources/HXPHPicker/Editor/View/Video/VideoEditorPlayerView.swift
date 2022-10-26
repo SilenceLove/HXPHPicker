@@ -25,7 +25,7 @@ class VideoEditorPlayerView: VideoPlayerView {
     
     var isLookOriginal: Bool = false
     var filterInfo: PhotoEditorFilterInfo?
-    var filterValue: Float = 0
+    var filterParameters: [PhotoEditorFilterParameterInfo] = []
     lazy var coverImageView: UIImageView = {
         let imageView = UIImageView.init()
         return imageView
@@ -134,18 +134,20 @@ class VideoEditorPlayerView: VideoPlayerView {
     func resetPlay(completion: ((CMTime) -> Void)? = nil) {
         isPlaying = false
         if let startTime = playStartTime {
-            seek(to: startTime) { (isFinished) in
-                if isFinished {
-                    self.play()
-                    completion?(self.player.currentTime())
+            seek(to: startTime) { [weak self] isFinished in
+                guard let self = self, isFinished else {
+                    return
                 }
+                self.play()
+                completion?(self.player.currentTime())
             }
         }else {
-            seek(to: CMTime.zero) { (isFinished) in
-                if isFinished {
-                    self.play()
-                    completion?(self.player.currentTime())
+            seek(to: .zero) { [weak self] isFinished in
+                guard let self = self, isFinished else {
+                    return
                 }
+                self.play()
+                completion?(self.player.currentTime())
             }
         }
     }
@@ -171,14 +173,17 @@ extension VideoEditorPlayerView {
         guard let info = filterInfo else {
             return source
         }
-        guard let ciImage = info.videoFilterHandler?(source, filterValue) else {
+        guard let ciImage = info.videoFilterHandler?(source, filterParameters) else {
             return source
         }
         return ciImage
     }
     
-    func setFilter(_ info: PhotoEditorFilterInfo?, value: Float) {
+    func setFilter(
+        _ info: PhotoEditorFilterInfo?,
+        parameters: [PhotoEditorFilterParameterInfo]
+    ) {
         filterInfo = info
-        filterValue = value
+        filterParameters = parameters
     }
 }

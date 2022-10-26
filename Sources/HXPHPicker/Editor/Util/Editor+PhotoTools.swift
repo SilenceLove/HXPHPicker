@@ -9,6 +9,9 @@ import UIKit
 import ImageIO
 import CoreImage
 import CoreServices
+#if canImport(Harbeth)
+import Harbeth
+#endif
 
 extension PhotoTools {
     static func createAnimatedImage(
@@ -116,25 +119,26 @@ extension PhotoTools {
     
     /// 默认滤镜
     public static func defaultFilters() -> [PhotoEditorFilterInfo] {
+//        return defaultMetalFilters()
         [
             PhotoEditorFilterInfo(
                 filterName: "唯美".localized
-            ) { image, _, _, _ in
+            ) { image, _, parameters, _ in
                 nashvilleFilter(image)
             },
             PhotoEditorFilterInfo(
                 filterName: "梦幻".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 toasterFilter(image)
             },
             PhotoEditorFilterInfo(
                 filterName: "1977"
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 apply1977Filter(image)
             },
             PhotoEditorFilterInfo(
                 filterName: "怀旧".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectInstant",
                     parameters: [:]
@@ -142,7 +146,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "岁月".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectTransfer",
                     parameters: [:]
@@ -150,16 +154,13 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
-                defaultValue: 0.2
-            ) { (image, lastImage, value, event) in
-                if event == .touchUpInside {
-                    return image.blurredImage(50 * value)
-                }
-                return nil
-            },
+                parameters: [.init(defaultValue: 0.2)],
+                filterHandler: { image, _, parameters, isCover in
+                    image.blurredImage(isCover ? 10 : 50 * parameters[0].value)
+            }),
             PhotoEditorFilterInfo(
                 filterName: "褪色".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectFade",
                     parameters: [:]
@@ -167,7 +168,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "冲印".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectProcess",
                     parameters: [:]
@@ -175,7 +176,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "铬黄".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectChrome",
                     parameters: [:]
@@ -183,16 +184,13 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "老电影".localized,
-                defaultValue: 1
-            ) { (image, lastImage, value, event) in
-                if event == .touchUpInside {
-                    return oldMovie(image, value: value)
-                }
-                return nil
-            },
+                parameters: [.init(defaultValue: 1)],
+                filterHandler: { image, _, parameters , isCover in
+                    return oldMovie(image, value: isCover ? 1 : parameters[0].value)
+            }),
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectTonal",
                     parameters: [:]
@@ -200,7 +198,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "单色".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectMono",
                     parameters: [:]
@@ -208,7 +206,7 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "黑白".localized
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 image.filter(
                     name: "CIPhotoEffectNoir",
                     parameters: [:]
@@ -235,14 +233,14 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "1977"
-            ) { (image, _, _, _) in
+            ) { (image, _, parameters, _) in
                 apply1977Filter(image)
             } videoFilterHandler: { ciImage, _ in
                 apply1977Filter(ciImage)
             },
             PhotoEditorFilterInfo(
                 filterName: "怀旧".localized
-            ) { (image, _, _, _) in
+            ) { image, _, _, _ in
                 image.filter(
                     name: "CIPhotoEffectInstant",
                     parameters: [:]
@@ -262,18 +260,15 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
-                defaultValue: 0.2
-            ) { (image, lastImage, value, event) in
-                if event == .touchUpInside {
-                    return image.blurredImage(50.0 * value)
-                }
-                return nil
-            } videoFilterHandler: {
+                parameters: [.init(defaultValue: 0.2)],
+                filterHandler: { image, _, _, _ in
+                    return image.blurredImage(10)
+            }, videoFilterHandler: {
                 $0.filter(
                     name: "CIGaussianBlur",
-                    parameters: [kCIInputRadiusKey: 50.0 * $1]
+                    parameters: [kCIInputRadiusKey: 50.0 * $1[0].value]
                 )
-            },
+            }),
             PhotoEditorFilterInfo(
                 filterName: "褪色".localized
             ) { (image, _, _, _) in
@@ -306,15 +301,12 @@ extension PhotoTools {
             },
             PhotoEditorFilterInfo(
                 filterName: "老电影".localized,
-                defaultValue: 1
-            ) { (image, lastImage, value, event) in
-                if event == .touchUpInside {
-                    return oldMovie(image, value: value)
-                }
-                return nil
-            } videoFilterHandler: {
-                oldMovie($0, value: $1)
-            },
+                parameters: [.init(defaultValue: 1)],
+                filterHandler: { image, _, _, _ in
+                    oldMovie(image, value: 1)
+            }, videoFilterHandler: {
+                oldMovie($0, value: $1[0].value)
+            }),
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
             ) { (image, _, _, _) in
@@ -479,3 +471,60 @@ extension PhotoTools {
                 ])
     }
 }
+
+#if canImport(Harbeth)
+extension PhotoTools {
+    public static func defaultMetalFilters() -> [PhotoEditorFilterInfo] {
+        [
+            .init(
+                filterName: "马赛克".localized,
+                parameter: .init(defaultValue: 0.5),
+                metalFilterHandler: { parameter, isCover in
+                    let value = parameter?.value ?? 0
+                    let pixelWidth: Float
+                    if isCover {
+                        pixelWidth = 0.02
+                    }else {
+                        pixelWidth = 0.01 + 0.03 * value
+                    }
+                    var filter = C7Pixellated()
+                    filter.pixelWidth = pixelWidth
+                    return filter
+                }
+            ),
+            .init(
+                filterName: "波点".localized,
+                parameter: .init(defaultValue: 0.6),
+                metalFilterHandler: { parameter, isCover in
+                    let value = parameter?.value ?? 0
+                    let fractionalWidth: Float
+                    if isCover {
+                        fractionalWidth = 0.02
+                    }else {
+                        fractionalWidth = 0.01 + 0.05 * value
+                    }
+                    var filter = C7PolkaDot()
+                    filter.fractionalWidth = fractionalWidth
+                    return filter
+                }
+            ),
+            .init(
+                filterName: "漩涡".localized,
+                parameter: .init(defaultValue: 0.8),
+                metalFilterHandler: { parameter, isCover in
+                    let value = parameter?.value ?? 0
+                    let radius: Float
+                    if isCover {
+                        radius = 0.25
+                    }else {
+                        radius = 0.01 + value * 0.5
+                    }
+                    var filter = C7Swirl()
+                    filter.radius = radius
+                    return filter
+                }
+            )
+        ]
+    }
+}
+#endif

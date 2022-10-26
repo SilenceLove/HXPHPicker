@@ -38,18 +38,9 @@ public extension PhotoTools {
         return folderSize
     }
     
-    static func getSystemDocumentFolderPath() -> String {
-        NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last!
-    }
-    
-    /// 获取系统缓存文件夹路径
-    static func getSystemCacheFolderPath() -> String {
-        NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).last!
-    }
-    
     /// 获取图片缓存文件夹路径
     static func getImageCacheFolderPath() -> String {
-        var cachePath = getSystemCacheFolderPath()
+        var cachePath = FileManager.cachesPath
         cachePath.append(contentsOf: "/com.silence.HXPHPicker/imageCache")
         folderExists(atPath: cachePath)
         return cachePath
@@ -57,7 +48,7 @@ public extension PhotoTools {
     
     /// 获取视频缓存文件夹路径
     static func getVideoCacheFolderPath() -> String {
-        var cachePath = getSystemCacheFolderPath()
+        var cachePath = FileManager.cachesPath
         cachePath.append(contentsOf: "/com.silence.HXPHPicker/videoCache")
         folderExists(atPath: cachePath)
         return cachePath
@@ -147,14 +138,10 @@ public extension PhotoTools {
         return fileManager.fileExists(atPath: filePath)
     }
     
-    static func getSystemTempFolderPath() -> String {
-        NSTemporaryDirectory()
-    }
-    
     /// 获取对应后缀的临时路径
     @discardableResult
     static func getTmpURL(for suffix: String) -> URL {
-        var tmpPath = getSystemTempFolderPath()
+        var tmpPath = FileManager.tempPath
         tmpPath.append(contentsOf: String.fileName(suffix: suffix))
         let tmpURL = URL.init(fileURLWithPath: tmpPath)
         return tmpURL

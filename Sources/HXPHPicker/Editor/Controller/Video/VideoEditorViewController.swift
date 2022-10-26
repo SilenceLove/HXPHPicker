@@ -197,10 +197,10 @@ open class VideoEditorViewController: BaseViewController {
     lazy var videoView: PhotoEditorView = {
         let videoView = PhotoEditorView(
             editType: .video,
-            cropConfig: .init(),
+            cropConfig: config.cropSize,
             mosaicConfig: .init(),
-            brushConfig: .init(),
-            exportScale: 1
+            brushConfig: config.brush,
+            exportScale: 2
         )
         if let avAsset = avAsset {
             let image = coverImage ?? PhotoTools.getVideoThumbnailImage(avAsset: avAsset, atTime: 0.1)
@@ -283,12 +283,13 @@ open class VideoEditorViewController: BaseViewController {
     }()
     lazy var cropToolView: PhotoEditorCropToolView = {
         var showRatios = true
-        if config.cropSize.fixedRatio || config.cropSize.isRoundCrop {
+        if config.cropSize.aspectRatios.isEmpty || config.cropSize.isRoundCrop {
             showRatios = false
         }
         let view = PhotoEditorCropToolView(
             showRatios: showRatios,
-            scaleArray: config.cropSize.aspectRatios
+            scaleArray: config.cropSize.aspectRatios,
+            defaultSelectedIndex: config.cropSize.defaultSeletedIndex
         )
         view.delegate = self
         view.themeColor = config.cropSize.aspectRatioSelectedColor
@@ -318,6 +319,12 @@ open class VideoEditorViewController: BaseViewController {
         view.delegate = self
         return view
     }()
+    var isShowFilterParameter = false
+    lazy var filterParameterView: PhotoEditorFilterParameterView = {
+        let view = PhotoEditorFilterParameterView(sliderColor: config.filter.selectedColor)
+        view.delegate = self
+        return view
+    }()
     public lazy var toolView: EditorToolView = {
         let toolView = EditorToolView.init(config: config.toolView)
         toolView.delegate = self
@@ -331,12 +338,15 @@ open class VideoEditorViewController: BaseViewController {
         return cropConfirmView
     }()
     public lazy var topView: UIView = {
-        let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
-        let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
-        cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
-        cancelBtn.addTarget(self, action: #selector(didBackClick), for: .touchUpInside)
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
         view.addSubview(cancelBtn)
         return view
+    }()
+    public lazy var cancelBtn: UIButton = {
+        let cancelBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
+        cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
+        cancelBtn.addTarget(self, action: #selector(didBackClick), for: .touchUpInside)
+        return cancelBtn
     }()
     
     lazy var topMaskLayer: CAGradientLayer = {
@@ -426,6 +436,7 @@ open class VideoEditorViewController: BaseViewController {
         }
         if toolOptions.contains(.filter) {
             view.addSubview(filterView)
+            view.addSubview(filterParameterView)
         }
         if toolOptions.isSticker {
             view.addSubview(chartletView)
@@ -509,6 +520,8 @@ open class VideoEditorViewController: BaseViewController {
             cancelCropTime(false)
         }
         videoView.finishCropping(false)
+        videoView.imageResizerView.isDidFinishedClick = false
+        cropToolView.resetSelected()
         rotateBeforeData = cropView.getRotateBeforeData()
         videoView.playerView.pause()
         if toolOptions.contains(.music) {
@@ -531,20 +544,24 @@ open class VideoEditorViewController: BaseViewController {
             height: 50 + UIDevice.bottomMargin
         )
         toolView.reloadContentInset()
+        topView.y = 0
         topView.width = view.width
-        topView.height = navigationController?.navigationBar.height ?? 44
+        topView.height = UIDevice.isPortrait ? 44 : 32
+        cancelBtn.height = topView.height
+        cancelBtn.x = UIDevice.leftMargin
         let viewControllersCount = navigationController?.viewControllers.count ?? 0
         if let modalPresentationStyle = navigationController?.modalPresentationStyle, UIDevice.isPortrait {
-            if modalPresentationStyle == .fullScreen ||
+            if (modalPresentationStyle == .fullScreen ||
                 modalPresentationStyle == .custom ||
-                viewControllersCount > 1 {
+                viewControllersCount > 1) &&
+                modalPresentationStyle != .pageSheet {
                 topView.y = UIDevice.generalStatusBarHeight
             }
         }else if (
             modalPresentationStyle == .fullScreen ||
             modalPresentationStyle == .custom ||
             viewControllersCount > 1
-        ) && UIDevice.isPortrait {
+        ) && UIDevice.isPortrait && modalPresentationStyle != .pageSheet {
             topView.y = UIDevice.generalStatusBarHeight
         }
         
@@ -555,6 +572,8 @@ open class VideoEditorViewController: BaseViewController {
             videoView.frame = view.bounds
             videoView.reset(false)
             videoView.finishCropping(false)
+            videoView.imageResizerView.isDidFinishedClick = false
+            cropToolView.resetSelected()
             orientationDidChange = true
         }else {
             videoView.frame = view.bounds
@@ -568,7 +587,11 @@ open class VideoEditorViewController: BaseViewController {
         if toolOptions.contains(.graffiti) {
             brushColorView.frame = CGRect(x: 0, y: toolView.y - 65, width: view.width, height: 65)
             brushBlockView.x = view.width - 45 - UIDevice.rightMargin
-            brushBlockView.centerY = view.height * 0.5
+            if UIDevice.isPortrait {
+                brushBlockView.centerY = view.height * 0.5
+            }else {
+                brushBlockView.y = brushColorView.y - brushBlockView.height
+            }
         }
         if toolOptions.isSticker {
             setChartletViewFrame()
@@ -583,6 +606,7 @@ open class VideoEditorViewController: BaseViewController {
         }
         if toolOptions.contains(.filter) {
             setFilterViewFrame()
+            setFilterParameterViewFrame()
         }
         if orientationDidChange {
             if videoView.playerView.avAsset != nil && !videoViewDidChange {
@@ -702,6 +726,10 @@ extension VideoEditorViewController {
             return
         }
         if isFilter {
+            if isShowFilterParameter {
+                hideFilterParameterView()
+                return
+            }
             videoView.stickerEnabled = true
             hiddenFilterView()
             videoView.canLookOriginal = false
@@ -828,19 +856,43 @@ extension VideoEditorViewController {
         )
     }
     func setFilterViewFrame() {
+        let filterHeight: CGFloat
+        #if canImport(Harbeth)
+        filterHeight = 155 + UIDevice.bottomMargin
+        #else
+        filterHeight = 125 + UIDevice.bottomMargin
+        #endif
         if isFilter {
             filterView.frame = CGRect(
                 x: 0,
-                y: view.height - 150 - UIDevice.bottomMargin,
+                y: view.height - filterHeight,
                 width: view.width,
-                height: 150 + UIDevice.bottomMargin
+                height: filterHeight
             )
         }else {
             filterView.frame = CGRect(
                 x: 0,
                 y: view.height + 10,
                 width: view.width,
-                height: 150 + UIDevice.bottomMargin
+                height: filterHeight
+            )
+        }
+    }
+    func setFilterParameterViewFrame() {
+        let editHeight = max(CGFloat(filterParameterView.models.count) * 40 + 30 + UIDevice.bottomMargin, filterView.height)
+        if isShowFilterParameter {
+            filterParameterView.frame = .init(
+                x: 0,
+                y: view.height - editHeight,
+                width: view.width,
+                height: editHeight
+            )
+        }else {
+            filterParameterView.frame = .init(
+                x: 0,
+                y: view.height,
+                width: view.width,
+                height: editHeight
             )
         }
     }

@@ -57,7 +57,7 @@ class PickerResultViewController: UIViewController,
     var isPublish: Bool = false
     
     var localCachePath: String {
-        var cachePath = PhotoTools.getSystemCacheFolderPath()
+        var cachePath = HXPickerWrapper<FileManager>.cachesPath
         cachePath.append(contentsOf: "/com.silence.WeChat_Moment")
         return cachePath
     }
@@ -769,8 +769,12 @@ extension PickerResultViewController: PhotoPickerControllerDelegate {
     }
     func pickerController(
         _ pickerController: PhotoPickerController,
-        previewDidDeleteAsset photoAsset: PhotoAsset, atIndex: Int) {
-        previewDidDeleteAsset(index: atIndex)
+        previewDidDeleteAssets photoAssets: [PhotoAsset], at indexs: [Int]
+    ) {
+        guard let index = indexs.first else {
+            return
+        }
+        previewDidDeleteAsset(index: index)
     }
     func previewDidDeleteAsset(index: Int) {
         let isFull = selectedAssets.count == config.maximumSelectedCount

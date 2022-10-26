@@ -316,7 +316,8 @@ extension PhotoEditorViewController {
             }
             if image.width > minSize {
                 let thumbnailScale = minSize / image.width
-                thumbnailImage = image.scaleImage(toScale: thumbnailScale)
+                let _image = image.scaleImage(toScale: thumbnailScale)
+                thumbnailImage = _image
             }
             if thumbnailImage == nil {
                 thumbnailImage = image
@@ -335,7 +336,7 @@ extension PhotoEditorViewController {
             }
         }else {
             if hasMosaic {
-                mosaicImage = thumbnailImage.mosaicImage(level: config.mosaic.mosaicWidth)
+                mosaicImage = thumbnailImage?.mosaicImage(level: config.mosaic.mosaicWidth)
             }
         }
         if hasFilter {

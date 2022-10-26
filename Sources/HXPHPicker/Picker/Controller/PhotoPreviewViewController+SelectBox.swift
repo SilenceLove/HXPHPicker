@@ -9,9 +9,11 @@ import UIKit
 
 extension PhotoPreviewViewController {
     @objc func didSelectBoxControlClick() {
-        guard let picker = pickerController else { return }
+        guard let picker = pickerController,
+            let photoAsset = photoAsset(for: currentPreviewIndex) else {
+            return
+        }
         let isSelected = !selectBoxControl.isSelected
-        let photoAsset = previewAssets[currentPreviewIndex]
         var canUpdate = false
         var bottomNeedAnimated = false
         var pickerUpdateCell = false

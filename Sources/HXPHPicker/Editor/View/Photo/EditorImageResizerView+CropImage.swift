@@ -218,8 +218,8 @@ extension EditorImageResizerView {
             self.compressImageData(
                 imageData,
                 compressionQuality: compressionQuality
-            ) { data in
-                guard let data = data else {
+            ) { [weak self] data in
+                guard let self = self, let data = data else {
                     completion(nil)
                     return
                 }

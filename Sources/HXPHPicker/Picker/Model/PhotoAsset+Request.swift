@@ -406,8 +406,7 @@ public extension PhotoAsset {
                 }
                 func videoCompressor(
                     _ url: URL,
-                    _ exportPreset: ExportPreset,
-                    _ videoQuality: Int,
+                    _ exportParameter: VideoExportParameter,
                     completionHandler: ((URL?, Error?) -> Void)?
                 ) {
                     let avAsset = AVAsset(url: url)
@@ -419,8 +418,8 @@ public extension PhotoAsset {
                         AssetManager.exportVideoURL(
                             forVideo: avAsset,
                             toFile: PhotoTools.getVideoTmpURL(),
-                            exportPreset: exportPreset,
-                            videoQuality: videoQuality) { video_URL, error in
+                            exportParameter: exportParameter
+                        ) { video_URL, error in
                                 if FileManager.default.fileExists(atPath: url.path) {
                                     try? FileManager.default.removeItem(at: url)
                                 }
@@ -429,8 +428,7 @@ public extension PhotoAsset {
                     }
                 }
                 if let imageCompression = compression?.imageCompressionQuality,
-                   let videoExportPreset = compression?.videoExportPreset,
-                   let videoQuality = compression?.videoQuality {
+                   let videoExportParameter = compression?.videoExportParameter {
                     let group = DispatchGroup()
                     let imageQueue = DispatchQueue(label: "hxphpicker.request.livephoto.imageurl")
                     var image_URL: URL?
@@ -441,7 +439,10 @@ public extension PhotoAsset {
                     let videoQueue = DispatchQueue(label: "hxphpicker.request.livephoto.videourl")
                     let semaphore = DispatchSemaphore(value: 0)
                     videoQueue.async(group: group, execute: DispatchWorkItem(block: {
-                        videoCompressor(videoURL!, videoExportPreset, videoQuality) { url, error in
+                        videoCompressor(
+                            videoURL!,
+                            videoExportParameter
+                        ) { url, error in
                             video_URL = url
                             semaphore.signal()
                         }
@@ -457,10 +458,12 @@ public extension PhotoAsset {
                             completionFunc(url, videoURL)
                         }
                     }
-                }else if let videoExportPreset = compression?.videoExportPreset,
-                         let videoQuality = compression?.videoQuality {
+                }else if let videoExportParameter = compression?.videoExportParameter  {
                     DispatchQueue.global().async {
-                        videoCompressor(videoURL!, videoExportPreset, videoQuality) { url, error in
+                        videoCompressor(
+                            videoURL!,
+                            videoExportParameter
+                        ) { url, error in
                             DispatchQueue.main.async {
                                 completionFunc(imageURL, url)
                             }
@@ -645,13 +648,11 @@ public extension PhotoAsset {
     /// 网络视频如果在本地有缓存则会返回本地地址，如果没有缓存则为ni
     /// - Parameters:
     ///   - fileURL: 指定视频地址
-    ///   - exportPreset: 视频分辨率，不传获取的就是原始视频
-    ///   - videoQuality: 视频质量[0-10]
+    ///   - exportParameter: 导出参数，nil 为原始视频
     ///   - resultHandler: 获取结果
     func requestVideoURL(
         toFile fileURL: URL? = nil,
-        exportPreset: ExportPreset? = nil,
-        videoQuality: Int? = 5,
+        exportParameter: VideoExportParameter? = nil,
         exportSession: ((AVAssetExportSession) -> Void)? = nil,
         resultHandler: @escaping AssetURLCompletion
     ) {
@@ -664,8 +665,7 @@ public extension PhotoAsset {
         }
         requestAssetVideoURL(
             toFile: fileURL,
-            exportPreset: exportPreset,
-            videoQuality: videoQuality,
+            exportParameter: exportParameter,
             exportSession: exportSession,
             resultHandler: resultHandler
         )

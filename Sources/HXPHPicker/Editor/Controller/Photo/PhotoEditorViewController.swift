@@ -11,6 +11,9 @@ import Photos
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
+#if canImport(Harbeth)
+import Harbeth
+#endif
 
 open class PhotoEditorViewController: BaseViewController {
     
@@ -117,7 +120,13 @@ open class PhotoEditorViewController: BaseViewController {
     var pState: State = .normal
     var filterHDImage: UIImage?
     var mosaicImage: UIImage?
+    
+    #if canImport(Harbeth)
+    var metalFilters: [PhotoEditorFilterEditModel.`Type`: C7FilterProtocol] = [:]
+    #endif
+    
     var thumbnailImage: UIImage!
+    
     var transitionalImage: UIImage?
     var transitionCompletion: Bool = true
     var isFinishedBack: Bool = false
@@ -155,19 +164,24 @@ open class PhotoEditorViewController: BaseViewController {
             }
             showTopView()
         }
-        if isFilter {
-            isFilter = false
-            resetOtherOption()
-            hiddenFilterView()
-            imageView.canLookOriginal = false
-            return
-        }
-        if showChartlet {
-            imageView.isEnabled = true
-            showChartlet = false
-            resetOtherOption()
-            hiddenChartletView()
-            return
+        if let type = currentToolOption?.type {
+            if type == .filter {
+                if isShowFilterParameter {
+                    hideFilterParameterView()
+                    return
+                }
+                currentToolOption = nil
+                resetOtherOption()
+                hiddenFilterView()
+                imageView.canLookOriginal = false
+                return
+            }else if type == .chartlet {
+                currentToolOption = nil
+                imageView.isEnabled = true
+                resetOtherOption()
+                hiddenChartletView()
+                return
+            }
         }
         if topViewIsHidden {
             showTopView()
@@ -191,12 +205,16 @@ open class PhotoEditorViewController: BaseViewController {
     }()
     
     public lazy var topView: UIView = {
-        let view = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
-        let cancelBtn = UIButton.init(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
-        cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
-        cancelBtn.addTarget(self, action: #selector(didBackButtonClick), for: .touchUpInside)
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
         view.addSubview(cancelBtn)
         return view
+    }()
+    
+    public lazy var cancelBtn: UIButton = {
+        let cancelBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 57, height: 44))
+        cancelBtn.setImage(UIImage.image(for: config.backButtonImageName), for: .normal)
+        cancelBtn.addTarget(self, action: #selector(didBackButtonClick), for: .touchUpInside)
+        return cancelBtn
     }()
     
     @objc func didBackButtonClick() {
@@ -281,7 +299,6 @@ open class PhotoEditorViewController: BaseViewController {
         view.isHidden = true
         return view
     }()
-    var showChartlet: Bool = false
     lazy var chartletView: EditorChartletView = {
         let view = EditorChartletView(
             config: config.chartlet,
@@ -293,12 +310,13 @@ open class PhotoEditorViewController: BaseViewController {
     
     public lazy var cropToolView: PhotoEditorCropToolView = {
         var showRatios = true
-        if config.cropping.fixedRatio || config.cropping.isRoundCrop {
+        if config.cropping.aspectRatios.isEmpty || config.cropping.isRoundCrop {
             showRatios = false
         }
-        let view = PhotoEditorCropToolView.init(
+        let view = PhotoEditorCropToolView(
             showRatios: showRatios,
-            scaleArray: config.cropping.aspectRatios
+            scaleArray: config.cropping.aspectRatios,
+            defaultSelectedIndex: config.cropping.defaultSeletedIndex
         )
         view.delegate = self
         view.themeColor = config.cropping.aspectRatioSelectedColor
@@ -313,13 +331,18 @@ open class PhotoEditorViewController: BaseViewController {
         view.isHidden = true
         return view
     }()
-    var isFilter = false
     var filterImage: UIImage?
     lazy var filterView: PhotoEditorFilterView = {
         let view = PhotoEditorFilterView(
             filterConfig: config.filter,
             hasLastFilter: editResult?.editedData.hasFilter ?? false
         )
+        view.delegate = self
+        return view
+    }()
+    var isShowFilterParameter = false
+    lazy var filterParameterView: PhotoEditorFilterParameterView = {
+        let view = PhotoEditorFilterParameterView(sliderColor: config.filter.selectedColor)
         view.delegate = self
         return view
     }()
@@ -383,6 +406,7 @@ open class PhotoEditorViewController: BaseViewController {
             }
             if toolOptions.contains(.filter) {
                 view.addSubview(filterView)
+                view.addSubview(filterParameterView)
             }
         }
         view.layer.addSublayer(topMaskLayer)
@@ -406,7 +430,9 @@ open class PhotoEditorViewController: BaseViewController {
     open override func deviceOrientationWillChanged(notify: Notification) {
         orientationDidChange = true
         imageViewDidChange = false
-        if showChartlet {
+        
+        if let type = currentToolOption?.type,
+           type == .chartlet {
             singleTap()
         }
         imageView.undoAllDraw()
@@ -420,6 +446,8 @@ open class PhotoEditorViewController: BaseViewController {
         imageView.undoAllSticker()
         imageView.reset(false)
         imageView.finishCropping(false)
+        imageView.imageResizerView.isDidFinishedClick = false
+        cropToolView.resetSelected()
         if config.fixedCropState {
             return
         }
@@ -439,23 +467,25 @@ open class PhotoEditorViewController: BaseViewController {
             height: 50 + UIDevice.bottomMargin
         )
         toolView.reloadContentInset()
+        topView.y = 0
         topView.width = view.width
-        topView.height = navigationController?.navigationBar.height ?? 44
-        let cancelButton = topView.subviews.first
-        cancelButton?.x = UIDevice.leftMargin
+        topView.height = UIDevice.isPortrait ? 44 : 32
+        cancelBtn.height = topView.height
+        cancelBtn.x = UIDevice.leftMargin
         let viewControllersCount = navigationController?.viewControllers.count ?? 0
         if let modalPresentationStyle = navigationController?.modalPresentationStyle,
            UIDevice.isPortrait {
-            if modalPresentationStyle == .fullScreen ||
+            if (modalPresentationStyle == .fullScreen ||
                 modalPresentationStyle == .custom ||
-                viewControllersCount > 1 {
+                viewControllersCount > 1) &&
+                modalPresentationStyle != .pageSheet {
                 topView.y = UIDevice.generalStatusBarHeight
             }
         }else if (
             modalPresentationStyle == .fullScreen ||
             modalPresentationStyle == .custom ||
             viewControllersCount > 1
-        ) && UIDevice.isPortrait {
+        ) && UIDevice.isPortrait && modalPresentationStyle != .pageSheet {
             topView.y = UIDevice.generalStatusBarHeight
         }
         topMaskLayer.frame = CGRect(x: 0, y: 0, width: view.width, height: topView.frame.maxY + 10)
@@ -468,7 +498,11 @@ open class PhotoEditorViewController: BaseViewController {
         if toolOptions.contains(.graffiti) {
             brushColorView.frame = CGRect(x: 0, y: toolView.y - 65, width: view.width, height: 65)
             brushBlockView.x = view.width - 45 - UIDevice.rightMargin
-            brushBlockView.centerY = view.height * 0.5
+            if UIDevice.isPortrait {
+                brushBlockView.centerY = view.height * 0.5
+            }else {
+                brushBlockView.y = brushColorView.y - brushBlockView.height
+            }
         }
         if toolOptions.contains(.mosaic) {
             mosaicToolView.frame = cropToolFrame
@@ -478,11 +512,14 @@ open class PhotoEditorViewController: BaseViewController {
         }
         if toolOptions.contains(.filter) {
             setFilterViewFrame()
+            setFilterParameterViewFrame()
         }
         if !imageView.frame.equalTo(view.bounds) && !imageView.frame.isEmpty && !imageViewDidChange {
             imageView.frame = view.bounds
             imageView.reset(false)
             imageView.finishCropping(false)
+            imageView.imageResizerView.isDidFinishedClick = false
+            cropToolView.resetSelected()
             orientationDidChange = true
         }else {
             imageView.frame = view.bounds
@@ -527,7 +564,8 @@ open class PhotoEditorViewController: BaseViewController {
         if viewHeight > view.height {
             viewHeight = view.height * 0.6
         }
-        if showChartlet {
+        if let type = currentToolOption?.type,
+           type == .chartlet {
             chartletView.frame = CGRect(
                 x: 0,
                 y: view.height - viewHeight - UIDevice.bottomMargin,
@@ -544,19 +582,44 @@ open class PhotoEditorViewController: BaseViewController {
         }
     }
     func setFilterViewFrame() {
-        if isFilter {
+        let filterHeight: CGFloat
+        #if canImport(Harbeth)
+        filterHeight = 155 + UIDevice.bottomMargin
+        #else
+        filterHeight = 125 + UIDevice.bottomMargin
+        #endif
+        if let type = currentToolOption?.type,
+           type == .filter {
             filterView.frame = CGRect(
                 x: 0,
-                y: view.height - 150 - UIDevice.bottomMargin,
+                y: view.height - filterHeight,
                 width: view.width,
-                height: 150 + UIDevice.bottomMargin
+                height: filterHeight
             )
         }else {
             filterView.frame = CGRect(
                 x: 0,
                 y: view.height + 10,
                 width: view.width,
-                height: 150 + UIDevice.bottomMargin
+                height: filterHeight
+            )
+        }
+    }
+    func setFilterParameterViewFrame() {
+        let editHeight = max(CGFloat(filterParameterView.models.count) * 40 + 30 + UIDevice.bottomMargin, filterView.height)
+        if isShowFilterParameter {
+            filterParameterView.frame = .init(
+                x: 0,
+                y: view.height - editHeight,
+                width: view.width,
+                height: editHeight
+            )
+        }else {
+            filterParameterView.frame = .init(
+                x: 0,
+                y: view.height,
+                width: view.width,
+                height: editHeight
             )
         }
     }

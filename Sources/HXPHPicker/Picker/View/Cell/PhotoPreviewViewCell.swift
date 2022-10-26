@@ -22,6 +22,13 @@ protocol PhotoPreviewViewCellDelegate: AnyObject {
 
 open class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
+    public var photoAsset: PhotoAsset! {
+        didSet {
+            setupScrollViewContentSize()
+            scrollContentView.photoAsset = photoAsset
+        }
+    }
+    
     weak var delegate: PhotoPreviewViewCellDelegate?
     
     var scrollContentView: PhotoPreviewContentView!
@@ -53,13 +60,6 @@ open class PhotoPreviewViewCell: UICollectionViewCell, UIScrollViewDelegate {
         scrollView.addGestureRecognizer(longPress)
         return scrollView
     }()
-    
-    var photoAsset: PhotoAsset! {
-        didSet {
-            setupScrollViewContentSize()
-            scrollContentView.photoAsset = photoAsset
-        }
-    }
     
     var statusBarShouldBeHidden = false
     var allowInteration: Bool = true

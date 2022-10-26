@@ -45,19 +45,26 @@ public class PhotoEditorCropToolView: UIView {
     var showRatios: Bool
     var themeColor: UIColor?
     var currentSelectedModel: PhotoEditorCropToolModel?
+    var lastSelectedModel: PhotoEditorCropToolModel?
+    var tmpLastSelectedModel: PhotoEditorCropToolModel?
+    var defaultSelectedIndex: Int
     init(
         showRatios: Bool,
-        scaleArray: [[Int]]
+        scaleArray: [[Int]],
+        defaultSelectedIndex: Int = 0
     ) {
         self.showRatios = showRatios
+        self.defaultSelectedIndex = defaultSelectedIndex
         var ratioModels: [PhotoEditorCropToolModel] = []
         for ratioArray in scaleArray {
             let model = PhotoEditorCropToolModel.init()
             model.widthRatio = CGFloat(ratioArray.first!)
             model.heightRatio = CGFloat(ratioArray.last!)
-            if ratioModels.count == 0 {
+            if ratioModels.count == defaultSelectedIndex {
                 model.isSelected = true
                 currentSelectedModel = model
+                lastSelectedModel = model
+                tmpLastSelectedModel = model
             }
             ratioModels.append(model)
         }
@@ -74,12 +81,42 @@ public class PhotoEditorCropToolView: UIView {
             right: UIDevice.rightMargin
         )
     }
-    func reset(animated: Bool) {
+    func resetSelected() {
+        if defaultSelectedIndex > ratioModels.count - 1 {
+            return
+        }
         currentSelectedModel?.isSelected = false
-        currentSelectedModel = ratioModels.first
+        let model = ratioModels[defaultSelectedIndex]
+        model.isSelected = true
+        currentSelectedModel = model
+        lastSelectedModel = model
+        tmpLastSelectedModel = model
+        reset(animated: false)
+    }
+    func resetLast() {
+        if !showRatios {
+            return
+        }
+        lastSelectedModel = tmpLastSelectedModel
+    }
+    func reset(animated: Bool) {
+        if !showRatios {
+            return
+        }
+        currentSelectedModel?.isSelected = false
+        if let lastSelectedModel = lastSelectedModel {
+            currentSelectedModel = lastSelectedModel
+        }else {
+            currentSelectedModel = ratioModels.first
+        }
         currentSelectedModel?.isSelected = true
         collectionView.reloadData()
-        collectionView.setContentOffset(CGPoint(x: -collectionView.contentInset.left, y: 0), animated: animated)
+        if let lastSelectedModel = lastSelectedModel,
+           let index = ratioModels.firstIndex(of: lastSelectedModel) {
+            collectionView.scrollToItem(at: .init(item: index, section: 0), at: .centeredHorizontally, animated: animated)
+        }else {
+            collectionView.setContentOffset(CGPoint(x: -collectionView.contentInset.left, y: 0), animated: animated)
+        }
     }
     public override func layoutSubviews() {
         super.layoutSubviews()
@@ -140,7 +177,7 @@ extension PhotoEditorCropToolView: UICollectionViewDelegate, UICollectionViewDel
         }else {
             let scale = scaleWidth / model.widthRatio
             var itemWidth = model.widthRatio * scale
-            var itemHeight = model.heightRatio * scale
+            var itemHeight = max(model.heightRatio * scale, 20)
             if itemHeight > scaleWidth {
                 itemHeight = scaleWidth
                 itemWidth = scaleWidth / model.heightRatio * model.widthRatio
@@ -187,10 +224,11 @@ extension PhotoEditorCropToolView: UICollectionViewDelegate, UICollectionViewDel
         currentSelectedModel = model
         var reloadIndexPaths: [IndexPath] = []
         reloadIndexPaths.append(indexPath)
-        if selectedIndexPath != nil {
-            reloadIndexPaths.append(selectedIndexPath!)
+        if let selectedIndexPath = selectedIndexPath {
+            reloadIndexPaths.append(selectedIndexPath)
         }
         collectionView.reloadItems(at: reloadIndexPaths)
+//        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         delegate?.cropToolView(didChangedAspectRatio: self, at: model)
     }
 }

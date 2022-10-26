@@ -22,6 +22,8 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
             return
         }
         pState = .normal
+        cropToolView.tmpLastSelectedModel = cropToolView.currentSelectedModel
+        cropToolView.resetLast()
         imageView.finishCropping(true)
         croppingAction()
     }
@@ -31,6 +33,7 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
     func cropConfirmView(didResetButtonClick cropConfirmView: EditorCropConfirmView) {
         cropConfirmView.resetButton.isEnabled = false
         imageView.reset(true)
+        cropToolView.lastSelectedModel = nil
         cropToolView.reset(animated: true)
     }
     
@@ -45,6 +48,7 @@ extension PhotoEditorViewController: EditorCropConfirmViewDelegate {
         }
         pState = .normal
         imageView.cancelCropping(true)
+        cropToolView.resetLast()
         croppingAction()
     }
 }

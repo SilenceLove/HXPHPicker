@@ -121,6 +121,13 @@ class EditorImageResizerView: UIView {
         return imageView
     }()
     
+    var imageSize: CGSize {
+        if let image = imageView.image as? UIImage {
+            return image.size
+        }
+        return .zero
+    }
+    
     lazy var maskBgView: EditorImageResizerMaskView = {
         let maskBgView = EditorImageResizerMaskView.init(isMask: true, maskType: cropConfig.maskType)
         maskBgView.isRoundCrop = cropConfig.isRoundCrop
@@ -186,6 +193,11 @@ class EditorImageResizerView: UIView {
     var currentAspectRatio: CGSize = .zero
     /// 是否固定比例
     var isFixedRatio: Bool = false
+    var oldIsFixedRatio = false
+    var oldAspectRatio: CGSize = .zero
+    
+    var isDidFinishedClick = false
+    
     var currentAngle: CGFloat = 0 {
         didSet {
             imageView.stickerView.angle = currentAngle

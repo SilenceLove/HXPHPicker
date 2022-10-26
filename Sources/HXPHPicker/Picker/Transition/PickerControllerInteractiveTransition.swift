@@ -119,14 +119,14 @@ class PickerControllerInteractiveTransition: UIPercentDrivenInteractiveTransitio
                 if velocity.x > pickerController.view.width {
                     isFinish = true
                 }else {
-                    isFinish = pickerController.view.x > pickerController.view.width * 0.3
+                    isFinish = pickerController.view.x > pickerController.view.width * 0.6
                 }
             }else {
                 isFinish = pickerController.view.y > pickerController.view.height * 0.4
             }
             if isFinish {
                 finish()
-                var duration: TimeInterval = type == .pop ? 0.25 : 0.2
+                var duration: TimeInterval = 0.2
                 if type == .pop {
                     if velocity.x > pickerController.view.width {
                         duration *= pickerController.view.width / velocity.x

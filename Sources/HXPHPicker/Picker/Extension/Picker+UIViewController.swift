@@ -45,14 +45,16 @@ public extension HXPickerWrapper where Base: UIViewController {
         preview assets: [PhotoAsset],
         pageIndex: Int = 0,
         config: PickerConfiguration,
+        modalPresentationStyle: UIModalPresentationStyle = .fullScreen,
         delegate: PhotoPickerControllerDelegate? = nil
     ) -> PhotoPickerController {
         let previewController = PhotoPickerController(
             preview: config,
+            previewAssets: assets,
             currentIndex: pageIndex,
+            modalPresentationStyle: modalPresentationStyle,
             delegate: delegate
         )
-        previewController.selectedAssetArray = assets
         base.present(
             previewController,
             animated: true

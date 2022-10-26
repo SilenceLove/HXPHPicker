@@ -88,7 +88,10 @@ class EditorConfigurationViewController: UITableViewController {
                 }
             }else {
                 if assetType == 0 {
-                    let vc = EditorController.init(videoURL: videoURL, config: videoConfig)
+                    let vc = EditorController(
+                        videoURL: videoURL,
+                        config: videoConfig
+                    )
                     vc.videoEditorDelegate = self
                     present(vc, animated: true, completion: nil)
                 }else {
@@ -96,7 +99,10 @@ class EditorConfigurationViewController: UITableViewController {
                         string:
                             "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/picker_examle_video.mp4"
                     )!
-                    let vc = EditorController.init(networkVideoURL: networkURL, config: videoConfig)
+                    let vc = EditorController(
+                        networkVideoURL: networkURL,
+                        config: videoConfig
+                    )
                     vc.videoEditorDelegate = self
                     present(vc, animated: true, completion: nil)
                 }
@@ -365,6 +371,16 @@ extension EditorConfigurationViewController {
                 return photoConfig.cropping.fixedRatio ? "true" : "false"
             case .aspectRatioType:
                 return photoConfig.cropping.aspectRatioType.title
+            case .aspectRatios:
+                if photoConfig.cropping.aspectRatios.isEmpty {
+                    return "空数组"
+                }else {
+                    return "默认数组"
+                }
+            case .defaultSeletedIndex:
+                return String(photoConfig.cropping.defaultSeletedIndex)
+            case .resetToOriginal:
+                return photoConfig.cropping.resetToOriginal ? "true" : "false"
             case .maskType:
                 switch photoConfig.cropping.maskType {
                 case .blackColor:
@@ -440,10 +456,12 @@ extension EditorConfigurationViewController {
     }
     func isRoundCropAction(_ indexPath: IndexPath) {
         photoConfig.cropping.isRoundCrop = !photoConfig.cropping.isRoundCrop
+        videoConfig.cropSize.isRoundCrop = !videoConfig.cropSize.isRoundCrop
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func fixedRatioAction(_ indexPath: IndexPath) {
         photoConfig.cropping.fixedRatio = !photoConfig.cropping.fixedRatio
+        videoConfig.cropSize.fixedRatio = !photoConfig.cropping.fixedRatio
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
     func aspectRatioTypeAction(_ indexPath: IndexPath) {
@@ -469,11 +487,98 @@ extension EditorConfigurationViewController {
             let heightRatioStr = heightTextFiled?.text ?? "0"
             let heightRatio = Int(heightRatioStr.count == 0 ? "0" : heightRatioStr)!
             self.photoConfig.cropping.aspectRatioType = .custom(CGSize(width: widthRatio, height: heightRatio))
-            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            self.videoConfig.cropSize.aspectRatioType = .custom(CGSize(width: widthRatio, height: heightRatio))
+            self.photoConfig.cropping.defaultSeletedIndex = 0
+            self.videoConfig.cropSize.defaultSeletedIndex = 0
+            self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    func aspectRatiosAction(_ indexPath: IndexPath) {
+        let alert = UIAlertController.init(title: "aspectRatiosAction", message: nil, preferredStyle: .alert)
+        alert.addAction(.init(title: "默认数组", style: .default, handler: { [weak self] _ in
+            self?.photoConfig.cropping.aspectRatios = [[0, 0], [1, 1], [3, 2], [2, 3], [4, 3], [3, 4], [16, 9], [9, 16]]
+            self?.videoConfig.cropSize.aspectRatios = [[0, 0], [1, 1], [3, 2], [2, 3], [4, 3], [3, 4], [16, 9], [9, 16]]
+            self?.photoConfig.cropping.defaultSeletedIndex = 0
+            self?.videoConfig.cropSize.defaultSeletedIndex = 0
+            self?.photoConfig.cropping.aspectRatioType = .original
+            self?.videoConfig.cropSize.aspectRatioType = .original
+            self?.tableView.reloadData()
+        }))
+        alert.addAction(.init(title: "[0, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 1], [3, 1], [4, 1]", style: .default, handler: { [weak self] _ in
+            self?.photoConfig.cropping.aspectRatios = [[0, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 1], [3, 1], [4, 1]]
+            self?.videoConfig.cropSize.aspectRatios = [[0, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 1], [3, 1], [4, 1]]
+            self?.photoConfig.cropping.defaultSeletedIndex = 0
+            self?.videoConfig.cropSize.defaultSeletedIndex = 0
+            self?.photoConfig.cropping.aspectRatioType = .original
+            self?.videoConfig.cropSize.aspectRatioType = .original
+            self?.tableView.reloadData()
+        }))
+        alert.addAction(.init(title: "[0, 0], [1, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]", style: .default, handler: { [weak self] _ in
+            self?.photoConfig.cropping.aspectRatios = [[0, 0], [1, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]]
+            self?.videoConfig.cropSize.aspectRatios = [[0, 0], [1, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]]
+            self?.photoConfig.cropping.defaultSeletedIndex = 0
+            self?.videoConfig.cropSize.defaultSeletedIndex = 0
+            self?.photoConfig.cropping.aspectRatioType = .original
+            self?.videoConfig.cropSize.aspectRatioType = .original
+            self?.tableView.reloadData()
+        }))
+        alert.addAction(.init(title: "清空数组", style: .default, handler: { [weak self] _ in
+            self?.photoConfig.cropping.aspectRatios = []
+            self?.videoConfig.cropSize.aspectRatios = []
+            self?.photoConfig.cropping.defaultSeletedIndex = 0
+            self?.videoConfig.cropSize.defaultSeletedIndex = 0
+            self?.photoConfig.cropping.aspectRatioType = .original
+            self?.videoConfig.cropSize.aspectRatioType = .original
+            self?.tableView.reloadData()
+        }))
+        alert.addAction(.init(title: "取消", style: .cancel))
+        present(alert, animated: true, completion: nil)
+    }
+    func defaultSeletedIndexAction(_ indexPath: IndexPath) {
+        let alert = UIAlertController.init(title: "defaultSeletedIndexAction", message: nil, preferredStyle: .alert)
+        alert.addTextField { (textfield) in
+            textfield.keyboardType = .numberPad
+            textfield.placeholder = "请输入默认下标"
+        }
+        alert.addAction(
+            UIAlertAction(
+                title: "确定",
+                style: .default,
+                handler: { [weak self] (action) in
+                    guard let self = self else { return }
+            let textFiled = alert.textFields?.first
+            let str = textFiled?.text ?? "0"
+            let index = Int(str.count == 0 ? "0" : str)!
+            if self.photoConfig.cropping.aspectRatios.isEmpty {
+                self.photoConfig.cropping.defaultSeletedIndex = 0
+                self.videoConfig.cropSize.defaultSeletedIndex = 0
+                self.photoConfig.cropping.fixedRatio = false
+                self.videoConfig.cropSize.fixedRatio = false
+            }else {
+                self.photoConfig.cropping.defaultSeletedIndex = index
+                self.videoConfig.cropSize.defaultSeletedIndex = index
+                self.photoConfig.cropping.fixedRatio = index != 0
+                self.videoConfig.cropSize.fixedRatio = index != 0
+                
+                let aspectRatio = self.photoConfig.cropping.aspectRatios[index]
+                self.photoConfig.cropping.aspectRatioType = .custom(.init(width: aspectRatio.first!, height: aspectRatio.last!))
+                
+                let aspectRatio1 = self.videoConfig.cropSize.aspectRatios[index]
+                self.videoConfig.cropSize.aspectRatioType = .custom(.init(width: aspectRatio1.first!, height: aspectRatio1.last!))
+            }
+            self.tableView.reloadData()
+        }))
+        alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    func resetToOriginalAction(_ indexPath: IndexPath) {
+        photoConfig.cropping.resetToOriginal = !photoConfig.cropping.resetToOriginal
+        videoConfig.cropSize.resetToOriginal = !videoConfig.cropSize.resetToOriginal
+        tableView.reloadRows(at: [indexPath], with: .fade)
+    }
+    
     func maskTypeAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maskTypeAction", message: nil, preferredStyle: .alert)
         let titles = ["blackColor", "darkBlurEffect", "lightBlurEffect"]
@@ -484,10 +589,13 @@ extension EditorConfigurationViewController {
                 switch index {
                 case 0:
                     self.photoConfig.cropping.maskType = .blackColor
+                    self.videoConfig.cropSize.maskType = .blackColor
                 case 1:
                     self.photoConfig.cropping.maskType = .darkBlurEffect
+                    self.videoConfig.cropSize.maskType = .darkBlurEffect
                 case 2:
                     self.photoConfig.cropping.maskType = .lightBlurEffect
+                    self.videoConfig.cropSize.maskType = .lightBlurEffect
                 default:
                     break
                 }
@@ -644,12 +752,16 @@ extension EditorConfigurationViewController {
             }
         }
     }
+    
     enum PhotoEditorRow: String, CaseIterable, ConfigRowTypeRule {
         case state
         case fixedCropState
         case isRoundCrop
         case fixedRatio
         case aspectRatioType
+        case aspectRatios
+        case defaultSeletedIndex
+        case resetToOriginal
         case maskType
         var title: String {
             switch self {
@@ -663,6 +775,12 @@ extension EditorConfigurationViewController {
                 return "固定比例"
             case .aspectRatioType:
                 return "默认宽高比"
+            case .aspectRatios:
+                return "宽高比数组"
+            case .defaultSeletedIndex:
+                return "宽高比数组默认选中下标"
+            case .resetToOriginal:
+                return "是否重置到原始宽高比"
             case .maskType:
                 return "裁剪时遮罩类型"
             }
@@ -693,6 +811,12 @@ extension EditorConfigurationViewController {
                 return controller.fixedRatioAction(_:)
             case .aspectRatioType:
                 return controller.aspectRatioTypeAction(_:)
+            case .aspectRatios:
+                return controller.aspectRatiosAction(_:)
+            case .defaultSeletedIndex:
+                return controller.defaultSeletedIndexAction(_:)
+            case .resetToOriginal:
+                return controller.resetToOriginalAction(_:)
             case .maskType:
                 return controller.maskTypeAction(_:)
             }

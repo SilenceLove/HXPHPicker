@@ -22,6 +22,7 @@ class AvatarPickerConfigurationViewController: UITableViewController {
         config.photoEditor.cropping.isRoundCrop = true
         config.photoEditor.cropping.aspectRatioType = .ratio_1x1
         config.photoEditor.cropping.fixedRatio = true
+        config.photoEditor.cropping.aspectRatios = []
         
         tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(ConfigurationViewCell.self, forCellReuseIdentifier: ConfigurationViewCell.reuseIdentifier)
@@ -119,6 +120,10 @@ extension AvatarPickerConfigurationViewController {
                 return config.photoEditor.cropping.fixedRatio ? "true" : "false"
             case .aspectRatioType:
                 return config.photoEditor.cropping.aspectRatioType.title
+            case .aspectRatios:
+                return config.photoEditor.cropping.aspectRatios.isEmpty ? "true": "false"
+            case .defaultSeletedIndex:
+                return String(config.photoEditor.cropping.defaultSeletedIndex)
             case .maskType:
                 switch config.photoEditor.cropping.maskType {
                 case .blackColor:
@@ -203,7 +208,48 @@ extension AvatarPickerConfigurationViewController {
             let heightRatioStr = heightTextFiled?.text ?? "0"
             let heightRatio = Int(heightRatioStr.count == 0 ? "0" : heightRatioStr)!
             self.config.photoEditor.cropping.aspectRatioType = .custom(CGSize(width: widthRatio, height: heightRatio))
-            self.tableView.reloadRows(at: [indexPath], with: .fade)
+            self.config.photoEditor.cropping.defaultSeletedIndex = 0
+            self.tableView.reloadData()
+        }))
+        alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    func aspectRatiosAction(_ indexPath: IndexPath) {
+        if config.photoEditor.cropping.aspectRatios.isEmpty {
+            config.photoEditor.cropping.aspectRatios = [[0, 0], [1, 1], [3, 2], [2, 3], [4, 3], [3, 4], [16, 9], [9, 16]]
+        }else {
+            config.photoEditor.cropping.aspectRatios = []
+        }
+        config.photoEditor.cropping.aspectRatioType = .original
+        config.photoEditor.cropping.defaultSeletedIndex = 0
+        tableView.reloadData()
+    }
+    func defaultSeletedIndexAction(_ indexPath: IndexPath) {
+        let alert = UIAlertController.init(title: "defaultSeletedIndexAction", message: nil, preferredStyle: .alert)
+        alert.addTextField { (textfield) in
+            textfield.keyboardType = .numberPad
+            textfield.placeholder = "请输入默认下标"
+        }
+        alert.addAction(
+            UIAlertAction(
+                title: "确定",
+                style: .default,
+                handler: { [weak self] (action) in
+                    guard let self = self else { return }
+            let textFiled = alert.textFields?.first
+            let str = textFiled?.text ?? "0"
+            let index = Int(str.count == 0 ? "0" : str)!
+            if self.config.photoEditor.cropping.aspectRatios.isEmpty {
+                self.config.photoEditor.cropping.defaultSeletedIndex = 0
+                self.config.photoEditor.cropping.fixedRatio = false
+            }else {
+                self.config.photoEditor.cropping.defaultSeletedIndex = index
+                self.config.photoEditor.cropping.fixedRatio = index != 0
+                
+                let aspectRatio = self.config.photoEditor.cropping.aspectRatios[index]
+                self.config.photoEditor.cropping.aspectRatioType = .custom(.init(width: aspectRatio.first!, height: aspectRatio.last!))
+            }
+            self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
@@ -297,6 +343,8 @@ extension AvatarPickerConfigurationViewController {
         case isRoundCrop
         case fixedRatio
         case aspectRatioType
+        case aspectRatios
+        case defaultSeletedIndex
         case maskType
         var title: String {
             switch self {
@@ -308,6 +356,10 @@ extension AvatarPickerConfigurationViewController {
                 return "固定比例"
             case .aspectRatioType:
                 return "默认宽高比"
+            case .defaultSeletedIndex:
+                return "宽高比数组默认下标"
+            case .aspectRatios:
+                return "清空宽高比数组"
             case .maskType:
                 return "裁剪时遮罩类型"
             }
@@ -333,6 +385,10 @@ extension AvatarPickerConfigurationViewController {
                 return controller.fixedRatioAction(_:)
             case .aspectRatioType:
                 return controller.aspectRatioTypeAction(_:)
+            case .defaultSeletedIndex:
+                return controller.defaultSeletedIndexAction(_:)
+            case .aspectRatios:
+                return controller.aspectRatiosAction(_:)
             case .maskType:
                 return controller.maskTypeAction(_:)
             }

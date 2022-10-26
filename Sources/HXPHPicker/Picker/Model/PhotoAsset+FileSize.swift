@@ -65,17 +65,16 @@ extension PhotoAsset {
             return fileSize
         }
         let assetResources = PHAssetResource.assetResources(for: photoAsset)
-        let assetIsLivePhoto = photoAsset.isLivePhoto
-        var livePhotoType: PHAssetResourceType = .photo
-        var liveVideoType: PHAssetResourceType = .pairedVideo
-        for assetResource in assetResources where
-            assetResource.type == .adjustmentData {
-            livePhotoType = .fullSizePhoto
-            liveVideoType = .fullSizePairedVideo
-            break
-        }
-        for assetResource in assetResources {
-            if assetIsLivePhoto {
+        if photoAsset.isLivePhoto {
+            var livePhotoType: PHAssetResourceType = .photo
+            var liveVideoType: PHAssetResourceType = .pairedVideo
+            for assetResource in assetResources where
+                assetResource.type == .adjustmentData {
+                livePhotoType = .fullSizePhoto
+                liveVideoType = .fullSizePairedVideo
+                break
+            }
+            for assetResource in assetResources {
                 if mediaSubType != .livePhoto {
                     if assetResource.type == .photo {
                         if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
@@ -92,9 +91,36 @@ extension PhotoAsset {
                         break
                     }
                 }
-            }else {
                 if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
                     fileSize += photoFileSize
+                }
+            }
+        }else {
+            var resources: [PHAssetResourceType: PHAssetResource] = [:]
+            for resource in assetResources {
+                resources[resource.type] = resource
+            }
+            if photoAsset.mediaType == .image {
+                if let _ = resources[.photo],
+                   let fullPhoto = resources[.fullSizePhoto] {
+                    if let photoFileSize = fullPhoto.value(forKey: "fileSize") as? Int {
+                        fileSize += photoFileSize
+                    }
+                }else if let photo = resources[.photo] {
+                    if let photoFileSize = photo.value(forKey: "fileSize") as? Int {
+                        fileSize += photoFileSize
+                    }
+                }
+            }else if photoAsset.mediaType == .video {
+                if let _ = resources[.video],
+                   let fullVideo = resources[.fullSizeVideo] {
+                    if let photoFileSize = fullVideo.value(forKey: "fileSize") as? Int {
+                        fileSize += photoFileSize
+                    }
+                }else if let video = resources[.video] {
+                    if let photoFileSize = video.value(forKey: "fileSize") as? Int {
+                        fileSize += photoFileSize
+                    }
                 }
             }
         }

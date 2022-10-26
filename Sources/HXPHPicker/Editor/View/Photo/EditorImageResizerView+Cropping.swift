@@ -13,38 +13,26 @@ extension EditorImageResizerView {
         state = .cropping
         updateContentInsets(true)
         let margin: CGFloat = UIDevice.isPortrait ? 30 : 15
-//        resetOther()
         if hasCropping {
             mirrorType = oldMirrorType
             currentAngle = oldAngle
-            if !isFixedRatio {
-                controlView.fixedRatio = false
-            }
             // 之前有裁剪记录
             maskBgView.alpha = 1
             maskBgView.isHidden = false
             maskBgView.updateBlackMask(isShow: true, animated: false, completion: nil)
         }else {
             currentAngle = 0
-            /// 之前没有裁剪记录时，需要清除上一次设置的宽高比
-            if !isFixedRatio {
-                // 没有固定比例，重新设置的默认比例
-                controlViewAspectRatio()
-                checkOriginalRatio()
-                controlView.fixedRatio = false
-                currentAspectRatio = controlView.aspectRatio
-            }else {
-                cropTime_IsOriginalRatio = isOriginalRatio
-                cropTime_FixedRatio = controlView.fixedRatio
-                cropTime_AspectRatio = controlView.aspectRatio
-                controlView.fixedRatio = false
-                controlView.aspectRatio = .zero
-                currentAspectRatio = .zero
-                isOriginalRatio = true
-            }
+            
+            cropTime_IsOriginalRatio = isOriginalRatio
+            cropTime_FixedRatio = controlView.fixedRatio
+            cropTime_AspectRatio = controlView.aspectRatio
+            controlView.fixedRatio = false
+            controlView.aspectRatio = .zero
+            currentAspectRatio = .zero
+            isOriginalRatio = true
         }
         clipsToBounds = false
-//        controlView.isUserInteractionEnabled = true
+        
         /// 获取初始缩放比例
         let zoomScale = hasCropping ? oldZoomScale : getInitialZoomScale()
         /// 最小缩放比例
@@ -125,7 +113,7 @@ extension EditorImageResizerView {
     func cancelCropTime(_ animated: Bool) {
         state = .normal
         resetOther()
-        if isFixedRatio && !hasCropping {
+        if !hasCropping {
             isOriginalRatio = cropTime_IsOriginalRatio
             controlView.fixedRatio = cropTime_FixedRatio
             controlView.aspectRatio = cropTime_AspectRatio
@@ -181,23 +169,26 @@ extension EditorImageResizerView {
         if hasCropping {
             mirrorType = oldMirrorType
             currentAngle = oldAngle
-            if !isFixedRatio {
-                controlView.fixedRatio = false
-            }
+            isFixedRatio = oldIsFixedRatio
+            controlView.fixedRatio = oldIsFixedRatio
+            controlView.aspectRatio = oldAspectRatio
             // 之前有裁剪记录
             maskBgView.alpha = 1
             maskBgView.isHidden = false
             maskBgView.updateBlackMask(isShow: true, animated: false, completion: nil)
         }else {
             currentAngle = 0
-            /// 之前没有裁剪记录时，需要清除上一次设置的宽高比
-            if !isFixedRatio {
-                // 没有固定比例，重新设置的默认比例
-                controlViewAspectRatio()
-                checkOriginalRatio()
-                controlView.fixedRatio = false
+            
+            // 没有编辑过并且没有还原过，还是显示默认设置的裁剪状态
+            if !isDidFinishedClick {
+                configAspectRatio()
+            }else {
+                isFixedRatio = controlView.fixedRatio
                 currentAspectRatio = controlView.aspectRatio
+                checkOriginalRatio()
             }
+            oldIsFixedRatio = controlView.fixedRatio
+            oldAspectRatio = controlView.aspectRatio
         }
         clipsToBounds = false
         controlView.isUserInteractionEnabled = true
@@ -277,6 +268,10 @@ extension EditorImageResizerView {
         maskLinesView.showShadow(false)
         maskLinesView.showGridlinesLayer(false)
         controlView.isUserInteractionEnabled = false
+        
+        oldIsFixedRatio = controlView.fixedRatio
+        oldAspectRatio = controlView.aspectRatio
+        
         let fromSize = getExactnessSize(imageView.size)
         let toSize = getExactnessSize(controlView.size)
         let can_Reset = canReset()
@@ -299,6 +294,7 @@ extension EditorImageResizerView {
         }else {
             oldTransform = .identity
             hasCropping = false
+            isDidFinishedClick = true
         }
         if !updateCrop {
             return
@@ -412,6 +408,8 @@ extension EditorImageResizerView {
             /// 还原到初始状态
             clipsToBounds = false
             currentAngle = 0
+            controlView.fixedRatio = oldIsFixedRatio
+            controlView.aspectRatio = oldAspectRatio
             mirrorType = .none
             let maskRect = getMaskRect()
             updateMaskViewFrame(to: maskRect, animated: animated)
@@ -439,7 +437,7 @@ extension EditorImageResizerView {
         inControlTimer = false
         // 停止滑动
         scrollView.setContentOffset(scrollView.contentOffset, animated: false)
-        if !isFixedRatio {
+        if (!isFixedRatio || !cropConfig.aspectRatios.isEmpty || cropConfig.resetToOriginal) && !cropConfig.isRoundCrop {
             // 没有固定比例的时候重置需要还原原始比例
             controlView.fixedRatio = false
             controlView.aspectRatio = .zero
@@ -496,7 +494,7 @@ extension EditorImageResizerView {
             // 裁剪框大小还未初始化时
             return false
         }
-        if isFixedRatio {
+        if (isFixedRatio && cropConfig.aspectRatios.isEmpty && !cropConfig.resetToOriginal) || cropConfig.isRoundCrop {
             // 开启了固定比例
             let zoomScale = getInitialZoomScale()
             let maskViewFrame = getMaskViewFrame(true)

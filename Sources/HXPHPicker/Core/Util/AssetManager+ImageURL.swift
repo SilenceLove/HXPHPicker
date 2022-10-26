@@ -45,68 +45,57 @@ public extension AssetManager {
         )
     }
     
-    /// 请求获取图片地址
+    /// 获取原始图片地址
     /// - Parameters:
     ///   - asset: 对应的 PHAsset 数据
     ///   - fileURL: 指定本地地址
-    ///   - resultHandler: 获取结果
+    ///   - isOriginal: 是否获取系统相册最原始的数据，如果在系统相册编辑过，则获取的是未编辑的图片
+    ///   - resultHandler: 获取结果   
     static func requestImageURL(
         for asset: PHAsset,
         toFile fileURL: URL,
+        isOriginal: Bool = false,
         resultHandler: @escaping ImageURLResultHandler
     ) {
-        asset.checkAdjustmentStatus { (isAdjusted) in
-            if isAdjusted {
-                self.requestImageData(
-                    for: asset,
-                    version: .current,
-                    iCloudHandler: nil,
-                    progressHandler: nil
-                ) { (result) in
-                    switch result {
-                    case .success(let dataResult):
-                        if let imageURL = PhotoTools.write(
-                            toFile: fileURL,
-                            imageData: dataResult.imageData
-                        ) {
-                            resultHandler(.success(imageURL))
-                        }else {
-                            resultHandler(.failure(.fileWriteFailed))
-                        }
-                    case .failure(let error):
-                        resultHandler(.failure(error.error))
-                    }
-                }
-            }else {
-                var imageResource: PHAssetResource?
-                for resource in PHAssetResource.assetResources(for: asset) where
-                    resource.type == .photo {
-                    imageResource = resource
-                    break
-                }
-                guard let imageResource = imageResource else {
-                    resultHandler(.failure(.assetResourceIsEmpty))
-                    return
-                }
-                if !PhotoTools.removeFile(fileURL: fileURL) {
-                    resultHandler(.failure(.removeFileFailed))
-                    return
-                }
-                let imageURL = fileURL
-                let options = PHAssetResourceRequestOptions()
-                options.isNetworkAccessAllowed = true
-                PHAssetResourceManager.default().writeData(
-                    for: imageResource,
-                    toFile: imageURL,
-                    options: options
-                ) { error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            resultHandler(.failure(.assetResourceWriteDataFailed(error)))
-                        }else {
-                            resultHandler(.success(imageURL))
-                        }
-                    }
+        var imageResource: PHAssetResource?
+        var resources: [PHAssetResourceType: PHAssetResource] = [:]
+        for resource in PHAssetResource.assetResources(for: asset) {
+            resources[resource.type] = resource
+        }
+        if isOriginal {
+            if let resource = resources[.photo] {
+                imageResource = resource
+            }else if let resource = resources[.fullSizePhoto] {
+                imageResource = resource
+            }
+        }else {
+            if let resource = resources[.fullSizePhoto] {
+                imageResource = resource
+            }else if let resource = resources[.photo] {
+                imageResource = resource
+            }
+        }
+        guard let imageResource = imageResource else {
+            resultHandler(.failure(.assetResourceIsEmpty))
+            return
+        }
+        if !PhotoTools.removeFile(fileURL: fileURL) {
+            resultHandler(.failure(.removeFileFailed))
+            return
+        }
+        let imageURL = fileURL
+        let options = PHAssetResourceRequestOptions()
+        options.isNetworkAccessAllowed = true
+        PHAssetResourceManager.default().writeData(
+            for: imageResource,
+            toFile: imageURL,
+            options: options
+        ) { error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    resultHandler(.failure(.assetResourceWriteDataFailed(error)))
+                }else {
+                    resultHandler(.success(imageURL))
                 }
             }
         }

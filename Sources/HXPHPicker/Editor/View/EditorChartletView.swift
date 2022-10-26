@@ -172,6 +172,13 @@ class EditorChartletView: UIView {
             }
             titles.append(titleChartlet)
         }
+        #if HXPICKER_ENABLE_PICKER
+        if config.allowAddAlbum && !titles.isEmpty {
+            let chartlet = EditorChartletTitle(image: "hx_editor_tools_chartle_album".image)
+            chartlet.isAlbum = true
+            titles.append(chartlet)
+        }
+        #endif
     }
     
     @objc func longPressClick(longPress: UILongPressGestureRecognizer) {
@@ -281,7 +288,14 @@ extension EditorChartletView: UICollectionViewDataSource,
                               UICollectionViewDelegateFlowLayout,
                               EditorChartletViewListCellDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        titles.count
+        #if HXPICKER_ENABLE_PICKER
+        if config.allowAddAlbum && !titles.isEmpty {
+            if collectionView == listView {
+                return titles.count - 1
+            }
+        }
+        #endif
+        return titles.count
     }
     
     func collectionView(
@@ -357,6 +371,28 @@ extension EditorChartletView: UICollectionViewDataSource,
     ) {
         collectionView.deselectItem(at: indexPath, animated: false)
         if collectionView == titleView {
+            let chartlet = titles[indexPath.item]
+            #if HXPICKER_ENABLE_PICKER
+            if chartlet.isAlbum {
+                let pickerConfig = config.albumPickerConfigHandler?() ?? .init()
+                let pickerVC = Photo.picker(
+                    pickerConfig
+                ) { [weak self] pickerResult, pickerController in
+                    guard let self = self else { return }
+                    ProgressHUD.showLoading(addedTo: pickerController.view)
+                    pickerResult.getImage(compressionScale: 0.5) { [weak self] images in
+                        guard let self = self else { return }
+                        for image in images {
+                            self.delegate?.chartletView(self, didSelectImage: image, imageData: nil)
+                        }
+                        ProgressHUD.hide(forView: pickerController.view)
+                        pickerController.dismiss(animated: true)
+                    }
+                }
+                pickerVC.autoDismiss = false
+                return
+            }
+            #endif
             listView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
             requestData(index: indexPath.item)
         }

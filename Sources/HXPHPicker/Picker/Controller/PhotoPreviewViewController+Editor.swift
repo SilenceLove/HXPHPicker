@@ -35,7 +35,8 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
                 }
                 return
             }
-            reloadCell(for: photoAsset)
+            reloadCell(for: currentPreviewIndex)
+//            reloadCell(for: photoAsset)
             if !photoAsset.isSelected {
                 didSelectBoxControlClick()
             }
@@ -72,7 +73,8 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
             didSelectBoxControlClick()
         }
         if beforeHasEdit {
-            reloadCell(for: photoAsset)
+            reloadCell(for: currentPreviewIndex)
+//            reloadCell(for: photoAsset)
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
     }
@@ -124,10 +126,11 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
     public func photoEditorViewController(
         transitionPreviewImage photoEditorViewController: PhotoEditorViewController
     ) -> UIImage? {
-        guard let photoAsset = photoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView.imageView.image
+//        guard let photoAsset = photoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView.imageView.image
+//        return getCell(for: photoAsset)?.scrollContentView.imageView.image
     }
     public func photoEditorViewController(
         _ photoEditorViewController: PhotoEditorViewController,
@@ -139,19 +142,21 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
     public func photoEditorViewController(
         transitioBegenPreviewView photoEditorViewController: PhotoEditorViewController
     ) -> UIView? {
-        guard let photoAsset = photoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView
+//        guard let photoAsset = photoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView
+//        return getCell(for: photoAsset)?.scrollContentView
     }
     
     public func photoEditorViewController(
         transitioEndPreviewView photoEditorViewController: PhotoEditorViewController
     ) -> UIView? {
-        guard let photoAsset = photoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView
+//        guard let photoAsset = photoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView
+//        return getCell(for: photoAsset)?.scrollContentView
     }
 }
 // MARK: VideoEditorViewControllerDelegate
@@ -285,7 +290,8 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
                 }
                 return
             }
-            reloadCell(for: photoAsset)
+            reloadCell(for: currentPreviewIndex)
+//            reloadCell(for: photoAsset)
             if !photoAsset.isSelected {
                 didSelectBoxControlClick()
             }
@@ -319,7 +325,8 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
             return
         }
         if beforeHasEdit {
-            reloadCell(for: photoAsset)
+            reloadCell(for: currentPreviewIndex)
+//            reloadCell(for: photoAsset)
         }
         if !photoAsset.isSelected {
             didSelectBoxControlClick()
@@ -332,10 +339,11 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         transitionPreviewImage videoEditorViewController: VideoEditorViewController
     ) -> UIImage? {
-        guard let photoAsset = videoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView.imageView.image
+//        guard let photoAsset = videoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView.imageView.image
+//        return getCell(for: photoAsset)?.scrollContentView.imageView.image
     }
     
     public func videoEditorViewController(
@@ -348,19 +356,21 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
     public func videoEditorViewController(
         transitioBegenPreviewView videoEditorViewController: VideoEditorViewController
     ) -> UIView? {
-        guard let photoAsset = videoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView
+//        guard let photoAsset = videoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView
+//        return getCell(for: photoAsset)?.scrollContentView
     }
     
     public func videoEditorViewController(
         transitioEndPreviewView videoEditorViewController: VideoEditorViewController
     ) -> UIView? {
-        guard let photoAsset = videoEditorViewController.photoAsset else {
-            return nil
-        }
-        return getCell(for: photoAsset)?.scrollContentView
+//        guard let photoAsset = videoEditorViewController.photoAsset else {
+//            return nil
+//        }
+        return getCell(for: currentPreviewIndex)?.scrollContentView
+//        return getCell(for: photoAsset)?.scrollContentView
     }
 }
 #endif

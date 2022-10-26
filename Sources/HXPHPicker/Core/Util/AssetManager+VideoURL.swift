@@ -19,8 +19,10 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     static func requestVideoURL(
         for asset: PHAsset,
-        exportPreset: ExportPreset = .ratio_960x540,
-        videoQuality: Int = 5,
+        exportParameter: VideoExportParameter? = .init(
+            preset: .ratio_960x540,
+            quality: 6
+        ),
         resultHandler: @escaping VideoURLResultHandler
     ) {
         requestAVAsset(
@@ -30,8 +32,7 @@ public extension AssetManager {
         } resultHandler: { (_) in
             self.requestVideoURL(
                 mp4Format: asset,
-                exportPreset: exportPreset,
-                videoQuality: videoQuality,
+                exportParameter: exportParameter,
                 resultHandler: resultHandler
             )
         }
@@ -43,16 +44,17 @@ public extension AssetManager {
     ///   - resultHandler: 获取结果
     static func requestVideoURL(
         mp4Format asset: PHAsset,
-        exportPreset: ExportPreset = .ratio_960x540,
-        videoQuality: Int = 5,
+        exportParameter: VideoExportParameter? = .init(
+            preset: .ratio_960x540,
+            quality: 6
+        ),
         resultHandler: @escaping VideoURLResultHandler
     ) {
         let videoURL = PhotoTools.getVideoTmpURL()
         requestVideoURL(
             for: asset,
             toFile: videoURL,
-            exportPreset: exportPreset,
-            videoQuality: videoQuality,
+            exportParameter: exportParameter,
             resultHandler: resultHandler
         )
     }
@@ -65,87 +67,116 @@ public extension AssetManager {
     static func requestVideoURL(
         for asset: PHAsset,
         toFile fileURL: URL,
-        exportPreset: ExportPreset = .ratio_960x540,
-        videoQuality: Int = 6,
+        exportParameter: VideoExportParameter? = nil,
         resultHandler: @escaping VideoURLResultHandler
     ) {
-        asset.checkAdjustmentStatus { (isAdjusted) in
-            if isAdjusted {
-                self.requestAVAsset(
-                    for: asset,
-                       iCloudHandler: nil,
-                       progressHandler: nil
-                ) { (result) in
-                    switch result {
-                    case .success(let avResult):
-                        let avAsset = avResult.avAsset
-                        if let urlAsset = avAsset as? AVURLAsset,
-                           PhotoTools.copyFile(at: urlAsset.url, to: fileURL) {
-                            resultHandler(.success(fileURL))
-                        }else {
-                            let presetName = exportPreset.name
-                            guard let exportSession = AVAssetExportSession(
-                                    asset: avAsset,
-                                    presetName: presetName
-                            ) else {
-                                resultHandler(.failure(.exportFailed(nil)))
-                                return
-                            }
-                            exportSession.outputURL = fileURL
-                            exportSession.shouldOptimizeForNetworkUse = true
-                            exportSession.outputFileType = .mp4
-                            if videoQuality > 0 {
-                                exportSession.fileLengthLimit = PhotoTools.exportSessionFileLengthLimit(
-                                    seconds: avAsset.duration.seconds,
-                                    exportPreset: exportPreset,
-                                    videoQuality: videoQuality
-                                )
-                            }
-                            exportSession.exportAsynchronously(completionHandler: {
-                                DispatchQueue.main.async {
-                                    switch exportSession.status {
-                                    case .completed:
-                                        resultHandler(.success(fileURL))
-                                    case .failed, .cancelled:
-                                        resultHandler(.failure(.exportFailed(exportSession.error)))
-                                    default: break
-                                    }
-                                }
-                            })
-                        }
-                    case .failure(let error):
-                        resultHandler(.failure(error.error))
+        if let exportParameter = exportParameter {
+            requestAVAsset(
+                for: asset,
+                iCloudHandler: nil,
+                progressHandler: nil
+            ) { (result) in
+                switch result {
+                case .success(let avResult):
+                    let avAsset = avResult.avAsset
+                    let presetName = exportParameter.preset.name
+                    guard let exportSession = AVAssetExportSession(
+                            asset: avAsset,
+                            presetName: presetName
+                    ) else {
+                        resultHandler(.failure(.exportFailed(nil)))
+                        return
                     }
-                }
-            }else {
-                var videoResource: PHAssetResource?
-                for resource in PHAssetResource.assetResources(for: asset) where
-                    resource.type == .video {
-                    videoResource = resource
-                }
-                guard let videoResource = videoResource else {
-                    resultHandler(.failure(.assetResourceIsEmpty))
-                    return
-                }
-                if !PhotoTools.removeFile(fileURL: fileURL) {
-                    resultHandler(.failure(.removeFileFailed))
-                    return
-                }
-                let videoURL = fileURL
-                let options = PHAssetResourceRequestOptions()
-                options.isNetworkAccessAllowed = true
-                PHAssetResourceManager.default().writeData(
-                    for: videoResource,
-                    toFile: videoURL,
-                    options: options
-                ) { (error) in
-                    DispatchQueue.main.async {
-                        if error == nil {
-                            resultHandler(.success(videoURL))
-                        }else {
-                            resultHandler(.failure(.assetResourceWriteDataFailed(error!)))
+                    exportSession.outputURL = fileURL
+                    exportSession.shouldOptimizeForNetworkUse = true
+                    exportSession.outputFileType = .mp4
+                    if exportParameter.quality > 0 {
+                        var maxSize: Int?
+                        if let urlAsset = avAsset as? AVURLAsset {
+                            maxSize = urlAsset.url.fileSize
                         }
+                        exportSession.fileLengthLimit = PhotoTools.exportSessionFileLengthLimit(
+                            seconds: avAsset.duration.seconds,
+                            maxSize: maxSize,
+                            exportPreset: exportParameter.preset,
+                            videoQuality: exportParameter.quality
+                        )
                     }
+                    exportSession.exportAsynchronously(completionHandler: {
+                        DispatchQueue.main.async {
+                            switch exportSession.status {
+                            case .completed:
+                                resultHandler(.success(fileURL))
+                            case .failed, .cancelled:
+                                resultHandler(.failure(.exportFailed(exportSession.error)))
+                            default: break
+                            }
+                        }
+                    })
+                case .failure(let error):
+                    resultHandler(.failure(error.error))
+                }
+            }
+        }else {
+            requestOriginalVideoURL(
+                for: asset,
+                toFile: fileURL,
+                resultHandler: resultHandler
+            )
+        }
+    }
+    
+    /// 获取原始视频
+    /// - Parameters:
+    ///   - asset: 对应的 PHAsset 数据
+    ///   - fileURL: 指定视频地址
+    ///   - isOriginal: 是否获取系统相册最原始的数据，如果在系统相册编辑过，则获取的是未编辑的视频
+    ///   - resultHandler: 获取结果
+    static func requestOriginalVideoURL(
+        for asset: PHAsset,
+        toFile fileURL: URL,
+        isOriginal: Bool = false,
+        resultHandler: @escaping VideoURLResultHandler
+    ) {
+        var videoResource: PHAssetResource?
+        var resources: [PHAssetResourceType: PHAssetResource] = [:]
+        for resource in PHAssetResource.assetResources(for: asset) {
+            resources[resource.type] = resource
+        }
+        if isOriginal {
+            if let resource = resources[.video] {
+                videoResource = resource
+            }else if let resource = resources[.fullSizeVideo] {
+                videoResource = resource
+            }
+        }else {
+            if let resource = resources[.fullSizeVideo] {
+                videoResource = resource
+            }else if let resource = resources[.video] {
+                videoResource = resource
+            }
+        }
+        guard let videoResource = videoResource else {
+            resultHandler(.failure(.assetResourceIsEmpty))
+            return
+        }
+        if !PhotoTools.removeFile(fileURL: fileURL) {
+            resultHandler(.failure(.removeFileFailed))
+            return
+        }
+        let videoURL = fileURL
+        let options = PHAssetResourceRequestOptions()
+        options.isNetworkAccessAllowed = true
+        PHAssetResourceManager.default().writeData(
+            for: videoResource,
+            toFile: videoURL,
+            options: options
+        ) { (error) in
+            DispatchQueue.main.async {
+                if error == nil {
+                    resultHandler(.success(videoURL))
+                }else {
+                    resultHandler(.failure(.assetResourceWriteDataFailed(error!)))
                 }
             }
         }

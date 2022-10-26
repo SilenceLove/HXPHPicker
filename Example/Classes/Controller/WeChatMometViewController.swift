@@ -28,6 +28,7 @@ class WeChatMometViewController: UIViewController {
         config.photoList.finishSelectionAfterTakingPhoto = true
         config.photoEditor.cropping.aspectRatioType = .ratio_1x1
         config.photoEditor.cropping.fixedRatio = true
+        config.photoEditor.cropping.aspectRatios = []
         config.photoEditor.fixedCropState = true
         
         config.photoList.cameraType.customConfig?.photoEditor.cropping.aspectRatioType = .ratio_1x1
@@ -37,7 +38,7 @@ class WeChatMometViewController: UIViewController {
         presentPicker(config)
     }
     var localCachePath: String {
-        var cachePath = PhotoTools.getSystemCacheFolderPath()
+        var cachePath = HXPickerWrapper<FileManager>.cachesPath
         cachePath.append(contentsOf: "/com.silence.WeChat_Moment")
         return cachePath
     }

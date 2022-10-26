@@ -9,6 +9,9 @@ import UIKit
 
 public struct CropConfirmViewConfiguration {
     
+    /// 是否显示还原按钮
+    public var isShowResetButton: Bool = true
+    
     /// 完成按钮标题颜色
     public var finishButtonTitleColor: UIColor =  .white
     

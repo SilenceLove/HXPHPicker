@@ -36,6 +36,9 @@ class PhotoEditorContentView: UIView {
         let videoView = VideoEditorPlayerView()
         return videoView
     }()
+    var image: Any? {
+        imageView.image
+    }
     
     lazy var imageView: UIImageView = {
         var imageView: UIImageView
@@ -48,7 +51,7 @@ class PhotoEditorContentView: UIView {
         imageView.clipsToBounds = true
         return imageView
     }()
-    var image: UIImage? { imageView.image }
+    
     var zoomScale: CGFloat = 1 {
         didSet {
             drawView.scale = zoomScale
@@ -102,6 +105,7 @@ class PhotoEditorContentView: UIView {
     }
     var originalImage: UIImage?
     var tempImage: UIImage?
+    
     @objc
     func longPressGestureRecognizerClick(
         _ longPressGesture: UILongPressGestureRecognizer
@@ -132,16 +136,16 @@ class PhotoEditorContentView: UIView {
     func setMosaicOriginalImage(_ image: UIImage?) {
         mosaicView.originalImage = image
     }
-    func setImage(_ image: UIImage) {
+    func setImage(_ image: Any) {
         if editType == .video {
-            videoView.coverImageView.image = image
+            videoView.coverImageView.image = image as? UIImage
             return
         }
         #if canImport(Kingfisher)
         let view = imageView as! AnimatedImageView
-        view.image = image
+        view.image = image as? UIImage
         #else
-        imageView.image = image
+        imageView.image = image as? UIImage
         #endif
     }
     

@@ -115,8 +115,14 @@ extension PhotoTools {
                 }
                 if videoQuality > 0 {
                     let seconds = timeRang != .zero ? timeRang.duration.seconds : videoTotalSeconds
+                    var maxSize: Int?
+                    if let urlAsset = avAsset as? AVURLAsset {
+                        let scale = Double(max(seconds / videoTotalSeconds, 0.4))
+                        maxSize = Int(Double(urlAsset.url.fileSize) * scale)
+                    }
                     exportSession.fileLengthLimit = exportSessionFileLengthLimit(
                         seconds: seconds,
+                        maxSize: maxSize,
                         exportPreset: exportPreset,
                         videoQuality: videoQuality
                     )
@@ -435,7 +441,7 @@ extension PhotoTools {
                 videoOrientation: videoAsset.videoOrientation,
                 cropSizeData: cropSizeData.canReset ? cropSizeData : nil,
                 filterInfo: cropSizeData.filter,
-                filterValue: cropSizeData.filterValue
+                filterParameters: cropSizeData.filterParameters
             )
             newInstructions.append(newInstruction)
         }
@@ -449,7 +455,7 @@ extension PhotoTools {
                 videoOrientation: videoAsset.videoOrientation,
                 cropSizeData: cropSizeData.canReset ? cropSizeData : nil,
                 filterInfo: cropSizeData.filter,
-                filterValue: cropSizeData.filterValue
+                filterParameters: cropSizeData.filterParameters
             )
             newInstructions.append(newInstruction)
         }

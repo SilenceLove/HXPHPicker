@@ -17,6 +17,7 @@ open class EditorConfiguration: BaseConfiguration {
     public struct Filter {
         /// 滤镜信息
         public var infos: [PhotoEditorFilterInfo]
+        
         /// 滤镜选中颜色
         public var selectedColor: UIColor
         
@@ -42,7 +43,11 @@ public struct EditorCropSizeConfiguration {
     /// 圆形裁剪框
     public var isRoundCrop: Bool = false
     
-    /// 固定比例
+    /// 默认固定比例
+    /// ```
+    /// /// 如果不想要底部其他的比例请将`aspectRatios`置空
+    /// aspectRatios = []
+    /// ```
     public var fixedRatio: Bool = false
     
     /// 默认宽高比
@@ -54,9 +59,33 @@ public struct EditorCropSizeConfiguration {
     /// 宽高比选中颜色
     public var aspectRatioSelectedColor: UIColor = .systemTintColor
     
+    /// 宽高比数组默认选择的下标
+    /// 选中不代表默认就是对应的宽高比
+    /// ```
+    /// /// 如果想要默认对应的宽高比必须设置 `aspectRatioType`
+    /// /// 默认选中 2
+    /// defaultSeletedIndex = 2
+    /// /// 默认的宽高比也要设置与之对应的比例，这样进入裁剪的时候默认就是设置的样式
+    /// aspectRatioType = .custom(.init(width: 3, height: 2))
+    /// /// 固定宽高比
+    /// fixedRatio = true
+    /// ```
+    public var defaultSeletedIndex: Int = 0
+    
     /// 宽高比数组 [[宽, 高]]
-    /// [0, 0]：自由，数组第一个会自动选中，请将第一个设置为[0, 0]
+    /// tip：请将数组第一个设置为 [0, 0] 自由模式，第一个点击还原时会默认选中
+    /// ```
+    /// /// 如果不添加自由模式，可以隐藏还原按钮
+    /// let photoConfig = PhotoEditorConfiguration()
+    /// photoConfig.cropConfimView.isShowResetButton = false
+    /// ```
     public var aspectRatios: [[Int]] = [[0, 0], [1, 1], [3, 2], [2, 3], [4, 3], [3, 4], [16, 9], [9, 16]]
+    
+    /// 当 `aspectRatios` 为空数组时，点击还原是否重置到原始宽高比
+    /// true：重置到原始宽高比
+    /// false：重置到设置的默认宽高比`aspectRatioType`，居中显示
+    /// tip：isRoundCrop = true，圆形裁剪框时无效
+    public var resetToOriginal: Bool = false
     
     public init() { }
 }
@@ -81,11 +110,11 @@ public struct EditorBrushConfiguration {
     /// 显示画笔尺寸大小滑动条
     public var showSlider: Bool = true
     
-    /// 添加自定义颜色 - iOS14 以上有效
+    /// 添加自定义颜色 - iOS 14+
     public var addCustomColor: Bool = true
     
-    /// 自定义默认颜色 - iOS14 以上有效
-    public var customDefaultColor: UIColor = "#9EB6DC".color
+    /// 自定义默认颜色 - iOS 14+
+    public var customDefaultColor: UIColor = "#9EB6DC".hx.color
     
     public init() { }
 }

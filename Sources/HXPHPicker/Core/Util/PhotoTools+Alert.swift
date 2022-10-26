@@ -67,7 +67,7 @@ extension PhotoTools {
     }
     
     static func showConfirm(
-        viewController: UIViewController? ,
+        viewController: UIViewController?,
         title: String? ,
         message: String?,
         actionTitle: String?,
@@ -78,11 +78,16 @@ extension PhotoTools {
             message: message,
             preferredStyle: .alert
         )
-        if UIDevice.isPad {
+        if let view = viewController?.view, UIDevice.isPad {
             let pop = alertController.popoverPresentationController
             pop?.permittedArrowDirections = .any
-            pop?.sourceView = viewController?.view
-            pop?.sourceRect = viewController?.view.bounds ?? .zero
+            pop?.sourceView = view
+            pop?.sourceRect = CGRect(
+                x: view.width * 0.5,
+                y: view.height,
+                width: 0,
+                height: 0
+            )
         }
         if let actionTitle = actionTitle {
             let action = UIAlertAction(

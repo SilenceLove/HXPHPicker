@@ -74,7 +74,8 @@ class EditorChartletTitle {
     }
     #endif
     
-    var isSelected: Bool = false
-    var isLoading: Bool = false
+    var isSelected = false
+    var isLoading = false
+    var isAlbum = false
     var chartletList: [EditorChartlet] = []
 }

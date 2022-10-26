@@ -59,7 +59,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     /// 裁剪大小
     var cropSize: CGSize = .zero
     /// 当前编辑的图片
-    var image: UIImage? { imageResizerView.imageView.image }
+    var image: Any? { imageResizerView.imageView.image }
     /// 画笔宽度
     var brushLineWidth: CGFloat {
         get {
@@ -183,7 +183,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         updateImageViewFrame()
         imageResizerView.setImage(image)
     }
-    func updateImage(_ image: UIImage) {
+    func updateImage(_ image: Any) {
         imageResizerView.updateImage(image)
     }
     func setMosaicOriginalImage(_ image: UIImage?) {
@@ -328,7 +328,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     } 
     func cropping(completion: ((PhotoEditResult?) -> Void)?) {
         let toRect = imageResizerView.getCroppingRect()
-        let inputImage = imageResizerView.imageView.image
+//        var inputImage = imageResizerView.imageView.image
         let viewWidth = imageResizerView.imageView.width
         let viewHeight = imageResizerView.imageView.height
         var drawLayer: CALayer?
@@ -346,10 +346,11 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         
         let isRoundCrop = cropConfig.isRoundCrop && imageResizerView.layer.cornerRadius > 0
         DispatchQueue.global().async {
+            let input_Image = self.image as? UIImage
             let filterImageURL = self.imageResizerView.hasFilter ?
-                                    PhotoTools.write(image: inputImage) : nil
+                                    PhotoTools.write(image: input_Image) : nil
             self.imageResizerView.cropping(
-                inputImage,
+                input_Image,
                 toRect: toRect,
                 mosaicLayer: mosaicLayer,
                 drawLayer: drawLayer,
@@ -397,7 +398,7 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
             drawLayer: drawLayer,
             stickerInfos: imageResizerView.imageView.stickerView.getStickerInfo(),
             filter: playerView.filterInfo,
-            filterValue: playerView.filterValue
+            filterParameters: playerView.filterParameters
         )
     }
     func changedAspectRatio(of aspectRatio: CGSize) {
@@ -544,5 +545,5 @@ struct VideoEditorCropSizeData {
     let drawLayer: CALayer?
     let stickerInfos: [EditorStickerInfo]
     let filter: PhotoEditorFilterInfo?
-    let filterValue: Float
+    let filterParameters: [PhotoEditorFilterParameterInfo]
 }

@@ -72,13 +72,17 @@ extension WeChatViewController: UITableViewDataSource, UITableViewDelegate {
             guard let self = self,
                   let myIndexPath = self.tableView.indexPath(for: myCell)
             else { return }
+            
             PhotoBrowser.show(
-                self.photoAssets,
-                pageIndex: myIndexPath.row,
+                pageIndex: myIndexPath.item,
                 transitionalImage: myCell.pictureView.image
-            ) { index in
+            ) {
+                self.photoAssets.count
+            } assetForIndex: {
+                self.photoAssets[$0]
+            } transitionAnimator: {
                 let indexPath = IndexPath(
-                    row: index,
+                    row: $0,
                     section: 0
                 )
                 let cell = self.tableView.cellForRow(

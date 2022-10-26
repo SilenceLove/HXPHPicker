@@ -169,22 +169,13 @@ public extension AssetManager {
                 let sureOrientation = self.transformImageOrientation(
                     orientation: imageOrientation
                 )
-                if DispatchQueue.isMain {
+                DispatchQueue.main.async {
                     result(
                         imageData: imageData,
                         dataUTI: dataUTI,
                         imageOrientation: sureOrientation,
                         info: info
                     )
-                }else {
-                    DispatchQueue.main.async {
-                        result(
-                            imageData: imageData,
-                            dataUTI: dataUTI,
-                            imageOrientation: sureOrientation,
-                            info: info
-                        )
-                    }
                 }
             }
         } else {
@@ -193,22 +184,13 @@ public extension AssetManager {
                 for: asset,
                 options: options
             ) { (imageData, dataUTI, imageOrientation, info) in
-                if DispatchQueue.isMain {
+                DispatchQueue.main.async {
                     result(
                         imageData: imageData,
                         dataUTI: dataUTI,
                         imageOrientation: imageOrientation,
                         info: info
                     )
-                }else {
-                    DispatchQueue.main.async {
-                        result(
-                            imageData: imageData,
-                            dataUTI: dataUTI,
-                            imageOrientation: imageOrientation,
-                            info: info
-                        )
-                    }
                 }
             }
         }

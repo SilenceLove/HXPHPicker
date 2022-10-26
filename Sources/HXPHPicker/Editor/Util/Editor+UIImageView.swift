@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension UIImageView {
+extension UIView {
     func color(for point: CGPoint) -> UIColor? {
         // 用来存放目标像素值
         var pixel = [UInt8](repeatElement(0, count: 4))

@@ -48,121 +48,31 @@ extension UIDevice {
         if isAllIPhoneX {
             return statusBarHeight
         }
-        return 0
+        return UIApplication._keyWindow?.safeAreaInsets.top ?? 0
     }
     class var leftMargin: CGFloat {
-        if isAllIPhoneX {
-            if !isPortrait {
-                return 44
-            }
-        }
-        return 0
+        UIApplication._keyWindow?.safeAreaInsets.left ?? 0
     }
     class var rightMargin: CGFloat {
-        if isAllIPhoneX {
-            if !isPortrait {
-                return 44
-            }
-        }
-        return 0
+        UIApplication._keyWindow?.safeAreaInsets.right ?? 0
     }
     class var bottomMargin: CGFloat {
-        if isAllIPhoneX {
-            if isPortrait {
-                return 34
-            }else {
-                return 21
-            }
-        }
-        return 0
+        UIApplication._keyWindow?.safeAreaInsets.bottom ?? 0
     }
     class var isPad: Bool {
         current.userInterfaceIdiom == .pad
     }
     class var isAllIPhoneX: Bool {
-        (isIPhoneX ||
-         isIPhoneXR ||
-         isIPhoneXsMax ||
-         isIPhoneXsMax ||
-         isIPhone13Mini ||
-         isIPhone13 ||
-         isIPhone13ProMax ||
-         isIPhone14Pro ||
-         isIPhone14ProMax
-        )
-    }
-    class var isIPhoneX: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1125, height: 2436), UIScreen.main.currentMode!.size) {
-                return true
-            }
+        let safeArea = UIApplication._keyWindow?.safeAreaInsets
+        let margin: CGFloat
+        if isPortrait {
+            margin = safeArea?.top ?? 0
+        }else {
+            margin = safeArea?.left ?? 0
         }
-        return false
+        return margin != 0
     }
-    class var isIPhoneXR: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 828, height: 1792), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhoneXsMax: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1242, height: 2688), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhone13Mini: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1080, height: 2340), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhone13: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1170, height: 2532), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhone13ProMax: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1284, height: 2778), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhone14Pro: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1179, height: 2556), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
-    class var isIPhone14ProMax: Bool {
-        if  UIScreen.instancesRespond(to: Selector(("currentMode"))) == true &&
-            isPad == false {
-            if __CGSizeEqualToSize(CGSize(width: 1290, height: 2796), UIScreen.main.currentMode!.size) {
-                return true
-            }
-        }
-        return false
-    }
+    
     class var belowIphone7: Bool {
         var systemInfo = utsname()
         uname(&systemInfo)

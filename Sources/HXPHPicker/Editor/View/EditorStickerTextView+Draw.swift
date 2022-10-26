@@ -333,7 +333,7 @@ extension EditorStickerTextView {
             textLayer.fillColor = color
             CATransaction.begin()
             CATransaction.setDisableActions(true)
-            textLayer.frame = CGRect(x: 15, y: 15, width: path.bounds.width, height: textView.contentSize.height)
+            textLayer.frame = CGRect(x: 15 + UIDevice.leftMargin, y: 15, width: path.bounds.width, height: textView.contentSize.height)
             CATransaction.commit()
         }else {
             for subView in textView.subviews {
@@ -342,7 +342,7 @@ extension EditorStickerTextView {
                     CATransaction.begin()
                     CATransaction.setDisableActions(true)
                     textLayer?.frame = CGRect(
-                        x: 15,
+                        x: 15 + UIDevice.leftMargin,
                         y: 15,
                         width: path.bounds.width,
                         height: textView.contentSize.height

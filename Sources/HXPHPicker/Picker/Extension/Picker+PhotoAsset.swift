@@ -10,28 +10,6 @@ import Photos
 
 extension PhotoAsset {
     
-    @discardableResult
-    func checkAdjustmentStatus(
-        completion: @escaping (Bool, PhotoAsset) -> Void
-    ) -> PHContentEditingInputRequestID? {
-        #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
-            completion(false, self)
-            return nil
-        }
-        #endif
-        if let asset = self.phAsset {
-            if mediaSubType == .livePhoto {
-                completion(false, self)
-                return nil
-            }
-            return asset.checkAdjustmentStatus { (isAdjusted) in
-                completion(isAdjusted, self)
-            }
-        }
-        completion(false, self)
-        return nil
-    }
     var inICloud: Bool {
         guard let phAsset = phAsset,
               downloadStatus != .succeed else {

@@ -124,7 +124,7 @@ extension VideoEditorViewController {
                config.filter.isLoadLastFilter,
                videoFilter.index < config.filter.infos.count {
                 let filterInfo = config.filter.infos[videoFilter.index]
-                videoView.playerView.setFilter(filterInfo, value: videoFilter.value)
+                videoView.playerView.setFilter(filterInfo, parameters: videoFilter.parameters)
             }
             videoView.imageResizerView.videoFilter = editResult.sizeData?.filter
         }

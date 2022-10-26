@@ -10,51 +10,6 @@ import AVFoundation
 
 public extension PhotoAsset {
     
-    /// 压缩参数
-    struct Compression {
-        let imageCompressionQuality: CGFloat?
-        let videoExportPreset: ExportPreset?
-        let videoQuality: Int?
-        
-        /// 压缩图片
-        /// - Parameter imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
-        public init(
-            imageCompressionQuality: CGFloat
-        ) {
-            self.imageCompressionQuality = imageCompressionQuality
-            self.videoExportPreset = nil
-            self.videoQuality = nil
-        }
-        
-        /// 压缩视频
-        /// - Parameters:
-        ///   - videoExportPreset: 视频分辨率
-        ///   - videoQuality: 视频质量 [1-10]
-        public init(
-            videoExportPreset: ExportPreset,
-            videoQuality: Int
-        ) {
-            self.imageCompressionQuality = nil
-            self.videoExportPreset = videoExportPreset
-            self.videoQuality = videoQuality
-        }
-        
-        /// 压缩图片、视频
-        /// - Parameters:
-        ///   - imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
-        ///   - videoExportPreset: 视频分辨率
-        ///   - videoQuality: 视频质量 [1-10]
-        public init(
-            imageCompressionQuality: CGFloat,
-            videoExportPreset: ExportPreset,
-            videoQuality: Int
-        ) {
-            self.imageCompressionQuality = imageCompressionQuality
-            self.videoExportPreset = videoExportPreset
-            self.videoQuality = videoQuality
-        }
-    }
-    
     typealias AssetURLCompletion = (Result<AssetURLResult, AssetError>) -> Void
     
     /// 获取url
@@ -79,8 +34,7 @@ public extension PhotoAsset {
             )
         }else {
             getVideoURL(
-                exportPreset: compression?.videoExportPreset,
-                videoQuality: compression?.videoQuality,
+                exportParameter: compression?.videoExportParameter,
                 completion: completion
             )
         }
@@ -110,13 +64,11 @@ public extension PhotoAsset {
     
     /// 获取视频url
     /// - Parameters:
-    ///   - exportPreset: 视频分辨率，不传获取的就是原始视频
-    ///   - videoQuality: 视频质量[0-10]
+    ///   - exportParameter: 导出参数，nil 为原始视频
     ///   - exportSession: 导出视频时对应的 AVAssetExportSession
     ///   - completion: 获取完成
     func getVideoURL(
-        exportPreset: ExportPreset? = nil,
-        videoQuality: Int? = 6,
+        exportParameter: VideoExportParameter? = nil,
         exportSession: ((AVAssetExportSession) -> Void)? = nil,
         completion: @escaping AssetURLCompletion
     ) {
@@ -127,8 +79,7 @@ public extension PhotoAsset {
             return
         }
         requestVideoURL(
-            exportPreset: exportPreset,
-            videoQuality: videoQuality,
+            exportParameter: exportParameter,
             exportSession: exportSession,
             resultHandler: completion
         )
@@ -146,5 +97,45 @@ public extension PhotoAsset {
             compression: compression,
             completion: completion
         )
+    }
+}
+
+public extension PhotoAsset {
+    /// 压缩参数
+    struct Compression {
+        let imageCompressionQuality: CGFloat?
+        let videoExportParameter: VideoExportParameter?
+        
+        /// 压缩图片
+        /// - Parameter imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
+        public init(
+            imageCompressionQuality: CGFloat
+        ) {
+            self.imageCompressionQuality = imageCompressionQuality
+            self.videoExportParameter = nil
+        }
+        
+        /// 压缩视频
+        /// - Parameters:
+        ///   - quality: 视频质量 [1-10]
+        public init(
+            videoExportParameter: VideoExportParameter
+        ) {
+            self.imageCompressionQuality = nil
+            self.videoExportParameter = videoExportParameter
+        }
+        
+        /// 压缩图片、视频
+        /// - Parameters:
+        ///   - imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
+        ///   - preset: 视频分辨率
+        ///   - quality: 视频质量 [1-10]
+        public init(
+            imageCompressionQuality: CGFloat,
+            videoExportParameter: VideoExportParameter
+        ) {
+            self.imageCompressionQuality = imageCompressionQuality
+            self.videoExportParameter = videoExportParameter
+        }
     }
 }

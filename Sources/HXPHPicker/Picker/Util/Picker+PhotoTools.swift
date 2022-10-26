@@ -187,8 +187,15 @@ extension PhotoTools {
                     exportSession.timeRange = timeRang
                 }
                 if videoQuality > 0 {
+                    let seconds = timeRang != .zero ? timeRang.duration.seconds : videoTotalSeconds
+                    var maxSize: Int?
+                    if let urlAsset = avAsset as? AVURLAsset {
+                        let scale = Double(max(seconds / videoTotalSeconds, 0.4))
+                        maxSize = Int(Double(urlAsset.url.fileSize) * scale)
+                    }
                     exportSession.fileLengthLimit = exportSessionFileLengthLimit(
-                        seconds: avAsset.duration.seconds,
+                        seconds: seconds,
+                        maxSize: maxSize,
                         exportPreset: exportPreset,
                         videoQuality: videoQuality
                     )

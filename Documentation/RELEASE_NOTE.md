@@ -1,5 +1,29 @@
 # Release Notes
 
+## 1.4.4
+
+### Optimizer
+
+The interface effect is optimized, and the method of judging the full screen is optimized
+  
+### Added
+
+- Picker
+  - `PhotoBrowser` Support dynamic configuration data, add/delete
+  
+- Editor
+  - You can set the subscript of the default selected aspect ratio
+  - The restore button supports hiding
+  - Aspect ratio list hiding requires emptying the array`aspectRatios = []`
+
+### Resolved
+
+- fix #83 #82 #79 
+
+- Picker
+  - `PickerView` memory leak fix
+  - Get the original video address error problem
+
 ## 1.4.3
 
 adaptation`iPhone 14 Pro / Pro Max`

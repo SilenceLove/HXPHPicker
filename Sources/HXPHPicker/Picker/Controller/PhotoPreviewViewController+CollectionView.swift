@@ -11,14 +11,19 @@ import UIKit
 extension PhotoPreviewViewController: UICollectionViewDataSource {
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return previewAssets.count
+        return assetCount
     }
     
     public func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        let photoAsset = previewAssets[indexPath.item]
+        guard let photoAsset = photoAsset(for: indexPath.item) else {
+            return collectionView.dequeueReusableCell(
+                withReuseIdentifier: NSStringFromClass(PreviewPhotoViewCell.self),
+                for: indexPath
+            )
+        }
         let cell: PhotoPreviewViewCell
         if photoAsset.mediaType == .photo {
             if photoAsset.mediaSubType == .livePhoto ||
@@ -47,6 +52,7 @@ extension PhotoPreviewViewController: UICollectionViewDataSource {
         }
         cell.delegate = self
         cell.photoAsset = photoAsset
+        cellForIndex?(cell, indexPath.item, currentPreviewIndex)
         return cell
     }
 }
@@ -63,6 +69,13 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         if myCell.photoAsset.mediaType == .video {
             myCell.scrollView.zoomScale = 1
         }
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewCellWillDisplay: myCell.photoAsset,
+                at: indexPath.item
+            )
+        }
     }
     public func collectionView(
         _ collectionView: UICollectionView,
@@ -71,6 +84,13 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
     ) {
         let myCell = cell as! PhotoPreviewViewCell
         myCell.cancelRequest()
+        if let pickerController = pickerController {
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewCellDidEndDisplaying: myCell.photoAsset,
+                at: indexPath.item
+            )
+        }
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -80,14 +100,13 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         let offsetX = scrollView.contentOffset.x  + (view.width + 20) * 0.5
         let viewWidth = view.width + 20
         var currentIndex = Int(offsetX / viewWidth)
-        if currentIndex > previewAssets.count - 1 {
-            currentIndex = previewAssets.count - 1
+        if currentIndex > assetCount - 1 {
+            currentIndex = assetCount - 1
         }
         if currentIndex < 0 {
             currentIndex = 0
         }
-        if !previewAssets.isEmpty {
-            let photoAsset = previewAssets[currentIndex]
+        if let photoAsset = photoAsset(for: currentIndex) {
             if !isExternalPreview {
                 if photoAsset.mediaType == .video && videoLoadSingleCell {
                     selectBoxControl.isHidden = true
@@ -130,6 +149,13 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
         }
         let cell = getCell(for: currentPreviewIndex)
         cell?.requestPreviewAsset()
+        if let pickerController = pickerController, let cell = cell {
+            pickerController.pickerDelegate?.pickerController(
+                pickerController,
+                previewDidEndDecelerating: cell.photoAsset,
+                at: currentPreviewIndex
+            )
+        }
     }
 }
 
@@ -202,7 +228,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     func photoCell(networkImagedownloadSuccess photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
         if let pickerController = pickerController,
-           let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+           let index = collectionView.indexPath(for: photoCell)?.item {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewNetworkImageDownloadSuccess: photoCell.photoAsset,
@@ -219,7 +245,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
     func photoCell(networkImagedownloadFailed photoCell: PhotoPreviewViewCell) {
         #if canImport(Kingfisher)
         if let pickerController = pickerController,
-           let index = previewAssets.firstIndex(of: photoCell.photoAsset) {
+           let index = collectionView.indexPath(for: photoCell)?.item {
             pickerController.pickerDelegate?.pickerController(
                 pickerController,
                 previewNetworkImageDownloadFailed: photoCell.photoAsset,

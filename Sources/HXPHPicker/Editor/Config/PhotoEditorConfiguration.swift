@@ -72,7 +72,9 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     public lazy var cropConfimView: CropConfirmViewConfiguration = .init()
     
     /// 滤镜配置
-    public lazy var filter: Filter = .init(infos: PhotoTools.defaultFilters())
+    public lazy var filter: Filter = {
+        .init(infos: PhotoTools.defaultFilters())
+    }()
     
     /// 马赛克配置
     public lazy var mosaic: Mosaic = .init()

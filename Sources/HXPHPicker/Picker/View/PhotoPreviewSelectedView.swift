@@ -96,16 +96,22 @@ class PhotoPreviewSelectedView: UIView,
         }
     }
     
-    func removePhotoAsset(photoAsset: PhotoAsset) {
-        let beforeIsEmpty = photoAssetArray.isEmpty
-        
-        if let item = photoAssetArray.firstIndex(of: photoAsset) {
-            if item == currentSelectedIndexPath?.item {
-                currentSelectedIndexPath = nil
-            }
-            photoAssetArray.remove(at: item)
-            collectionView.deleteItems(at: [IndexPath(item: item, section: 0)])
+    func removePhotoAssets(_ photoAssets: [PhotoAsset]) {
+        if photoAssets.isEmpty {
+            return
         }
+        let beforeIsEmpty = photoAssetArray.isEmpty
+        var indexPaths: [IndexPath] = []
+        for photoAsset in photoAssets {
+            if let item = photoAssetArray.firstIndex(of: photoAsset) {
+                if item == currentSelectedIndexPath?.item {
+                    currentSelectedIndexPath = nil
+                }
+                photoAssetArray.remove(at: item)
+                indexPaths.append(.init(item: item, section: 0))
+            }
+        }
+        collectionView.deleteItems(at: indexPaths)
         if !beforeIsEmpty && photoAssetArray.isEmpty {
             UIView.animate(withDuration: 0.25) {
                 self.alpha = 0
@@ -115,6 +121,10 @@ class PhotoPreviewSelectedView: UIView,
                 }
             }
         }
+    }
+    
+    func removePhotoAsset(photoAsset: PhotoAsset) {
+        removePhotoAssets([photoAsset])
     }
     func replacePhotoAsset(at index: Int, with photoAsset: PhotoAsset) {
         photoAssetArray[index] = photoAsset
