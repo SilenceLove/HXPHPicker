@@ -18,7 +18,7 @@ The interface effect is optimized, and the method of judging the full screen is 
 
 ### Resolved
 
-- fix #83 #82 #79 
+- fix [#83](https://github.com/SilenceLove/HXPHPicker/issues/83]) [#83](https://github.com/SilenceLove/HXPHPicker/issues/82) [#79](https://github.com/SilenceLove/HXPHPicker/issues/79)
 
 - Picker
   - `PickerView` memory leak fix

@@ -18,7 +18,7 @@
 
 ### 修复
 
-- fix #83 #82 #79 
+- fix [#83](https://github.com/SilenceLove/HXPHPicker/issues/83]) [#83](https://github.com/SilenceLove/HXPHPicker/issues/82) [#79](https://github.com/SilenceLove/HXPHPicker/issues/79)
 
 - Picker
   - `PickerView`内存泄漏修复
