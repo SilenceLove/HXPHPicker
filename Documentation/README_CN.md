@@ -227,6 +227,6 @@ HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文
 
 ## 支持
 * [**★ Star**](#)
-* 请喝咖啡☕️ <img src="https://github.com/longitachi/ImageFolder/blob/master/ZLPhotoBrowser/ap.png" width = "100" height = "125" /> or <img src="https://github.com/longitachi/ImageFolder/blob/master/ZLPhotoBrowser/wp.png" width = "100" height = "125" />
+* 请喝咖啡☕️ <img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/ap.jpeg" width = "100" height = "135.75" /> or <img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/wp.jpeg" width = "100" height = "135.75" />
 
 [🔝回到顶部](#readme)
