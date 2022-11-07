@@ -237,14 +237,14 @@ extension EditorImageResizerView {
             contentInsets = UIEdgeInsets(
                 top: isCropTime ? 10 + UIDevice.topMargin : 20 + UIDevice.generalStatusBarHeight,
                 left: 30 + UIDevice.leftMargin,
-                bottom: isCropTime ? 155 + UIDevice.bottomMargin : 125 + UIDevice.bottomMargin,
+                bottom: isCropTime ? 155 + UIDevice.bottomMargin : 165 + UIDevice.bottomMargin,
                 right: 30 + UIDevice.rightMargin
             )
         }else {
             contentInsets = UIEdgeInsets(
                 top: isCropTime ? 10 + UIDevice.topMargin : 20,
                 left: 30 + UIDevice.leftMargin,
-                bottom: isCropTime ? 160 + UIDevice.bottomMargin : 125 + UIDevice.bottomMargin,
+                bottom: isCropTime ? 160 + UIDevice.bottomMargin : 165 + UIDevice.bottomMargin,
                 right: 30 + UIDevice.rightMargin
             )
         }

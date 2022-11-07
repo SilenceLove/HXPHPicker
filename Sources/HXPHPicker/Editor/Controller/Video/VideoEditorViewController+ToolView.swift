@@ -448,4 +448,8 @@ extension VideoEditorViewController: PhotoEditorCropToolViewDelegate {
     func cropToolView(didChangedAspectRatio cropToolView: PhotoEditorCropToolView, at model: PhotoEditorCropToolModel) {
         videoView.changedAspectRatio(of: CGSize(width: model.widthRatio, height: model.heightRatio))
     }
+    
+    func cropToolView(_ cropToolView: PhotoEditorCropToolView, angleDidChanged angle: CGFloat) {
+        videoView.rotate(angle)
+    }
 }

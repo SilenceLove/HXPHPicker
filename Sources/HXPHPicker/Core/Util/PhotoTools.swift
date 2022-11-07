@@ -428,9 +428,9 @@ public struct PhotoTools {
         let blackColor = UIColor.black
         layer.colors = [blackColor.withAlphaComponent(0).cgColor,
                         blackColor.withAlphaComponent(0.2).cgColor,
+                        blackColor.withAlphaComponent(0.3).cgColor,
                         blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.6).cgColor,
-                        blackColor.withAlphaComponent(0.8).cgColor]
+                        blackColor.withAlphaComponent(0.6).cgColor]
         if isTop {
             layer.startPoint = CGPoint(x: 0, y: 1)
             layer.endPoint = CGPoint(x: 0, y: 0)

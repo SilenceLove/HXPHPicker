@@ -404,8 +404,12 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
     func changedAspectRatio(of aspectRatio: CGSize) {
         imageResizerView.changedAspectRatio(of: aspectRatio)
     }
-    func rotate() {
-        imageResizerView.rotate()
+    func rotate(_ angle: CGFloat? = nil) {
+        if let angle = angle {
+            imageResizerView.rotate(angle)
+        }else {
+            imageResizerView.rotate()
+        }
     }
     func mirrorHorizontally(animated: Bool) {
         imageResizerView.mirrorHorizontally(animated: animated)

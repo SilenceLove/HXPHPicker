@@ -19,4 +19,8 @@ extension PhotoEditorViewController: PhotoEditorCropToolViewDelegate {
     func cropToolView(didChangedAspectRatio cropToolView: PhotoEditorCropToolView, at model: PhotoEditorCropToolModel) {
         imageView.changedAspectRatio(of: CGSize(width: model.widthRatio, height: model.heightRatio))
     }
+    
+    func cropToolView(_ cropToolView: PhotoEditorCropToolView, angleDidChanged angle: CGFloat) {
+        imageView.rotate(angle)
+    }
 }

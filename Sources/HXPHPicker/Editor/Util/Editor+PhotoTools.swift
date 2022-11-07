@@ -119,8 +119,11 @@ extension PhotoTools {
     
     /// 默认滤镜
     public static func defaultFilters() -> [PhotoEditorFilterInfo] {
-//        return defaultMetalFilters()
-        [
+        var filters: [PhotoEditorFilterInfo] = []
+        #if canImport(Harbeth)
+        filters.append(contentsOf: defaultMetalFilters())
+        #endif
+        filters.append(contentsOf: [
             PhotoEditorFilterInfo(
                 filterName: "唯美".localized
             ) { image, _, parameters, _ in
@@ -212,7 +215,8 @@ extension PhotoTools {
                     parameters: [:]
                 )
             }
-        ]
+        ])
+        return filters
     }
     
     public static func defaultVideoFilters() -> [PhotoEditorFilterInfo] {
@@ -499,7 +503,7 @@ extension PhotoTools {
                     let value = parameter?.value ?? 0
                     let fractionalWidth: Float
                     if isCover {
-                        fractionalWidth = 0.02
+                        fractionalWidth = 0.04
                     }else {
                         fractionalWidth = 0.01 + 0.05 * value
                     }

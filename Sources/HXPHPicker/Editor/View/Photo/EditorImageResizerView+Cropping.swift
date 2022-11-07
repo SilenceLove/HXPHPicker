@@ -428,15 +428,20 @@ extension EditorImageResizerView {
             }
         }
     }
-    /// 还原重置
-    func reset(_ animated: Bool) {
-        delegate?.imageResizerView(willChangedMaskRect: self)
+    
+    func stopTimer() {
         // 停止定时器
         stopControlTimer()
         stopShowMaskBgTimer()
         inControlTimer = false
         // 停止滑动
         scrollView.setContentOffset(scrollView.contentOffset, animated: false)
+    }
+    
+    /// 还原重置
+    func reset(_ animated: Bool) {
+        delegate?.imageResizerView(willChangedMaskRect: self)
+        stopTimer()
         if (!isFixedRatio || !cropConfig.aspectRatios.isEmpty || cropConfig.resetToOriginal) && !cropConfig.isRoundCrop {
             // 没有固定比例的时候重置需要还原原始比例
             controlView.fixedRatio = false
@@ -529,6 +534,19 @@ extension EditorImageResizerView {
         return !fromSize.equalTo(toSize)
     }
     
+    func rotate(_ angle: CGFloat) {
+        let _angle = lastAngle - angle
+        rotating = true
+        stopTimer()
+        let newAngle = currentAngle + _angle
+        currentAngle = newAngle
+        let angleInRadians = currentAngle / 180 * .pi
+        print("imageSize : \(baseImageSize)")
+        scrollView.transform = .init(rotationAngle: angleInRadians)
+        
+        lastAngle = angle
+    }
+    
     /// 旋转
     func rotate(_ isClock_wise: Bool = false) {
         if mirroring {
@@ -536,12 +554,7 @@ extension EditorImageResizerView {
         }
         rotating = true
         var isClockwise = isClock_wise
-        // 停止定时器
-        stopControlTimer()
-        stopShowMaskBgTimer()
-        inControlTimer = false
-        // 停止滑动
-        scrollView.setContentOffset(scrollView.contentOffset, animated: false)
+        stopTimer()
         if mirrorType == .horizontal {
             isClockwise = true
         }

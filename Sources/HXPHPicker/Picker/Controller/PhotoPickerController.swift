@@ -9,12 +9,14 @@
 import UIKit
 import Photos
 
+extension PhotoPickerController {
+    public typealias FinishHandler = (PickerResult, PhotoPickerController) -> Void
+    public typealias CancelHandler = (PhotoPickerController) -> Void
+}
+
 open class PhotoPickerController: UINavigationController {
     
     public weak var pickerDelegate: PhotoPickerControllerDelegate?
-    
-    public typealias FinishHandler = (PickerResult, PhotoPickerController) -> Void
-    public typealias CancelHandler = (PhotoPickerController) -> Void
     
     public var finishHandler: FinishHandler?
     public var cancelHandler: CancelHandler?

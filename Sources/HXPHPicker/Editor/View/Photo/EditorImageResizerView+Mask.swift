@@ -104,25 +104,27 @@ extension EditorImageResizerView {
     }
     /// 显示遮罩背景
     @objc func showMaskBgView() {
-        if maskBgView.alpha == 1 {
+        if !maskBgView.maskViewIsHidden {
             return
         }
         maskBgView.layer.removeAllAnimations()
         maskLinesView.showGridlinesLayer(false)
-        UIView.animate(withDuration: 0.2) {
-            self.maskBgView.alpha = 1
-        }
+        maskBgView.showMaskView()
+//        UIView.animate(withDuration: 0.2) {
+//            self.maskBgView.alpha = 1
+//        }
     }
     /// 隐藏遮罩背景
     func hideMaskBgView() {
         stopShowMaskBgTimer()
-        if maskBgView.alpha == 0 {
+        if maskBgView.maskViewIsHidden {
             return
         }
         maskBgView.layer.removeAllAnimations()
         maskLinesView.showGridlinesLayer(true)
-        UIView.animate(withDuration: 0.2) {
-            self.maskBgView.alpha = 0
-        }
+        maskBgView.hideMaskView()
+//        UIView.animate(withDuration: 0.2) {
+//            self.maskBgView.alpha = 0
+//        }
     }
 }

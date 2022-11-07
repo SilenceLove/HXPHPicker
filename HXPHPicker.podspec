@@ -12,7 +12,6 @@ Pod::Spec.new do |spec|
     spec.requires_arc           = true
     
     spec.default_subspec        = 'Full'
-#    spec.static_framework = true
   
     spec.subspec 'Core' do |core|
         core.source_files   = "Sources/HXPHPicker/Core/**/*.{swift}"
@@ -42,6 +41,7 @@ Pod::Spec.new do |spec|
             kf.dependency 'Kingfisher', '~> 7.0'
         end
 #        editor.subspec 'Harbeth' do |hb|
+#            spec.static_framework = true
 #            hb.dependency 'HXPHPicker/Editor/Lite'
 #            hb.dependency 'Harbeth'
 #        end
@@ -55,7 +55,6 @@ Pod::Spec.new do |spec|
         end
         camera.subspec 'Location' do |loca|
             loca.source_files   = "Sources/HXPHPicker/Camera+Location/**/*.{swift}"
-            loca.dependency 'HXPHPicker/Core'
             loca.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA_LOCATION' }
             loca.dependency 'HXPHPicker/Camera/Lite'
         end

@@ -9,7 +9,6 @@ PODS:
     - HXPHPicker/Core
   - HXPHPicker/Camera/Location (1.4.4):
     - HXPHPicker/Camera/Lite
-    - HXPHPicker/Core
   - HXPHPicker/Core (1.4.4)
   - HXPHPicker/Editor (1.4.4):
     - HXPHPicker/Editor/KF (= 1.4.4)
@@ -48,7 +47,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
-  HXPHPicker: 905424579303a80a404c58670021351bd58cbb3f
+  HXPHPicker: 03b99cb5dc5702666d942ae06ac9ca3a584f0b3d
   Kingfisher: f738f9c4a3415823b8e2985d10aa2d6a9f37bc4d
 
 PODFILE CHECKSUM: 022685221be8605f1ae599c42b709a8786891c1b

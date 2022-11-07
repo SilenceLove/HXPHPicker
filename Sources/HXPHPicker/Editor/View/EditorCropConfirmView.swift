@@ -141,7 +141,7 @@ public class EditorCropConfirmView: UIView {
     }
     public override func layoutSubviews() {
         super.layoutSubviews()
-        maskLayer.frame = CGRect(x: 0, y: showReset ? -70 : -10, width: width, height: height + (showReset ? 70 : 10))
+        maskLayer.frame = CGRect(x: 0, y: showReset ? -120 : -10, width: width, height: height + (showReset ? 120 : 10))
         cancelButton.x = UIDevice.leftMargin + 12
         var cancelWidth = (cancelButton.currentTitle?.width(
                             ofFont: cancelButton.titleLabel!.font,

@@ -28,9 +28,11 @@ class PhotoEditorFilterView: UIView {
         let visualEffect = UIBlurEffect.init(style: .dark)
         let view = UIVisualEffectView.init(effect: visualEffect)
         view.contentView.addSubview(collectionView)
-        view.contentView.addSubview(editView)
         #if canImport(Harbeth)
-        view.contentView.addSubview(bottomView)
+        if filterConfig.isShowEdit {
+            view.contentView.addSubview(editView)
+            view.contentView.addSubview(bottomView)
+        }
         #endif
         return view
     }()
@@ -172,7 +174,11 @@ class PhotoEditorFilterView: UIView {
     }
     func reloadData() {
         currentSelectedCell()?.updateParameter()
-        editView.reloadData()
+        #if canImport(Harbeth)
+        if filterConfig.isShowEdit {
+            editView.reloadData()
+        }
+        #endif
     }
     func scrollToSelectedCell() {
         if currentSelectedIndex > 0 {

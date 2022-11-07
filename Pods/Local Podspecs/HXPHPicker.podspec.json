@@ -107,16 +107,13 @@
         {
           "name": "Location",
           "source_files": "Sources/HXPHPicker/Camera+Location/**/*.{swift}",
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA_LOCATION"
+          },
           "dependencies": {
-            "HXPHPicker/Core": [
-
-            ],
             "HXPHPicker/Camera/Lite": [
 
             ]
-          },
-          "pod_target_xcconfig": {
-            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA_LOCATION"
           }
         }
       ]

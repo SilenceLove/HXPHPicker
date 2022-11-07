@@ -8,7 +8,7 @@
 
 import UIKit
 
-// MARK: 预览界面配置类
+// MARK: Preview interface configuration class / 预览界面配置类
 public struct PreviewViewConfiguration {
     
     /// 自定义视频Cell

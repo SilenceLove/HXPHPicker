@@ -82,6 +82,7 @@ extension VideoEditorViewController: PhotoEditorFilterParameterViewDelegate {
         _ filterParameterView: PhotoEditorFilterParameterView,
         didChanged model: PhotoEditorFilterParameterInfo
     ) {
+        filterView.reloadData()
         switch filterParameterView.type {
         case .filter:
             let index = filterView.currentSelectedIndex

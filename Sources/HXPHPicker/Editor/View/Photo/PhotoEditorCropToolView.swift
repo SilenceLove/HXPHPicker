@@ -11,6 +11,7 @@ protocol PhotoEditorCropToolViewDelegate: AnyObject {
     func cropToolView(didRotateButtonClick cropToolView: PhotoEditorCropToolView)
     func cropToolView(didMirrorHorizontallyButtonClick cropToolView: PhotoEditorCropToolView)
     func cropToolView(didChangedAspectRatio cropToolView: PhotoEditorCropToolView, at model: PhotoEditorCropToolModel)
+    func cropToolView(_ cropToolView: PhotoEditorCropToolView, angleDidChanged angle: CGFloat)
 }
 
 public class PhotoEditorCropToolView: UIView {
@@ -41,9 +42,24 @@ public class PhotoEditorCropToolView: UIView {
         return collectionView
     }()
     
+    lazy var scaleView: EditorScaleView = {
+        let view = EditorScaleView()
+        view.angleChanged = { [weak self] angle in
+            guard let self = self else { return }
+            self.delegate?.cropToolView(self, angleDidChanged: angle)
+        }
+        return view
+    }()
+    
     let ratioModels: [PhotoEditorCropToolModel]
     var showRatios: Bool
-    var themeColor: UIColor?
+    var themeColor: UIColor? {
+        didSet {
+            if let themeColor = themeColor {
+                scaleView.themeColor = themeColor
+            }
+        }
+    }
     var currentSelectedModel: PhotoEditorCropToolModel?
     var lastSelectedModel: PhotoEditorCropToolModel?
     var tmpLastSelectedModel: PhotoEditorCropToolModel?
@@ -70,7 +86,7 @@ public class PhotoEditorCropToolView: UIView {
         }
         self.ratioModels = ratioModels
         super.init(frame: .zero)
-        
+        addSubview(scaleView)
         addSubview(collectionView)
     }
     func updateContentInset() {
@@ -120,7 +136,8 @@ public class PhotoEditorCropToolView: UIView {
     }
     public override func layoutSubviews() {
         super.layoutSubviews()
-        collectionView.frame = bounds
+        scaleView.frame = .init(x: 0, y: 2, width: width, height: 38)
+        collectionView.frame = .init(x: 0, y: scaleView.frame.maxY, width: width, height: 60)
     }
     
     required init?(coder: NSCoder) {

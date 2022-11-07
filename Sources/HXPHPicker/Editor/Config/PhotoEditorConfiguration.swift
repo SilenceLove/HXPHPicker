@@ -73,7 +73,11 @@ open class PhotoEditorConfiguration: EditorConfiguration {
     
     /// 滤镜配置
     public lazy var filter: Filter = {
-        .init(infos: PhotoTools.defaultFilters())
+        var filter = Filter(infos: PhotoTools.defaultFilters())
+        #if canImport(Harbeth)
+        filter.isShowEdit = true
+        #endif
+        return filter
     }()
     
     /// 马赛克配置

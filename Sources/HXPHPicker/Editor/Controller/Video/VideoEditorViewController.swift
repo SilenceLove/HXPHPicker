@@ -579,7 +579,7 @@ open class VideoEditorViewController: BaseViewController {
             videoView.frame = view.bounds
         }
         if toolOptions.contains(.cropSize) {
-            let cropToolFrame = CGRect(x: 0, y: toolView.y - 60, width: view.width, height: 60)
+            let cropToolFrame = CGRect(x: 0, y: toolView.y - 100, width: view.width, height: 100)
             cropConfirmView.frame = toolView.frame
             cropToolView.frame = cropToolFrame
             cropToolView.updateContentInset()
@@ -858,7 +858,11 @@ extension VideoEditorViewController {
     func setFilterViewFrame() {
         let filterHeight: CGFloat
         #if canImport(Harbeth)
-        filterHeight = 155 + UIDevice.bottomMargin
+        if config.filter.isShowEdit {
+            filterHeight = 155 + UIDevice.bottomMargin
+        }else {
+            filterHeight = 125 + UIDevice.bottomMargin
+        }
         #else
         filterHeight = 125 + UIDevice.bottomMargin
         #endif

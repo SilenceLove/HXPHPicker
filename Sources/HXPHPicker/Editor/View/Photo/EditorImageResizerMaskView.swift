@@ -85,7 +85,7 @@ public class EditorImageResizerMaskView: UIView {
         super.init(frame: .zero)
         if isMask {
             if maskType == .blackColor {
-                backgroundColor = .black.withAlphaComponent(0.6)
+                backgroundColor = .black.withAlphaComponent(0.7)
             }else {
                 addSubview(visualEffectView)
             }
@@ -101,6 +101,45 @@ public class EditorImageResizerMaskView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    var maskViewIsHidden = false
+    func showMaskView(_ isAnimation: Bool = true) {
+        maskViewIsHidden = false
+        if isAnimation {
+            UIView.animate(withDuration: 0.2) {
+                if self.maskType == .blackColor {
+                    self.backgroundColor = .black.withAlphaComponent(0.7)
+                }else {
+                    self.backgroundColor = .black.withAlphaComponent(0)
+                    self.visualEffectView.alpha = 1
+                }
+            }
+        }else {
+            if maskType == .blackColor {
+                backgroundColor = .black.withAlphaComponent(0.7)
+            }else {
+                backgroundColor = .black.withAlphaComponent(0)
+                visualEffectView.alpha = 1
+            }
+        }
+    }
+    
+    func hideMaskView(_ isAnimation: Bool = true) {
+        maskViewIsHidden = true
+        if isAnimation {
+            UIView.animate(withDuration: 0.2) {
+                self.backgroundColor = .black.withAlphaComponent(0.3)
+                if self.maskType != .blackColor {
+                    self.visualEffectView.alpha = 0
+                }
+            }
+        }else {
+            backgroundColor = .black.withAlphaComponent(0.3)
+            if maskType != .blackColor {
+                visualEffectView.alpha = 0
+            }
+        }
+    }
+    
     func updateBlackMask(isShow: Bool, animated: Bool, completion: (() -> Void)? = nil) {
         if animated {
             if isShow {

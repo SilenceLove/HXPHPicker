@@ -20,17 +20,36 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         didSelected filter: PhotoEditorFilter,
         atItem: Int
     ) {
+        var originalImage = image
+        var isOriginal = true
+        #if canImport(Harbeth)
+        let filters = Array(metalFilters.values)
+        if let image = thumbnailImage?.filter(c7s: filters), !filters.isEmpty {
+            originalImage = image
+            isOriginal = false
+        }else {
+            if !filter.isOriginal {
+                originalImage = thumbnailImage
+            }
+        }
+        #else
+        if !filter.isOriginal {
+            originalImage = thumbnailImage
+        }
+        #endif
         if filter.isOriginal {
-            imageView.imageResizerView.hasFilter = false
-            imageView.updateImage(image as Any)
-            imageView.setMosaicOriginalImage(mosaicImage)
+            if let image = originalImage {
+                imageView.imageResizerView.hasFilter = isOriginal
+                imageView.updateImage(image as Any)
+                imageView.setMosaicOriginalImage(mosaicImage)
+            }
             return
         }
         imageView.imageResizerView.hasFilter = true
         let lastImage = self.imageView.image as? UIImage
         let filterInfo = self.config.filter.infos[atItem]
         if let handler = filterInfo.filterHandler {
-            if let ciImage = self.thumbnailImage.ci_Image,
+            if let ciImage = originalImage?.ci_Image,
                let newImage = handler(ciImage, lastImage, filter.parameters, false)?.image {
                 let mosaicImage = newImage.mosaicImage(level: self.config.mosaic.mosaicWidth)
                 self.imageView.updateImage(newImage)
@@ -38,10 +57,8 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
             }
         }else {
             #if canImport(Harbeth)
-            var filters = Array(metalFilters.values)
             if let _filter = filterInfo.metalFilterHandler?(filter.parameters.first, false) {
-                filters.append(_filter)
-                let image = thumbnailImage.filter(c7s: filters)
+                let image = originalImage?.filter(c7: _filter)
                 if let image = image {
                     let mosaicImage = image.mosaicImage(level: config.mosaic.mosaicWidth)
                     imageView.updateImage(image)
@@ -80,7 +97,6 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         }
     }
     func hideFilterParameterView() {
-        filterView.reloadData()
         isShowFilterParameter = false
         UIView.animate(withDuration: 0.25) {
             self.setFilterParameterViewFrame()
@@ -93,13 +109,21 @@ extension PhotoEditorViewController: PhotoEditorFilterParameterViewDelegate {
         _ filterParameterView: PhotoEditorFilterParameterView,
         didChanged model: PhotoEditorFilterParameterInfo
     ) {
+        filterView.reloadData()
         let index = filterView.currentSelectedIndex
         let filter = filterView.filters[index]
         switch filterParameterView.type {
         case .filter:
             let filterInfo = config.filter.infos[index - 1]
             if let handler = filterInfo.filterHandler {
-                if let ciImage = thumbnailImage.ci_Image,
+                var originalImage = thumbnailImage
+                #if canImport(Harbeth)
+                let filters = Array(metalFilters.values)
+                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
+                    originalImage = image
+                }
+                #endif
+                if let ciImage = originalImage?.ci_Image,
                    let newImage = handler(ciImage, imageView.image as? UIImage, filter.parameters, false)?.image {
                     imageView.updateImage(newImage)
                     if mosaicToolView.canUndo {
@@ -131,15 +155,6 @@ extension PhotoEditorViewController: PhotoEditorFilterParameterViewDelegate {
             }
             var originalImage = thumbnailImage
             let metalFilter = metalFilters[type]
-//            {
-//                let exposure = C7Exposure()
-//                let contrast = C7Contrast()
-//                let saturation = C7Saturation()
-//                var warmth = C7ColorRGBA()
-//                warmth.color = .white
-//                var vignette = C7Vignette()
-//                vignette.color = .black
-//            }
             switch type {
             case .brightness:
                 var c7filter: C7Exposure
@@ -203,11 +218,21 @@ extension PhotoEditorViewController: PhotoEditorFilterParameterViewDelegate {
                 metalFilters[type] = nil
             }
             var filters = Array(metalFilters.values)
-            if let c7Filter = filterInfo?.metalFilterHandler?(filter.parameters.first, false) {
-                filters.append(c7Filter)
-            }
-            if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
-                originalImage = image
+            if let handler = filterInfo?.filterHandler {
+                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
+                    originalImage = image
+                }
+                if let ciImage = originalImage?.ci_Image,
+                   let newImage = handler(ciImage, imageView.image as? UIImage, filter.parameters, false)?.image {
+                    originalImage = newImage
+                }
+            }else {
+                if let c7Filter = filterInfo?.metalFilterHandler?(filter.parameters.first, false) {
+                    filters.append(c7Filter)
+                }
+                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
+                    originalImage = image
+                }
             }
             if let originalImage = originalImage {
                 imageView.updateImage(originalImage)

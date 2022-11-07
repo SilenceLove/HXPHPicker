@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: 相册标题视图配置类，弹窗展示相册列表时有效
+// MARK: Album title view configuration class, valid when the pop-up window displays the album list / 相册标题视图配置类，弹窗展示相册列表时有效
 public struct ArrowViewConfiguration {
     
     /// 箭头背景颜色

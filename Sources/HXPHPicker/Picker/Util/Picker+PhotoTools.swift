@@ -423,6 +423,9 @@ extension PhotoTools {
             infos: defaultFilters(),
             selectedColor: wxColor
         )
+        #if canImport(Harbeth)
+        config.photoEditor.filter.isShowEdit = true
+        #endif
         config.photoEditor.text.tintColor = wxColor
         #endif
         

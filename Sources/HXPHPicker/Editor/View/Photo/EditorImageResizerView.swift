@@ -204,6 +204,8 @@ class EditorImageResizerView: UIView {
         }
     }
     
+    var lastAngle: CGFloat = 0
+    
     var rotating: Bool = false
     var mirroring: Bool = false
     
