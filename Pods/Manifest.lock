@@ -1,34 +1,34 @@
 PODS:
   - GDPerformanceView-Swift (2.1.1)
-  - HXPHPicker (1.4.4):
-    - HXPHPicker/Full (= 1.4.4)
-  - HXPHPicker/Camera (1.4.4):
-    - HXPHPicker/Camera/Lite (= 1.4.4)
-    - HXPHPicker/Camera/Location (= 1.4.4)
-  - HXPHPicker/Camera/Lite (1.4.4):
+  - HXPHPicker (1.4.5):
+    - HXPHPicker/Full (= 1.4.5)
+  - HXPHPicker/Camera (1.4.5):
+    - HXPHPicker/Camera/Lite (= 1.4.5)
+    - HXPHPicker/Camera/Location (= 1.4.5)
+  - HXPHPicker/Camera/Lite (1.4.5):
     - HXPHPicker/Core
-  - HXPHPicker/Camera/Location (1.4.4):
+  - HXPHPicker/Camera/Location (1.4.5):
     - HXPHPicker/Camera/Lite
-  - HXPHPicker/Core (1.4.4)
-  - HXPHPicker/Editor (1.4.4):
-    - HXPHPicker/Editor/KF (= 1.4.4)
-    - HXPHPicker/Editor/Lite (= 1.4.4)
-  - HXPHPicker/Editor/KF (1.4.4):
+  - HXPHPicker/Core (1.4.5)
+  - HXPHPicker/Editor (1.4.5):
+    - HXPHPicker/Editor/KF (= 1.4.5)
+    - HXPHPicker/Editor/Lite (= 1.4.5)
+  - HXPHPicker/Editor/KF (1.4.5):
     - HXPHPicker/Editor/Lite
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Editor/Lite (1.4.4):
+  - HXPHPicker/Editor/Lite (1.4.5):
     - HXPHPicker/Core
-  - HXPHPicker/Full (1.4.4):
+  - HXPHPicker/Full (1.4.5):
     - HXPHPicker/Camera
     - HXPHPicker/Editor
     - HXPHPicker/Picker
-  - HXPHPicker/Picker (1.4.4):
-    - HXPHPicker/Picker/KF (= 1.4.4)
-    - HXPHPicker/Picker/Lite (= 1.4.4)
-  - HXPHPicker/Picker/KF (1.4.4):
+  - HXPHPicker/Picker (1.4.5):
+    - HXPHPicker/Picker/KF (= 1.4.5)
+    - HXPHPicker/Picker/Lite (= 1.4.5)
+  - HXPHPicker/Picker/KF (1.4.5):
     - HXPHPicker/Picker/Lite
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Picker/Lite (1.4.4):
+  - HXPHPicker/Picker/Lite (1.4.5):
     - HXPHPicker/Core
   - Kingfisher (7.1.1)
 
@@ -47,7 +47,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
-  HXPHPicker: 03b99cb5dc5702666d942ae06ac9ca3a584f0b3d
+  HXPHPicker: c626f6194a0fd2205c67c9197492f4ae561db36d
   Kingfisher: f738f9c4a3415823b8e2985d10aa2d6a9f37bc4d
 
 PODFILE CHECKSUM: 022685221be8605f1ae599c42b709a8786891c1b

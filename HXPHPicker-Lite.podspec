@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker-Lite"
-    spec.version                = "1.4.4"
+    spec.version                = "1.4.5"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }

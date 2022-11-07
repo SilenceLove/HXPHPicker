@@ -88,7 +88,6 @@
 		7B64A9C0268C00E30002109E /* SelectBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64A9BF268C00E30002109E /* SelectBoxView.swift */; };
 		7B64A9C2268C02320002109E /* SelectBoxConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64A9C1268C02320002109E /* SelectBoxConfiguration.swift */; };
 		7B64A9C6268C75B10002109E /* PreviewVideoControlViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B64A9C5268C75B10002109E /* PreviewVideoControlViewCell.swift */; };
-		7B68F36129120FAC00E808B5 /* EditorScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B68F36029120FAC00E808B5 /* EditorScaleView.swift */; };
 		7B6961FB2668B8850028BAF1 /* PhotoManager+Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6961FA2668B8850028BAF1 /* PhotoManager+Download.swift */; };
 		7B6ACE2326575AFA003704BE /* ImageContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6ACE2226575AFA003704BE /* ImageContentType.swift */; };
 		7B6DE5392683317F00EE1B1D /* PhotoEditorFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6DE5382683317E00EE1B1D /* PhotoEditorFilter.swift */; };
@@ -455,7 +454,6 @@
 		7B64A9BF268C00E30002109E /* SelectBoxView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectBoxView.swift; sourceTree = "<group>"; };
 		7B64A9C1268C02320002109E /* SelectBoxConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectBoxConfiguration.swift; sourceTree = "<group>"; };
 		7B64A9C5268C75B10002109E /* PreviewVideoControlViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideoControlViewCell.swift; sourceTree = "<group>"; };
-		7B68F36029120FAC00E808B5 /* EditorScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorScaleView.swift; sourceTree = "<group>"; };
 		7B6961FA2668B8850028BAF1 /* PhotoManager+Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoManager+Download.swift"; sourceTree = "<group>"; };
 		7B6ACE2226575AFA003704BE /* ImageContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentType.swift; sourceTree = "<group>"; };
 		7B6DE5382683317E00EE1B1D /* PhotoEditorFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEditorFilter.swift; sourceTree = "<group>"; };
@@ -1461,7 +1459,6 @@
 				7BF42E0526D63D71006C556A /* EditorChartletViewListCell.swift */,
 				7BF42E0326D63D4C006C556A /* EditorChartletViewCell.swift */,
 				7B881BAE26B91BB900CC44CC /* EditorChartletPreviewView.swift */,
-				7B68F36029120FAC00E808B5 /* EditorScaleView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1810,7 +1807,6 @@
 				7B536DE726A918D7004E3130 /* EditorStickerTrashView.swift in Sources */,
 				7B82EBC826A66EFA002A33F1 /* EditorStickerContentView.swift in Sources */,
 				7B76CA25269EBEE800F5590E /* PhotoEditorViewController+Request.swift in Sources */,
-				7B68F36129120FAC00E808B5 /* EditorScaleView.swift in Sources */,
 				7B80FA91268EBE76003C7B35 /* PhotoEditorBrushColorView.swift in Sources */,
 				7BE1CA2526F47CF20069ACB6 /* PhotoPickerView+Function.swift in Sources */,
 				7BBA80D425F5C2EB00CECBA7 /* PickerResult.swift in Sources */,
@@ -2175,9 +2171,9 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence13.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence14.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2208,8 +2204,8 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence13.Example;
+				MARKETING_VERSION = 1.4.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence14.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2241,7 +2237,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2275,7 +2271,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

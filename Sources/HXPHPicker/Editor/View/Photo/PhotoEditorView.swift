@@ -345,8 +345,8 @@ class PhotoEditorView: UIScrollView, UIGestureRecognizerDelegate {
         }
         
         let isRoundCrop = cropConfig.isRoundCrop && imageResizerView.layer.cornerRadius > 0
+        let input_Image = self.image as? UIImage
         DispatchQueue.global().async {
-            let input_Image = self.image as? UIImage
             let filterImageURL = self.imageResizerView.hasFilter ?
                                     PhotoTools.write(image: input_Image) : nil
             self.imageResizerView.cropping(

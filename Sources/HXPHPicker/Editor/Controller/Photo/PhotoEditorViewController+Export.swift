@@ -16,7 +16,7 @@ extension PhotoEditorViewController {
             imageView.hasFilter ||
             imageView.hasSticker {
             imageView.deselectedSticker()
-            ProgressHUD.showLoading(addedTo: view, text: "正在处理...", animated: true)
+            ProgressHUD.showLoading(addedTo: view, text: "正在处理...".localized, animated: true)
             imageView.cropping { [weak self] in
                 guard let self = self else { return }
                 if let result = $0 {
