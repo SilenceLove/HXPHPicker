@@ -2163,7 +2163,7 @@
 				CODE_SIGN_ENTITLEMENTS = Example/Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EL8WNCCS5V;
+				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2171,9 +2171,9 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence12.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence14.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2196,7 +2196,7 @@
 				CODE_SIGN_ENTITLEMENTS = Example/Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = EL8WNCCS5V;
+				DEVELOPMENT_TEAM = 36YN45CVLK;
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2204,8 +2204,8 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_execute;
-				MARKETING_VERSION = 1.4.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.silence12.Example;
+				MARKETING_VERSION = 1.4.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.silence14.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2237,7 +2237,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;
@@ -2271,7 +2271,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACH_O_TYPE = mh_dylib;
-				MARKETING_VERSION = 1.4.4;
+				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.silence.HXPHPicker;
 				PRODUCT_MODULE_NAME = HXPHPicker;
 				PRODUCT_NAME = HXPHPicker;

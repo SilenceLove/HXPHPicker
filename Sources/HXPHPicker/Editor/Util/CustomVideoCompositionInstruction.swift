@@ -69,11 +69,11 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
         for request: AVAsynchronousVideoCompositionRequest
     ) -> CVPixelBuffer? {
         guard let instruction = request.videoCompositionInstruction as? CustomVideoCompositionInstruction,
-              let trackID = instruction.requiredSourceTrackIDs?.first as? CMPersistentTrackID,
-              let pixelBuffer = request.sourceFrame(byTrackID: trackID) else {
+              let trackID = instruction.requiredSourceTrackIDs?.first as? CMPersistentTrackID else {
             return nil
         }
-        guard let sourcePixelBuffer = fixOrientation(
+        guard let pixelBuffer = request.sourceFrame(byTrackID: trackID),
+              let sourcePixelBuffer = fixOrientation(
                 pixelBuffer,
                 instruction.videoOrientation,
                 instruction.cropSizeData
@@ -124,6 +124,7 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
             } else {
                 ciImage = ciImage.oriented(forExifOrientation: 8)
             }
+            size = .init(width: size.height, height: size.width)
         case .landscapeRight:
             break
         case .landscapeLeft:
@@ -132,7 +133,6 @@ class VideoFilterCompositor: NSObject, AVVideoCompositing {
             } else {
                 ciImage = ciImage.oriented(forExifOrientation: 3)
             }
-            size = .init(width: size.height, height: size.width)
         @unknown default:
             break
         }

@@ -1,5 +1,14 @@
 # 更新日志
 
+## 1.4.5
+
+### 修复
+
+- [#89](https://github.com/SilenceLove/HXPHPicker/issues/89])
+- [#90](https://github.com/SilenceLove/HXPHPicker/issues/90])
+- [#91](https://github.com/SilenceLove/HXPHPicker/issues/91])
+- [#92](https://github.com/SilenceLove/HXPHPicker/issues/92])
+
 ## 1.4.4
 
 ### 优化

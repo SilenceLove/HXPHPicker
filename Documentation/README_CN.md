@@ -49,16 +49,16 @@
     - [x] iOS
     - [x] iPadOS
 - [x] 国际化支持
-    - [x] 英文 (en)
-    - [x] 简体中文 (zh-Hans)
-    - [x] 繁体中文 (zh-Hant)
-    - [x] 日语 (ja)
-    - [x] 韩语 (ko)
-    - [x] 泰语 (th)
-    - [x] 印尼语 (id)
-    - [x] 越南语 (vi)
-    - [x] 自定义语言 (custom)
-    - [ ] 更多支持... (欢迎PR)
+    - [x] 🇬🇧 英文 (en)
+    - [x] 🇨🇳 简体中文 (zh-Hans)
+    - [x] 🇨🇳 繁体中文 (zh-Hant)
+    - [x] 🇯🇵 日语 (ja)
+    - [x] 🇰🇷 韩语 (ko)
+    - [x] 🇹🇭 泰语 (th)
+    - [x] 🇮🇳 印尼语 (id)
+    - [x] 🇻🇳 越南语 (vi)
+    - [x] ✍️ 自定义语言 (custom)
+    - [ ] 🤝 更多支持... (欢迎PR)
 
 ## <a id="要求"></a> 要求
 
@@ -74,7 +74,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.4"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.5"))
 ]
 ```
 
@@ -200,6 +200,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | 版本 | 发布时间 | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.4.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#145) | 2022-11-07 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#144) | 2022-10-26 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#143) | 2022-09-15 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#142) | 2022-09-13 | 13.1.0 | 5.4.2 | 12.0+ |
@@ -223,5 +224,9 @@ HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文
 
 ## 👨🏻‍💻
 <img src="http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/IMG_3838(20211015-101117).PNG" width="200" height="200">
+
+## 支持
+* [**★ Star**](#)
+* 请喝咖啡☕️ <img src="https://github.com/longitachi/ImageFolder/blob/master/ZLPhotoBrowser/ap.png" width = "100" height = "125" /> or <img src="https://github.com/longitachi/ImageFolder/blob/master/ZLPhotoBrowser/wp.png" width = "100" height = "125" />
 
 [🔝回到顶部](#readme)
