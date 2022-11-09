@@ -33,14 +33,13 @@ Pod::Spec.new do |spec|
     spec.subspec 'Camera' do |camera|
         camera.subspec 'Lite' do |lite|
             lite.source_files   = "Sources/HXPHPicker/Camera/**/*.{swift,metal}"
-            lite.dependency 'HXPHPicker/Core'
+            lite.dependency 'HXPHPicker-Lite/Core'
             lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA' }
         end
         camera.subspec 'Location' do |loca|
             loca.source_files   = "Sources/HXPHPicker/Camera+Location/**/*.{swift}"
-            loca.dependency 'HXPHPicker/Core'
+            loca.dependency 'HXPHPicker-Lite/Camera/Lite'
             loca.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_CAMERA_LOCATION' }
-            loca.dependency 'HXPHPicker/Camera/Lite'
         end
     end
     
