@@ -68,7 +68,7 @@
           "name": "Lite",
           "source_files": "Sources/HXPHPicker/Editor/**/*.{swift}",
           "dependencies": {
-            "HXPHPicker/Core": [
+            "HXPHPicker/EditorView/Lite": [
 
             ]
           },
@@ -80,6 +80,34 @@
           "name": "KF",
           "dependencies": {
             "HXPHPicker/Editor/Lite": [
+
+            ],
+            "Kingfisher": [
+              "~> 7.0"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "EditorView",
+      "subspecs": [
+        {
+          "name": "Lite",
+          "source_files": "Sources/HXPHPicker/Editor+View/**/*.{swift}",
+          "dependencies": {
+            "HXPHPicker/Core": [
+
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITORVIEW"
+          }
+        },
+        {
+          "name": "KF",
+          "dependencies": {
+            "HXPHPicker/EditorView/Lite": [
 
             ],
             "Kingfisher": [

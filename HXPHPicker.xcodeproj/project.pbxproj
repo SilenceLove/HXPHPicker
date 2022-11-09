@@ -139,6 +139,16 @@
 		7B843CFD26D78AC200DF1F8F /* VideoEditorMusicLyricViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B843CFC26D78AC200DF1F8F /* VideoEditorMusicLyricViewCell.swift */; };
 		7B843CFF26D78AE600DF1F8F /* VideoEditorMusicViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B843CFE26D78AE600DF1F8F /* VideoEditorMusicViewCell.swift */; };
 		7B881BAF26B91BB900CC44CC /* EditorChartletPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B881BAE26B91BB900CC44CC /* EditorChartletPreviewView.swift */; };
+		7B8B7307291A053000117752 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7306291A053000117752 /* EditorView.swift */; };
+		7B8B7309291A06F000117752 /* EditorAdjusterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7308291A06F000117752 /* EditorAdjusterView.swift */; };
+		7B8B730B291A076500117752 /* EditorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B730A291A076500117752 /* EditorContentView.swift */; };
+		7B8B730D291A0A6100117752 /* EditorVideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B730C291A0A6100117752 /* EditorVideoPlayerView.swift */; };
+		7B8B730F291A0B0800117752 /* EditorDrawView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B730E291A0B0800117752 /* EditorDrawView.swift */; };
+		7B8B7311291A0B1300117752 /* EditorMosaicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7310291A0B1300117752 /* EditorMosaicView.swift */; };
+		7B8B7313291A417500117752 /* EditorAdjusterView+ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7312291A417500117752 /* EditorAdjusterView+ScrollView.swift */; };
+		7B8B7315291A445A00117752 /* EditorFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7314291A445A00117752 /* EditorFrameView.swift */; };
+		7B8B7317291A50EE00117752 /* EditorView+Public.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7316291A50EE00117752 /* EditorView+Public.swift */; };
+		7B8B7319291A612A00117752 /* TestEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8B7318291A612A00117752 /* TestEditorViewController.swift */; };
 		7B8BFC5025B096A0002DF0E8 /* EditorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8BFC4F25B096A0002DF0E8 /* EditorType.swift */; };
 		7B8E7F762670552D00F4A3FD /* Core+PHAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8E7F752670552D00F4A3FD /* Core+PHAsset.swift */; };
 		7B8E7F7B26705D0800F4A3FD /* AssetManager+AVAssetExportSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8E7F7A26705D0800F4A3FD /* AssetManager+AVAssetExportSession.swift */; };
@@ -563,6 +573,16 @@
 		7B87B89225A7FE41009327C4 /* AssetManager+LivePhotoURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetManager+LivePhotoURL.swift"; sourceTree = "<group>"; };
 		7B87B89725A8073C009327C4 /* BaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseConfiguration.swift; sourceTree = "<group>"; };
 		7B881BAE26B91BB900CC44CC /* EditorChartletPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChartletPreviewView.swift; sourceTree = "<group>"; };
+		7B8B7306291A053000117752 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		7B8B7308291A06F000117752 /* EditorAdjusterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorAdjusterView.swift; sourceTree = "<group>"; };
+		7B8B730A291A076500117752 /* EditorContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorContentView.swift; sourceTree = "<group>"; };
+		7B8B730C291A0A6100117752 /* EditorVideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorVideoPlayerView.swift; sourceTree = "<group>"; };
+		7B8B730E291A0B0800117752 /* EditorDrawView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorDrawView.swift; sourceTree = "<group>"; };
+		7B8B7310291A0B1300117752 /* EditorMosaicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorMosaicView.swift; sourceTree = "<group>"; };
+		7B8B7312291A417500117752 /* EditorAdjusterView+ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorAdjusterView+ScrollView.swift"; sourceTree = "<group>"; };
+		7B8B7314291A445A00117752 /* EditorFrameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorFrameView.swift; sourceTree = "<group>"; };
+		7B8B7316291A50EE00117752 /* EditorView+Public.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditorView+Public.swift"; sourceTree = "<group>"; };
+		7B8B7318291A612A00117752 /* TestEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEditorViewController.swift; sourceTree = "<group>"; };
 		7B8BFC4F25B096A0002DF0E8 /* EditorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorType.swift; sourceTree = "<group>"; };
 		7B8E7F752670552D00F4A3FD /* Core+PHAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core+PHAsset.swift"; sourceTree = "<group>"; };
 		7B8E7F7A26705D0800F4A3FD /* AssetManager+AVAssetExportSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetManager+AVAssetExportSession.swift"; sourceTree = "<group>"; };
@@ -931,6 +951,7 @@
 				7B2A0BF225A7116A00E949FD /* Core */,
 				7B87B87D25A7F181009327C4 /* Picker */,
 				7BEB056225A93F6C00B39BE5 /* Editor */,
+				7B8B7304291A043700117752 /* Editor+View */,
 				7BB2422426D8E5D900424A8D /* Camera */,
 				7B74609F28F943F000818647 /* Camera+Location */,
 				7B73D6A0259C88A90045DA42 /* Resources */,
@@ -1218,6 +1239,30 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		7B8B7304291A043700117752 /* Editor+View */ = {
+			isa = PBXGroup;
+			children = (
+				7B8B7305291A047B00117752 /* View */,
+			);
+			path = "Editor+View";
+			sourceTree = "<group>";
+		};
+		7B8B7305291A047B00117752 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				7B8B7306291A053000117752 /* EditorView.swift */,
+				7B8B7316291A50EE00117752 /* EditorView+Public.swift */,
+				7B8B7308291A06F000117752 /* EditorAdjusterView.swift */,
+				7B8B7312291A417500117752 /* EditorAdjusterView+ScrollView.swift */,
+				7B8B7314291A445A00117752 /* EditorFrameView.swift */,
+				7B8B730A291A076500117752 /* EditorContentView.swift */,
+				7B8B730C291A0A6100117752 /* EditorVideoPlayerView.swift */,
+				7B8B730E291A0B0800117752 /* EditorDrawView.swift */,
+				7B8B7310291A0B1300117752 /* EditorMosaicView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		7B8C182B25FF057900CFE6E8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1245,6 +1290,7 @@
 				7B30D0C926B145BA0048D766 /* WeChatMometViewController.swift */,
 				7BA9562926BE384F004587FA /* PhotoBrowserViewController.swift */,
 				7BE1CA3226F49F910069ACB6 /* WindowPickerViewController.swift */,
+				7B8B7318291A612A00117752 /* TestEditorViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -1726,10 +1772,13 @@
 				7BBBD5DE25AF17B500301DCC /* UIDevice+Extension.swift in Sources */,
 				7BBBD55A25AEFD6E00301DCC /* PickerResultViewController.swift in Sources */,
 				7BBBD5F125AF1D0F00301DCC /* UIImage+Extension.swift in Sources */,
+				7B8B730D291A0A6100117752 /* EditorVideoPlayerView.swift in Sources */,
 				7BA7F55327BF777E00C5101E /* ImageFilter.swift in Sources */,
+				7B8B7309291A06F000117752 /* EditorAdjusterView.swift in Sources */,
 				7B62465F25F9E6EE00090025 /* HomeViewController.swift in Sources */,
 				7BBBD55B25AEFD6E00301DCC /* PickerResultViewController.xib in Sources */,
 				7BE1CA3326F49F910069ACB6 /* WindowPickerViewController.swift in Sources */,
+				7B8B7317291A50EE00117752 /* EditorView+Public.swift in Sources */,
 				7B824ACA2600600E00767331 /* RowTypeRule.swift in Sources */,
 				7BBBD5EA25AF1C4500301DCC /* UIFont+Extension.swift in Sources */,
 				7B824ABE2600544300767331 /* CustomPickerCellViewController.swift in Sources */,
@@ -1737,7 +1786,12 @@
 				7B57DC6726C0C78500DFE29A /* WeChatViewController.swift in Sources */,
 				7B4338CE2601CC5A0074C723 /* PickerColorConfigurationViewController.swift in Sources */,
 				7BA9562A26BE384F004587FA /* PhotoBrowserViewController.swift in Sources */,
+				7B8B7311291A0B1300117752 /* EditorMosaicView.swift in Sources */,
+				7B8B7319291A612A00117752 /* TestEditorViewController.swift in Sources */,
+				7B8B730B291A076500117752 /* EditorContentView.swift in Sources */,
 				7BA7F55A27BF7C2100C5101E /* GPUImageBeautifyFilter.m in Sources */,
+				7B8B7307291A053000117752 /* EditorView.swift in Sources */,
+				7B8B730F291A0B0800117752 /* EditorDrawView.swift in Sources */,
 				7B824AC12600559800767331 /* CustomPickerCellView.swift in Sources */,
 				7B30D0CA26B145BA0048D766 /* WeChatMometViewController.swift in Sources */,
 				7BBBD54025AEFC5F00301DCC /* AppDelegate.swift in Sources */,
@@ -1867,6 +1921,7 @@
 				7B843CFF26D78AE600DF1F8F /* VideoEditorMusicViewCell.swift in Sources */,
 				7B5460A426DCB12D00A65192 /* CameraConfiguration.swift in Sources */,
 				7BBBD58F25AEFE9100301DCC /* Core+UIImage.swift in Sources */,
+				7B8B7315291A445A00117752 /* EditorFrameView.swift in Sources */,
 				7BBBD59025AEFE9100301DCC /* Core+UIView.swift in Sources */,
 				7BBBD59125AEFE9100301DCC /* Core+Dictionary.swift in Sources */,
 				7B1988522783E5C00099853B /* Picker+LivePhotoTools.swift in Sources */,
@@ -1892,6 +1947,7 @@
 				7B5833DC26BD1EAC001F86F5 /* PhotoPreviewViewController+BottomView.swift in Sources */,
 				7BBBD59825AEFE9100301DCC /* PhotoListConfiguration.swift in Sources */,
 				7B81EA3E26DE0AED001E82BE /* CameraViewController+Editor.swift in Sources */,
+				7B8B7313291A417500117752 /* EditorAdjusterView+ScrollView.swift in Sources */,
 				7BEA744A26BA3B2C0065FC35 /* PhotoPickerViewController+Preview.swift in Sources */,
 				7BBBD59A25AEFE9100301DCC /* PhotoListCellConfiguration.swift in Sources */,
 				7B7E746228081EE3004A2581 /* PhotoEditorBrushSizeView.swift in Sources */,

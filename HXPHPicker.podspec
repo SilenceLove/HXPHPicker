@@ -33,7 +33,7 @@ Pod::Spec.new do |spec|
     spec.subspec 'Editor' do |editor|
         editor.subspec 'Lite' do |lite|
             lite.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
-            lite.dependency 'HXPHPicker/Core'
+            lite.dependency 'HXPHPicker/EditorView/Lite'
             lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
         end
         editor.subspec 'KF' do |kf|
@@ -45,6 +45,18 @@ Pod::Spec.new do |spec|
 #            hb.dependency 'HXPHPicker/Editor/Lite'
 #            hb.dependency 'Harbeth'
 #        end
+    end
+    
+    spec.subspec 'EditorView' do |editor_view|
+        editor_view.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Editor+View/**/*.{swift}"
+            lite.dependency 'HXPHPicker/Core'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITORVIEW' }
+        end
+        editor_view.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker/EditorView/Lite'
+            kf.dependency 'Kingfisher', '~> 7.0'
+        end
     end
     
     spec.subspec 'Camera' do |camera|

@@ -119,7 +119,8 @@ open class CameraViewController: BaseViewController {
                 title: "相机不可用!".localized,
                 message: nil,
                 actionTitle: "确定".localized
-            ) { _ in
+            ) { [weak self] _ in
+                guard let self = self else { return }
                 self.dismiss(animated: true)
             }
             return
