@@ -9,4 +9,6 @@ import UIKit
 
 class EditorMosaicView: UIView {
     
+    var originalImage: UIImage?
+    
 }

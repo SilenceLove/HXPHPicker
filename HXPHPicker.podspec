@@ -37,6 +37,7 @@ Pod::Spec.new do |spec|
             lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
         end
         editor.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker/EditorView/KF'
             kf.dependency 'HXPHPicker/Editor/Lite'
             kf.dependency 'Kingfisher', '~> 7.0'
         end

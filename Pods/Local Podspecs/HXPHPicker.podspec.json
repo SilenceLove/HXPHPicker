@@ -79,6 +79,9 @@
         {
           "name": "KF",
           "dependencies": {
+            "HXPHPicker/EditorView/KF": [
+
+            ],
             "HXPHPicker/Editor/Lite": [
 
             ],

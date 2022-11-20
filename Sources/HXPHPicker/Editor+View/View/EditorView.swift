@@ -1,8 +1,8 @@
 //
 //  EditorView.swift
-//  Example
+//  HXPHPicker
 //
-//  Created by Slience on 2022/11/8.
+//  Created by Slience on 2022/11/12.
 //
 
 import UIKit
@@ -13,27 +13,38 @@ import UIKit
 ///     - containerView (容器)
 ///         - scrollView (滚动视图)
 ///             - contentView (内容视图)
-///                 - imageView (图片内容)
-///                 - videoView (视频内容)
-///                 - drawView  (画笔绘图层)
-///                 - mosaic    (马赛克/涂抹)
+///                 - imageView/videoView (图片/视频内容)
+///                 - drawView (画笔绘图层)
+///                 - mosaic (马赛克图层)
 ///         - frameView (遮罩、控制裁剪范围)
 open class EditorView: UIScrollView {
     
     // MARK: public
+    /// 当前视图状态
+    public var state: State = .normal
+    /// 编辑状态下的边距
+    public var contentInsets: ((EditorView) -> UIEdgeInsets)?
+    
+    var animateDuration: TimeInterval = 0.3
     
     
     // MARK: initialize
-    open init() {
+    public init() {
         super.init(frame: .zero)
         initView()
     }
     
+    open override var zoomScale: CGFloat {
+        didSet {
+            adjusterView.zoomScale = zoomScale
+        }
+    }
+    
     // MARK: private
     /// 是否允许缩放
-    private var allowZoom: Bool = true
+    var allowZoom: Bool = true
     /// 当前裁剪内容的大小
-    var cropSize: CGSize = .zero
+    var editSize: CGSize = .zero
     
     var contentScale: CGFloat {
         adjusterView.contentScale
@@ -42,15 +53,20 @@ open class EditorView: UIScrollView {
     // MARK: views
     lazy var adjusterView: EditorAdjusterView = {
         let adjusterView = EditorAdjusterView()
+        adjusterView.setContentInsets = { [weak self] in
+            guard let self = self else { return .zero }
+            return self.contentInsets?(self) ?? .zero
+        }
         return adjusterView
     }()
     
     // MARK: layoutViews
     open override func layoutSubviews() {
         super.layoutSubviews()
+        
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
         
@@ -70,16 +86,16 @@ extension EditorView {
         if #available(iOS 11.0, *) {
             contentInsetAdjustmentBehavior = .never
         }
-        addSubview(imageResizerView)
+        addSubview(adjusterView)
     }
     
     func updateContentSize() {
         let contentWidth = width
         var contentHeight: CGFloat
-        if cropSize.equalTo(.zero) {
+        if editSize.equalTo(.zero) {
             contentHeight = contentWidth / contentScale
         }else {
-            contentHeight = cropSize.height
+            contentHeight = editSize.height
         }
         let contentX: CGFloat = 0
         var contentY: CGFloat = 0
@@ -92,34 +108,45 @@ extension EditorView {
         contentSize = CGSize(width: contentWidth, height: contentHeight)
         adjusterView.frame = CGRect(x: contentX, y: contentY, width: contentWidth, height: contentHeight)
     }
-}
-
-extension EditorView: UIGestureRecognizerDelegate {
     
-}
-
-extension EditorView: UIScrollViewDelegate {
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        allowZoom ? adjusterView : nil
-    }
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        if !allowZoom {
-            return
-        }
-        let offsetX = (scrollView.width > scrollView.contentSize.width) ?
-            (scrollView.width - scrollView.contentSize.width) * 0.5 : 0
-        let offsetY = (scrollView.height > scrollView.contentSize.height) ?
-            (scrollView.height - scrollView.contentSize.height) * 0.5 : 0
-        let centerX = scrollView.contentSize.width * 0.5 + offsetX
-        let centerY = scrollView.contentSize.height * 0.5 + offsetY
-        adjusterView.center = CGPoint(x: centerX, y: centerY)
-    }
-    func scrollViewDidEndZooming(
-        _ scrollView: UIScrollView,
-        with view: UIView?,
-        atScale scale: CGFloat
+    func resetZoomScale(
+        _ animated: Bool,
+        completion: (() -> Void)? = nil
     ) {
-//        adjusterView.zoomScale = scale
+        if state == .normal {
+            allowZoom = true
+        }
+        if animated {
+            UIView.animate(
+                withDuration: animateDuration,
+                delay: 0,
+                options: [.curveLinear]
+            ) {
+                if self.zoomScale != 1 {
+                    self.zoomScale = 1
+                }
+            } completion: { _ in
+                self.allowZoom = self.state == .normal
+                completion?()
+            }
+        }else {
+            if zoomScale != 1 {
+                zoomScale = 1
+            }
+            allowZoom = state == .normal
+            completion?()
+        }
+        setContentOffset(
+            CGPoint(x: -contentInset.left, y: -contentInset.top),
+            animated: false
+        )
+    }
+    
+    func resetState() {
+        reset(false)
+        adjusterView.oldAdjustedData = nil
+        resetZoomScale(false)
     }
 }
+
+

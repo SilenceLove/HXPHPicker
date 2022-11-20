@@ -1,8 +1,8 @@
 //
 //  EditorVideoPlayerView.swift
-//  Example
+//  HXPHPicker
 //
-//  Created by Slience on 2022/11/8.
+//  Created by Slience on 2022/11/12.
 //
 
 import UIKit
@@ -150,6 +150,15 @@ class EditorVideoPlayerView: VideoPlayerView {
                 completion?(self.player.currentTime())
             }
         }
+    }
+    func clear() {
+        NotificationCenter.default.removeObserver(self)
+        readyForDisplayObservation = nil
+        player.replaceCurrentItem(with: nil)
+        playerLayer.player = nil
+        avAsset = nil
+        coverImageView.isHidden = false
+        isPlaying = false
     }
     override func layoutSubviews() {
         super.layoutSubviews()

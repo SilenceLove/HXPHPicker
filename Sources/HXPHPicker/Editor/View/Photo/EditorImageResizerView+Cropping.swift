@@ -279,7 +279,7 @@ extension EditorImageResizerView {
         let isEqualSize = (!fromSize.equalTo(toSize) || (fromSize.equalTo(toSize) && cropConfig.isRoundCrop))
         if can_Reset || (!can_Reset && isEqualSize ) {
             // 调整裁剪框至中心
-            adjustmentViews(false, showMaskShadow: false)
+            adjustmentViews(false)
             hasCropping = true
             // 记录当前数据
             oldZoomScale = scrollView.zoomScale

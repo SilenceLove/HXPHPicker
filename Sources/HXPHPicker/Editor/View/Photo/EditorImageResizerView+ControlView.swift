@@ -75,7 +75,7 @@ extension EditorImageResizerView: EditorImageResizerControlViewDelegate {
     @objc func controlTimerAction() {
         adjustmentViews(true)
     }
-    func adjustmentViews(_ animated: Bool, showMaskShadow: Bool = true) {
+    func adjustmentViews(_ animated: Bool) {
         maskBgViewisShowing = true
         /// 显示遮罩背景
         showMaskBgView()

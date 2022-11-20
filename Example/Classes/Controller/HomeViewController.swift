@@ -132,7 +132,6 @@ extension HomeViewController {
                 }
             case .camera:
                 let config = CameraConfiguration()
-                config.position = .front
                 #if canImport(GPUImage)
                 config.defaultFilterIndex = 0
                 config.photoFilters = FilterTools.filters()
@@ -151,6 +150,7 @@ extension HomeViewController {
         case weChatMoment
         case photoBrowser
         case pickerView
+        case editorView
         
         var title: String {
             switch self {
@@ -170,6 +170,8 @@ extension HomeViewController {
                 return "Photo Browser"
             case .pickerView:
                 return "Picker View"
+            case .editorView:
+                return "Editor View"
             }
         }
         
@@ -209,6 +211,8 @@ extension HomeViewController {
                 return PhotoBrowserViewController()
             case .pickerView:
                 return WindowPickerViewController()
+            case .editorView:
+                return TestEditorViewController()
             }
         }
     }

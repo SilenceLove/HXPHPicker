@@ -1,8 +1,8 @@
 //
 //  EditorContentView.swift
-//  Example
+//  HXPHPicker
 //
-//  Created by Slience on 2022/11/8.
+//  Created by Slience on 2022/11/12.
 //
 
 import UIKit
@@ -20,59 +20,79 @@ class EditorContentView: UIView {
             }
         }
         set {
-            switch type {
-            case .image:
-                imageView.setImage(image)
-            case .video:
-                videoView.coverImageView.image = image
-            }
+            type = .image
+            imageView.setImage(newValue)
         }
     }
     
+    var videoCover: UIImage? {
+        get { videoView.coverImageView.image }
+        set { videoView.coverImageView.image = newValue }
+    }
+    
     var imageData: Data? {
+        get { nil }
         set {
-            imageView.setImageData(imageData)
+            type = .image
+            imageView.setImageData(newValue)
         }
     }
     
     var avAsset: AVAsset? {
+        get { videoView.avAsset }
         set {
-            videoView.avAsset? = avAsset
+            type = .video
+            videoView.avAsset = newValue
         }
+    }
+    
+    var mosaicOriginalImage: UIImage? {
+        get { mosaicView.originalImage }
+        set { mosaicView.originalImage = newValue }
     }
 
     /// 缩放比例
     var zoomScale: CGFloat = 1
     
     
-    let type: EditType
+    var type: EditorContentViewType = .image {
+        willSet {
+            if type == .video {
+                videoView.clear()
+            }
+        }
+        didSet {
+            switch type {
+            case .image:
+                videoView.isHidden = true
+                imageView.isHidden = false
+                mosaicView.isHidden = false
+            case .video:
+                videoView.isHidden = false
+                imageView.isHidden = true
+                mosaicView.isHidden = true
+            }
+        }
+    }
     
     // MARK: initialize
-    init(_ type: EditType) {
-        self.type = type
+    init() {
         super.init(frame: .zero)
-        switch type {
-        case .image:
-            addSubview(imageView)
-            addSubview(mosaicView)
-        case .video:
-            addSubview(videoView)
-        }
+        addSubview(imageView)
+        addSubview(mosaicView)
+        addSubview(videoView)
         addSubview(drawView)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        if editType == .image {
-            imageView.frame = bounds
-            mosaicView.frame = bounds
-        }else {
-            if videoView.superview == self {
-                videoView.frame = bounds
-            }
+        imageView.frame = bounds
+        mosaicView.frame = bounds
+        if videoView.superview == self {
+            videoView.frame = bounds
         }
         drawView.frame = bounds
-        stickerView.frame = bounds
+//        stickerView.frame = bounds
     }
     
     // MARK: SubViews
@@ -80,11 +100,13 @@ class EditorContentView: UIView {
         let imageView = ImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.isHidden = true
         return imageView
     }()
     
     lazy var videoView: EditorVideoPlayerView = {
         let videoView = EditorVideoPlayerView()
+        videoView.isHidden = true
         return videoView
     }()
     
@@ -95,6 +117,7 @@ class EditorContentView: UIView {
     
     lazy var mosaicView: EditorMosaicView = {
         let mosaicView = EditorMosaicView()
+        mosaicView.isHidden = true
         return mosaicView
     }()
     
@@ -104,8 +127,24 @@ class EditorContentView: UIView {
 }
 
 extension EditorContentView {
-    enum EditType {
-        case image
-        case video
+    var isPlaying: Bool {
+        videoView.isPlaying
+    }
+    
+    func loadAsset() {
+        videoView.configAsset()
+    }
+    func seek(to time: CMTime, comletion: ((Bool) -> Void)? = nil) {
+        videoView.seek(to: time, comletion: comletion)
+    }
+    func play() {
+        videoView.play()
+    }
+    func pause() {
+        videoView.pause()
+    }
+    func resetPlay(completion: ((CMTime) -> Void)? = nil) {
+        videoView.resetPlay(completion: completion)
     }
 }
+

@@ -15,9 +15,13 @@ PODS:
     - HXPHPicker/Editor/Lite (= 1.4.5)
   - HXPHPicker/Editor/KF (1.4.5):
     - HXPHPicker/Editor/Lite
+    - HXPHPicker/EditorView/KF
     - Kingfisher (~> 7.0)
   - HXPHPicker/Editor/Lite (1.4.5):
     - HXPHPicker/EditorView/Lite
+  - HXPHPicker/EditorView/KF (1.4.5):
+    - HXPHPicker/EditorView/Lite
+    - Kingfisher (~> 7.0)
   - HXPHPicker/EditorView/Lite (1.4.5):
     - HXPHPicker/Core
   - HXPHPicker/Full (1.4.5):
@@ -49,7 +53,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
-  HXPHPicker: 0b243200aa58ec4d282b9745dca09414a8d4f26f
+  HXPHPicker: d8eb1e25c1985de573bc83ca4da47aa534a4c7ed
   Kingfisher: f738f9c4a3415823b8e2985d10aa2d6a9f37bc4d
 
 PODFILE CHECKSUM: 022685221be8605f1ae599c42b709a8786891c1b
