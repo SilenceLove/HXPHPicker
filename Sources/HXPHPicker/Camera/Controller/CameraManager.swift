@@ -125,7 +125,9 @@ class CameraManager: NSObject {
         }
         
         let videoInput = try AVCaptureDeviceInput(device: videoDevice)
-        
+        if !videoInput.device.supportsSessionPreset(session.sessionPreset) {
+            session.sessionPreset = .hd1920x1080
+        }
         if !session.canAddInput(videoInput) {
             throw NSError(
                 domain: "Does not support adding video input",
@@ -390,7 +392,17 @@ extension CameraManager {
         if let input = activeVideoInput {
             session.removeInput(input)
         }
+        if !videoInput.device.supportsSessionPreset(config.sessionPreset.system) {
+            session.sessionPreset = .hd1920x1080
+        }else {
+            if session.sessionPreset != config.sessionPreset.system {
+                session.sessionPreset = config.sessionPreset.system
+            }
+        }
         if !session.canAddInput(videoInput) {
+            if let input = activeVideoInput {
+                session.addInput(input)
+            }
             session.commitConfiguration()
             throw NSError(
                 domain: "Does not support adding audio input",
@@ -464,7 +476,9 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
             ]
         )
         settings.previewPhotoFormat = [
-            kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)
+            kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA),
+            kCVPixelBufferWidthKey as String: config.sessionPreset.size.height,
+            kCVPixelBufferHeightKey as String: config.sessionPreset.size.width
         ]
         // Catpure Heif when available.
 //        if #available(iOS 11.0, *) {
