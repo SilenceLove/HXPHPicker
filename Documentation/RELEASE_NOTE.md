@@ -1,13 +1,22 @@
 # Release Notes
 
+## 1.4.6
+
+### Resolved
+
+- [#68](https://github.com/SilenceLove/HXPHPicker/issues/68)
+- [#88](https://github.com/SilenceLove/HXPHPicker/issues/88)
+- [#96](https://github.com/SilenceLove/HXPHPicker/issues/96)
+- [#97](https://github.com/SilenceLove/HXPHPicker/issues/97)
+
 ## 1.4.5
 
 ### Resolved
 
-- [#89](https://github.com/SilenceLove/HXPHPicker/issues/89])
-- [#90](https://github.com/SilenceLove/HXPHPicker/issues/90])
-- [#91](https://github.com/SilenceLove/HXPHPicker/issues/91])
-- [#92](https://github.com/SilenceLove/HXPHPicker/issues/92])
+- [#89](https://github.com/SilenceLove/HXPHPicker/issues/89)
+- [#90](https://github.com/SilenceLove/HXPHPicker/issues/90)
+- [#91](https://github.com/SilenceLove/HXPHPicker/issues/91)
+- [#92](https://github.com/SilenceLove/HXPHPicker/issues/92)
 
 ## 1.4.4
 
