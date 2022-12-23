@@ -249,14 +249,17 @@ extension PhotoAsset {
     }
     
     func setMediaType() {
-        if phAsset?.mediaType.rawValue == 1 {
+        guard let phAsset = phAsset else {
+            return
+        }
+        if phAsset.mediaType == .image {
             mediaType = .photo
             mediaSubType = .image
-        }else if phAsset?.mediaType.rawValue == 2 {
+        }else if phAsset.mediaType == .video {
             mediaType = .video
             mediaSubType = .video
-            pVideoDuration = phAsset!.duration
-            pVideoTime = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(phAsset!.duration)))
+            pVideoDuration = phAsset.duration
+            pVideoTime = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(phAsset.duration)))
         }
     }
     
@@ -387,10 +390,7 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         let coverURL = fileURL ?? PhotoTools.getImageTmpURL(.jpg)
-        requestImageData(
-            iCloudHandler: nil,
-            progressHandler: nil
-        ) { photoAsset, result in
+        requestImageData { photoAsset, result in
             switch result {
             case .success(let dataResult):
                 let imageData = dataResult.imageData

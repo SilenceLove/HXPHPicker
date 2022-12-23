@@ -8,17 +8,30 @@
 import UIKit
 
 public extension EditorView {
+    
+    struct Config {
+        
+    }
+    
     enum State {
         case normal
         case edit
     }
+    
+    enum MaskType: Equatable {
+        /// 毛玻璃效果
+        case blurEffect(style: UIBlurEffect.Style)
+        /// 自定义颜色
+        case customColor(color: UIColor)
+    }
+}
+
+public enum EditorContentViewType {
+    case image
+    case video
 }
 
 extension EditorAdjusterView {
-    enum MirrorType: Int, Codable {
-        case none
-        case horizontal
-    }
     
     enum ImageOrientation {
         case up
@@ -36,20 +49,19 @@ extension EditorAdjusterView {
         var maximumZoomScale: CGFloat = 1
         var maskRect: CGRect = .zero
         var transform: CGAffineTransform = .identity
-        var mirrorType: MirrorType = .none
-        var aspectRatio: CGSize = .zero
-        var isFixedRatio: Bool = false
+        var rotateTransform: CGAffineTransform = .identity
+        var mirrorTransform: CGAffineTransform = .identity
+        var maskImage: UIImage? = nil
+        var isRound: Bool = false
     }
 }
 
 extension EditorMaskView {
-    enum MaskType {
-        /// 半透明黑色
-        case blackColor
-        /// 深色毛玻璃
-        case darkBlurEffect
-        /// 浅色毛玻璃
-        case lightBlurEffect
+    
+    enum `Type` {
+        case frame
+        case mask
+        case customMask
     }
 }
 
@@ -59,8 +71,17 @@ extension EditorControlView {
         var aspectRatio: CGSize = .zero
     }
 }
-
-public enum EditorContentViewType {
-    case image
-    case video
+extension EditorView {
+    enum Operate {
+        case startEdit
+        case finishEdit
+        case cancelEdit
+        case rotate(CGFloat)
+        case rotateLeft
+        case rotateRight
+        case mirrorHorizontally
+        case mirrorVertically
+        case reset
+        case setRoundMask(Bool)
+    }
 }

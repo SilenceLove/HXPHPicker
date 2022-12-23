@@ -22,6 +22,9 @@ class EditorVideoPlayerView: VideoPlayerView {
     var isPlaying: Bool = false
     var shouldPlay = true
     var readyForDisplayObservation: NSKeyValueObservation?
+    var rateObservation: NSKeyValueObservation?
+    var statusObservation: NSKeyValueObservation?
+    var videoSize: CGSize = .zero
     
     var isLookOriginal: Bool = false
     var filterInfo: PhotoEditorFilterInfo?
@@ -43,7 +46,7 @@ class EditorVideoPlayerView: VideoPlayerView {
         super.init()
         addSubview(coverImageView)
     }
-    func configAsset() {
+    func configAsset(_ completion: ((Bool) -> Void)? = nil) {
         if let avAsset = avAsset {
             try? AVAudioSession.sharedInstance().setCategory(.playback)
             let playerItem = AVPlayerItem(asset: avAsset)
@@ -68,6 +71,32 @@ class EditorVideoPlayerView: VideoPlayerView {
                 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
                 object: player.currentItem
             )
+            rateObservation = player
+                .observe(
+                    \.rate,
+                    options: [.new, .old]
+                ) { [weak self] player, change in
+                    guard let self = self else { return }
+                    if player.rate == 0 && self.isPlaying {
+                        self.pause()
+                    }
+            }
+            statusObservation = player
+                .observe(
+                    \.status,
+                    options: [.new, .old]
+                ) { player, change in
+                    switch player.status {
+                    case .readyToPlay:
+                        completion?(true)
+                    case .failed:
+                        completion?(false)
+                    case .unknown:
+                        break
+                    @unknown default:
+                        break
+                    }
+            }
             readyForDisplayObservation = playerLayer
                 .observe(
                     \.isReadyForDisplay,
@@ -77,9 +106,12 @@ class EditorVideoPlayerView: VideoPlayerView {
                     if playerLayer.isReadyForDisplay {
                         self.coverImageView.isHidden = true
                         self.play()
+                        self.videoSize = playerLayer.videoRect.size
                         self.delegate?.playerView(self)
                     }
             }
+        }else {
+            completion?(false)
         }
     }
     func videoComposition(_ avAsset: AVAsset) -> AVMutableVideoComposition {
@@ -119,7 +151,9 @@ class EditorVideoPlayerView: VideoPlayerView {
     }
     func pause() {
         if isPlaying {
-            player.pause()
+            if player.rate != 0 {
+                player.pause()
+            }
             isPlaying = false
             delegate?.playerView(self, didPauseAt: player.currentTime())
         }
@@ -153,6 +187,8 @@ class EditorVideoPlayerView: VideoPlayerView {
     }
     func clear() {
         NotificationCenter.default.removeObserver(self)
+        statusObservation = nil
+        rateObservation = nil
         readyForDisplayObservation = nil
         player.replaceCurrentItem(with: nil)
         playerLayer.player = nil
@@ -168,6 +204,8 @@ class EditorVideoPlayerView: VideoPlayerView {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
+        statusObservation = nil
+        rateObservation = nil
         readyForDisplayObservation = nil
         NotificationCenter.default.removeObserver(self)
     }

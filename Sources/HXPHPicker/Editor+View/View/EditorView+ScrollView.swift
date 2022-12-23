@@ -16,10 +16,12 @@ extension EditorView: UIScrollViewDelegate {
         if !allowZoom {
             return
         }
-        let offsetX = (scrollView.width > scrollView.contentSize.width) ?
-            (scrollView.width - scrollView.contentSize.width) * 0.5 : 0
-        let offsetY = (scrollView.height > scrollView.contentSize.height) ?
-            (scrollView.height - scrollView.contentSize.height) * 0.5 : 0
+        let viewWidth = scrollView.width - scrollView.contentInset.left - scrollView.contentInset.right
+        let viewHeight = scrollView.height - scrollView.contentInset.top - scrollView.contentInset.bottom
+        let offsetX = (viewWidth > scrollView.contentSize.width) ?
+            (viewWidth - scrollView.contentSize.width) * 0.5 : 0
+        let offsetY = (viewHeight > scrollView.contentSize.height) ?
+            (viewHeight - scrollView.contentSize.height) * 0.5 : 0
         let centerX = scrollView.contentSize.width * 0.5 + offsetX
         let centerY = scrollView.contentSize.height * 0.5 + offsetY
         adjusterView.center = CGPoint(x: centerX, y: centerY)

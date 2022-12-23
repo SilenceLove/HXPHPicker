@@ -11,10 +11,6 @@ import Photos
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
-#if canImport(Harbeth)
-import Harbeth
-#endif
-
 open class PhotoEditorViewController: BaseViewController {
     
     public weak var delegate: PhotoEditorViewControllerDelegate?
@@ -332,15 +328,11 @@ open class PhotoEditorViewController: BaseViewController {
     }
     func setFilterViewFrame() {
         let filterHeight: CGFloat
-        #if canImport(Harbeth)
         if config.filter.isShowEdit {
             filterHeight = 155 + UIDevice.bottomMargin
         }else {
             filterHeight = 125 + UIDevice.bottomMargin
         }
-        #else
-        filterHeight = 125 + UIDevice.bottomMargin
-        #endif
         if let type = currentToolOption?.type,
            type == .filter {
             filterView.frame = CGRect(
@@ -655,9 +647,6 @@ open class PhotoEditorViewController: BaseViewController {
     var pState: State = .normal
     var filterHDImage: UIImage?
     var mosaicImage: UIImage?
-    #if canImport(Harbeth)
-    var metalFilters: [PhotoEditorFilterEditModel.`Type`: C7FilterProtocol] = [:]
-    #endif
     var thumbnailImage: UIImage!
     var transitionalImage: UIImage?
     var transitionCompletion: Bool = true

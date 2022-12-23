@@ -7,26 +7,80 @@
 
 import UIKit
 
+public protocol EditorViewDelegate: AnyObject {
+    /// 编辑状态发生改变
+    func editorView(willBeginEditing editorView: EditorView)
+    /// 编辑状态改变结束
+    func editorView(didEndEditing editorView: EditorView)
+    /// 即将进入编辑状态
+    func editorView(editWillAppear editorView: EditorView)
+    /// 已经进入编辑状态
+    func editorView(editDidAppear editorView: EditorView)
+    /// 即将结束编辑状态
+    func editorView(editWillDisappear editorView: EditorView)
+    /// 已经结束编辑状态
+    func editorView(editDidDisappear editorView: EditorView)
+    /// 画笔/涂鸦/贴图发生改变
+    func editorView(contentViewBeganDrag editorView: EditorView)
+    /// 画笔/涂鸦/贴图结束改变
+    func editorView(contentViewEndDraw editorView: EditorView)
+    /// 点击的文字贴纸
+//    func editorView(_ editorView: EditorView, didSelectedStickerText item: EditorStickerItem)
+    /// 移除了音乐贴纸
+    func editorView(didRemoveAudio editorView: EditorView)
+}
+
 /// 层级结构
 /// - EditorView (self)
 /// - adjusterView
 ///     - containerView (容器)
-///         - scrollView (滚动视图)
-///             - contentView (内容视图)
-///                 - imageView/videoView (图片/视频内容)
-///                 - drawView (画笔绘图层)
-///                 - mosaic (马赛克图层)
+///         - mirrorView (镜像处理)
+///             - rotateView (旋转处理)
+///             - scrollView (滚动视图)
+///                 - contentView (内容视图)
+///                     - imageView/videoView (图片/视频内容)
+///                     - drawView (画笔绘图层)
+///                     - mosaic (马赛克图层)
 ///         - frameView (遮罩、控制裁剪范围)
 open class EditorView: UIScrollView {
     
     // MARK: public
-    /// 当前视图状态
-    public var state: State = .normal
-    /// 编辑状态下的边距
-    public var contentInsets: ((EditorView) -> UIEdgeInsets)?
+    public weak var editDelegate: EditorViewDelegate?
     
-    var animateDuration: TimeInterval = 0.3
+    /// 内容边距（进入/退出 编辑状态不会有 缩小/放大 动画）
+    /// 每次设置都会重置编辑内容
+    open override var contentInset: UIEdgeInsets {
+        didSet {
+            resetState()
+            setContent()
+        }
+    }
     
+    /// 编辑状态下的边距（进入/退出 编辑状态会有 缩小/放大 动画）
+    /// 每次设置都会重置编辑内容 
+    public var editContentInset: ((EditorView) -> UIEdgeInsets)? {
+        didSet {
+            resetState()
+            setContent()
+        }
+    }
+    
+    /// 遮罩颜色，必须与父视图的背景一致
+    public var maskColor: UIColor = .black {
+        didSet {
+            if maskColor != .clear {
+                adjusterView.maskColor = maskColor
+            }
+        }
+    }
+    
+    open override var backgroundColor: UIColor? {
+        didSet {
+            if let backgroundColor = backgroundColor, backgroundColor != .clear {
+                maskColor = backgroundColor
+            }
+        }
+    }
     
     // MARK: initialize
     public init() {
@@ -41,21 +95,24 @@ open class EditorView: UIScrollView {
     }
     
     // MARK: private
-    /// 是否允许缩放
     var allowZoom: Bool = true
-    /// 当前裁剪内容的大小
     var editSize: CGSize = .zero
-    
+    var editState: State = .normal
     var contentScale: CGFloat {
         adjusterView.contentScale
     }
+    var animateDuration: TimeInterval = 0.3
+    var layoutContent: Bool = true
+    var reloadContent: Bool = false
+    var operates: [Operate] = []
     
     // MARK: views
     lazy var adjusterView: EditorAdjusterView = {
-        let adjusterView = EditorAdjusterView()
+        let adjusterView = EditorAdjusterView(maskColor: maskColor)
+        adjusterView.delegate = self
         adjusterView.setContentInsets = { [weak self] in
             guard let self = self else { return .zero }
-            return self.contentInsets?(self) ?? .zero
+            return self.editContentInset?(self) ?? .zero
         }
         return adjusterView
     }()
@@ -63,13 +120,29 @@ open class EditorView: UIScrollView {
     // MARK: layoutViews
     open override func layoutSubviews() {
         super.layoutSubviews()
-        
+        if layoutContent {
+            if contentScale == 0 {
+                reloadContent = true
+                layoutContent = false
+                return
+            }
+            setContent()
+            if !operates.isEmpty {
+                adjusterView.layoutIfNeeded()
+            }
+            operatesHandler()
+            layoutContent = false
+        }
     }
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        
+    
+    public func update() {
+        updateContentSize()
+        adjusterView.update()
+    }
 }
 
 // MARK: private
@@ -90,7 +163,9 @@ extension EditorView {
     }
     
     func updateContentSize() {
-        let contentWidth = width
+        let viewWidth = width - contentInset.left - contentInset.right
+        let viewHeight = height - contentInset.top - contentInset.bottom
+        let contentWidth = viewWidth
         var contentHeight: CGFloat
         if editSize.equalTo(.zero) {
             contentHeight = contentWidth / contentScale
@@ -99,21 +174,59 @@ extension EditorView {
         }
         let contentX: CGFloat = 0
         var contentY: CGFloat = 0
-        if contentHeight < height {
-            contentY = (height - contentHeight) * 0.5
-            adjusterView.setFrame(CGRect(x: 0, y: -contentY, width: width, height: height))
+        if contentHeight < viewHeight {
+            contentY = (viewHeight - contentHeight) * 0.5
+            adjusterView.setFrame(CGRect(x: 0, y: -contentY, width: viewWidth, height: viewHeight), maxRect: bounds, contentInset: contentInset)
         }else {
-            adjusterView.setFrame(bounds)
+            adjusterView.setFrame(.init(x: 0, y: 0, width: viewWidth, height: viewHeight), maxRect: bounds, contentInset: contentInset)
         }
         contentSize = CGSize(width: contentWidth, height: contentHeight)
         adjusterView.frame = CGRect(x: contentX, y: contentY, width: contentWidth, height: contentHeight)
+    }
+    
+    func setCustomMaskFrame(_ isReset: Bool) {
+        let viewWidth = width - contentInset.left - contentInset.right
+        let viewHeight = height - contentInset.top - contentInset.bottom
+        let contentWidth = viewWidth
+        var contentHeight: CGFloat
+        if editSize.equalTo(.zero) {
+            contentHeight = contentWidth / contentScale
+        }else {
+            contentHeight = editSize.height
+        }
+        var contentY: CGFloat = 0
+        if contentHeight < viewHeight {
+            contentY = (viewHeight - contentHeight) * 0.5
+            adjusterView.setCustomMaskFrame(CGRect(x: 0, y: -contentY, width: viewWidth, height: viewHeight), maxRect: bounds, contentInset: contentInset)
+        }else {
+            if !isReset {
+                adjusterView.setCustomMaskFrame(.init(x: 0, y: 0, width: viewWidth, height: contentHeight), maxRect: .init(x: 0, y: 0, width: width, height: contentHeight), contentInset: contentInset)
+            }else {
+                adjusterView.setCustomMaskFrame(.init(x: 0, y: 0, width: viewWidth, height: viewHeight), maxRect: bounds, contentInset: contentInset)
+            }
+        }
+    }
+    
+    func setContent() {
+        if size.equalTo(.zero) || contentScale == 0 {
+            layoutContent = true
+            return
+        }
+        layoutContent = false
+        updateContentSize()
+        adjusterView.setContent()
+        resetEdit()
+        
+        if !operates.isEmpty {
+            operatesHandler()
+        }
     }
     
     func resetZoomScale(
         _ animated: Bool,
         completion: (() -> Void)? = nil
     ) {
-        if state == .normal {
+        if editState == .normal {
             allowZoom = true
         }
         if animated {
@@ -126,14 +239,14 @@ extension EditorView {
                     self.zoomScale = 1
                 }
             } completion: { _ in
-                self.allowZoom = self.state == .normal
+                self.allowZoom = self.editState == .normal
                 completion?()
             }
         }else {
             if zoomScale != 1 {
                 zoomScale = 1
             }
-            allowZoom = state == .normal
+            allowZoom = editState == .normal
             completion?()
         }
         setContentOffset(
@@ -143,9 +256,56 @@ extension EditorView {
     }
     
     func resetState() {
-        reset(false)
-        adjusterView.oldAdjustedData = nil
-        resetZoomScale(false)
+        if maskImage != nil {
+            maskImage = nil
+        }
+        editSize = .zero
+        adjusterView.state = .edit
+        adjusterView.resetAll()
+        if editState == .normal {
+            adjusterView.state = .normal
+            resetZoomScale(false)
+        }
+    }
+    
+    func resetEdit() {
+        if editState == .edit {
+            adjusterView.startEdit(false)
+            if adjusterView.isRoundMask {
+                isFixedRatio = true
+                adjusterView.setAspectRatio(.init(width: 1, height: 1), resetRound: false, animated: false)
+            }
+        }else {
+            adjusterView.resetScrollContent()
+        }
+    }
+    
+    func operatesHandler() {
+        for operate in operates {
+            switch operate {
+            case .startEdit:
+                startEdit(false)
+            case .finishEdit:
+                finishEdit(false)
+            case .cancelEdit:
+                cancelEdit(false)
+            case .rotate(let angle):
+                rotate(angle, animated: false)
+            case .rotateLeft:
+                rotateLeft(false)
+            case .rotateRight:
+                rotateRight(false)
+            case .mirrorHorizontally:
+                mirrorHorizontally(false)
+            case .mirrorVertically:
+                mirrorVertically(false)
+            case .reset:
+                reset(false)
+            case .setRoundMask(let isRound):
+                setRoundMask(isRound, animated: false)
+            }
+        }
+        operates.removeAll()
     }
 }
 

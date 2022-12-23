@@ -9,8 +9,50 @@ import UIKit
 
 class EditorMaskView: UIView {
     
+    lazy var customMaskView: UIView = {
+        let view = UIView()
+        view.alpha = 0
+        view.isUserInteractionEnabled = false
+        switch maskType {
+        case .customColor(let color):
+            view.backgroundColor = color
+            customMaskEffectView.alpha = 0
+        case .blurEffect(_):
+            customMaskEffectView.alpha = 1
+        }
+        view.addSubview(customMaskEffectView)
+        view.mask = maskImageView
+        return view
+    }()
+    
+    lazy var maskImageView: UIImageView = {
+        let imageView = UIImageView(image: maskImage)
+        return imageView
+    }()
+    
+    lazy var customMaskEffectView: UIVisualEffectView = {
+        let style: UIBlurEffect.Style
+        switch maskType {
+        case .blurEffect(let _style):
+            style = _style
+        default:
+            style = .light
+        }
+        let visualEffect = UIBlurEffect(style: style)
+        let view = UIVisualEffectView(effect: visualEffect)
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+    
     lazy var visualEffectView: UIVisualEffectView = {
-        let visualEffect = UIBlurEffect(style: maskType == .darkBlurEffect ? .dark : .light)
+        let style: UIBlurEffect.Style
+        switch maskType {
+        case .blurEffect(let _style):
+            style = _style
+        default:
+            style = .light
+        }
+        let visualEffect = UIBlurEffect(style: style)
         let view = UIVisualEffectView(effect: visualEffect)
         view.isUserInteractionEnabled = false
         return view
@@ -21,7 +63,7 @@ class EditorMaskView: UIView {
         view.isHidden = true
         view.alpha = 0
         view.isUserInteractionEnabled = false
-        view.backgroundColor = .white
+        view.backgroundColor = maskColor
         return view
     }()
     
@@ -53,6 +95,22 @@ class EditorMaskView: UIView {
         return layer
     }()
     
+    lazy var frameView: UIView = {
+        let view = UIView()
+        view.isUserInteractionEnabled = false
+        view.layer.addSublayer(frameLayer)
+        view.layer.addSublayer(dotsLayer)
+        return view
+    }()
+    
+    lazy var gridlinesView: UIView = {
+        let view = UIView()
+        view.alpha = 0
+        view.isUserInteractionEnabled = false
+        view.layer.addSublayer(gridlinesLayer)
+        return view
+    }()
+    
     lazy var gridlinesLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
         layer.strokeColor = UIColor.white.withAlphaComponent(0.7).cgColor
@@ -63,14 +121,53 @@ class EditorMaskView: UIView {
         layer.shouldRasterize = true
         layer.rasterizationScale = layer.contentsScale
         layer.shadowOpacity = 0.5
-        layer.isHidden = true
         return layer
     }()
     /// 圆形裁剪框
     var isRoundCrop: Bool = false
     var animationDuration: TimeInterval = 0.3
-    let isMask: Bool
-    let maskType: MaskType
+    var type: `Type`
+    
+    var maskType: EditorView.MaskType = .blurEffect(style: .dark) {
+        didSet {
+            switch type {
+            case .mask:
+                switch maskType {
+                case .customColor(let color):
+                    backgroundColor = color
+                    visualEffectView.alpha = 0
+                case .blurEffect(let style):
+                    backgroundColor = .clear
+                    let visualEffect = UIBlurEffect(style: style)
+                    visualEffectView.effect = visualEffect
+                    visualEffectView.alpha = 1
+                }
+            case .customMask:
+                switch maskType {
+                case .customColor(let color):
+                    customMaskView.backgroundColor = color
+                    customMaskEffectView.alpha = 0
+                case .blurEffect(let style):
+                    customMaskView.backgroundColor = .clear
+                    let visualEffect = UIBlurEffect(style: style)
+                    customMaskEffectView.effect = visualEffect
+                    customMaskEffectView.alpha = 1
+                }
+            default:
+                break
+            }
+        }
+    }
+    
+    func setMaskType(_ maskType: EditorView.MaskType, animated: Bool) {
+        if animated {
+            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+                self.maskType = maskType
+            }
+        }else {
+            self.maskType = maskType
+        }
+    }
     
     var isCropTime: Bool = false {
         didSet {
@@ -79,64 +176,180 @@ class EditorMaskView: UIView {
         }
     }
     
-    init(isMask: Bool, maskType: MaskType = .blackColor) {
-        self.isMask = isMask
-        self.maskType = maskType
-        super.init(frame: .zero)
-        if isMask {
-            if maskType == .blackColor {
-                backgroundColor = .black.withAlphaComponent(0.7)
-            }else {
-                addSubview(visualEffectView)
+    var animateDuration: TimeInterval = 0.3
+    var maskInsets: UIEdgeInsets = .zero
+    var maskImage: UIImage?
+    
+    func setMaskImage(_ image: UIImage?, animated: Bool) {
+        maskImageView.frame = maskRect
+        customMaskEffectView.frame = maskRect
+        if animated {
+            if image != nil {
+                maskImage = image
+                maskImageView.image = image
             }
-            layer.mask = maskLayer
+            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+                self.customMaskView.alpha = image == nil ? 0 : 1
+            } completion: { _ in
+                if image == nil {
+                    self.maskImage = image
+                    self.maskImageView.image = image
+                }
+            }
         }else {
-            layer.addSublayer(frameLayer)
-            layer.addSublayer(gridlinesLayer)
-            layer.addSublayer(dotsLayer)
+            maskImage = image
+            maskImageView.image = image
+            customMaskView.alpha = image == nil ? 0 : 1
         }
-        addSubview(blackMaskView)
+    }
+    
+    var maskColor: UIColor? {
+        didSet {
+            switch type {
+            case .mask:
+                blackMaskView.backgroundColor = maskColor
+            default:
+                break
+            }
+        }
+    }
+    
+    init(type: `Type`, maskColor: UIColor? = nil, maskImage: UIImage? = nil) {
+        self.type = type
+        self.maskColor = maskColor
+        self.maskImage = maskImage
+        super.init(frame: .zero)
+        switch type {
+        case .frame:
+            addSubview(frameView)
+            addSubview(gridlinesView)
+        case .mask:
+            switch maskType {
+            case .customColor(let color):
+                backgroundColor = color
+                visualEffectView.alpha = 0
+            case .blurEffect(_):
+                visualEffectView.alpha = 1
+                break
+            }
+            addSubview(visualEffectView)
+            layer.mask = maskLayer
+            addSubview(blackMaskView)
+        case .customMask:
+            addSubview(customMaskView)
+        }
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    var maskViewIsHidden = false
-    func showMaskView(_ isAnimation: Bool = true) {
-        maskViewIsHidden = false
-        if isAnimation {
-            UIView.animate(withDuration: 0.2) {
-                if self.maskType == .blackColor {
-                    self.backgroundColor = .black.withAlphaComponent(0.7)
-                }else {
-                    self.backgroundColor = .black.withAlphaComponent(0)
-                    self.visualEffectView.alpha = 1
+    
+    func show(_ animated: Bool) {
+        switch type {
+        case .frame:
+            if animated {
+                UIView.animate(withDuration: 0.2) {
+                    self.frameView.alpha = 0
                 }
-            }
-        }else {
-            if maskType == .blackColor {
-                backgroundColor = .black.withAlphaComponent(0.7)
             }else {
-                backgroundColor = .black.withAlphaComponent(0)
-                visualEffectView.alpha = 1
+                self.frameView.alpha = 0
             }
+        case .mask:
+            showMaskView(animated)
+        case .customMask:
+            break
         }
     }
     
-    func hideMaskView(_ isAnimation: Bool = true) {
-        maskViewIsHidden = true
-        if isAnimation {
-            UIView.animate(withDuration: 0.2) {
-                self.backgroundColor = .black.withAlphaComponent(0.3)
-                if self.maskType != .blackColor {
-                    self.visualEffectView.alpha = 0
+    func hide(_ animated: Bool) {
+        switch type {
+        case .frame:
+            if animated {
+                UIView.animate(withDuration: 0.2) {
+                    self.frameView.alpha = 1
                 }
+            }else {
+                self.frameView.alpha = 1
+            }
+        case .mask:
+            hideMaskView(animated, isAll: true)
+        case .customMask:
+            break
+        }
+    }
+    
+    var maskViewIsHidden = false
+    func showMaskView(_ animated: Bool = true) {
+        maskViewIsHidden = false
+        func animationHnadler() {
+            switch type {
+            case .mask:
+                switch maskType {
+                case .customColor(let color):
+                    backgroundColor = color
+                default:
+                    backgroundColor = .clear
+                    visualEffectView.alpha = 1
+                }
+            case .customMask:
+                switch maskType {
+                case .customColor(let color):
+                    customMaskView.backgroundColor = color
+                default:
+                    customMaskView.backgroundColor = .clear
+                    customMaskEffectView.alpha = 1
+                }
+            default:
+                break
+            }
+        }
+        if animated {
+            UIView.animate(withDuration: 0.2) {
+                animationHnadler()
             }
         }else {
-            backgroundColor = .black.withAlphaComponent(0.3)
-            if maskType != .blackColor {
-                visualEffectView.alpha = 0
+            animationHnadler()
+        }
+    }
+    
+    func hideMaskView(_ animated: Bool = true, isAll: Bool = false) {
+        maskViewIsHidden = true
+        func animationHnadler() {
+            switch type {
+            case .mask:
+                if isAll {
+                    backgroundColor = .black.withAlphaComponent(0)
+                }else {
+                    backgroundColor = .black.withAlphaComponent(0.3)
+                }
+                switch maskType {
+                case .customColor(_):
+                    break
+                default:
+                    visualEffectView.alpha = 0
+                }
+            case .customMask:
+                customMaskView.backgroundColor = .black.withAlphaComponent(0.3)
+                switch maskType {
+                case .customColor(_):
+                    break
+                default:
+                    customMaskEffectView.alpha = 0
+                }
+            default:
+                if isAll {
+                    backgroundColor = .black.withAlphaComponent(0)
+                }else {
+                    backgroundColor = .black.withAlphaComponent(0.3)
+                }
             }
+        }
+        if animated {
+            UIView.animate(withDuration: 0.2) {
+                animationHnadler()
+            }
+        }else {
+            animationHnadler()
         }
     }
     
@@ -153,36 +366,57 @@ class EditorMaskView: UIView {
                 }
                 completion?()
             }
-
         }else {
             blackMaskView.alpha = isShow ? 1 : 0
             blackMaskView.isHidden = !isShow
             completion?()
         }
     }
-    func updateLayers(_ rect: CGRect, _ animated: Bool) {
-        if isMask {
-            let maskPath = UIBezierPath.init(rect: bounds)
-            if isRoundCrop {
-                maskPath.append(UIBezierPath(roundedRect: rect, cornerRadius: rect.width * 0.5).reversing())
-            }else {
-                maskPath.append(UIBezierPath.init(rect: rect).reversing())
+    
+    func showImageMaskView(_ animated: Bool) {
+        func animationHandler() {
+            switch maskType {
+            case .customColor(let color):
+                customMaskView.backgroundColor = color
+            default:
+                customMaskView.backgroundColor = .clear
+                customMaskEffectView.alpha = 1
             }
-            if animated {
-                let maskAnimation = PhotoTools.getBasicAnimation(
-                    "path",
-                    maskLayer.path,
-                    maskPath.cgPath,
-                    animationDuration,
-                    .easeOut
-                )
-                maskLayer.add(maskAnimation, forKey: nil)
+        }
+        if animated {
+            UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+                animationHandler()
             }
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            maskLayer.path = maskPath.cgPath
-            CATransaction.commit()
         }else {
+            animationHandler()
+        }
+    }
+    
+    func hideImageMaskView(_ animated: Bool) {
+        func animationHandler() {
+            customMaskView.backgroundColor = maskColor
+            switch maskType {
+            case .customColor(_):
+                break
+            default:
+                customMaskEffectView.alpha = 0
+            }
+        }
+        if animated {
+            UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+                animationHandler()
+            }
+        }else {
+            animationHandler()
+        }
+    }
+    
+    var maskRect: CGRect = .zero
+    var layersRect: CGRect = .zero
+    func updateLayers(_ rect: CGRect, _ animated: Bool) {
+        layersRect = rect
+        switch type {
+        case .frame:
             var framePath: UIBezierPath
             let frameRect = CGRect(
                 x: rect.minX - frameLayer.lineWidth * 0.5,
@@ -190,11 +424,7 @@ class EditorMaskView: UIView {
                 width: rect.width + frameLayer.lineWidth,
                 height: rect.height + frameLayer.lineWidth
             )
-            if !isRoundCrop {
-                framePath = UIBezierPath.init(rect: frameRect)
-            }else {
-                framePath = UIBezierPath.init(roundedRect: frameRect, cornerRadius: frameRect.width * 0.5)
-            }
+            framePath = UIBezierPath(roundedRect: frameRect, cornerRadius: isRoundCrop ? min(frameRect.width, frameRect.height) * 0.5 : 0.1)
             let gridlinePath = getGridlinePath(rect)
             let dotsPath = getDotsPath(
                 CGRect(
@@ -213,21 +443,37 @@ class EditorMaskView: UIView {
                     .easeOut
                 )
                 frameLayer.add(frameAnimation, forKey: nil)
-                if !isRoundCrop {
-                    let gridlinesAnimation = PhotoTools.getBasicAnimation(
-                        "path",
-                        gridlinesLayer.path,
-                        gridlinePath.cgPath,
-                        animationDuration,
+                let gridlinesAnimation = PhotoTools.getBasicAnimation(
+                    "path",
+                    gridlinesLayer.path,
+                    isRoundCrop ? nil : gridlinePath.cgPath,
+                    animationDuration,
+                    .easeOut
+                )
+                gridlinesLayer.add(gridlinesAnimation, forKey: nil)
+                let dotsAnimation = PhotoTools.getBasicAnimation(
+                    "path",
+                    dotsLayer.path,
+                    isRoundCrop ? nil : dotsPath.cgPath, animationDuration,
+                    .easeOut
+                )
+                let addDostOpactyAimation: Bool
+                if isRoundCrop {
+                    addDostOpactyAimation = dotsLayer.opacity != 0
+                }else {
+                    addDostOpactyAimation = dotsLayer.opacity != 1
+                }
+                if addDostOpactyAimation {
+                    let dotsOpacityAnimation = PhotoTools.getBasicAnimation(
+                        "opacity",
+                        dotsLayer.opacity,
+                        isRoundCrop ? 0 : 1, animationDuration,
                         .easeOut
                     )
-                    gridlinesLayer.add(gridlinesAnimation, forKey: nil)
-                    let dotsAnimation = PhotoTools.getBasicAnimation(
-                        "path",
-                        dotsLayer.path,
-                        dotsPath.cgPath, animationDuration,
-                        .easeOut
-                    )
+                    let dotsGroupAnimation = CAAnimationGroup()
+                    dotsGroupAnimation.animations = [dotsAnimation, dotsOpacityAnimation]
+                    dotsLayer.add(dotsGroupAnimation, forKey: nil)
+                }else {
                     dotsLayer.add(dotsAnimation, forKey: nil)
                 }
             }
@@ -237,19 +483,72 @@ class EditorMaskView: UIView {
             if !isRoundCrop {
                 gridlinesLayer.path = gridlinePath.cgPath
                 dotsLayer.path = dotsPath.cgPath
+                dotsLayer.opacity = 1
+            }else {
+                gridlinesLayer.path = nil
+                dotsLayer.path = nil
+                dotsLayer.opacity = 0
             }
             CATransaction.commit()
+        case .mask:
+            let maskPath = UIBezierPath(rect: bounds)
+            let maskRect = CGRect(x: rect.minX + maskInsets.left, y: rect.minY + maskInsets.top, width: rect.width, height: rect.height)
+            maskPath.append(UIBezierPath(roundedRect: maskRect, cornerRadius: isRoundCrop ? min(rect.width, rect.height) * 0.5 : 0.1).reversing())
+            if animated {
+                let maskAnimation = PhotoTools.getBasicAnimation(
+                    "path",
+                    maskLayer.path,
+                    maskPath.cgPath,
+                    animationDuration,
+                    .easeOut
+                )
+                maskLayer.add(maskAnimation, forKey: nil)
+            }
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            maskLayer.path = maskPath.cgPath
+            CATransaction.commit()
+        case .customMask:
+            let maskRect = CGRect(x: rect.minX + maskInsets.left, y: rect.minY + maskInsets.top, width: rect.width, height: rect.height)
+            self.maskRect = maskRect
+            if animated {
+                UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+                    self.maskImageView.image = self.maskImage
+                    self.maskImageView.frame = maskRect
+                    self.customMaskEffectView.frame = maskRect
+                }
+            }else {
+                maskImageView.image = maskImage
+                maskImageView.frame = maskRect
+                customMaskEffectView.frame = maskRect
+            }
         }
     }
+    
+    func updateRoundCrop(isRound: Bool, animated: Bool) {
+        if isRoundCrop == isRound {
+            return
+        }
+        isRoundCrop = isRound
+        updateLayers(layersRect, animated)
+    }
+    
     func showShadow(_ isShow: Bool) {
         frameLayer.isHidden = !isShow
     }
     
-    func showGridlinesLayer(_ isShow: Bool) {
+    func showGridlinesLayer(_ isShow: Bool, animated: Bool) {
         if isRoundCrop {
             return
         }
-        gridlinesLayer.isHidden = !isShow
+        gridlinesView.layer.removeAllAnimations()
+        if animated {
+            UIView.animate(withDuration: animationDuration) {
+                self.gridlinesView.alpha = isShow ? 1 : 0
+            }
+        }else {
+            gridlinesView.alpha = isShow ? 1 : 0
+        }
     }
     
     func getDotsPath(
@@ -294,7 +593,7 @@ class EditorMaskView: UIView {
         let horSpace = rect.width / CGFloat(gridCount)
         let verSpace = rect.height / CGFloat(gridCount)
         
-        let path = UIBezierPath.init()
+        let path = UIBezierPath()
         for index in 1..<gridCount {
             var px = rect.minX
             var py = rect.minY + verSpace * CGFloat(index)
@@ -310,7 +609,33 @@ class EditorMaskView: UIView {
     }
     public override func layoutSubviews() {
         super.layoutSubviews()
-        visualEffectView.frame = bounds
-        blackMaskView.frame = bounds
+        switch type {
+        case .frame:
+            frameView.frame = bounds
+            frameLayer.frame = frameView.bounds
+            dotsLayer.frame = frameView.bounds
+            gridlinesView.frame = bounds
+            gridlinesLayer.frame = gridlinesView.bounds
+        case .mask:
+            visualEffectView.frame = bounds
+            blackMaskView.frame = bounds
+            maskLayer.frame = bounds
+        case .customMask:
+            customMaskView.frame = bounds
+        }
+    }
+}
+
+
+extension UIImage {
+    func convertBlackImage() -> UIImage? {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
+        UIColor.black.setFill()
+        UIRectFill(rect)
+        draw(in: rect, blendMode: .destinationOut, alpha: 1)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
 }

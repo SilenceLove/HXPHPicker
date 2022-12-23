@@ -17,6 +17,7 @@ extension EditorFrameView: EditorControlViewDelegate {
     func controlView(didChanged controlView: EditorControlView, _ rect: CGRect) {
         stopControlTimer()
         maskBgView.updateLayers(rect, false)
+        customMaskView.updateLayers(rect, false)
         maskLinesView.updateLayers(rect, false)
         delegate?.frameView(didChanged: self, rect)
     }

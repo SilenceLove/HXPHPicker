@@ -48,29 +48,36 @@ extension UIDevice {
         if isAllIPhoneX {
             return statusBarHeight
         }
-        return UIApplication._keyWindow?.safeAreaInsets.top ?? 0
+        return safeAreaInsets.top
     }
     class var leftMargin: CGFloat {
-        UIApplication._keyWindow?.safeAreaInsets.left ?? 0
+        safeAreaInsets.left
     }
     class var rightMargin: CGFloat {
-        UIApplication._keyWindow?.safeAreaInsets.right ?? 0
+        safeAreaInsets.right
     }
     class var bottomMargin: CGFloat {
-        UIApplication._keyWindow?.safeAreaInsets.bottom ?? 0
+        safeAreaInsets.bottom
     }
     class var isPad: Bool {
         current.userInterfaceIdiom == .pad
     }
     class var isAllIPhoneX: Bool {
-        let safeArea = UIApplication._keyWindow?.safeAreaInsets
+        let safeArea = safeAreaInsets
         let margin: CGFloat
         if isPortrait {
-            margin = safeArea?.top ?? 0
+            margin = safeArea.bottom
         }else {
-            margin = safeArea?.left ?? 0
+            margin = safeArea.left
         }
         return margin != 0
+    }
+    
+    class var safeAreaInsets: UIEdgeInsets {
+        if #available(iOS 11.0, *) {
+            return UIApplication._keyWindow?.safeAreaInsets ?? .zero
+        }
+        return .zero
     }
     
     class var belowIphone7: Bool {

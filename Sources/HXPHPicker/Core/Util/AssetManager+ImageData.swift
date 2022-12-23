@@ -37,8 +37,8 @@ public extension AssetManager {
     static func requestImageData(
         for asset: PHAsset,
         version: PHImageRequestOptionsVersion,
-        iCloudHandler: ((PHImageRequestID) -> Void)?,
-        progressHandler: PHAssetImageProgressHandler?,
+        iCloudHandler: ((PHImageRequestID) -> Void)? = nil,
+        progressHandler: PHAssetImageProgressHandler? = nil,
         resultHandler: @escaping ImageDataResultHandler
     ) -> PHImageRequestID {
         return requestImageData(
@@ -169,13 +169,22 @@ public extension AssetManager {
                 let sureOrientation = self.transformImageOrientation(
                     orientation: imageOrientation
                 )
-                DispatchQueue.main.async {
+                if DispatchQueue.isMain || options.isSynchronous {
                     result(
                         imageData: imageData,
                         dataUTI: dataUTI,
                         imageOrientation: sureOrientation,
                         info: info
                     )
+                }else {
+                    DispatchQueue.main.async {
+                        result(
+                            imageData: imageData,
+                            dataUTI: dataUTI,
+                            imageOrientation: sureOrientation,
+                            info: info
+                        )
+                    }
                 }
             }
         } else {
@@ -184,13 +193,22 @@ public extension AssetManager {
                 for: asset,
                 options: options
             ) { (imageData, dataUTI, imageOrientation, info) in
-                DispatchQueue.main.async {
+                if DispatchQueue.isMain || options.isSynchronous {
                     result(
                         imageData: imageData,
                         dataUTI: dataUTI,
                         imageOrientation: imageOrientation,
                         info: info
                     )
+                }else {
+                    DispatchQueue.main.async {
+                        result(
+                            imageData: imageData,
+                            dataUTI: dataUTI,
+                            imageOrientation: imageOrientation,
+                            info: info
+                        )
+                    }
                 }
             }
         }

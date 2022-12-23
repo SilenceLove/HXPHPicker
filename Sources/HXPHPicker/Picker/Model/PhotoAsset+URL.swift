@@ -16,6 +16,13 @@ public extension PhotoAsset {
     /// - Parameters:
     ///   - compression: 压缩参数，nil - 原图
     ///   - completion: 获取完成
+    func getURL(
+        compression: Compression? = nil,
+        completion: @escaping AssetURLCompletion
+    ) {
+        getAssetURL(compression: compression, completion: completion)
+    }
+    
     func getAssetURL(
         compression: Compression? = nil,
         completion: @escaping AssetURLCompletion

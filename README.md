@@ -61,9 +61,13 @@
     - [x] 🇹🇭 Thai (th)
     - [x] 🇮🇳 Indonesian (id)
     - [x] 🇻🇳 Vietnamese (vi)
+    - [x] 🇷🇺 russian (ru)
+    - [x] 🇩🇪 german (de)
+    - [x] 🇫🇷 french (fr)
+    - [x] 🇸🇦 arabic (ar)
     - [x] ✍️ Custom language (custom)
     - [ ] 🤝 More support... (Pull requests welcome)
-
+    
 ## <a id="Requirements"></a> Requirements
 
 - iOS 12.0+
@@ -78,7 +82,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.5"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.6"))
 ]
 ```
 
@@ -204,6 +208,7 @@ extension ViewController: PhotoPickerControllerDelegate {
 
 | Version | Release Date | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v1.4.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#146) | 2022-11-20 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#145) | 2022-11-07 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#144) | 2022-10-26 | 14.0.0 | 5.7.0 | 12.0+ |
 | [v1.4.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#143) | 2022-09-15 | 14.0.0 | 5.7.0 | 12.0+ |

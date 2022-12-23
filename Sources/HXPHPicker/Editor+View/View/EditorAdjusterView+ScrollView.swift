@@ -19,11 +19,11 @@ extension EditorAdjusterView: UIScrollViewDelegate {
     }
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         didScroll()
-//        delegate?.imageResizerView(willBeginDragging: self)
+        delegate?.editorAdjusterView(willBeginEditing: self)
     }
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         didScroll()
-//        delegate?.imageResizerView(willBeginDragging: self)
+        delegate?.editorAdjusterView(willBeginEditing: self)
     }
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {

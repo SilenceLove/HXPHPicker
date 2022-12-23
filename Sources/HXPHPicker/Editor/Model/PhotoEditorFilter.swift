@@ -13,11 +13,6 @@ public typealias PhotoEditorFilterHandler = (CIImage, UIImage?, [PhotoEditorFilt
 /// 原始画面，滤镜参数
 public typealias VideoEditorFilterHandler = (CIImage, [PhotoEditorFilterParameterInfo]) -> CIImage?
 
-#if canImport(Harbeth)
-import Harbeth
-public typealias PhotoEditorMetalFilterHandler = (PhotoEditorFilterParameterInfo?, Bool) -> C7FilterProtocol
-#endif
-
 public struct PhotoEditorFilterInfo {
     
     /// 滤镜名称
@@ -43,30 +38,7 @@ public struct PhotoEditorFilterInfo {
         self.filterHandler = filterHandler
         self.videoFilterHandler = videoFilterHandler
         self.parameters = parameters
-        #if canImport(Harbeth)
-        self.metalFilterHandler = nil
-        #endif
     }
-    #if canImport(Harbeth)
-    public let metalFilterHandler: PhotoEditorMetalFilterHandler?
-    
-    public init(
-        filterName: String,
-        parameter: PhotoEditorFilterParameter? = nil,
-        metalFilterHandler: @escaping PhotoEditorMetalFilterHandler
-    ) {
-        self.filterHandler = nil
-        self.videoFilterHandler = nil
-        
-        self.filterName = filterName
-        self.metalFilterHandler = metalFilterHandler
-        if let parameter = parameter {
-            self.parameters = [parameter]
-        }else {
-            self.parameters = []
-        }
-    }
-    #endif
 }
 
 public struct PhotoEditorFilterParameter: Codable {

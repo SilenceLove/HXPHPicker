@@ -7,9 +7,6 @@
 
 import UIKit
 import CoreImage
-#if canImport(Harbeth)
-import Harbeth
-#endif
 
 protocol PhotoEditorFilterViewDelegate: AnyObject {
     func filterView(shouldSelectFilter filterView: PhotoEditorFilterView) -> Bool
@@ -28,12 +25,10 @@ class PhotoEditorFilterView: UIView {
         let visualEffect = UIBlurEffect.init(style: .dark)
         let view = UIVisualEffectView.init(effect: visualEffect)
         view.contentView.addSubview(collectionView)
-        #if canImport(Harbeth)
         if filterConfig.isShowEdit {
             view.contentView.addSubview(editView)
             view.contentView.addSubview(bottomView)
         }
-        #endif
         return view
     }()
     
@@ -174,11 +169,9 @@ class PhotoEditorFilterView: UIView {
     }
     func reloadData() {
         currentSelectedCell()?.updateParameter()
-        #if canImport(Harbeth)
         if filterConfig.isShowEdit {
             editView.reloadData()
         }
-        #endif
     }
     func scrollToSelectedCell() {
         if currentSelectedIndex > 0 {
@@ -307,11 +300,7 @@ extension PhotoEditorFilterView: PhotoEditorFilterViewCellDelegate {
                 true
             )?.image
         }else {
-            #if canImport(Harbeth)
-            if let filter = filterInfo.metalFilterHandler?(cell.filter.parameters.first, true) {
-                return try? image?.make(filter: filter)
-            }
-            #endif
+            
         }
         return nil
     }

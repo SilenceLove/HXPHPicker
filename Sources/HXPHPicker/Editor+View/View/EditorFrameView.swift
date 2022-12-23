@@ -21,18 +21,51 @@ class EditorFrameView: UIView {
     var controlTimer: Timer?
     var inControlTimer: Bool = false
     
+    
+    var maskType: EditorView.MaskType {
+        get {
+            maskBgView.maskType
+        }
+        set {
+            setMaskType(newValue, animated: false)
+        }
+    }
+    func setMaskType(_ maskType: EditorView.MaskType, animated: Bool) {
+        maskBgView.setMaskType(maskType, animated: animated)
+        customMaskView.setMaskType(maskType, animated: animated)
+    }
+    
+    var maskImage: UIImage? {
+        get {
+            customMaskView.maskImage
+        }
+        set {
+            setMaskImage(newValue, animated: false)
+        }
+    }
+    
+    func setMaskImage(_ image: UIImage?, animated: Bool) {
+        let maskImage = image?.convertBlackImage()
+        customMaskView.setMaskImage(maskImage, animated: animated)
+        setRoundCrop(isRound: false, animated: animated)
+    }
+    
     lazy var maskBgView: EditorMaskView = {
-        let view = EditorMaskView(isMask: true, maskType: .darkBlurEffect)
-//        view.isRoundCrop = cropConfig.isRoundCrop
+        let view = EditorMaskView(type: .mask, maskColor: maskColor)
         view.alpha = 0
         view.isHidden = true
         view.isUserInteractionEnabled = false
         return view
     }()
     
+    lazy var customMaskView: EditorMaskView = {
+        let view = EditorMaskView(type: .customMask, maskColor: maskColor)
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+    
     lazy var maskLinesView: EditorMaskView = {
-        let view = EditorMaskView(isMask: false)
-//        maskLinesView.isRoundCrop = cropConfig.isRoundCrop
+        let view = EditorMaskView(type: .frame)
         view.isUserInteractionEnabled = false
         view.alpha = 0
         view.isHidden = true
@@ -46,25 +79,48 @@ class EditorFrameView: UIView {
         return view
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
+    var maskColor: UIColor? {
+        didSet {
+            maskBgView.maskColor = maskColor
+            customMaskView.maskColor = maskColor
+        }
+    }
+    
+    init(maskColor: UIColor?) {
+        self.maskColor = maskColor
+        super.init(frame: .zero)
         addSubview(maskBgView)
+        addSubview(customMaskView)
         addSubview(maskLinesView)
         addSubview(controlView)
     }
     
+    func setMaskBgFrame(_ rect: CGRect, insets: UIEdgeInsets) {
+        maskBgView.maskInsets = insets
+        maskBgView.frame = rect
+        
+        setCustomMaskFrame(rect, insets: insets)
+    }
+    
+    func setCustomMaskFrame(_ rect: CGRect, insets: UIEdgeInsets) {
+        customMaskView.maskInsets = insets
+        customMaskView.frame = rect
+    }
+    
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let view = super.hitTest(point, with: event)
         let controlPoint = convert(point, to: controlView)
-        if controlView.canUserEnabled(controlPoint) != nil {
-            return super.hitTest(point, with: event)
+        if let cView = controlView.canUserEnabled(controlPoint) {
+            if let view = view {
+                return view
+            }
+            return cView
         }
         return nil
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        maskBgView.frame = bounds
         maskLinesView.frame = bounds
     }
     
@@ -75,6 +131,24 @@ class EditorFrameView: UIView {
 }
 
 extension EditorFrameView {
+    
+    var isFixedRatio: Bool {
+        get {
+            controlView.factor.fixedRatio
+        }
+        set {
+            controlView.factor.fixedRatio = newValue
+        }
+    }
+    var aspectRatio: CGSize {
+        get {
+            controlView.factor.aspectRatio
+        }
+        set {
+            controlView.factor.aspectRatio = newValue
+        }
+    }
+    
     var isControlPanning: Bool {
         controlView.panning
     }
@@ -83,14 +157,13 @@ extension EditorFrameView {
         set { controlView.isUserInteractionEnabled = newValue }
     }
     
-    var factor: EditorControlView.Factor {
-        get { controlView.factor }
-        set { controlView.factor = newValue }
-    }
-    
     var maxControlRect: CGRect {
         get { controlView.maxImageresizerFrame }
         set { controlView.maxImageresizerFrame = newValue }
+    }
+    
+    var isHide: Bool {
+        maskBgView.isHidden
     }
     
     func show(_ animated: Bool) {
@@ -149,10 +222,10 @@ extension EditorFrameView {
         maskLinesView.showShadow(false)
     }
     func showGridlinesLayer() {
-        maskLinesView.showGridlinesLayer(true)
+        maskLinesView.showGridlinesLayer(true, animated: true)
     }
     func hideGridlinesLayer() {
-        maskLinesView.showGridlinesLayer(false)
+        maskLinesView.showGridlinesLayer(false, animated: true)
     }
     
     func showBlackMask(animated: Bool = true, completion: (() -> Void)? = nil) {
@@ -177,13 +250,57 @@ extension EditorFrameView {
         )
     }
     
+    func showImageMaskView(_ animated: Bool) {
+        customMaskView.showImageMaskView(animated)
+    }
+    
+    func hideImageMaskView(_ animated: Bool) {
+        customMaskView.hideImageMaskView(animated)
+    }
+    
+    func showCustomMaskView(_ animated: Bool) {
+        if animated {
+            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+                self.customMaskView.alpha = 1
+            }
+        }else {
+            customMaskView.alpha = 1
+        }
+    }
+    
+    func hideCustomMaskView(_ animated: Bool) {
+        if animated {
+            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+                self.customMaskView.alpha = 0
+            }
+        }else {
+            customMaskView.alpha = 0
+        }
+    }
+    
     func updateFrame(to rect: CGRect, animated: Bool) {
         if rect.width.isNaN || rect.height.isNaN {
             return
         }
         controlView.frame = rect
         maskBgView.updateLayers(rect, animated)
+        customMaskView.updateLayers(rect, animated)
         maskLinesView.updateLayers(rect, animated)
+    }
+    
+    var isRoundCrop: Bool {
+        get {
+            maskBgView.isRoundCrop
+        }
+        set {
+            maskBgView.isRoundCrop = newValue
+            maskLinesView.isRoundCrop = newValue
+        }
+    }
+    
+    func setRoundCrop(isRound: Bool, animated: Bool) {
+        maskBgView.updateRoundCrop(isRound: isRound, animated: animated)
+        maskLinesView.updateRoundCrop(isRound: isRound, animated: animated)
     }
     
     func startShowMaskBgTimer() {
@@ -193,23 +310,38 @@ extension EditorFrameView {
         }
     }
     
-    func hideMaskBgView() {
+    var maskBgViewIsHidden: Bool {
+        maskBgView.maskViewIsHidden
+    }
+    
+    func hideMaskBgView(animated: Bool = true) {
         stopShowMaskBgTimer()
         if maskBgView.maskViewIsHidden {
             return
         }
         maskBgView.layer.removeAllAnimations()
-        maskLinesView.showGridlinesLayer(true)
-        maskBgView.hideMaskView()
+        maskBgView.hideMaskView(animated)
+        if maskImage != nil {
+            customMaskView.layer.removeAllAnimations()
+            customMaskView.hideMaskView(animated)
+        }else {
+            maskLinesView.showGridlinesLayer(true, animated: animated)
+        }
+        
     }
     
-    func showMaskBgView() {
+    func showMaskBgView(animated: Bool = true) {
         if !maskBgView.maskViewIsHidden {
             return
         }
         maskBgView.layer.removeAllAnimations()
-        maskLinesView.showGridlinesLayer(false)
-        maskBgView.showMaskView()
+        maskBgView.showMaskView(animated)
+        if maskImage != nil {
+            customMaskView.layer.removeAllAnimations()
+            customMaskView.showMaskView(animated)
+        }else {
+            maskLinesView.showGridlinesLayer(false, animated: animated)
+        }
     }
     
     func stopShowMaskBgTimer() {
@@ -230,7 +362,7 @@ extension EditorFrameView {
         ) { [weak self] _ in
             guard let self = self else { return }
             /// 显示遮罩背景
-            self.showMaskBgView()
+//            self.showMaskBgView()
             /// 停止定时器
             self.stopControlTimer()
             self.delegate?.frameView(endChanged: self, self.controlView.frame)

@@ -8,7 +8,15 @@
 import UIKit
 import AVFoundation
 
+protocol EditorContentViewDelegate: AnyObject {
+    func contentView(_ contentView: EditorContentView, videoDidPlayAt time: CMTime)
+    func contentView(_ contentView: EditorContentView, videoDidPauseAt time: CMTime)
+    func contentView(videoReadyForDisplay contentView: EditorContentView)
+}
+
 class EditorContentView: UIView {
+    
+    weak var delegate: EditorContentViewDelegate?
     
     var image: UIImage? {
         get {
@@ -23,6 +31,23 @@ class EditorContentView: UIView {
             type = .image
             imageView.setImage(newValue)
         }
+    }
+    
+    var contentScale: CGFloat {
+        switch type {
+        case .image:
+            if let image = imageView.image {
+                return image.width / image.height
+            }
+        case .video:
+            if let image = videoView.coverImageView.image {
+                return image.width / image.height
+            }
+            if !videoView.videoSize.equalTo(.zero) {
+                return videoView.videoSize.width / videoView.videoSize.height
+            }
+        }
+        return 0
     }
     
     var videoCover: UIImage? {
@@ -53,7 +78,6 @@ class EditorContentView: UIView {
 
     /// 缩放比例
     var zoomScale: CGFloat = 1
-    
     
     var type: EditorContentViewType = .image {
         willSet {
@@ -89,7 +113,9 @@ class EditorContentView: UIView {
         imageView.frame = bounds
         mosaicView.frame = bounds
         if videoView.superview == self {
-            videoView.frame = bounds
+            if !bounds.size.equalTo(.zero) {
+                videoView.frame = bounds
+            }
         }
         drawView.frame = bounds
 //        stickerView.frame = bounds
@@ -106,6 +132,8 @@ class EditorContentView: UIView {
     
     lazy var videoView: EditorVideoPlayerView = {
         let videoView = EditorVideoPlayerView()
+        videoView.size = UIScreen.main.bounds.size
+        videoView.delegate = self
         videoView.isHidden = true
         return videoView
     }()
@@ -126,13 +154,13 @@ class EditorContentView: UIView {
     }
 }
 
-extension EditorContentView {
+extension EditorContentView: EditorVideoPlayerViewDelegate {
     var isPlaying: Bool {
         videoView.isPlaying
     }
     
-    func loadAsset() {
-        videoView.configAsset()
+    func loadAsset(_ completion: ((Bool) -> Void)? = nil) {
+        videoView.configAsset(completion)
     }
     func seek(to time: CMTime, comletion: ((Bool) -> Void)? = nil) {
         videoView.seek(to: time, comletion: comletion)
@@ -146,5 +174,16 @@ extension EditorContentView {
     func resetPlay(completion: ((CMTime) -> Void)? = nil) {
         videoView.resetPlay(completion: completion)
     }
+    
+    func playerView(_ playerView: EditorVideoPlayerView, didPlayAt time: CMTime) {
+        delegate?.contentView(self, videoDidPlayAt: time)
+    }
+    
+    func playerView(_ playerView: EditorVideoPlayerView, didPauseAt time: CMTime) {
+        delegate?.contentView(self, videoDidPauseAt: time)
+    }
+    
+    func playerView(_ playerViewReadyForDisplay: EditorVideoPlayerView) {
+        delegate?.contentView(videoReadyForDisplay: self)
+    }
 }
-

@@ -60,7 +60,8 @@ open class PhotoBrowser: PhotoPickerController {
         didSet { previewViewController?.assetForIndex = assetForIndex }
     }
     
-    /// Cell刷新显示，`func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath ) -> UICollectionViewCell`调用时触发
+    /// Cell刷新显示
+    /// `func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath ) -> UICollectionViewCell` 调用时触发
     public var cellForIndex: CellReloadContext? {
         didSet { previewViewController?.cellForIndex = cellForIndex }
     }

@@ -9,9 +9,6 @@ import UIKit
 import ImageIO
 import CoreImage
 import CoreServices
-#if canImport(Harbeth)
-import Harbeth
-#endif
 
 extension PhotoTools {
     static func createAnimatedImage(
@@ -120,9 +117,6 @@ extension PhotoTools {
     /// 默认滤镜
     public static func defaultFilters() -> [PhotoEditorFilterInfo] {
         var filters: [PhotoEditorFilterInfo] = []
-        #if canImport(Harbeth)
-        filters.append(contentsOf: defaultMetalFilters())
-        #endif
         filters.append(contentsOf: [
             PhotoEditorFilterInfo(
                 filterName: "唯美".localized
@@ -475,60 +469,3 @@ extension PhotoTools {
                 ])
     }
 }
-
-#if canImport(Harbeth)
-extension PhotoTools {
-    public static func defaultMetalFilters() -> [PhotoEditorFilterInfo] {
-        [
-            .init(
-                filterName: "马赛克".localized,
-                parameter: .init(defaultValue: 0.5),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let pixelWidth: Float
-                    if isCover {
-                        pixelWidth = 0.02
-                    }else {
-                        pixelWidth = 0.01 + 0.03 * value
-                    }
-                    var filter = C7Pixellated()
-                    filter.pixelWidth = pixelWidth
-                    return filter
-                }
-            ),
-            .init(
-                filterName: "波点".localized,
-                parameter: .init(defaultValue: 0.6),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let fractionalWidth: Float
-                    if isCover {
-                        fractionalWidth = 0.04
-                    }else {
-                        fractionalWidth = 0.01 + 0.05 * value
-                    }
-                    var filter = C7PolkaDot()
-                    filter.fractionalWidth = fractionalWidth
-                    return filter
-                }
-            ),
-            .init(
-                filterName: "漩涡".localized,
-                parameter: .init(defaultValue: 0.8),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let radius: Float
-                    if isCover {
-                        radius = 0.25
-                    }else {
-                        radius = 0.01 + value * 0.5
-                    }
-                    var filter = C7Swirl()
-                    filter.radius = radius
-                    return filter
-                }
-            )
-        ]
-    }
-}
-#endif

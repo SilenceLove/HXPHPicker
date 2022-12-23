@@ -857,15 +857,11 @@ extension VideoEditorViewController {
     }
     func setFilterViewFrame() {
         let filterHeight: CGFloat
-        #if canImport(Harbeth)
         if config.filter.isShowEdit {
             filterHeight = 155 + UIDevice.bottomMargin
         }else {
             filterHeight = 125 + UIDevice.bottomMargin
         }
-        #else
-        filterHeight = 125 + UIDevice.bottomMargin
-        #endif
         if isFilter {
             filterView.frame = CGRect(
                 x: 0,

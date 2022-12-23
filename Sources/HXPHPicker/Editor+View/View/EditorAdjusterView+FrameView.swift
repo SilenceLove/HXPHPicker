@@ -9,36 +9,27 @@ import UIKit
 
 extension EditorAdjusterView: EditorFrameViewDelegate {
     func frameView(beganChanged frameView: EditorFrameView, _ rect: CGRect) {
-        
+        delegate?.editorAdjusterView(willBeginEditing: self)
     }
     
     func frameView(didChanged frameView: EditorFrameView, _ rect: CGRect) {
         scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(rect)
-        var imageViewHeight: CGFloat
-        var imageViewWidth: CGFloat
-        switch getImageOrientation() {
-        case .up, .down:
-            imageViewWidth = contentView.width
-            imageViewHeight = contentView.height
-        case .left, .right:
-            imageViewWidth = contentView.height
-            imageViewHeight = contentView.width
-        }
+        let minSize = getMinimuzmControlSize(rect: rect)
         var changedZoomScale = false
-        if rect.height > imageViewHeight {
-            let imageZoomScale = rect.height / imageViewHeight
+        if minSize.height > contentView.height {
+            let imageZoomScale = minSize.height / contentView.height
             let zoomScale = scrollView.zoomScale
             scrollView.setZoomScale(zoomScale * imageZoomScale, animated: false)
             changedZoomScale = true
         }
-        if rect.width > imageViewWidth {
-            let imageZoomScale = rect.width / imageViewWidth
+        if minSize.width > contentView.width {
+            let imageZoomScale = minSize.width / contentView.width
             let zoomScale = scrollView.zoomScale
             scrollView.setZoomScale(zoomScale * imageZoomScale, animated: false)
             changedZoomScale = true
         }
         if !changedZoomScale {
-            setScrollViewContentInset(frameView.controlView.frame)
+            setScrollViewContentInset(rect)
         }
     }
     
@@ -70,46 +61,19 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
         /// 裁剪框当前的坐标
         let beforeRect = controlView.frame
         /// 裁剪框当前在imageView上的坐标
-        let controlBeforeRect = frameView.convert(controlView.frame, to: contentView)
+        let controlBeforeRect = getControlInContentRect()
         /// 更新裁剪框坐标
         frameView.updateFrame(to: rect, animated: animated)
         /// 裁剪框更新之后再imageView上的坐标
-        let controlAfterRect = frameView.convert(controlView.frame, to: contentView)
+        let controlAfterRect = getControlInContentRect()
         let scrollCotentInset = getScrollViewContentInset(rect)
+        
+        let beforeRoateRect = getControlInRotateRect(beforeRect)
+        let afterRoateRect = getControlInRotateRect(rect)
         /// 计算scrollView偏移量
         var offset = scrollView.contentOffset
-        var offsetX: CGFloat
-        var offsetY: CGFloat
-        switch getImageOrientation() {
-        case .up:
-            if adjustedData.mirrorType == .horizontal {
-                offsetX = offset.x + (rect.midX - beforeRect.midX)
-            }else {
-                offsetX = offset.x - (rect.midX - beforeRect.midX)
-            }
-            offsetY = offset.y - (rect.midY - beforeRect.midY)
-        case .left:
-            offsetX = offset.x + (rect.midY - beforeRect.midY)
-            if adjustedData.mirrorType == .horizontal {
-                offsetY = offset.y + (rect.midX - beforeRect.midX)
-            }else {
-                offsetY = offset.y - (rect.midX - beforeRect.midX)
-            }
-        case .down:
-            if adjustedData.mirrorType == .horizontal {
-                offsetX = offset.x - (rect.midX - beforeRect.midX)
-            }else {
-                offsetX = offset.x + (rect.midX - beforeRect.midX)
-            }
-            offsetY = offset.y + (rect.midY - beforeRect.midY)
-        case .right:
-            offsetX = offset.x - (rect.midY - beforeRect.midY)
-            if adjustedData.mirrorType == .horizontal {
-                offsetY = offset.y - (rect.midX - beforeRect.midX)
-            }else {
-                offsetY = offset.y + (rect.midX - beforeRect.midX)
-            }
-        }
+        let offsetX = offset.x - (afterRoateRect.midX - beforeRoateRect.midX)
+        let offsetY = offset.y - (afterRoateRect.midY - beforeRoateRect.midY)
         offset = getZoomOffset(
             CGPoint(x: offsetX, y: offsetY),
             scrollCotentInset
@@ -126,7 +90,7 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             UIView.animate(
                 withDuration: animateDuration,
                 delay: 0,
-                options: [.curveEaseOut]
+                options: .curveEaseOut
             ) {
                 self.setScrollViewContentInset(rect)
                 if needZoomScale {
@@ -141,9 +105,11 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
                 self.scrollView.contentOffset = offset
             } completion: { (isFinished) in
                 self.scrollView.minimumZoomScale = self.getScrollViewMinimumZoomScale(rect)
+                self.frameView.showMaskBgView()
                 self.isMaskBgViewShowing = false
                 self.frameView.inControlTimer = false
                 self.isUserInteractionEnabled = true
+                self.delegate?.editorAdjusterView(didEndEditing: self)
             }
         }else {
             setScrollViewContentInset(rect)
@@ -158,8 +124,10 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             }
             scrollView.contentOffset = offset
             scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(rect)
+            frameView.showMaskBgView(animated: false)
             isMaskBgViewShowing = false
             frameView.inControlTimer = false
+            delegate?.editorAdjusterView(didEndEditing: self)
         }
     }
 }

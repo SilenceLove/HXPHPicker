@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker"
-    spec.version                = "1.4.5"
+    spec.version                = "1.4.6"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
@@ -41,11 +41,6 @@ Pod::Spec.new do |spec|
             kf.dependency 'HXPHPicker/Editor/Lite'
             kf.dependency 'Kingfisher', '~> 7.0'
         end
-#        editor.subspec 'Harbeth' do |hb|
-#            spec.static_framework = true
-#            hb.dependency 'HXPHPicker/Editor/Lite'
-#            hb.dependency 'Harbeth'
-#        end
     end
     
     spec.subspec 'EditorView' do |editor_view|

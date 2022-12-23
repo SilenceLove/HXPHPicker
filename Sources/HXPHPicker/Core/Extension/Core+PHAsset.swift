@@ -47,7 +47,10 @@ extension PHAsset: HXPickerCompatible {
             options.isSynchronous = true
             options.deliveryMode = .fastFormat
             options.resizeMode = .fast
-            AssetManager.requestImageData(for: self, options: options) { (result) in
+            AssetManager.requestImageData(
+                for: self,
+                options: options
+            ) { (result) in
                 switch result {
                 case .failure(let error):
                     if let inICloud = error.info?.inICloud {

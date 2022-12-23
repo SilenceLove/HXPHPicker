@@ -21,10 +21,8 @@ open class EditorConfiguration: BaseConfiguration {
         /// 滤镜选中颜色
         public var selectedColor: UIColor
         
-        #if canImport(Harbeth)
         /// 显示画面调整
-        public var isShowEdit: Bool = false
-        #endif
+        var isShowEdit: Bool = false
         
         /// 编辑视频时，是否加载上次滤镜效果
         /// 如果滤镜数据与上次编辑时的滤镜数据不一致会导致加载错乱

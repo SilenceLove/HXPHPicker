@@ -67,6 +67,8 @@ class EditorControlView: UIView {
     }()
     var factor: Factor = .init()
     
+    var maxSize: CGSize = .init(width: 40, height: 40)
+    
     var maxImageresizerFrame: CGRect = .zero
     var imageresizerFrame: CGRect = .zero
     var currentFrame: CGRect = .zero
@@ -108,9 +110,9 @@ class EditorControlView: UIView {
         let heightRatio = aspectRatio.height / aspectRatio.width
         rectH -= point.y
         rectY += point.y
-        if rectH < 50 {
-            rectH = 50
-            rectY = currentFrame.maxY - 50
+        if rectH < maxSize.height {
+            rectH = maxSize.height
+            rectY = currentFrame.maxY - maxSize.height
         }
         if rectY < maxImageresizerFrame.minY {
             rectY = maxImageresizerFrame.minY
@@ -119,14 +121,14 @@ class EditorControlView: UIView {
         if fixedRatio && !aspectRatio.equalTo(.zero) {
             var w = rectH * widthRatio
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     rectY = currentFrame.maxY - rectH
                     w = rectH * widthRatio
                 }
             }else {
-                if w < 50 {
-                    w = 50
+                if w < maxSize.width {
+                    w = maxSize.width
                     rectH = w * heightRatio
                     rectY = currentFrame.maxY - rectH
                 }
@@ -164,9 +166,9 @@ class EditorControlView: UIView {
         let heightRatio = aspectRatio.height / aspectRatio.width
         rectX += point.x
         rectW -= point.x
-        if rectW < 50 {
-            rectW = 50
-            rectX = currentFrame.maxX - 50
+        if rectW < maxSize.width {
+            rectW = maxSize.width
+            rectX = currentFrame.maxX - maxSize.width
         }
         if rectX < maxImageresizerFrame.minX {
             rectX = maxImageresizerFrame.minX
@@ -175,14 +177,14 @@ class EditorControlView: UIView {
         if fixedRatio && !aspectRatio.equalTo(.zero) {
             var h = rectW * heightRatio
             if currentFrame.width > currentFrame.height {
-                if h < 50 {
-                    h = 50
+                if h < maxSize.height {
+                    h = maxSize.height
                     rectW = h * widthRatio
                     rectX = currentFrame.maxX - rectW
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     rectX = currentFrame.maxX - rectW
                     h = rectW * heightRatio
                 }
@@ -219,8 +221,8 @@ class EditorControlView: UIView {
         let widthRatio = aspectRatio.width / aspectRatio.height
         let heightRatio = aspectRatio.height / aspectRatio.width
         rectW += point.x
-        if rectW < 50 {
-            rectW = 50
+        if rectW < maxSize.width {
+            rectW = maxSize.width
         }
         if rectW > maxImageresizerFrame.maxX - currentFrame.minX {
             rectW = maxImageresizerFrame.maxX - currentFrame.minX
@@ -228,13 +230,13 @@ class EditorControlView: UIView {
         if fixedRatio && !aspectRatio.equalTo(.zero) {
             var h = rectW * heightRatio
             if currentFrame.width > currentFrame.height {
-                if h < 50 {
-                    h = 50
+                if h < maxSize.height {
+                    h = maxSize.height
                     rectW = h * widthRatio
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     h = rectW * heightRatio
                 }
             }
@@ -270,8 +272,8 @@ class EditorControlView: UIView {
         let widthRatio = aspectRatio.width / aspectRatio.height
         let heightRatio = aspectRatio.height / aspectRatio.width
         rectH += point.y
-        if rectH < 50 {
-            rectH = 50
+        if rectH < maxSize.height {
+            rectH = maxSize.height
         }
         if rectH > maxImageresizerFrame.maxY - currentFrame.minY {
             rectH = maxImageresizerFrame.maxY - currentFrame.minY
@@ -279,13 +281,13 @@ class EditorControlView: UIView {
         if fixedRatio && !aspectRatio.equalTo(.zero) {
             var w = rectH * widthRatio
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     w = rectH * widthRatio
                 }
             }else {
-                if w < 50 {
-                    w = 50
+                if w < maxSize.width {
+                    w = maxSize.width
                     rectH = w * heightRatio
                 }
             }
@@ -329,13 +331,13 @@ class EditorControlView: UIView {
                 rectW = rectH * widthRatio
             }
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     rectW = rectH * widthRatio
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     rectH = rectW * heightRatio
                 }
             }
@@ -354,13 +356,13 @@ class EditorControlView: UIView {
             rectY += point.y
             rectW -= point.x
             rectH -= point.y
-            if rectW < 50 {
-                rectW = 50
-                rectX = currentFrame.maxX - 50
+            if rectW < maxSize.width {
+                rectW = maxSize.width
+                rectX = currentFrame.maxX - maxSize.width
             }
-            if rectH < 50 {
-                rectH = 50
-                rectY = currentFrame.maxY - 50
+            if rectH < maxSize.height {
+                rectH = maxSize.height
+                rectY = currentFrame.maxY - maxSize.height
             }
             if rectX < maxImageresizerFrame.minX {
                 rectX = maxImageresizerFrame.minX
@@ -391,13 +393,13 @@ class EditorControlView: UIView {
                 rectW = rectH * widthRatio
             }
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     rectW = rectH * widthRatio
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     rectH = rectW * heightRatio
                 }
             }
@@ -414,12 +416,12 @@ class EditorControlView: UIView {
             rectX += point.x
             rectW -= point.x
             rectH += point.y
-            if rectW < 50 {
-                rectW = 50
-                rectX = currentFrame.maxX - 50
+            if rectW < maxSize.width {
+                rectW = maxSize.width
+                rectX = currentFrame.maxX - maxSize.width
             }
-            if rectH < 50 {
-                rectH = 50
+            if rectH < maxSize.height {
+                rectH = maxSize.height
             }
             if rectX < maxImageresizerFrame.minX {
                 rectX = maxImageresizerFrame.minX
@@ -449,13 +451,13 @@ class EditorControlView: UIView {
                 rectW = rectH * widthRatio
             }
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     rectW = rectH * widthRatio
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     rectH = rectW * heightRatio
                 }
             }
@@ -473,12 +475,12 @@ class EditorControlView: UIView {
             rectW += point.x
             rectY += point.y
             rectH -= point.y
-            if rectW < 50 {
-                rectW = 50
+            if rectW < maxSize.width {
+                rectW = maxSize.width
             }
-            if rectH < 50 {
-                rectH = 50
-                rectY = currentFrame.maxY - 50
+            if rectH < maxSize.height {
+                rectH = maxSize.height
+                rectY = currentFrame.maxY - maxSize.height
             }
             if rectW > maxImageresizerFrame.maxX - currentFrame.minX {
                 rectW = maxImageresizerFrame.maxX - currentFrame.minX
@@ -508,13 +510,13 @@ class EditorControlView: UIView {
                 rectW = rectH * widthRatio
             }
             if currentFrame.width > currentFrame.height {
-                if rectH < 50 {
-                    rectH = 50
+                if rectH < maxSize.height {
+                    rectH = maxSize.height
                     rectW = rectH * widthRatio
                 }
             }else {
-                if rectW < 50 {
-                    rectW = 50
+                if rectW < maxSize.width {
+                    rectW = maxSize.width
                     rectH = rectW * heightRatio
                 }
             }
@@ -529,11 +531,11 @@ class EditorControlView: UIView {
         }else {
             rectW += point.x
             rectH += point.y
-            if rectW < 50 {
-                rectW = 50
+            if rectW < maxSize.width {
+                rectW = maxSize.width
             }
-            if rectH < 50 {
-                rectH = 50
+            if rectH < maxSize.height {
+                rectH = maxSize.height
             }
             if rectW > maxImageresizerFrame.maxX - currentFrame.minX {
                 rectW = maxImageresizerFrame.maxX - currentFrame.minX

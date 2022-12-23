@@ -85,9 +85,7 @@ public extension PhotoAsset {
         options.isNetworkAccessAllowed = true
         return AssetManager.requestImageData(
             for: phAsset,
-            version: isGifAsset ? .original : .current,
-            iCloudHandler: nil,
-            progressHandler: nil
+            version: isGifAsset ? .original : .current
         ) { (result) in
             switch result {
             case .success(let dataResult):
@@ -148,8 +146,8 @@ public extension PhotoAsset {
     @discardableResult
     func requestImageData(
         filterEditor: Bool = false,
-        iCloudHandler: PhotoAssetICloudHandler?,
-        progressHandler: PhotoAssetProgressHandler?,
+        iCloudHandler: PhotoAssetICloudHandler? = nil,
+        progressHandler: PhotoAssetProgressHandler? = nil,
         resultHandler: (
             (PhotoAsset, Result<ImageDataResult, AssetManager.ImageDataError>
         ) -> Void)?

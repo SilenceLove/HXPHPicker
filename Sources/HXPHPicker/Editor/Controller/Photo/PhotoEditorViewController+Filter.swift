@@ -6,9 +6,6 @@
 //
 
 import UIKit
-#if canImport(Harbeth)
-import Harbeth
-#endif
 
 extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
     func filterView(shouldSelectFilter filterView: PhotoEditorFilterView) -> Bool {
@@ -21,22 +18,10 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
         atItem: Int
     ) {
         var originalImage = image
-        var isOriginal = true
-        #if canImport(Harbeth)
-        let filters = Array(metalFilters.values)
-        if let image = thumbnailImage?.filter(c7s: filters), !filters.isEmpty {
-            originalImage = image
-            isOriginal = false
-        }else {
-            if !filter.isOriginal {
-                originalImage = thumbnailImage
-            }
-        }
-        #else
+        let isOriginal = true
         if !filter.isOriginal {
             originalImage = thumbnailImage
         }
-        #endif
         if filter.isOriginal {
             if let image = originalImage {
                 imageView.imageResizerView.hasFilter = isOriginal
@@ -56,16 +41,7 @@ extension PhotoEditorViewController: PhotoEditorFilterViewDelegate {
                 self.imageView.setMosaicOriginalImage(mosaicImage)
             }
         }else {
-            #if canImport(Harbeth)
-            if let _filter = filterInfo.metalFilterHandler?(filter.parameters.first, false) {
-                let image = originalImage?.filter(c7: _filter)
-                if let image = image {
-                    let mosaicImage = image.mosaicImage(level: config.mosaic.mosaicWidth)
-                    imageView.updateImage(image)
-                    imageView.setMosaicOriginalImage(mosaicImage)
-                }
-            }
-            #endif
+            
         }
     }
     
@@ -116,13 +92,7 @@ extension PhotoEditorViewController: PhotoEditorFilterParameterViewDelegate {
         case .filter:
             let filterInfo = config.filter.infos[index - 1]
             if let handler = filterInfo.filterHandler {
-                var originalImage = thumbnailImage
-                #if canImport(Harbeth)
-                let filters = Array(metalFilters.values)
-                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
-                    originalImage = image
-                }
-                #endif
+                let originalImage = thumbnailImage
                 if let ciImage = originalImage?.ci_Image,
                    let newImage = handler(ciImage, imageView.image as? UIImage, filter.parameters, false)?.image {
                     imageView.updateImage(newImage)
@@ -132,118 +102,23 @@ extension PhotoEditorViewController: PhotoEditorFilterParameterViewDelegate {
                     }
                 }
             }else {
-                #if canImport(Harbeth)
-                var filters = Array(metalFilters.values)
-                if let c7Fiter = filterInfo.metalFilterHandler?(filter.parameters.first, false) {
-                    filters.append(c7Fiter)
-                    let image = thumbnailImage.filter(c7s: filters)
-                    if let image = image {
-                        imageView.updateImage(image)
-                        if mosaicToolView.canUndo {
-                            let mosaicImage = image.mosaicImage(level: config.mosaic.mosaicWidth)
-                            imageView.setMosaicOriginalImage(mosaicImage)
-                        }
-                    }
-                }
-                #endif
+                
             }
         case .edit(let type):
-            #if canImport(Harbeth)
-            var filterInfo: PhotoEditorFilterInfo?
-            if index > 0 {
-                filterInfo = config.filter.infos[index - 1]
-            }
-            var originalImage = thumbnailImage
-            let metalFilter = metalFilters[type]
             switch type {
             case .brightness:
-                var c7filter: C7Exposure
-                if metalFilter == nil {
-                    c7filter = C7Exposure()
-                }else {
-                    c7filter = metalFilter as! C7Exposure
-                }
-                c7filter.exposure = model.value
-                metalFilters[type] = c7filter
                 break
             case .contrast:
-                var c7filter: C7Contrast
-                if metalFilter == nil {
-                    c7filter = C7Contrast()
-                }else {
-                    c7filter = metalFilter as! C7Contrast
-                }
-                c7filter.contrast = 1 + model.value * 0.5
-                metalFilters[type] = c7filter
+                break
             case .saturation:
-                var c7filter: C7Saturation
-                if metalFilter == nil {
-                    c7filter = C7Saturation()
-                }else {
-                    c7filter = metalFilter as! C7Saturation
-                }
-                c7filter.saturation = 1 + model.value
-                metalFilters[type] = c7filter
+                break
             case .warmth:
-                var c7filter: C7ColorRGBA
-                if metalFilter == nil {
-                    c7filter = C7ColorRGBA()
-                    c7filter.color = .white
-                }else {
-                    c7filter = metalFilter as! C7ColorRGBA
-                }
-                c7filter.red = 1 + model.value * 0.5
-                metalFilters[type] = c7filter
+                break
             case .vignette:
-                var c7filter: C7Vignette
-                if metalFilter == nil {
-                    c7filter = C7Vignette()
-                    c7filter.color = .black
-                }else {
-                    c7filter = metalFilter as! C7Vignette
-                }
-                c7filter.start = c7filter.end * (1 - model.value)
-                metalFilters[type] = c7filter
+                break
             case .sharpen:
-                var c7filter: C7Convolution3x3
-                if metalFilter == nil {
-                    c7filter = C7Convolution3x3(convolutionType: .sharpen(iterations: 1))
-                }else {
-                    c7filter = metalFilter as! C7Convolution3x3
-                }
-                c7filter.updateMatrix(.sharpen(iterations: 1 + model.value))
-                metalFilters[type] = c7filter
+                break
             }
-            if model.value == 0 {
-                metalFilters[type] = nil
-            }
-            var filters = Array(metalFilters.values)
-            if let handler = filterInfo?.filterHandler {
-                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
-                    originalImage = image
-                }
-                if let ciImage = originalImage?.ci_Image,
-                   let newImage = handler(ciImage, imageView.image as? UIImage, filter.parameters, false)?.image {
-                    originalImage = newImage
-                }
-            }else {
-                if let c7Filter = filterInfo?.metalFilterHandler?(filter.parameters.first, false) {
-                    filters.append(c7Filter)
-                }
-                if let image = originalImage?.filter(c7s: filters), !filters.isEmpty {
-                    originalImage = image
-                }
-            }
-            if let originalImage = originalImage {
-                imageView.updateImage(originalImage)
-                if mosaicToolView.canUndo {
-                    let mosaicImage = image.mosaicImage(level: config.mosaic.mosaicWidth)
-                    imageView.setMosaicOriginalImage(mosaicImage)
-                }
-            }
-            #else
-            break
-            #endif
         }
     }
 }
