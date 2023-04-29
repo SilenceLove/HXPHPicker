@@ -34,8 +34,11 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
     public func animateTransition(
         using transitionContext: UIViewControllerContextTransitioning
     ) {
-        let fromVC = transitionContext.viewController(forKey: .from)!
-        let toVC = transitionContext.viewController(forKey: .to)!
+        guard let fromVC = transitionContext.viewController(forKey: .from),
+              let toVC = transitionContext.viewController(forKey: .to) else {
+            transitionContext.completeTransition(true)
+            return
+        }
         
         let containerView = transitionContext.containerView
         let bgView = UIView(frame: containerView.bounds)
@@ -61,7 +64,6 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
             options = .curveLinear
         default:
             options = .curveLinear
-            break
         }
         UIView.animate(
             withDuration: duration,

@@ -48,24 +48,24 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         self.isMultipleSelect = isMultipleSelect
         super.init(frame: CGRect.zero)
         layoutSubviews()
-        if config.showPrompt &&
+        if config.isShowPrompt &&
             AssetManager.authorizationStatusIsLimited() &&
             allowLoadPhotoLibrary &&
             sourceType == .picker {
             addSubview(promptView)
         }
         if sourceType == .browser {
-            if config.showSelectedView {
+            if config.isShowSelectedView {
                 addSubview(selectedView)
             }
             #if HXPICKER_ENABLE_EDITOR
-            if !config.editButtonHidden {
+            if !config.isHiddenEditButton {
                 addSubview(editBtn)
             }
             #endif
         }else {
             addSubview(contentView)
-            if config.showSelectedView && isMultipleSelect {
+            if config.isShowSelectedView && isMultipleSelect {
                 addSubview(selectedView)
             }
         }
@@ -157,7 +157,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         previewBtn.titleLabel?.font = UIFont.systemFont(ofSize: 17)
         previewBtn.isEnabled = false
         previewBtn.addTarget(self, action: #selector(didPreviewButtonClick(button:)), for: .touchUpInside)
-        previewBtn.isHidden = config.previewButtonHidden
+        previewBtn.isHidden = config.isHiddenPreviewButton
         previewBtn.height = 50
         let previewWidth: CGFloat = previewBtn.currentTitle!.localized.width(
             ofFont: previewBtn.titleLabel!.font,
@@ -177,7 +177,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         editBtn.setTitle("编辑".localized, for: .normal)
         editBtn.titleLabel?.font = UIFont.systemFont(ofSize: 17)
         editBtn.addTarget(self, action: #selector(didEditBtnButtonClick(button:)), for: .touchUpInside)
-        editBtn.isHidden = config.editButtonHidden
+        editBtn.isHidden = config.isHiddenEditButton
         editBtn.height = 50
         let editWidth: CGFloat = editBtn.currentTitle!.localized.width(
             ofFont: editBtn.titleLabel!.font,
@@ -199,7 +199,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         originalBtn.addSubview(originalLoadingView)
         let tap = UITapGestureRecognizer.init(target: self, action: #selector(didOriginalButtonClick))
         originalBtn.addGestureRecognizer(tap)
-        originalBtn.isHidden = config.originalButtonHidden
+        originalBtn.isHidden = config.isHiddenOriginalButton
         return originalBtn
     }()
     
@@ -224,7 +224,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         if sourceType == .browser {
            return
         }
-        if !config.showOriginalFileSize || !isMultipleSelect {
+        if !config.isShowOriginalFileSize || !isMultipleSelect {
             return
         }
         if !boxControl.isSelected {
@@ -273,7 +273,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         if sourceType == .browser {
            return
         }
-        if !config.showOriginalFileSize || !isMultipleSelect {
+        if !config.isShowOriginalFileSize || !isMultipleSelect {
             return
         }
         originalLoadingDelayTimer?.invalidate()
@@ -322,7 +322,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         hx_delegate?.bottomView(didFinishButtonClick: self)
     }
     func updatePromptView() {
-        if config.showPrompt &&
+        if config.isShowPrompt &&
             AssetManager.authorizationStatusIsLimited() &&
             allowLoadPhotoLibrary &&
             sourceType == .picker {
@@ -432,7 +432,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
         )
     }
     func configPromptColor() {
-        if config.showPrompt &&
+        if config.isShowPrompt &&
             AssetManager.authorizationStatusIsLimited()
             && allowLoadPhotoLibrary &&
             sourceType == .picker {
@@ -553,7 +553,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             updateFinishButtonFrame()
             updateOriginalButtonFrame()
         }
-        if config.showPrompt &&
+        if config.isShowPrompt &&
             AssetManager.authorizationStatusIsLimited() &&
             allowLoadPhotoLibrary &&
             sourceType == .picker {
@@ -570,9 +570,9 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
             #if HXPICKER_ENABLE_EDITOR
             editBtn.x = 12 + UIDevice.leftMargin
             #endif
-            if config.showSelectedView {
+            if config.isShowSelectedView {
                 #if HXPICKER_ENABLE_EDITOR
-                if !config.editButtonHidden {
+                if !config.isHiddenEditButton {
                     selectedView.x = editBtn.frame.maxX + 12
                     selectedView.width = width - selectedView.x
                     selectedView.collectionViewLayout.sectionInset = UIEdgeInsets(
@@ -590,7 +590,7 @@ class PhotoPickerBottomView: UIToolbar, PhotoPreviewSelectedViewDelegate {
                 #endif
             }
         }else {
-            if config.showSelectedView && isMultipleSelect {
+            if config.isShowSelectedView && isMultipleSelect {
                 selectedView.width = width
             }
         }

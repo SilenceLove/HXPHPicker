@@ -107,7 +107,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         myCell.request()
         let photoAsset = getPhotoAsset(for: indexPath.item)
         if !photoAsset.isSelected &&
-            config.cell.showDisableMask &&
+            config.cell.isShowDisableMask &&
             pickerController.config.maximumSelectedVideoFileSize == 0 &&
             pickerController.config.maximumSelectedPhotoFileSize == 0 {
             myCell.canSelect = pickerController.canSelectAsset(
@@ -469,7 +469,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         viewForSupplementaryElementOfKind kind: String,
         at indexPath: IndexPath
     ) -> UICollectionReusableView {
-        if config.showAssetNumber &&
+        if config.isShowAssetNumber &&
             kind == UICollectionView.elementKindSectionFooter &&
             (photoCount > 0 || videoCount > 0) {
             let view = collectionView
@@ -569,7 +569,7 @@ extension PhotoPickerViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForFooterInSection section: Int
     ) -> CGSize {
-        if config.showAssetNumber && (photoCount > 0 || videoCount > 0) {
+        if config.isShowAssetNumber && (photoCount > 0 || videoCount > 0) {
             return CGSize(width: view.width, height: 50)
         }
         return .zero

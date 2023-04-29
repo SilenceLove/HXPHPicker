@@ -18,6 +18,12 @@ class TestEditorViewController: BaseViewController {
         return view
     }()
     
+    var image: UIImage? = .init(named: "wx_head_icon")
+    var videoURL: URL!
+    
+    var imageResult: EditResult.Image?
+    var videoResult: EditResult.Video?
+    
     lazy var editorView: EditorView = {
         let view = EditorView()
         view.backgroundColor = self.view.backgroundColor
@@ -29,15 +35,18 @@ class TestEditorViewController: BaseViewController {
             .init(top: 20, left: UIDevice.leftMargin + 20, bottom: 20 + UIDevice.bottomMargin, right: UIDevice.rightMargin + 20)
         }
         view.maskType = .blurEffect(style: .light)
-        if let path = Bundle.main.path(forResource: "videoeditormatter", ofType: "MP4") {
-            let url = URL(fileURLWithPath: path)
-            view.setAVAsset(.init(url: url))
+        if let result = imageResult {
+            view.setImage(image)
+            view.setAdjustmentData(result.data)
+        }else if let result = videoResult {
+            view.setAVAsset(.init(url: videoURL))
+            view.setAdjustmentData(result.data)
             view.loadVideo()
         }else {
-            view.setImage(.init(named: "wx_head_icon"))
+            view.setImage(image)
+            view.state = .edit
         }
-        view.state = .edit
-//        view.ignoreFixedRatio = false
+//        view.isResetIgnoreFixedRatio = false
 //        view.setRoundMask(animated: false)
         return view
     }()
@@ -76,6 +85,98 @@ class TestEditorViewController: BaseViewController {
     @objc
     func showAlert() {
         let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
+        if editorView.type != .unknown {
+            func preview(_ isPreview: Bool) {
+                if self.editorView.type == .video {
+                    self.editorView.cancelVideoCroped()
+                    self.view.hx.show()
+                    self.editorView.cropVideo(
+                        factor: .init(preset: .ratio_960x540, quality: 6),
+                        progress: { progress in
+                        print("video_progress: \(progress)")
+                    }, completion: { [weak self] videoResult in
+                        guard let self = self else { return }
+                        switch videoResult {
+                        case .success(let result):
+                            self.view.hx.hide()
+                            print(result)
+                            self.editorView.pauseVideo()
+                            if !isPreview {
+                                let vc = TestEditorViewController()
+                                vc.videoURL = self.videoURL
+                                vc.videoResult = result
+                                self.navigationController?.pushViewController(vc, animated: true)
+                                return
+                            }
+                            PhotoBrowser.show(
+                                [.init(.init(videoURL: result.url))],
+                                transitionalImage: PhotoTools.getVideoThumbnailImage(videoURL: result.url, atTime: 0.1)
+                            ) { _ in
+                                self.editorView.finalView
+                            } longPressHandler: { _, photoAsset, photoBrowser in
+                                photoBrowser.view.hx.show()
+                                photoAsset.saveToSystemAlbum { phAsset in
+                                    photoBrowser.view.hx.hide()
+                                    if phAsset == nil {
+                                        photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5)
+                                    }else {
+                                        photoBrowser.view.hx.showSuccess(text: "保存成功", delayHide: 1.5)
+                                    }
+                                }
+                            }
+                        case .failure(let error):
+                            print("error: \(error)")
+                            if !error.isCancel {
+                                self.view.hx.hide()
+                            }
+                        }
+                    })
+                    return
+                }
+                self.view.hx.show()
+                self.editorView.cropImage({ [weak self] imageResult in
+                    guard let self = self else { return }
+                    self.view.hx.hide()
+                    switch imageResult {
+                    case .success(let result):
+                        print(result)
+                        if !isPreview {
+                            let vc = TestEditorViewController()
+                            vc.image = self.image
+                            vc.imageResult = result
+                            self.navigationController?.pushViewController(vc, animated: true)
+                            return
+                        }
+                        PhotoBrowser.show(
+                            [.init(.init(result.url))],
+                            transitionalImage: result.image
+                        ) { _ in
+                            self.editorView.finalView
+                        } longPressHandler: { _, photoAsset, photoBrowser in
+                            photoBrowser.view.hx.show()
+                            photoAsset.saveToSystemAlbum { phAsset in
+                                photoBrowser.view.hx.hide()
+                                if phAsset == nil {
+                                    photoBrowser.view.hx.showWarning(text: "保存失败", delayHide: 1.5)
+                                }else {
+                                    photoBrowser.view.hx.showSuccess(text: "保存成功", delayHide: 1.5)
+                                }
+                            }
+                        }
+                    case .failure(let error):
+                        print("error: \(error)")
+                    }
+                })
+            }
+            if editorView.isCropedImage || editorView.isCropedVideo {
+                alert.addAction(.init(title: "裁剪", style: .default, handler: { _ in
+                    preview(false)
+                }))
+                alert.addAction(.init(title: "预览", style: .default, handler: { _ in
+                    preview(true)
+                }))
+            }
+        }
         if editorView.state == .edit {
             if editorView.canReset {
                 alert.addAction(.init(title: "还原", style: .default, handler: { [weak self] _ in
@@ -97,7 +198,7 @@ class TestEditorViewController: BaseViewController {
                         self.editorView.rotate(angle, animated: true)
                     }))
                     textAlert.addAction(.init(title: "取消", style: .cancel))
-                    self?.present(textAlert, animated: true)
+                    self?.presendAlert(textAlert)
                 }))
                 alert.addAction(.init(title: "向左旋转90°", style: .default, handler: { [weak self] _ in
                     self?.editorView.rotateLeft(true)
@@ -106,7 +207,7 @@ class TestEditorViewController: BaseViewController {
                     self?.editorView.rotateRight(true)
                 }))
                 alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-                self?.present(alert, animated: true, completion: nil)
+                self?.presendAlert(alert)
             }))
             alert.addAction(.init(title: "镜像", style: .default, handler: { [weak self] _ in
                 let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -117,21 +218,23 @@ class TestEditorViewController: BaseViewController {
                     self?.editorView.mirrorVertically(true)
                 }))
                 alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-                self?.present(alert, animated: true, completion: nil)
+                self?.presendAlert(alert)
             }))
             alert.addAction(.init(title: editorView.isFixedRatio ? "取消固定比例" : "固定比例", style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
                 self.editorView.isFixedRatio = !self.editorView.isFixedRatio
+                if !self.editorView.isFixedRatio && self.editorView.isRoundMask {
+                    self.editorView.setRoundMask(false, animated: true)
+                }
             }))
-            
             alert.addAction(.init(title: editorView.isRoundMask ? "取消圆切" : "圆切", style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
                 if self.editorView.isRoundMask {
-                    self.editorView.ignoreFixedRatio = true
+                    self.editorView.isResetIgnoreFixedRatio = true
                     self.editorView.setRoundMask(false, animated: true)
                 }else {
                     self.editorView.isFixedRatio = false
-                    self.editorView.ignoreFixedRatio = false
+                    self.editorView.isResetIgnoreFixedRatio = false
                     self.editorView.setRoundMask(true, animated: true)
                 }
             }))
@@ -157,11 +260,15 @@ class TestEditorViewController: BaseViewController {
                     let heightTextFiled = alert.textFields?.last
                     let heightRatioStr = heightTextFiled?.text ?? "0"
                     let heightRatio = Int(heightRatioStr.count == 0 ? "0" : heightRatioStr)!
-                    self.editorView.ignoreFixedRatio = true
+                    self.editorView.isResetIgnoreFixedRatio = true
                     self.editorView.setAspectRatio(.init(width: widthRatio, height: heightRatio), animated: true)
                 }))
                 alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-                self?.present(alert, animated: true, completion: nil)
+                self?.presendAlert(alert)
+            }))
+            alert.addAction(.init(title: editorView.isShowScaleSize ? "隐藏比例大小" : "显示比例大小", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
+                self.editorView.isShowScaleSize = !self.editorView.isShowScaleSize
             }))
             alert.addAction(.init(title: "添加蒙版", style: .default, handler: { [weak self] _ in
                 let maskAlert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -218,7 +325,7 @@ class TestEditorViewController: BaseViewController {
                     self?.editorView.isFixedRatio = false
                 }))
                 maskAlert.addAction(.init(title: "取消", style: .cancel))
-                self?.present(maskAlert, animated: true)
+                self?.presendAlert(maskAlert)
             }))
             alert.addAction(.init(title: "修改遮罩类型", style: .default, handler: { [weak self] _ in
                 let maskAlert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -235,7 +342,7 @@ class TestEditorViewController: BaseViewController {
                     self?.editorView.setMaskType(.blurEffect(style: .light), animated: true)
                 }))
                 maskAlert.addAction(.init(title: "取消", style: .cancel))
-                self?.present(maskAlert, animated: true)
+                self?.presendAlert(maskAlert)
             }))
             alert.addAction(.init(title: "确认编辑", style: .default, handler: { [weak self] _ in
                 self?.editorView.finishEdit(true)
@@ -246,6 +353,170 @@ class TestEditorViewController: BaseViewController {
                 self?.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             }))
         }else {
+            alert.addAction(.init(title: "添加贴纸", style: .default, handler: { [weak self] _ in
+                let config = PickerConfiguration()
+                config.selectMode = .single
+                config.selectOptions = [.gifPhoto, .video]
+                config.previewView.bottomView.isHiddenOriginalButton = true
+                Photo.picker(config) { [weak self] pickerResult, _ in
+                    guard let self = self else {
+                        return
+                    }
+                    let asset = pickerResult.photoAssets.first
+                    self.view.hx.show()
+                    asset?.getAssetURL {
+                        self.view.hx.hide()
+                        switch $0 {
+                        case .success(let urlResult):
+                            if let image = UIImage(contentsOfFile: urlResult.url.path) {
+                                self.editorView.addSticker(image, isSelected: true)
+                            }
+                        default:
+                            break
+                        }
+                    }
+                }
+            }))
+            alert.addAction(.init(title: "添加音乐贴纸", style: .default, handler: { [weak self] _ in
+                let audioUrl = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
+                let lyricUrl = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
+                let lrc = try! String(contentsOfFile: lyricUrl.path)
+                let music = VideoEditorMusicInfo(
+                    audioURL: audioUrl,
+                    lrc: lrc
+                )
+                self?.editorView.addSticker(music, isSelected: true)
+                PhotoManager.shared.playMusic(filePath: audioUrl.path) {
+                    
+                }
+            }))
+            alert.addAction(.init(title: !editorView.isDrawEnabled ? "开启绘画" : "关闭绘画", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
+                self.editorView.isDrawEnabled = !self.editorView.isDrawEnabled
+            }))
+            alert.addAction(.init(title: "绘画设置", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
+                let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
+                alert.addAction(.init(title: "画笔宽度", style: .default, handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    let alert = UIAlertController.init(title: "画笔宽比", message: nil, preferredStyle: .alert)
+                    alert.addTextField { (textfield) in
+                        textfield.keyboardType = .numberPad
+                        textfield.placeholder = "输入画笔宽比"
+                    }
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "确定",
+                            style: .default,
+                            handler: { [weak self] (action) in
+                                guard let self = self,
+                                      let textFiled = alert.textFields?.first,
+                                      let text = textFiled.text,
+                                      !text.isEmpty else {
+                                    return
+                                }
+                                let lineWidth = CGFloat(Int(text)!)
+                                self.editorView.drawLineWidth = lineWidth
+                    }))
+                    alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+                    self.presendAlert(alert)
+                }))
+                alert.addAction(.init(title: "画笔颜色", style: .default, handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    if #available(iOS 14.0, *) {
+                        let vc = UIColorPickerViewController()
+                        vc.selectedColor = self.editorView.drawLineColor
+                        vc.delegate = self
+                        self.present(vc, animated: true, completion: nil)
+                    }
+                }))
+                alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+                self.presendAlert(alert)
+            }))
+            if self.editorView.isCanUndoDraw {
+                alert.addAction(.init(title: "撤销上一次的绘画", style: .default, handler: { [weak self] _ in
+                    self?.editorView.undoDraw()
+                }))
+                alert.addAction(.init(title: "撤销所有的绘画", style: .default, handler: { [weak self] _ in
+                    self?.editorView.undoAllDraw()
+                }))
+            }
+            if editorView.type == .image {
+                alert.addAction(.init(title: !editorView.isMosaicEnabled ? "开启马赛克涂抹" : "关闭马赛克涂抹", style: .default, handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    self.editorView.isMosaicEnabled = !self.editorView.isMosaicEnabled
+                }))
+                alert.addAction(.init(title: "马赛克涂抹设置", style: .default, handler: { [weak self] _ in
+                    guard let self = self else { return }
+                    let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
+                    alert.addAction(.init(title: "马赛克宽度", style: .default, handler: { [weak self] _ in
+                        guard let self = self else { return }
+                        let alert = UIAlertController.init(title: "马赛克宽比", message: nil, preferredStyle: .alert)
+                        alert.addTextField { (textfield) in
+                            textfield.keyboardType = .numberPad
+                            textfield.placeholder = "输入马赛克宽比"
+                        }
+                        alert.addAction(
+                            UIAlertAction(
+                                title: "确定",
+                                style: .default,
+                                handler: { [weak self] (action) in
+                                    guard let self = self,
+                                          let textFiled = alert.textFields?.first,
+                                          let text = textFiled.text,
+                                          !text.isEmpty else {
+                                        return
+                                    }
+                                    let mosaicWidth = CGFloat(Int(text)!)
+                                    self.editorView.mosaicWidth = mosaicWidth
+                        }))
+                        alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+                        self.presendAlert(alert)
+                    }))
+                    alert.addAction(.init(title: "涂抹宽度", style: .default, handler: { [weak self] _ in
+                        guard let self = self else { return }
+                        let alert = UIAlertController.init(title: "涂抹宽比", message: nil, preferredStyle: .alert)
+                        alert.addTextField { (textfield) in
+                            textfield.keyboardType = .numberPad
+                            textfield.placeholder = "输入涂抹宽比"
+                        }
+                        alert.addAction(
+                            UIAlertAction(
+                                title: "确定",
+                                style: .default,
+                                handler: { [weak self] (action) in
+                                    guard let self = self,
+                                          let textFiled = alert.textFields?.first,
+                                          let text = textFiled.text,
+                                          !text.isEmpty else {
+                                        return
+                                    }
+                                    let smearWidth = CGFloat(Int(text)!)
+                                    self.editorView.smearWidth = smearWidth
+                        }))
+                        alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+                        self.presendAlert(alert)
+                    }))
+                    alert.addAction(.init(title: "切换至" + (self.editorView.mosaicType == .mosaic ? "涂抹" : "马赛克"), style: .default, handler: { [weak self] _ in
+                        guard let self = self else { return }
+                        if self.editorView.mosaicType == .mosaic {
+                            self.editorView.mosaicType = .smear
+                        }else {
+                            self.editorView.mosaicType = .mosaic
+                        }
+                    }))
+                    alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
+                    self.presendAlert(alert)
+                }))
+                if self.editorView.isCanUndoMosaic {
+                    alert.addAction(.init(title: "撤销上一次的马赛克涂抹", style: .default, handler: { [weak self] _ in
+                        self?.editorView.undoMosaic()
+                    }))
+                    alert.addAction(.init(title: "撤销所有的马赛克涂抹", style: .default, handler: { [weak self] _ in
+                        self?.editorView.undoAllMosaic()
+                    }))
+                }
+            }
             if editorView.type == .video {
                 if !editorView.isVideoPlaying {
                     alert.addAction(.init(title: "播放视频", style: .default, handler: { [weak self] _ in
@@ -260,7 +531,7 @@ class TestEditorViewController: BaseViewController {
             alert.addAction(.init(title: "进入编辑模式", style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
                 if self.editorView.isRoundMask {
-                    self.editorView.ignoreFixedRatio = false
+                    self.editorView.isResetIgnoreFixedRatio = false
                 }
                 self.editorView.startEdit(true)
                 self.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
@@ -270,7 +541,7 @@ class TestEditorViewController: BaseViewController {
             self?.openPickerController()
         }))
         alert.addAction(.init(title: "取消", style: .cancel))
-        present(alert, animated: true)
+        presendAlert(alert)
     }
     
     @objc
@@ -278,24 +549,28 @@ class TestEditorViewController: BaseViewController {
         let config = PickerConfiguration()
         config.selectMode = .single
         config.selectOptions = [.gifPhoto, .video]
-        config.previewView.bottomView.originalButtonHidden = true
+        config.previewView.bottomView.isHiddenOriginalButton = true
         hx.present(
             picker: config
         ) { [weak self] result, _ in
             guard let self = self else { return }
             let asset = result.photoAssets.first
+            self.view.hx.show()
             asset?.getAssetURL {
+                self.view.hx.hide()
                 switch $0 {
                 case .success(let urlResult):
                     if urlResult.mediaType == .photo {
                         let imageData = try? Data(contentsOf: urlResult.url)
+                        self.image = UIImage(contentsOfFile: urlResult.url.path)
                         self.editorView.setImageData(imageData)
 //                        let image = UIImage(contentsOfFile: urlResult.url.path)
 //                        self.editorView.setImage(image)
 //                        self.editorView.updateImage(image)
                     }else {
+                        self.videoURL = urlResult.url
                         let avAsset = AVAsset(url: urlResult.url)
-                        let coverImage = PhotoTools.getVideoThumbnailImage(videoURL: urlResult.url, atTime: 0.1)
+                        let coverImage = avAsset.hx.getImage(at: 0.1)
                         self.editorView.setAVAsset(avAsset, coverImage: coverImage)
                         self.editorView.loadVideo()
                     }
@@ -308,11 +583,48 @@ class TestEditorViewController: BaseViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        if editorView.state == .edit {
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+    }
+    
+    open override var prefersHomeIndicatorAutoHidden: Bool {
+        false
+    }
+    open override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
+        .all
+    }
+    
+    deinit {
+        print("deinit: \(self)")
+    }
+}
+
+@available(iOS 14.0, *)
+extension TestEditorViewController: UIColorPickerViewControllerDelegate {
+    func colorPickerViewController(_ viewController: UIColorPickerViewController, didSelect color: UIColor, continuously: Bool) {
+        editorView.drawLineColor = color
+    }
+}
+
+extension UIViewController {
+    func presendAlert(_ alert: UIAlertController) {
+        if UIDevice.isPad {
+            let pop = alert.popoverPresentationController
+            pop?.permittedArrowDirections = .any
+            pop?.sourceView = view
+            pop?.sourceRect = CGRect(
+                x: view.hx.width * 0.5,
+                y: view.hx.height,
+                width: 0,
+                height: 0
+            )
+        }
+        present(alert, animated: true)
     }
 }

@@ -33,7 +33,7 @@ extension PhotoPreviewViewController {
             func addAsset() {
                 if picker.addedPhotoAsset(photoAsset: photoAsset) {
                     canUpdate = true
-                    if config.bottomView.showSelectedView && isMultipleSelect && config.showBottomView {
+                    if config.bottomView.isShowSelectedView && isMultipleSelect && config.isShowBottomView {
                         bottomView.selectedView.insertPhotoAsset(
                             photoAsset: photoAsset
                         )
@@ -66,9 +66,9 @@ extension PhotoPreviewViewController {
             if !beforeIsEmpty && picker.selectedAssetArray.isEmpty {
                 bottomNeedAnimated = true
             }
-            if config.bottomView.showSelectedView &&
+            if config.bottomView.isShowSelectedView &&
                 isMultipleSelect &&
-                config.showBottomView {
+                config.isShowBottomView {
                 bottomView.selectedView.removePhotoAsset(
                     photoAsset: photoAsset
                 )
@@ -101,9 +101,9 @@ extension PhotoPreviewViewController {
         pickerUpdateCell: Bool,
         bottomNeedAnimated: Bool
     ) {
-        if config.bottomView.showSelectedView &&
+        if config.bottomView.isShowSelectedView &&
             isMultipleSelect &&
-            config.showBottomView {
+            config.isShowBottomView {
             if bottomNeedAnimated {
                 UIView.animate(withDuration: 0.25) {
                     self.configBottomViewFrame()
@@ -124,7 +124,7 @@ extension PhotoPreviewViewController {
             isSelected: isSelected,
             updateCell: pickerUpdateCell
         )
-        if config.showBottomView {
+        if config.isShowBottomView {
             bottomView.updateFinishButtonTitle()
         }
         selectBoxControl.layer.removeAnimation(

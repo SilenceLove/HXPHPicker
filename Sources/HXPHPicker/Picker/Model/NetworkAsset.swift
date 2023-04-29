@@ -11,53 +11,82 @@ import Kingfisher
 
 public struct NetworkImageAsset: Codable {
     
-    /// 占位图
+    public enum loadMode: Codable {
+        /// List: use the original image if the original image has a cache, use the thumbnail if there is no cache
+        /// Large preview image: display the original image
+        /// 列表：如果原图有缓存则使用原图，没有缓存则使用缩略图
+        /// 预览大图：显示原图
+        case varied
+        
+        /// If the original image is not cached, the thumbnail image will always be used, and the original image will not be actively loaded internally
+        /// You can call loadNetworkOriginalImage() of the PhotoAsset object to load the original image
+        /// 如果原图没有缓存则一直使用缩略图，内部不会主动加载原图
+        /// 可以调用 PhotoAsset 对象的 loadNetworkOriginalImage() 加载原图
+        case alwaysThumbnail
+    }
+    
     public let placeholder: String?
     
+    /// list cell display
     /// 缩略图，列表cell展示
     public let thumbnailURL: URL
     
+    /// Size set by DownsamplingImageProcessor when Kingfisher downloads thumbnails
+    /// .zero defaults to imageView.size
     /// Kingfisher 下载缩略图时 DownsamplingImageProcessor 设置的大小
+    /// .zero 默认为 imageView.size
     public let thumbnailSize: CGSize
     
+    /// Preview large image display
     /// 原图，预览大图展示
     public let originalURL: URL
     
+    /// The way the list Cell loads pictures
+    /// 列表Cell加载图片的方式
+    public let thumbnailLoadMode: loadMode
+    
+    /// How to load images when previewing large images
+    /// Call loadNetworkOriginalImage() of the PhotoAsset object to load the original image
+    /// 预览大图时加载图片的方式
+    /// 调用 PhotoAsset 对象的 loadNetworkOriginalImage() 加载原图
+    public let originalLoadMode: loadMode
+    
+    /// Whether the display effect is fade in and fade out after the image is downloaded
+    /// 图片下载完后显示效果是否为淡入淡出
+    public let isFade: Bool
+    
+    /// size of the picture
     /// 图片尺寸
     public var imageSize: CGSize
     
+    /// Image file size
     /// 图片文件大小
     public var fileSize: Int
     
     public init(
         thumbnailURL: URL,
         originalURL: URL,
-        thumbnailSize: CGSize = UIScreen.main.bounds.size,
+        thumbnailLoadMode: loadMode = .alwaysThumbnail,
+        originalLoadMode: loadMode = .varied,
+        isFade: Bool = true,
+        thumbnailSize: CGSize = .zero,
         placeholder: String? = nil,
         imageSize: CGSize = .zero,
         fileSize: Int = 0
     ) {
         self.thumbnailURL = thumbnailURL
         self.originalURL = originalURL
+        self.thumbnailLoadMode = thumbnailLoadMode
+        self.originalLoadMode = originalLoadMode
+        self.isFade = isFade
         self.thumbnailSize = thumbnailSize
         self.placeholder = placeholder
         self.imageSize = imageSize
         self.fileSize = fileSize
-        if let image = ImageCache.default.retrieveImageInMemoryCache(forKey: originalURL.cacheKey) {
-            self.imageSize = image.size
-            if let imageData = image.kf.gifRepresentation() {
-                self.fileSize = imageData.count
-            }else if let imageData = image.kf.pngRepresentation() {
-                self.fileSize = imageData.count
-            }else if let imageData = image.kf.jpegRepresentation(compressionQuality: 1) {
-                self.fileSize = imageData.count
-            }
-        }
     }
 }
 #endif
 
-/// 网络视频
 public struct NetworkVideoAsset {
     
     /// 网络视频地址

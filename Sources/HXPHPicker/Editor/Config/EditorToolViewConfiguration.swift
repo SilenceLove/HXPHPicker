@@ -13,10 +13,10 @@ public struct EditorToolViewConfiguration {
     public var toolOptions: [EditorToolOptions]
     
     /// 工具栏选项按钮选中颜色
-    public var toolSelectedColor: UIColor = .systemTintColor
+    public var toolSelectedColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 配乐选中时的颜色
-    public var musicSelectedColor: UIColor = .systemTintColor
+    public var musicSelectedColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 完成按钮标题颜色
     public var finishButtonTitleColor: UIColor = .white
@@ -25,10 +25,10 @@ public struct EditorToolViewConfiguration {
     public var finishButtonTitleDarkColor: UIColor = .white
     
     /// 完成按钮的背景颜色
-    public var finishButtonBackgroundColor: UIColor = .systemTintColor
+    public var finishButtonBackgroundColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 暗黑风格下完成按钮选的背景颜色
-    public var finishButtonDarkBackgroundColor: UIColor = .systemTintColor
+    public var finishButtonDarkBackgroundColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     public init(toolOptions: [EditorToolOptions] = []) {
         self.toolOptions = toolOptions

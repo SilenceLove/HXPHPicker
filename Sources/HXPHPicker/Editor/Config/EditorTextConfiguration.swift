@@ -11,7 +11,7 @@ public struct EditorTextConfiguration {
     /// 文本颜色数组
     public var colors: [String] = PhotoTools.defaultColors()
     /// 确定按钮背景颜色、文本光标颜色
-    public var tintColor: UIColor = .systemTintColor
+    public var tintColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     /// 文本字体
     public var font: UIFont = .boldSystemFont(ofSize: 25)
     /// 最大字数限制，0为不限制

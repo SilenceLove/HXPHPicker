@@ -91,9 +91,6 @@ extension PhotoAsset {
                         break
                     }
                 }
-                if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
-                    fileSize += photoFileSize
-                }
             }
         }else {
             var resources: [PHAssetResourceType: PHAssetResource] = [:]

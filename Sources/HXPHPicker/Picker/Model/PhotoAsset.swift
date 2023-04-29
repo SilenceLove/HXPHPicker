@@ -8,6 +8,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public typealias PhotoAssetICloudHandler = (PhotoAsset, PHImageRequestID) -> Void
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
@@ -183,6 +186,8 @@ open class PhotoAsset: Equatable {
     public var networkImageAsset: NetworkImageAsset?
     
     var localImageType: DonwloadURLType = .thumbnail
+    
+    var loadNetworkImageHandler: ((((PhotoAsset) -> Void)?) -> Void)?
     #endif
     
     /// 网络视频
@@ -276,7 +281,16 @@ extension PhotoAsset {
         guard let phAsset = phAsset else {
             if mediaType == .photo {
                 if let livePhoto = localLivePhoto {
-                    return UIImage(contentsOfFile: livePhoto.imageURL.path)
+                    if livePhoto.imageURL.isFileURL {
+                        return UIImage(contentsOfFile: livePhoto.imageURL.path)
+                    }else {
+                        #if canImport(Kingfisher)
+                        if ImageCache.default.isCached(forKey: livePhoto.imageURL.cacheKey) {
+                            return ImageCache.default.retrieveImageInMemoryCache(forKey: livePhoto.imageURL.cacheKey, options: [])
+                        }
+                        #endif
+                        return nil
+                    }
                 }
                 if let image = localImageAsset?.image {
                     return image
@@ -342,9 +356,6 @@ extension PhotoAsset {
                      let image = UIImage(contentsOfFile: imageURL.path) {
                 localImageAsset?.image = image
                 size = image.size
-            }else if let localLivePhoto = localLivePhoto,
-                     let image = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
-                size = image.size
             }else if let localVideoAsset = localVideoAsset {
                 if !localVideoAsset.videoSize.equalTo(.zero) {
                     size = localVideoAsset.videoSize
@@ -372,15 +383,44 @@ extension PhotoAsset {
                     size = CGSize(width: 200, height: 200)
                 }
             }else {
-                #if canImport(Kingfisher)
-                if let networkImageSize = networkImageAsset?.imageSize, !networkImageSize.equalTo(.zero) {
-                    size = networkImageSize
-                } else {
+                if let localLivePhoto = localLivePhoto {
+                    if localLivePhoto.size.equalTo(.zero) {
+                        if localLivePhoto.imageURL.isFileURL {
+                            let image = UIImage(contentsOfFile: localLivePhoto.imageURL.path)
+                            size = image?.size ?? .init(width: 200, height: 200)
+                            self.localLivePhoto?.size = size
+                        }else {
+                            #if canImport(Kingfisher)
+                            if ImageCache.default.isCached(forKey: localLivePhoto.imageURL.cacheKey) {
+                                let cachePath = ImageCache.default.cachePath(forKey: localLivePhoto.imageURL.cacheKey)
+                                if let image = UIImage(contentsOfFile: cachePath) {
+                                    size = image.size
+                                    self.localLivePhoto?.size = size
+                                }else {
+                                    size = .init(width: 200, height: 200)
+                                }
+                            }else {
+                                size = .init(width: 200, height: 200)
+                            }
+                            #else
+                            size = .init(width: 200, height: 200)
+                            #endif
+                        }
+                    }else {
+                        size = localLivePhoto.size
+                    }
+                }else {
+                    #if canImport(Kingfisher)
+                    if let networkImageSize = networkImageAsset?.imageSize, !networkImageSize.equalTo(.zero) {
+                        size = networkImageSize
+                    } else {
+                        size = CGSize(width: 200, height: 200)
+                    }
+                    #else
                     size = CGSize(width: 200, height: 200)
+                    #endif
                 }
-                #else
-                size = CGSize(width: 200, height: 200)
-                #endif
+                
             }
         }
         return size

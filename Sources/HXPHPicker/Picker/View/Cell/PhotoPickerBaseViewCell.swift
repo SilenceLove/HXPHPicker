@@ -21,9 +21,9 @@ public extension PhotoPickerViewCellDelegate {
 }
 
 open class PhotoPickerBaseViewCell: UICollectionViewCell {
-    /// 代理
+    
     public weak var delegate: PhotoPickerViewCellDelegate?
-    /// 配置
+    
     public var config: PhotoListCellConfiguration? {
         didSet {
             photoView.targetWidth = config?.targetWidth ?? 250
@@ -36,6 +36,8 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     /// 展示图片
     public lazy var photoView: PhotoThumbnailView = {
         let photoView = PhotoThumbnailView()
+        photoView.size = size
+        photoView.imageView.size = size
         photoView.fadeImage = PhotoManager.shared.firstLoadAssets
         return photoView
     }()
@@ -119,7 +121,7 @@ open class PhotoPickerBaseViewCell: UICollectionViewCell {
     /// 获取是否在iCloud
     open func requestICloudState() {
         guard let config = config,
-              config.showICloudMark else {
+              config.isShowICloudMark else {
             return
         }
         cancelICloudRequest()

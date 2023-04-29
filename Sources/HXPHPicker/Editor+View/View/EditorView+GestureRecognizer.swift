@@ -9,4 +9,12 @@ import UIKit
 
 extension EditorView: UIGestureRecognizerDelegate {
     
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if gestureRecognizer is UIPanGestureRecognizer {
+            if isDrawEnabled || isMosaicEnabled {
+                return false
+            }
+        }
+        return true
+    }
 }

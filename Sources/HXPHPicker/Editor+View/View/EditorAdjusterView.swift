@@ -8,16 +8,6 @@
 import UIKit
 import AVFoundation
 
-/// - EditorAdjusterView (self)
-///     - containerView (容器)
-///         - mirrorView (镜像处理)
-///             - rotateView (旋转处理)
-///             - scrollView (滚动视图)
-///                 - contentView (内容视图)
-///                     - imageView/videoView (图片/视频内容)
-///                     - drawView (画笔绘图层)
-///                     - mosaic (马赛克图层)
-///         - frameView (遮罩、控制裁剪范围)
 class EditorAdjusterView: UIView {
     
     weak var delegate: EditorAdjusterViewDelegate?
@@ -31,18 +21,18 @@ class EditorAdjusterView: UIView {
         contentView.isPlaying
     }
     
-    var maximumZoomScale: CGFloat = 20
+    var exportScale: CGFloat = UIScreen.main.scale
     
-    var animateDuration: TimeInterval = 0.3
+    var maximumZoomScale: CGFloat = 20
     
     var contentInsets: UIEdgeInsets = .zero
     
     var state: EditorView.State = .normal
     
-    var adjustedData: AdjustedData = .init()
-    var oldAdjustedData: AdjustedData?
+    var adjustedFactor: AdjustedFactor = .init()
+    var oldAdjustedFactor: AdjustedFactor?
     
-    var oldFactor: EditorControlView.Factor?
+    var oldRatioFactor: EditorControlView.Factor?
     
     var isOriginalRatio: Bool {
         let aspectRatio = frameView.aspectRatio
@@ -56,7 +46,7 @@ class EditorAdjusterView: UIView {
         return false
     }
     
-    var ignoreFixedRatio: Bool = true
+    var isResetIgnoreFixedRatio: Bool = true
     
     var baseContentSize: CGSize = .zero
     var zoomScale: CGFloat = 1 {
@@ -69,9 +59,9 @@ class EditorAdjusterView: UIView {
     
     var currentAngle: CGFloat {
         if state == .normal {
-            return oldAdjustedData?.angle ?? 0
+            return oldAdjustedFactor?.angle ?? 0
         }
-        return adjustedData.angle
+        return adjustedFactor.angle
     }
     
     var maskType: EditorView.MaskType {
@@ -98,7 +88,7 @@ class EditorAdjusterView: UIView {
         }
     }
     func setMaskImage(_ image: UIImage?, animated: Bool) {
-        adjustedData.maskImage = image
+        adjustedFactor.maskImage = image
         frameView.setMaskImage(image, animated: animated)
     }
     
@@ -107,6 +97,11 @@ class EditorAdjusterView: UIView {
             frameView.maskColor = maskColor
         }
     }
+    
+    var urlConfig: EditorURLConfig?
+    
+    weak var videoTool: EditorVideoTool?
+    var lastVideoFator: LastVideoFator?
     
     // MARK: initialize
     init(maskColor: UIColor?) {
@@ -193,6 +188,388 @@ class EditorAdjusterView: UIView {
         frameView.delegate = self
         return frameView
     }()
+    
+    // MARK: Screen Rotation
+    
+    private var beforeContentOffset: CGPoint = .zero
+    private var beforeContentSize: CGSize = .zero
+    private var beforeContentInset: UIEdgeInsets = .zero
+    private var beforeMirrorViewTransform: CGAffineTransform = .identity
+    private var beforeRotateViewTransform: CGAffineTransform = .identity
+    private var beforeScrollViewTransform: CGAffineTransform = .identity
+    private var beforeScrollViewZoomScale: CGFloat = 1
+    private var beforeDrawBrushInfos: [EditorDrawView.BrushInfo] = []
+    private var beforeMosaicDatas: [EditorMosaicView.MosaicData] = []
+    
+    func prepareUpdate() {
+        if state == .edit {
+            stopTimer()
+            adjustmentViews(false)
+        }
+        
+        beforeContentOffset = scrollView.contentOffset
+        beforeContentSize = scrollView.contentSize
+        beforeContentInset = scrollView.contentInset
+        beforeMirrorViewTransform = mirrorView.transform
+        beforeRotateViewTransform = rotateView.transform
+        beforeScrollViewTransform = scrollView.transform
+        beforeScrollViewZoomScale = scrollView.zoomScale / scrollView.minimumZoomScale
+        beforeDrawBrushInfos = contentView.drawView.getBrushData()
+        beforeMosaicDatas = contentView.mosaicView.getMosaicData()
+        
+        contentView.drawView.undoAll()
+        contentView.mosaicView.undoAll()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        mirrorView.transform = .identity
+        rotateView.transform = .identity
+        scrollView.transform = .identity
+        CATransaction.commit()
+        scrollView.minimumZoomScale = 1
+        scrollView.zoomScale = 1
+    }
+    
+    func update() {
+        setContent(state == .edit)
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        mirrorView.transform = beforeMirrorViewTransform
+        rotateView.transform = beforeRotateViewTransform
+        scrollView.transform = beforeScrollViewTransform
+        CATransaction.commit()
+        
+        contentView.drawView.setBrushData(beforeDrawBrushInfos, viewSize: contentView.bounds.size)
+        contentView.mosaicView.setMosaicData(mosaicDatas: beforeMosaicDatas, viewSize: contentView.bounds.size)
+        
+        let controlScale = frameView.controlView.size.height / frameView.controlView.size.width
+        let beforeZoomScale = beforeScrollViewZoomScale
+        var maxWidth = containerView.width
+        var maxHeight = containerView.height
+        if state == .edit {
+            maxWidth -= contentInsets.left + contentInsets.right
+            maxHeight -= contentInsets.top + contentInsets.bottom
+            var maskWidth = maxWidth
+            var maskHeight = maskWidth * controlScale
+            if maskHeight > maxHeight {
+                maskWidth = maskWidth * (maxHeight / maskHeight)
+                maskHeight = maxHeight
+            }
+            let maskRect = CGRect(
+                x: contentInsets.left + (maxWidth - maskWidth) * 0.5,
+                y: contentInsets.top + (maxHeight - maskHeight) * 0.5,
+                width: maskWidth,
+                height: maskHeight
+            )
+            updateMaskRect(to: maskRect, animated: false)
+        }else {
+            let rectW = maxWidth
+            let rectH = maxWidth * controlScale
+            var rectY: CGFloat = 0
+            if rectH < maxHeight {
+                rectY = (maxHeight - rectH) * 0.5
+            }
+            let maskRect = CGRect(x: 0, y: rectY, width: rectW, height: rectH)
+            updateMaskRect(to: maskRect, animated: false)
+        }
+        if let oldData = oldAdjustedFactor {
+            let controlScale = oldData.maskRect.height / oldData.maskRect.width
+            let maxWidth = containerView.width - contentInsets.left - contentInsets.right
+            let maxHeight = containerView.height - contentInsets.top - contentInsets.bottom
+            var maskWidth = maxWidth
+            var maskHeight = maskWidth * controlScale
+            if maskHeight > maxHeight {
+                maskWidth = maskWidth * (maxHeight / maskHeight)
+                maskHeight = maxHeight
+            }
+            let maskRect = CGRect(
+                x: contentInsets.left + (maxWidth - maskWidth) * 0.5,
+                y: contentInsets.top + (maxHeight - maskHeight) * 0.5,
+                width: maskWidth,
+                height: maskHeight
+            )
+            oldAdjustedFactor?.maskRect = maskRect
+            let zoomScale = getScrollViewMinimumZoomScale(maskRect) * oldData.min_zoom_scale
+            oldAdjustedFactor?.zoomScale = zoomScale
+        }
+        
+        let controlView = frameView.controlView
+        setScrollViewContentInset(controlView.frame)
+        if state == .edit {
+            let minimumZoomScale = getScrollViewMinimumZoomScale(controlView.frame)
+            scrollView.minimumZoomScale = minimumZoomScale
+            let zoomScale = max(minimumZoomScale, minimumZoomScale * beforeZoomScale)
+            scrollView.zoomScale = zoomScale
+        }else {
+            if let data = oldAdjustedFactor {
+                let minimumZoomScale = getScrollViewMinimumZoomScale(data.maskRect)
+                scrollView.minimumZoomScale = minimumZoomScale
+                let maxWidth = containerView.width
+                let scale = maxWidth / data.maskRect.width
+                let zoomScale = data.zoomScale * scale
+                scrollView.zoomScale = zoomScale
+            }else {
+                scrollView.minimumZoomScale = 1
+                scrollView.zoomScale = 1
+            }
+        }
+        
+        if let data = oldAdjustedFactor {
+            let contentWidth = baseContentSize.width * data.zoomScale
+            let contentHeight = baseContentSize.height * data.zoomScale
+            let contentInset = getOldContentInsert()
+            oldAdjustedFactor?.contentInset = contentInset
+            
+            let offsetX = contentWidth * data.contentOffsetScale.x - contentInset.left
+            let offsetY = contentHeight * data.contentOffsetScale.y - contentInset.top
+            oldAdjustedFactor?.contentOffset = .init(x: offsetX, y: offsetY)
+        }
+        let contentSize = scrollView.contentSize
+        let contentInset = scrollView.contentInset
+        let offsetXScale = (beforeContentOffset.x + beforeContentInset.left) / beforeContentSize.width
+        let offsetYScale = (beforeContentOffset.y + beforeContentInset.top) / beforeContentSize.height
+        let offsetX = contentSize.width * offsetXScale - contentInset.left
+        let offsetY = contentSize.height * offsetYScale - contentInset.top
+        scrollView.contentOffset = getZoomOffset(
+            CGPoint(x: offsetX, y: offsetY),
+            scrollView.contentInset
+        )
+    }
+    
+    func getData() -> EditResult.AdjustmentData {
+        let adjustedData = getCurrentAdjusted()
+        var adjusted: EditResult.AdjustmentData.Content.Adjusted?
+        if let factor = adjustedData.0 {
+            adjusted = .init(
+                angle: factor.angle,
+                zoomScale: factor.zoomScale,
+                contentOffset: factor.contentOffset,
+                contentInset: factor.contentInset,
+                maskRect: factor.maskRect,
+                transform: factor.transform,
+                rotateTransform: factor.rotateTransform,
+                mirrorTransform: factor.mirrorTransform,
+                contentOffsetScale: factor.contentOffsetScale,
+                min_zoom_scale: factor.min_zoom_scale,
+                isRoundMask: factor.isRoundMask
+            )
+        }
+        return .init(
+            content: .init(
+                editSize: adjustedData.1,
+                contentOffset: scrollView.contentOffset,
+                contentSize: scrollView.contentSize,
+                contentInset: scrollView.contentInset,
+                mirrorViewTransform: mirrorView.transform,
+                rotateViewTransform: rotateView.transform,
+                scrollViewTransform: scrollView.transform,
+                scrollViewZoomScale: scrollView.zoomScale / scrollView.minimumZoomScale,
+                controlScale: frameView.controlView.size.height / frameView.controlView.size.width,
+                adjustedFactor: adjusted
+            ),
+            maskImage: adjustedData.0?.maskImage,
+            drawView: contentView.drawView.getBrushData(),
+            mosaicView: contentView.mosaicView.getMosaicData()
+        )
+    }
+    
+    func setData(_ factor: EditResult.AdjustmentData) {
+        let contentData = factor.content
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        mirrorView.transform = .identity
+        rotateView.transform = .identity
+        scrollView.transform = .identity
+        CATransaction.commit()
+        scrollView.minimumZoomScale = 1
+        scrollView.zoomScale = 1
+        contentView.drawView.setBrushData(factor.drawView, viewSize: contentView.bounds.size)
+        contentView.mosaicView.setMosaicData(mosaicDatas: factor.mosaicView, viewSize: contentView.bounds.size)
+        
+        if let adjustedFactor = contentData.adjustedFactor {
+            oldAdjustedFactor = .init(
+                angle: adjustedFactor.angle,
+                zoomScale: adjustedFactor.zoomScale,
+                contentOffset: adjustedFactor.contentOffset,
+                contentInset: adjustedFactor.contentInset,
+                maskRect: adjustedFactor.maskRect,
+                transform: adjustedFactor.transform,
+                rotateTransform: adjustedFactor.rotateTransform,
+                mirrorTransform: adjustedFactor.mirrorTransform,
+                maskImage: factor.maskImage,
+                contentOffsetScale: adjustedFactor.contentOffsetScale,
+                min_zoom_scale: adjustedFactor.min_zoom_scale,
+                isRoundMask: adjustedFactor.isRoundMask
+            )
+        }
+        setContent(state == .edit)
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        mirrorView.transform = contentData.mirrorViewTransform
+        rotateView.transform = contentData.rotateViewTransform
+        scrollView.transform = contentData.scrollViewTransform
+        CATransaction.commit()
+        
+        let controlScale = contentData.controlScale
+        let beforeZoomScale = contentData.scrollViewZoomScale
+        var maxWidth = containerView.width
+        var maxHeight = containerView.height
+        if state == .edit {
+            maxWidth -= contentInsets.left + contentInsets.right
+            maxHeight -= contentInsets.top + contentInsets.bottom
+            var maskWidth = maxWidth
+            var maskHeight = maskWidth * controlScale
+            if maskHeight > maxHeight {
+                maskWidth = maskWidth * (maxHeight / maskHeight)
+                maskHeight = maxHeight
+            }
+            let maskRect = CGRect(
+                x: contentInsets.left + (maxWidth - maskWidth) * 0.5,
+                y: contentInsets.top + (maxHeight - maskHeight) * 0.5,
+                width: maskWidth,
+                height: maskHeight
+            )
+            updateMaskRect(to: maskRect, animated: false)
+        }else {
+            let rectW = maxWidth
+            let rectH = maxWidth * controlScale
+            var rectY: CGFloat = 0
+            if rectH < maxHeight {
+                rectY = (maxHeight - rectH) * 0.5
+            }
+            let maskRect = CGRect(x: 0, y: rectY, width: rectW, height: rectH)
+            updateMaskRect(to: maskRect, animated: false)
+        }
+        if let oldData = oldAdjustedFactor {
+            let controlScale = oldData.maskRect.height / oldData.maskRect.width
+            let maxWidth = containerView.width - contentInsets.left - contentInsets.right
+            let maxHeight = containerView.height - contentInsets.top - contentInsets.bottom
+            var maskWidth = maxWidth
+            var maskHeight = maskWidth * controlScale
+            if maskHeight > maxHeight {
+                maskWidth = maskWidth * (maxHeight / maskHeight)
+                maskHeight = maxHeight
+            }
+            let maskRect = CGRect(
+                x: contentInsets.left + (maxWidth - maskWidth) * 0.5,
+                y: contentInsets.top + (maxHeight - maskHeight) * 0.5,
+                width: maskWidth,
+                height: maskHeight
+            )
+            oldAdjustedFactor?.maskRect = maskRect
+            let zoomScale = getScrollViewMinimumZoomScale(maskRect) * oldData.min_zoom_scale
+            oldAdjustedFactor?.zoomScale = zoomScale
+        }
+        
+        let controlView = frameView.controlView
+        setScrollViewContentInset(controlView.frame)
+        if state == .edit {
+            let minimumZoomScale = getScrollViewMinimumZoomScale(controlView.frame)
+            scrollView.minimumZoomScale = minimumZoomScale
+            let zoomScale = max(minimumZoomScale, minimumZoomScale * beforeZoomScale)
+            scrollView.zoomScale = zoomScale
+        }else {
+            if let data = oldAdjustedFactor {
+                let minimumZoomScale = getScrollViewMinimumZoomScale(data.maskRect)
+                scrollView.minimumZoomScale = minimumZoomScale
+                let maxWidth = containerView.width
+                let scale = maxWidth / data.maskRect.width
+                let zoomScale = data.zoomScale * scale
+                scrollView.zoomScale = zoomScale
+            }else {
+                scrollView.minimumZoomScale = 1
+                scrollView.zoomScale = 1
+            }
+        }
+        
+        if let data = oldAdjustedFactor {
+            let contentWidth = baseContentSize.width * data.zoomScale
+            let contentHeight = baseContentSize.height * data.zoomScale
+            let contentInset = getOldContentInsert()
+            oldAdjustedFactor?.contentInset = contentInset
+            
+            let offsetX = contentWidth * data.contentOffsetScale.x - contentInset.left
+            let offsetY = contentHeight * data.contentOffsetScale.y - contentInset.top
+            oldAdjustedFactor?.contentOffset = .init(x: offsetX, y: offsetY)
+            
+            frameView.show(false)
+            
+            oldMaskImage = data.maskImage
+            if let oldMaskImage = oldMaskImage {
+                setMaskImage(oldMaskImage, animated: false)
+            }else {
+                setMaskImage(nil, animated: false)
+            }
+            if maskImage == nil {
+                frameView.hideCustomMaskView(false)
+            }else {
+                frameView.hideImageMaskView(false)
+            }
+            
+            oldIsRound = data.isRoundMask
+            setRoundCrop(isRound: data.isRoundMask, animated: false)
+            
+            frameView.blackMask(isShow: true, animated: false)
+            frameView.hide(isMaskBg: false, animated: false)
+            clipsToBounds = true
+        }
+        let contentSize = scrollView.contentSize
+        let contentInset = scrollView.contentInset
+        let offsetXScale = (contentData.contentOffset.x + contentData.contentInset.left) / contentData.contentSize.width
+        let offsetYScale = (contentData.contentOffset.y + contentData.contentInset.top) / contentData.contentSize.height
+        let offsetX = contentSize.width * offsetXScale - contentInset.left
+        let offsetY = contentSize.height * offsetYScale - contentInset.top
+        scrollView.contentOffset = getZoomOffset(
+            CGPoint(x: offsetX, y: offsetY),
+            scrollView.contentInset
+        )
+    }
+    
+    func getOldContentInsert() -> UIEdgeInsets {
+        guard let data = oldAdjustedFactor else {
+            return .zero
+        }
+        func getControlRotateRect(_ rect: CGRect) -> CGRect {
+            let controlFrame = rect
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            let currentMirrorTransform = mirrorView.transform
+            let currentTotateTransform = rotateView.transform
+            mirrorView.transform = data.mirrorTransform
+            rotateView.transform = data.rotateTransform
+            var _rect = frameView.convert(controlFrame, to: rotateView)
+            if data.isRoundMask {
+                _rect = .init(
+                    x: _rect.midX - controlFrame.width * 0.5,
+                    y: _rect.midY - controlFrame.height * 0.5,
+                    width: controlFrame.width,
+                    height: controlFrame.height
+                )
+            }
+            rotateView.transform = currentTotateTransform
+            mirrorView.transform = currentMirrorTransform
+            CATransaction.commit()
+            return _rect
+        }
+        let rect = data.maskRect
+        let rotateRect: CGRect
+        let rotate_Rect = getControlRotateRect(rect)
+        if data.isRoundMask {
+            rotateRect = .init(x: rotate_Rect.midX - rect.width * 0.5, y: rotate_Rect.midY - rect.height * 0.5, width: rect.width, height: rect.height)
+        }else {
+            rotateRect = rotate_Rect
+        }
+        let top = rotateRect.minY
+        let bottom = containerView.height - rotateRect.maxY
+        let left = rotateRect.minX
+        let right = containerView.width - rotateRect.maxX
+        return .init(top: top, left: left, bottom: bottom, right: right)
+    }
+    
+    deinit {
+        videoTool?.cancelExport()
+    }
 }
 
 extension EditorAdjusterView {
@@ -206,6 +583,10 @@ extension EditorAdjusterView {
         }
     }
     
+    var imageSize: CGSize {
+        contentView.contentSize
+    }
+    
     var mosaicOriginalImage: UIImage? {
         get {
             contentView.mosaicOriginalImage
@@ -215,15 +596,22 @@ extension EditorAdjusterView {
         }
     }
     
-    func setImage(_ image: UIImage?) {
+    func setImage(
+        _ image: UIImage?
+    ) {
         contentView.image = image
     }
     
-    func setImageData(_ imageData: Data?) {
+    func setImageData(
+        _ imageData: Data?
+    ) {
         contentView.imageData = imageData
     }
     
-    func setVideoAsset(_ avAsset: AVAsset, coverImage: UIImage? = nil) {
+    func setVideoAsset(
+        _ avAsset: AVAsset,
+        coverImage: UIImage? = nil
+    ) {
         contentView.videoCover = coverImage
         contentView.avAsset = avAsset
     }
@@ -338,17 +726,27 @@ extension EditorAdjusterView {
             rotate_Transform = angle == 0 ? identityTransForm : identityTransForm.rotated(by: angle.radians)
         }
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 self.rotateView.transform = rotate_Transform
                 self.scrollView.transform = _transform
             }
         }else {
             rotateView.transform = rotate_Transform
             scrollView.transform = _transform
+        }
+    }
+    
+    func setMirrorTransform(
+        transform: CGAffineTransform? = nil,
+        animated: Bool = false
+        
+    ) {
+        if animated {
+            UIView.animate {
+                self.mirrorView.transform = transform ?? .identity
+            }
+        }else {
+            mirrorView.transform = transform ?? .identity
         }
     }
     
@@ -375,16 +773,13 @@ extension EditorAdjusterView {
         updateMaskAspectRatio(animated)
         scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(frameView.controlView.frame)
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: [.curveEaseOut]
-            ) {
+            UIView.animate {
                 self.setScrollViewContentInset(self.frameView.controlView.frame)
                 if self.scrollView.zoomScale < self.scrollView.minimumZoomScale {
                     self.scrollView.zoomScale = self.scrollView.minimumZoomScale
                 }
                 self.adjustedScrollContentOffset(controlBeforeRect)
+                self.updateControlScaleSize()
             }
         }else {
             setScrollViewContentInset(frameView.controlView.frame)
@@ -392,6 +787,7 @@ extension EditorAdjusterView {
                 scrollView.zoomScale = scrollView.minimumZoomScale
             }
             adjustedScrollContentOffset(controlBeforeRect)
+            updateControlScaleSize()
         }
     }
     
@@ -444,37 +840,15 @@ extension EditorAdjusterView {
         frameView.setRoundCrop(isRound: isRound, animated: animated)
     }
     
-    func update() {
-        let controlRect = getControlInContentRect()
-        let beforeZoomScale = scrollView.zoomScale / scrollView.minimumZoomScale
-        let xScale = controlRect.minX / baseContentSize.width
-        let yScale = controlRect.minY / baseContentSize.height
-        let ratio = frameView.aspectRatio
-        setContent(state == .edit)
-        let maxWidth = containerView.width - contentInsets.left - contentInsets.right
-        let maxHeight = containerView.height - contentInsets.top - contentInsets.bottom
-        var maskWidth = maxWidth
-        var maskHeight = maskWidth * (controlRect.height / controlRect.width)
-        if maskHeight > maxHeight {
-            maskWidth = maskWidth * (maxHeight / maskHeight)
-            maskHeight = maxHeight
+    var isShowScaleSize: Bool {
+        get {
+            frameView.isShowScaleSize
         }
-        let maskRect = CGRect(
-            x: contentInsets.left + (maxWidth - maskWidth) * 0.5,
-            y: contentInsets.top + (maxHeight - maskHeight) * 0.5,
-            width: maskWidth,
-            height: maskHeight
-        )
-        updateMaskRect(to: maskRect, animated: true)
-        
-        let controlView = frameView.controlView
-        setScrollViewContentInset(controlView.frame)
-        let minimumZoomScale = getScrollViewMinimumZoomScale(controlView.frame)
-        scrollView.minimumZoomScale = minimumZoomScale
-        let zoomScale = max(minimumZoomScale, minimumZoomScale * beforeZoomScale)
-        scrollView.zoomScale = zoomScale
-        adjustedScrollContentOffset(controlRect)
+        set {
+            frameView.isShowScaleSize = newValue
+        }
     }
+    
 }
 
 extension EditorAdjusterView {
@@ -558,8 +932,18 @@ extension EditorAdjusterView {
         return _rect
     }
     
-    func getControlInContentRect() -> CGRect {
+    func getControlInContentRect(_ isInner: Bool = false) -> CGRect {
         let controlFrame = frameView.controlView.frame
+        if isInner {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            let currentTransform = scrollView.transform
+            scrollView.transform = .identity
+            let tmpRect = frameView.convert(controlFrame, to: contentView)
+            scrollView.transform = currentTransform
+            CATransaction.commit()
+            return tmpRect
+        }
         var rect = frameView.convert(controlFrame, to: contentView)
         if isRoundMask {
             CATransaction.begin()
@@ -728,8 +1112,8 @@ extension EditorAdjusterView {
 extension EditorAdjusterView {
     func resetAll() {
         reset(false)
-        oldAdjustedData = nil
-        adjustedData = .init()
+        oldAdjustedFactor = nil
+        adjustedFactor = .init()
         if !containerView.frame.equalTo(.zero) {
             cancelEdit(false)
         }
@@ -737,18 +1121,6 @@ extension EditorAdjusterView {
     
     func resetScrollContent() {
         scrollView.contentOffset.y = -scrollView.contentInset.top
-    }
-}
-
-extension EditorAdjusterView: EditorContentViewDelegate {
-    func contentView(_ contentView: EditorContentView, videoDidPlayAt time: CMTime) {
-        delegate?.editorAdjusterView(self, videoDidPlayAt: time)
-    }
-    func contentView(_ contentView: EditorContentView, videoDidPauseAt time: CMTime) {
-        delegate?.editorAdjusterView(self, videoDidPauseAt: time)
-    }
-    func contentView(videoReadyForDisplay contentView: EditorContentView) {
-        delegate?.editorAdjusterView(videoReadyForDisplay: self)
     }
 }
 
@@ -762,14 +1134,5 @@ extension EditorAdjusterView {
         override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
             true
         }
-    }
-}
-
-extension CGFloat {
-    var angle: CGFloat {
-        self * (180 / .pi)
-    }
-    var radians: CGFloat {
-        self / 180 * .pi
     }
 }

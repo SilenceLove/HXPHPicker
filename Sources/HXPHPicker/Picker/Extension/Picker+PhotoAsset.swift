@@ -8,6 +8,74 @@
 import UIKit
 import Photos
 
+public extension PhotoAsset {
+    /// 保存到系统相册
+    func saveToSystemAlbum(
+        albumName: String? = nil,
+        _ completion: ((PHAsset?) -> Void)? = nil
+    ) {
+        if mediaSubType == .localLivePhoto {
+            requestLocalLivePhoto { imageURL, videoURL in
+                guard let imageURL = imageURL, let videoURL = videoURL else {
+                    completion?(nil)
+                    return
+                }
+                AssetManager.saveSystemAlbum(
+                    type: .livePhoto(imageURL: imageURL, videoURL: videoURL),
+                    customAlbumName: albumName
+                ) {
+                    completion?($0)
+                }
+            }
+            return
+        }
+        func save(_ type: AssetManager.SaveType) {
+            AssetManager.saveSystemAlbum(
+                type: type,
+                customAlbumName: albumName
+            ) {
+                completion?($0)
+            }
+        }
+        getAssetURL { result in
+            switch result {
+            case .success(let response):
+                if response.mediaType == .photo {
+                    if response.urlType == .network {
+                        PhotoTools.downloadNetworkImage(
+                            with: response.url,
+                            options: [],
+                            completionHandler: { image in
+                            if let image = image {
+                                save(.image(image))
+                            }else {
+                                completion?(nil)
+                            }
+                        })
+                    }else {
+                        save(.imageURL(response.url))
+                    }
+                }else {
+                    if response.urlType == .network {
+                        PhotoManager.shared.downloadTask(
+                            with: response.url,
+                            progress: nil) { videoURL, error, _ in
+                            if let videoURL = videoURL {
+                                save(.videoURL(videoURL))
+                            }else {
+                                completion?(nil)
+                            }
+                        }
+                    }else {
+                        save(.videoURL(response.url))
+                    }
+                }
+            case .failure(_):
+                completion?(nil)
+            }
+        }
+    }
+}
 extension PhotoAsset {
     
     var inICloud: Bool {
@@ -162,5 +230,28 @@ extension PhotoAsset {
             loadingView = nil
             completion?(photoAsset, isSuccess)
         }
+    }
+}
+
+extension LocalLivePhotoAsset {
+    
+    var jpgURL: URL {
+        let imageCacheKey = imageIdentifier ?? imageURL.absoluteString
+        let jpgPath = PhotoTools.getLivePhotoImageCachePath(for: imageCacheKey)
+        return URL(fileURLWithPath: jpgPath)
+    }
+
+    var movURL: URL {
+        let videoCacheKey = videoIdentifier ?? videoURL.absoluteString
+        let movPath = PhotoTools.getLivePhotoVideoCachePath(for: videoCacheKey)
+        return URL(fileURLWithPath: movPath)
+    }
+    
+    var isCache: Bool {
+        if FileManager.default.fileExists(atPath: jpgURL.path),
+           FileManager.default.fileExists(atPath: movURL.path) {
+            return true
+        }
+        return false
     }
 }

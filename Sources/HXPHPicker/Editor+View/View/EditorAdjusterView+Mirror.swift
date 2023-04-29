@@ -9,63 +9,61 @@ import UIKit
 
 extension EditorAdjusterView {
     
-    func mirrorHorizontally(animated: Bool) {
+    func mirrorHorizontally(animated: Bool, completion: (() -> Void)? = nil) {
 //        if rotating {
 //            return
 //        }
 //        mirroring = true
         delegate?.editorAdjusterView(willBeginEditing: self)
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 self.mirrorHorizontallyHandler()
             } completion: { (_) in
                 self.changedMaskRectCompletion(animated)
 //                self.mirroring = false
+                completion?()
             }
         }else {
             mirrorHorizontallyHandler()
             changedMaskRectCompletion(animated)
 //            mirroring = false
+            completion?()
         }
     }
     
     func mirrorHorizontallyHandler() {
-        let transform = adjustedData.mirrorTransform
+        let transform = adjustedFactor.mirrorTransform
         mirrorView.transform = transform.scaledBy(x: 1, y: -1)
-        adjustedData.mirrorTransform = mirrorView.transform
+        adjustedFactor.mirrorTransform = mirrorView.transform
+        contentView.stickerView.mirrorHorizontallyHandler()
     }
     
-    func mirrorVertically(animated: Bool) {
+    func mirrorVertically(animated: Bool, completion: (() -> Void)? = nil) {
 //        if rotating {
 //            return
 //        }
 //        mirroring = true
         delegate?.editorAdjusterView(willBeginEditing: self)
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 self.mirrorVerticallyHandler()
             } completion: { (_) in
                 self.changedMaskRectCompletion(animated)
 //                self.mirroring = false
+                completion?()
             }
         }else {
             mirrorVerticallyHandler()
             changedMaskRectCompletion(animated)
 //            mirroring = false
+            completion?()
         }
     }
     
     func mirrorVerticallyHandler() {
-        let transform = adjustedData.mirrorTransform
+        let transform = adjustedFactor.mirrorTransform
         mirrorView.transform = transform.scaledBy(x: -1, y: 1)
-        adjustedData.mirrorTransform = mirrorView.transform
+        adjustedFactor.mirrorTransform = mirrorView.transform
+        contentView.stickerView.mirrorVerticallyHandler()
     }
 }

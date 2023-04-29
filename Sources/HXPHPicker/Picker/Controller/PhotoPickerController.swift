@@ -150,7 +150,7 @@ open class PhotoPickerController: UINavigationController {
             !config.allowSelectedTogether &&
             config.maximumSelectedVideoCount == 1 &&
             config.selectOptions.isPhoto && config.selectOptions.isVideo &&
-            config.photoList.cell.singleVideoHideSelect {
+            config.photoList.cell.isHiddenSingleVideoSelect {
             singleVideo = true
         }
         isPreviewAsset = false
@@ -292,9 +292,6 @@ open class PhotoPickerController: UINavigationController {
     lazy var editedPhotoAssetArray: [PhotoAsset] = []
     #endif
     
-    var isSwipeRightBack: Bool = false
-    var allowPushPresent: Bool = false
-    
     public override func viewDidLoad() {
         super.viewDidLoad()
         PhotoManager.shared.indicatorType = config.indicatorType
@@ -307,24 +304,35 @@ open class PhotoPickerController: UINavigationController {
             setOptions()
             requestAuthorization()
             if modalPresentationStyle == .fullScreen &&
-                config.albumShowMode == .popup {
-                transitioningDelegate = self
+                config.albumShowMode == .popup &&
+                config.allowCustomTransitionAnimation {
                 modalPresentationCapturesStatusBarAppearance = true
-                if config.pickerPresentStyle == .push {
-                    allowPushPresent = true
-                }
-                if config.allowRightSwipeGestureBack {
-                    isSwipeRightBack = true
-                    dismissInteractiveTransition = .init(
-                        panGestureRecognizerFor: self,
-                        type: config.pickerPresentStyle == .push ? .pop : .dismiss,
-                        triggerRange: config.rightSwipeGestureTriggerRange
-                    )
+                switch config.pickerPresentStyle {
+                case .present(let rightSwipe):
+                    transitioningDelegate = self
+                    if let rightSwipe = rightSwipe {
+                        dismissInteractiveTransition = .init(
+                            panGestureRecognizerFor: self,
+                            type: .dismiss,
+                            triggerRange: rightSwipe.triggerRange
+                        )
+                    }
+                case .push(let rightSwipe):
+                    transitioningDelegate = self
+                    if let rightSwipe = rightSwipe {
+                        dismissInteractiveTransition = .init(
+                            panGestureRecognizerFor: self,
+                            type: .pop,
+                            triggerRange: rightSwipe.triggerRange
+                        )
+                    }
+                default:
+                    break
                 }
             }
         }else {
-            if modalPresentationStyle == .custom {
-                interactiveTransition = PickerInteractiveTransition.init(panGestureRecognizerFor: self, type: .dismiss)
+            if modalPresentationStyle == .custom && config.allowCustomTransitionAnimation {
+                interactiveTransition = .init(panGestureRecognizerFor: self, type: .dismiss)
             }
         }
     }
@@ -429,6 +437,7 @@ extension PhotoPickerController {
                 overrideUserInterfaceStyle = .light
             }
         }
+        
         if modalPresentationStyle != .custom {
             configBackgroundColor()
         }

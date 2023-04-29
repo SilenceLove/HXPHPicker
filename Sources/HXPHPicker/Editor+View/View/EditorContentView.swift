@@ -12,6 +12,15 @@ protocol EditorContentViewDelegate: AnyObject {
     func contentView(_ contentView: EditorContentView, videoDidPlayAt time: CMTime)
     func contentView(_ contentView: EditorContentView, videoDidPauseAt time: CMTime)
     func contentView(videoReadyForDisplay contentView: EditorContentView)
+    
+    func contentView(drawViewBeganDraw contentView: EditorContentView)
+    func contentView(drawViewEndDraw contentView: EditorContentView)
+//    func contentView(_ contentView: EditorContentView, updateStickerText item: EditorStickerItem)
+     
+    func contentView(_ contentView: EditorContentView, stickersView: EditorStickersView, moveToCenter itemView: EditorStickersItemView) -> Bool
+    func contentView(_ contentView: EditorContentView, stickerMaxScale itemSize: CGSize) -> CGFloat
+    func contentView(_ contentView: EditorContentView, updateStickerText item: EditorStickerItem)
+    func contentView(_ contentView: EditorContentView, stickerItemCenter stickersView: EditorStickersView) -> CGPoint?
 }
 
 class EditorContentView: UIView {
@@ -25,12 +34,31 @@ class EditorContentView: UIView {
                 return imageView.image
             case .video:
                 return videoView.coverImageView.image
+            default:
+                return nil
             }
         }
         set {
             type = .image
             imageView.setImage(newValue)
+            setMosaicImage()
         }
+    }
+    
+    var contentSize: CGSize {
+        switch type {
+        case .image:
+            if let image = imageView.image {
+                return image.size
+            }
+        case .video:
+            if !videoView.videoSize.equalTo(.zero) {
+                return videoView.videoSize
+            }
+        default:
+            break
+        }
+        return .zero
     }
     
     var contentScale: CGFloat {
@@ -46,6 +74,8 @@ class EditorContentView: UIView {
             if !videoView.videoSize.equalTo(.zero) {
                 return videoView.videoSize.width / videoView.videoSize.height
             }
+        default:
+            break
         }
         return 0
     }
@@ -60,6 +90,7 @@ class EditorContentView: UIView {
         set {
             type = .image
             imageView.setImageData(newValue)
+            setMosaicImage()
         }
     }
     
@@ -73,11 +104,142 @@ class EditorContentView: UIView {
     
     var mosaicOriginalImage: UIImage? {
         get { mosaicView.originalImage }
-        set { mosaicView.originalImage = newValue }
+        set {
+            mosaicView.originalImage = newValue
+            mosaicImageQueue.cancelAllOperations()
+        }
     }
 
     /// 缩放比例
-    var zoomScale: CGFloat = 1
+    var zoomScale: CGFloat = 1 {
+        didSet {
+            drawView.scale = zoomScale
+            mosaicView.scale = zoomScale
+            stickerView.scale = zoomScale
+        }
+    }
+    
+    var isDrawEnabled: Bool {
+        get { drawView.isEnabled }
+        set {
+            drawView.isEnabled = newValue
+            stickerView.deselectedSticker()
+        }
+    }
+    
+    var drawLineWidth: CGFloat {
+        get { drawView.lineWidth }
+        set { drawView.lineWidth = newValue }
+    }
+    
+    var drawLineColor: UIColor {
+        get { drawView.lineColor }
+        set { drawView.lineColor = newValue }
+    }
+    
+    var isCanUndoDraw: Bool {
+        drawView.isCanUndo
+    }
+    
+    func undoDraw() {
+        drawView.undo()
+    }
+    
+    func undoAllDraw() {
+        drawView.undoAll()
+    }
+    
+    var isMosaicEnabled: Bool {
+        get { mosaicView.isEnabled }
+        set {
+            mosaicView.isEnabled = newValue
+            stickerView.deselectedSticker()
+        }
+    }
+    var mosaicWidth: CGFloat {
+        get { mosaicView.mosaicLineWidth }
+        set { mosaicView.mosaicLineWidth = newValue }
+    }
+    var smearWidth: CGFloat {
+        get { mosaicView.imageWidth }
+        set { mosaicView.imageWidth = newValue }
+    }
+    var mosaicType: EditorMosaicType {
+        get { mosaicView.type }
+        set { mosaicView.type = newValue }
+    }
+    var isCanUndoMosaic: Bool {
+        mosaicView.isCanUndo
+    }
+    func undoMosaic() {
+        mosaicView.undo()
+    }
+    func undoAllMosaic() {
+        mosaicView.undoAll()
+    }
+    
+    var isStickerEnabled: Bool {
+        get { stickerView.isEnabled }
+        set { stickerView.isEnabled = newValue }
+    }
+    
+    var isStickerShowTrash: Bool {
+        get { stickerView.isShowTrash }
+        set { stickerView.isShowTrash = newValue }
+    }
+    
+    var stickerMirrorScale: CGPoint {
+        get { stickerView.mirrorScale }
+        set { stickerView.mirrorScale = newValue }
+    }
+    
+    func addSticker(
+        _ item: EditorStickerItem,
+        isSelected: Bool = false
+    ) {
+        stickerView.add(sticker: item, isSelected: isSelected)
+    }
+    
+    func deselectedSticker() {
+        stickerView.deselectedSticker()
+    }
+    
+    var mosaicImageWidth: CGFloat = 20
+    
+    lazy var mosaicImageQueue: OperationQueue = {
+        let mosaicImageQueue = OperationQueue()
+        mosaicImageQueue.maxConcurrentOperationCount = 1
+        return mosaicImageQueue
+    }()
+    
+    func setMosaicImage() {
+        guard var image = image else {
+            return
+        }
+        mosaicImageQueue.cancelAllOperations()
+        let operation = BlockOperation()
+        operation.addExecutionBlock { [unowned operation] in
+            if operation.isCancelled { return }
+            let minSize: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+            if image.width > minSize {
+                let thumbnailScale = minSize / image.width
+                if let img = image
+                    .scaleImage(toScale: thumbnailScale)?
+                    .mosaicImage(level: self.mosaicImageWidth) {
+                    image = img
+                }
+            }else {
+                if let img = image.mosaicImage(level: self.mosaicImageWidth) {
+                    image = img
+                }
+            }
+            if operation.isCancelled { return }
+            DispatchQueue.main.async {
+                self.mosaicOriginalImage = image
+            }
+        }
+        mosaicImageQueue.addOperation(operation)
+    }
     
     var type: EditorContentViewType = .image {
         willSet {
@@ -95,6 +257,8 @@ class EditorContentView: UIView {
                 videoView.isHidden = false
                 imageView.isHidden = true
                 mosaicView.isHidden = true
+            default:
+                break
             }
         }
     }
@@ -106,6 +270,7 @@ class EditorContentView: UIView {
         addSubview(mosaicView)
         addSubview(videoView)
         addSubview(drawView)
+        addSubview(stickerView)
     }
     
     override func layoutSubviews() {
@@ -118,7 +283,7 @@ class EditorContentView: UIView {
             }
         }
         drawView.frame = bounds
-//        stickerView.frame = bounds
+        stickerView.frame = bounds
     }
     
     // MARK: SubViews
@@ -140,12 +305,21 @@ class EditorContentView: UIView {
     
     lazy var drawView: EditorDrawView = {
         let drawView = EditorDrawView()
+        drawView.delegate = self
         return drawView
     }()
     
     lazy var mosaicView: EditorMosaicView = {
         let mosaicView = EditorMosaicView()
+        mosaicView.delegate = self
         mosaicView.isHidden = true
+        return mosaicView
+    }()
+    
+    lazy var stickerView: EditorStickersView = {
+        let mosaicView = EditorStickersView()
+        mosaicView.delegate = self
+//        mosaicView.isHidden = true
         return mosaicView
     }()
     
@@ -183,7 +357,56 @@ extension EditorContentView: EditorVideoPlayerViewDelegate {
         delegate?.contentView(self, videoDidPauseAt: time)
     }
     
-    func playerView(_ playerViewReadyForDisplay: EditorVideoPlayerView) {
+    func playerView(readyForDisplay playerView: EditorVideoPlayerView) {
         delegate?.contentView(videoReadyForDisplay: self)
+    }
+}
+
+extension EditorContentView: EditorDrawViewDelegate {
+    func drawView(beganDraw drawView: EditorDrawView) {
+        delegate?.contentView(drawViewBeganDraw: self)
+    }
+    
+    func drawView(endDraw drawView: EditorDrawView) {
+        delegate?.contentView(drawViewEndDraw: self)
+    }
+}
+
+extension EditorContentView: EditorMosaicViewDelegate {
+    func mosaicView(_  mosaicView: EditorMosaicView, splashColor atPoint: CGPoint) -> UIColor? {
+        imageView.color(for: atPoint)
+    }
+    func mosaicView(beganDraw mosaicView: EditorMosaicView) {
+        delegate?.contentView(drawViewBeganDraw: self)
+    }
+    func mosaicView(endDraw mosaicView: EditorMosaicView) {
+        delegate?.contentView(drawViewEndDraw: self)
+    }
+}
+
+extension EditorContentView: EditorStickersViewDelegate {
+    func stickerView(touchBegan stickerView: EditorStickersView) {
+        delegate?.contentView(drawViewBeganDraw: self)
+    }
+    func stickerView(touchEnded stickerView: EditorStickersView) {
+        delegate?.contentView(drawViewEndDraw: self)
+    }
+    func stickerView(_ stickerView: EditorStickersView, moveToCenter itemView: EditorStickersItemView) -> Bool {
+        delegate?.contentView(self, stickersView: stickerView, moveToCenter: itemView) ?? false
+    }
+    func stickerView(_ stickerView: EditorStickersView, minScale itemSize: CGSize) -> CGFloat {
+        min(35 / itemSize.width, 35 / itemSize.height)
+    }
+    func stickerView(_ stickerView: EditorStickersView, maxScale itemSize: CGSize) -> CGFloat {
+        delegate?.contentView(self, stickerMaxScale: itemSize) ?? 5
+    }
+    func stickerView(_ stickerView: EditorStickersView, updateStickerText item: EditorStickerItem) {
+        delegate?.contentView(self, updateStickerText: item)
+    }
+    func stickerView(didRemoveAudio stickerView: EditorStickersView) {
+        
+    }
+    func stickerView(itemCenter stickerView: EditorStickersView) -> CGPoint? {
+        delegate?.contentView(self, stickerItemCenter: stickerView)
     }
 }

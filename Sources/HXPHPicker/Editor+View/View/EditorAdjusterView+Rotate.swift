@@ -9,24 +9,29 @@ import UIKit
 
 extension EditorAdjusterView {
     
-    func rotateLeft(_ animated: Bool) {
+    func rotateLeft(_ animated: Bool, completion: (() -> Void)? = nil) {
         rotate(-90, animated: animated, isOverall: true)
     }
     
-    func rotateRight(_ animated: Bool) {
+    func rotateRight(_ animated: Bool, completion: (() -> Void)? = nil) {
         rotate(90, animated: animated, isOverall: true)
     }
     
     /// 旋转
-    func rotate(_ angle: CGFloat, animated: Bool, isOverall: Bool = false) {
+    func rotate(
+        _ angle: CGFloat,
+        animated: Bool,
+        isOverall: Bool = false,
+        completion: (() -> Void)? = nil
+    ) {
         stopTimer()
-        var currentAngle = adjustedData.angle
-        if adjustedData.mirrorTransform.a * adjustedData.mirrorTransform.d == 1 {
+        var currentAngle = adjustedFactor.angle
+        if adjustedFactor.mirrorTransform.a * adjustedFactor.mirrorTransform.d == 1 {
             currentAngle += angle
         }else {
             currentAngle -= angle
         }
-        adjustedData.angle = currentAngle
+        adjustedFactor.angle = currentAngle
         delegate?.editorAdjusterView(willBeginEditing: self)
         let beforeZoomScale = scrollView.zoomScale / scrollView.minimumZoomScale
         // 获取当前裁剪框位置大小
@@ -52,11 +57,7 @@ extension EditorAdjusterView {
             updateMaskRect(to: maskRect, animated: animated)
         }
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: [.curveEaseOut]
-            ) {
+            UIView.animate {
                 self.rotateHandler(
                     angle: currentAngle,
                     beforeZoomScale: beforeZoomScale,
@@ -66,6 +67,7 @@ extension EditorAdjusterView {
             } completion: { (isFinished) in
                 self.changedMaskRectCompletion(animated)
     //            self.rotating = false
+                completion?()
             }
         }else {
             rotateHandler(
@@ -75,6 +77,7 @@ extension EditorAdjusterView {
                 autoZoom: autoZoom
             )
             changedMaskRectCompletion(animated)
+            completion?()
         }
     }
     

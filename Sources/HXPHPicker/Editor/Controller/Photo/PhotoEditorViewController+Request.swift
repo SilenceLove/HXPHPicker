@@ -14,6 +14,11 @@ extension PhotoEditorViewController {
     #if HXPICKER_ENABLE_PICKER
     func requestImage() {
         if photoAsset.isLocalAsset {
+            if let localLivePhoto = self.photoAsset.localLivePhoto,
+               !localLivePhoto.imageURL.isFileURL {
+                requestNetworkAsset()
+                return
+            }
             requestLocalAsset()
         }else if photoAsset.isNetworkAsset {
             requestNetworkAsset()
@@ -34,7 +39,8 @@ extension PhotoEditorViewController {
                 if let img = self.photoAsset.localImageAsset?.image {
                     image = img
                 }else if let localLivePhoto = self.photoAsset.localLivePhoto,
-                   let img = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
+                         localLivePhoto.imageURL.isFileURL,
+                         let img = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
                     image = img
                 }else {
                     image = UIImage()
@@ -132,19 +138,9 @@ extension PhotoEditorViewController {
                     var image: UIImage?
                     let dataCount = CGFloat(dataResult.imageData.count)
                     if dataCount > 3000000 {
-                        let compressionQuality: CGFloat
-                        if dataCount > 30000000 {
-                            compressionQuality = 30000000 / dataCount
-                        }else if dataCount > 15000000 {
-                            compressionQuality = 10000000 / dataCount
-                        }else if dataCount > 10000000 {
-                            compressionQuality = 6000000 / dataCount
-                        }else {
-                            compressionQuality = 3000000 / dataCount
-                        }
                         if let imageData = PhotoTools.imageCompress(
                             dataResult.imageData,
-                            compressionQuality: compressionQuality
+                            compressionQuality: dataCount.compressionQuality
                         ) {
                             image = .init(data: imageData)
                         }

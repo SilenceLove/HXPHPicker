@@ -56,8 +56,17 @@ public enum SelectionTapAction: Equatable {
 }
 
 public enum PickerPresentStyle {
-    case present
-    case push
+    case none
+    case present(rightSwipe: RightSwipe? = .init(50))
+    case push(rightSwipe: RightSwipe? = .init(50))
+    
+    public struct RightSwipe {
+        /// 右滑返回手势触发范围，距离屏幕左边的距离
+        public let triggerRange: CGFloat
+        public init(_ triggerRange: CGFloat) {
+            self.triggerRange = triggerRange
+        }
+    }
 }
 
 public extension PickerResult {

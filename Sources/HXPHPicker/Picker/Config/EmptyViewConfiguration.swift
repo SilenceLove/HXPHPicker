@@ -12,16 +12,16 @@ import UIKit
 public struct EmptyViewConfiguration {
     
     /// 标题颜色
-    public var titleColor: UIColor = "#666666".color
+    public var titleColor: UIColor = "#666666".hx.color
     
     /// 暗黑风格下标题颜色
-    public var titleDarkColor: UIColor = "#ffffff".color
+    public var titleDarkColor: UIColor = "#ffffff".hx.color
     
     /// 子标题颜色
-    public var subTitleColor: UIColor = "#999999".color
+    public var subTitleColor: UIColor = "#999999".hx.color
     
     /// 暗黑风格下子标题颜色
-    public var subTitleDarkColor: UIColor = "#dadada".color
+    public var subTitleDarkColor: UIColor = "#dadada".hx.color
     
     public init() { }
 }

@@ -228,7 +228,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func appearanceStyleAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "appearanceStyle", message: nil, preferredStyle: .alert)
@@ -241,7 +241,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func shouldAutorotateAction(_ indexPath: IndexPath) {
         config.shouldAutorotate = !config.shouldAutorotate
@@ -292,7 +292,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func selectModeAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "selectMode", message: nil, preferredStyle: .alert)
@@ -305,7 +305,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     
     func allowSelectedTogetherAction(_ indexPath: IndexPath) {
@@ -327,7 +327,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func creationDateAction(_ indexPath: IndexPath) {
         config.creationDate = !config.creationDate
@@ -349,7 +349,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func videoSelectionTapActionAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "videoSelectionTapAction", message: nil, preferredStyle: .alert)
@@ -363,7 +363,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func maximumSelectedPhotoCountAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maximumSelectedPhotoCount", message: nil, preferredStyle: .alert)
@@ -379,7 +379,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func maximumSelectedVideoCountAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maximumSelectedVideoCount", message: nil, preferredStyle: .alert)
@@ -395,7 +395,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func maximumSelectedCountAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maximumSelectedCount", message: nil, preferredStyle: .alert)
@@ -411,7 +411,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func maximumSelectedVideoDurationAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maximumSelectedVideoDuration", message: nil, preferredStyle: .alert)
@@ -427,7 +427,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func minimumSelectedVideoDurationAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "minimumSelectedVideoDuration", message: nil, preferredStyle: .alert)
@@ -443,7 +443,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func photoRowNumberAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "photoRowNumber", message: nil, preferredStyle: .alert)
@@ -459,7 +459,7 @@ extension PickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func videoPlayTypeAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "videoPlayType", message: nil, preferredStyle: .alert)
@@ -473,7 +473,7 @@ extension PickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func addCameraAction(_ indexPath: IndexPath) {
         config.photoList.allowAddCamera = !config.photoList.allowAddCamera

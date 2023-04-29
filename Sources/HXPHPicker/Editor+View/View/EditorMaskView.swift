@@ -95,6 +95,27 @@ class EditorMaskView: UIView {
         return layer
     }()
     
+    var imageSize: CGSize = .zero {
+        didSet {
+            sizeLb.text = "\(Int(max(1, round(imageSize.width))))x\(Int(max(1, round(imageSize.height))))"
+        }
+    }
+    
+    lazy var sizeLb: UILabel = {
+        let label = UILabel()
+        label.font = .semiboldPingFang(ofSize: 15)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.isHighlighted = true
+        label.highlightedTextColor = .white
+        label.layer.shadowColor = UIColor.black.cgColor
+        label.layer.shadowOpacity = 1
+        label.layer.shadowRadius = 8
+        label.layer.shadowOffset = CGSize(width: 0, height: 0)
+        label.adjustsFontSizeToFitWidth = true
+        return label
+    }()
+    
     lazy var frameView: UIView = {
         let view = UIView()
         view.isUserInteractionEnabled = false
@@ -108,6 +129,7 @@ class EditorMaskView: UIView {
         view.alpha = 0
         view.isUserInteractionEnabled = false
         view.layer.addSublayer(gridlinesLayer)
+        view.addSubview(sizeLb)
         return view
     }()
     
@@ -127,6 +149,14 @@ class EditorMaskView: UIView {
     var isRoundCrop: Bool = false
     var animationDuration: TimeInterval = 0.3
     var type: `Type`
+    var isShowScaleSize: Bool {
+        get {
+            !sizeLb.isHidden
+        }
+        set {
+            sizeLb.isHidden = !newValue
+        }
+    }
     
     var maskType: EditorView.MaskType = .blurEffect(style: .dark) {
         didSet {
@@ -161,7 +191,7 @@ class EditorMaskView: UIView {
     
     func setMaskType(_ maskType: EditorView.MaskType, animated: Bool) {
         if animated {
-            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 self.maskType = maskType
             }
         }else {
@@ -176,7 +206,6 @@ class EditorMaskView: UIView {
         }
     }
     
-    var animateDuration: TimeInterval = 0.3
     var maskInsets: UIEdgeInsets = .zero
     var maskImage: UIImage?
     
@@ -188,7 +217,7 @@ class EditorMaskView: UIView {
                 maskImage = image
                 maskImageView.image = image
             }
-            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 self.customMaskView.alpha = image == nil ? 0 : 1
             } completion: { _ in
                 if image == nil {
@@ -358,7 +387,7 @@ class EditorMaskView: UIView {
             if isShow {
                 blackMaskView.isHidden = false
             }
-            UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 self.blackMaskView.alpha = isShow ? 1 : 0
             } completion: { (_) in
                 if !isShow {
@@ -384,7 +413,7 @@ class EditorMaskView: UIView {
             }
         }
         if animated {
-            UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 animationHandler()
             }
         }else {
@@ -403,7 +432,7 @@ class EditorMaskView: UIView {
             }
         }
         if animated {
-            UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 animationHandler()
             }
         }else {
@@ -438,24 +467,19 @@ class EditorMaskView: UIView {
                 let frameAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     frameLayer.path,
-                    framePath.cgPath,
-                    animationDuration,
-                    .easeOut
+                    framePath.cgPath
                 )
                 frameLayer.add(frameAnimation, forKey: nil)
                 let gridlinesAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     gridlinesLayer.path,
-                    isRoundCrop ? nil : gridlinePath.cgPath,
-                    animationDuration,
-                    .easeOut
+                    isRoundCrop ? nil : gridlinePath.cgPath
                 )
                 gridlinesLayer.add(gridlinesAnimation, forKey: nil)
                 let dotsAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     dotsLayer.path,
-                    isRoundCrop ? nil : dotsPath.cgPath, animationDuration,
-                    .easeOut
+                    isRoundCrop ? nil : dotsPath.cgPath
                 )
                 let addDostOpactyAimation: Bool
                 if isRoundCrop {
@@ -467,8 +491,7 @@ class EditorMaskView: UIView {
                     let dotsOpacityAnimation = PhotoTools.getBasicAnimation(
                         "opacity",
                         dotsLayer.opacity,
-                        isRoundCrop ? 0 : 1, animationDuration,
-                        .easeOut
+                        isRoundCrop ? 0 : 1
                     )
                     let dotsGroupAnimation = CAAnimationGroup()
                     dotsGroupAnimation.animations = [dotsAnimation, dotsOpacityAnimation]
@@ -476,6 +499,16 @@ class EditorMaskView: UIView {
                 }else {
                     dotsLayer.add(dotsAnimation, forKey: nil)
                 }
+                let beforCenter = sizeLb.center
+                sizeLb.width = frameRect.width - 2
+                sizeLb.center = beforCenter
+                UIView.animate {
+                    self.sizeLb.center = .init(x: frameRect.midX, y: frameRect.midY)
+                }
+            }else {
+                sizeLb.width = frameRect.width - 2
+                sizeLb.height = frameRect.height
+                sizeLb.center = .init(x: frameRect.midX, y: frameRect.midY)
             }
             CATransaction.begin()
             CATransaction.setDisableActions(true)
@@ -498,9 +531,7 @@ class EditorMaskView: UIView {
                 let maskAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     maskLayer.path,
-                    maskPath.cgPath,
-                    animationDuration,
-                    .easeOut
+                    maskPath.cgPath
                 )
                 maskLayer.add(maskAnimation, forKey: nil)
             }
@@ -512,7 +543,7 @@ class EditorMaskView: UIView {
             let maskRect = CGRect(x: rect.minX + maskInsets.left, y: rect.minY + maskInsets.top, width: rect.width, height: rect.height)
             self.maskRect = maskRect
             if animated {
-                UIView.animate(withDuration: animationDuration, delay: 0, options: .curveEaseOut) {
+                UIView.animate {
                     self.maskImageView.image = self.maskImage
                     self.maskImageView.frame = maskRect
                     self.customMaskEffectView.frame = maskRect
@@ -539,7 +570,19 @@ class EditorMaskView: UIView {
     
     func showGridlinesLayer(_ isShow: Bool, animated: Bool) {
         if isRoundCrop {
-            return
+            if !gridlinesLayer.isHidden {
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                gridlinesLayer.isHidden = true
+                CATransaction.commit()
+            }
+        }else {
+            if gridlinesLayer.isHidden {
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                gridlinesLayer.isHidden = false
+                CATransaction.commit()
+            }
         }
         gridlinesView.layer.removeAllAnimations()
         if animated {

@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CoreServices
+import UniformTypeIdentifiers
 
 #if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_EDITOR
 extension PhotoManager: URLSessionDownloadDelegate {
@@ -19,7 +21,8 @@ extension PhotoManager: URLSessionDownloadDelegate {
         completionHandler: @escaping (URL?, Error?, Any?) -> Void
     ) -> URLSessionDownloadTask {
         let key = url.absoluteString
-        if (key.hasSuffix("mp4") || key.hasSuffix("MP4")) && PhotoTools.isCached(forVideo: key) {
+        let urlType = getURLType(for: url)
+        if urlType == 1 && PhotoTools.isCached(forVideo: key) {
             let videoURL = PhotoTools.getVideoCacheURL(for: key)
             if let fileURL = fileURL,
                videoURL.absoluteString != fileURL.absoluteString {
@@ -29,8 +32,7 @@ extension PhotoManager: URLSessionDownloadDelegate {
                 completionHandler(videoURL, nil, ext)
             }
             return URLSessionDownloadTask()
-        }
-        if (key.hasSuffix("mp3") || key.hasSuffix("MP3")) && PhotoTools.isCached(forAudio: key) {
+        }else if urlType == 2 && PhotoTools.isCached(forAudio: key) {
             let audioURL = PhotoTools.getAudioTmpURL(for: key)
             if let fileURL = fileURL,
                audioURL.absoluteString != fileURL.absoluteString {
@@ -132,12 +134,13 @@ extension PhotoManager: URLSessionDownloadDelegate {
             }
         }else {
             let url: URL
-            if key.hasSuffix("mp4") || key.hasSuffix("MP4") {
+            let urlType = getURLType(for: responseURL)
+            if urlType == 1 {
                 let videoURL = PhotoTools.getVideoCacheURL(for: key)
                 PhotoTools.removeFile(fileURL: videoURL)
                 try? FileManager.default.moveItem(at: location, to: videoURL)
                 url = videoURL
-            }else if key.hasSuffix("mp3") || key.hasSuffix("mp3") {
+            }else if urlType == 2 {
                 let audioURL = PhotoTools.getAudioTmpURL(for: key)
                 PhotoTools.removeFile(fileURL: audioURL)
                 try? FileManager.default.moveItem(at: location, to: audioURL)
@@ -174,6 +177,54 @@ extension PhotoManager: URLSessionDownloadDelegate {
             }
         }
         self.removeTask(responseURL)
+    }
+    
+    func getURLType(for url: URL) -> Int {
+        var urlType: Int = 0
+        if #available(iOS 14.0, *) {
+            if let utType = UTType(
+                tag: url.pathExtension,
+                tagClass: .filenameExtension,
+                conformingTo: nil
+            ) {
+                switch utType {
+                case .video,
+                     .mpeg2Video,
+                     .appleProtectedMPEG4Video,
+                     .mpeg4Movie,
+                     .quickTimeMovie,
+                     .movie:
+                    urlType = 1
+                case .audio,
+                     .mp3:
+                    urlType = 2
+                default:
+                    break
+                }
+            }
+        } else {
+            let utType = UTTypeCreatePreferredIdentifierForTag(
+                kUTTagClassFilenameExtension,
+                url.pathExtension as CFString,
+                nil
+            )
+            if let utType = utType {
+                switch utType.takeRetainedValue() {
+                case kUTTypeMovie,
+                     kUTTypeVideo,
+                     kUTTypeQuickTimeMovie,
+                     kUTTypeMPEG,
+                     kUTTypeMPEG4:
+                    urlType = 1
+                case kUTTypeMP3,
+                     kUTTypeAudio:
+                    urlType = 2
+                default:
+                    break
+                }
+            }
+        }
+        return urlType
     }
 }
 #endif

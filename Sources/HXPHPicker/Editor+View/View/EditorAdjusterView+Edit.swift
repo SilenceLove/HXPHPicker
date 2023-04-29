@@ -10,6 +10,9 @@ import UIKit
 extension EditorAdjusterView {
     
     func startEdit(_ animated: Bool, completion: (() -> Void)? = nil) {
+        contentView.isDrawEnabled = false
+        contentView.isMosaicEnabled = false
+        contentView.isStickerEnabled = false
         if state == .edit {
             resetState()
             frameView.isControlEnable = true
@@ -21,33 +24,27 @@ extension EditorAdjusterView {
         resetState()
         frameView.isControlEnable = true
         clipsToBounds = false
-        if let oldFactor = oldFactor {
+        if let oldFactor = oldRatioFactor {
             frameView.aspectRatio = oldFactor.aspectRatio
             isFixedRatio = oldFactor.fixedRatio
         }else {
             isFixedRatio = false
         }
         let minimumZoomScale: CGFloat
-        let maximumZoomScale: CGFloat
-        if let oldAdjustedData = oldAdjustedData {
-            adjustedData = oldAdjustedData
-            minimumZoomScale = oldAdjustedData.minimumZoomScale
-            maximumZoomScale = oldAdjustedData.maximumZoomScale
+        let maximumZoomScale = self.maximumZoomScale
+        if let oldAdjustedData = oldAdjustedFactor {
+            adjustedFactor = oldAdjustedData
+            minimumZoomScale = getScrollViewMinimumZoomScale(oldAdjustedData.maskRect)
             frameView.showBlackMask(animated: false)
         }else {
             minimumZoomScale = initialZoomScale
-            maximumZoomScale = self.maximumZoomScale
         }
         scrollView.minimumZoomScale = minimumZoomScale
         scrollView.maximumZoomScale = maximumZoomScale
-        let maskRect = oldAdjustedData?.maskRect ?? getMaskRect()
+        let maskRect = oldAdjustedFactor?.maskRect ?? getMaskRect()
         updateMaskRect(to: maskRect, animated: animated)
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: [.curveEaseOut]
-            ) {
+            UIView.animate {
                 self.setupEdit(maskRect: maskRect)
             } completion: { _ in
                 self.frameView.blackMask(
@@ -96,29 +93,38 @@ extension EditorAdjusterView {
              frameView.isRoundCrop
             )
         )
-        oldMaskImage = adjustedData.maskImage
+        oldMaskImage = adjustedFactor.maskImage
         oldIsRound = frameView.isRoundCrop
         if canReset || (!canReset && isEqualSize ) {
             // 调整裁剪框至中心
             adjustmentViews(false)
-            var oldData = AdjustedData()
+            
+            let contentInset = scrollView.contentInset
+            let contentSize = scrollView.contentSize
+            let contentOffset = scrollView.contentOffset
+            
+            var oldData = AdjustedFactor()
             // 记录当前数据
             oldData.zoomScale = scrollView.zoomScale
-            oldData.contentOffset = scrollView.contentOffset
-            oldData.contentInset = scrollView.contentInset
-            oldData.minimumZoomScale = scrollView.minimumZoomScale
-            oldData.maximumZoomScale = scrollView.maximumZoomScale
+            oldData.contentOffset = contentOffset
+            oldData.contentInset = contentInset
             oldData.maskRect = frameView.controlView.frame
-            oldData.angle = adjustedData.angle
-            oldData.mirrorTransform = adjustedData.mirrorTransform
+            oldData.angle = adjustedFactor.angle
+            oldData.mirrorTransform = adjustedFactor.mirrorTransform
             oldData.transform = scrollView.transform
             oldData.rotateTransform = rotateView.transform
-            oldAdjustedData = oldData
             
-            oldFactor = .init(fixedRatio: frameView.isFixedRatio, aspectRatio: frameView.aspectRatio)
+            let offsetXScale = (contentOffset.x + contentInset.left) / contentSize.width
+            let offsetYScale = (contentOffset.y + contentInset.top) / contentSize.height
+            oldData.contentOffsetScale = .init(x: offsetXScale, y: offsetYScale)
+            oldData.min_zoom_scale = scrollView.zoomScale / getScrollViewMinimumZoomScale(oldData.maskRect)
+            oldData.isRoundMask = isRoundMask
+            oldAdjustedFactor = oldData
+            
+            oldRatioFactor = .init(fixedRatio: frameView.isFixedRatio, aspectRatio: frameView.aspectRatio)
         }else {
-            oldAdjustedData = nil
-            oldFactor = nil
+            oldAdjustedFactor = nil
+            oldRatioFactor = nil
         }
         // 计算裁剪框的位置
         let maxWidth = containerView.width
@@ -139,6 +145,7 @@ extension EditorAdjusterView {
         }else {
             frameView.hideImageMaskView(animated)
         }
+        contentView.stickerView.angle = oldAdjustedFactor?.angle ?? 0
         updateFrameView(
             maskRect: maskRect,
             zoomScale: zoomScale,
@@ -148,6 +155,12 @@ extension EditorAdjusterView {
             guard let self = self else { return }
             self.delegate?.editorAdjusterView(editDidDisappear: self)
             self.clipsToBounds = true
+            self.contentView.isStickerEnabled = true
+            if let oldAdjustedFactor = self.oldAdjustedFactor {
+                self.contentView.stickerMirrorScale = .init(x: oldAdjustedFactor.mirrorTransform.a, y: oldAdjustedFactor.mirrorTransform.d)
+            }else {
+                self.contentView.stickerMirrorScale = .init(x: 1, y: 1)
+            }
         }
     }
     
@@ -157,9 +170,11 @@ extension EditorAdjusterView {
     ) {
         delegate?.editorAdjusterView(editWillDisappear: self)
         endEdit()
-        if let oldFactor = oldFactor {
+        if let oldFactor = oldRatioFactor {
             isFixedRatio = oldFactor.fixedRatio
             frameView.aspectRatio = oldFactor.aspectRatio
+        }else {
+            isFixedRatio = false
         }
         if let oldMaskImage = oldMaskImage {
             setMaskImage(oldMaskImage, animated: animated)
@@ -170,15 +185,16 @@ extension EditorAdjusterView {
         if oldIsRound {
             setRoundCrop(isRound: true, animated: animated)
         }
-        if let oldAdjustedData = oldAdjustedData {
+        if let oldAdjustedData = oldAdjustedFactor {
             frameView.show(false)
-            adjustedData = oldAdjustedData
+            adjustedFactor = oldAdjustedData
             setScrollViewTransform(
                 transform: oldAdjustedData.transform,
                 rotateTransform: oldAdjustedData.rotateTransform,
                 angle: oldAdjustedData.angle,
                 animated: false
             )
+            setMirrorTransform(transform: oldAdjustedData.mirrorTransform)
             updateMaskRect(to: oldAdjustedData.maskRect, animated: false)
             scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(oldAdjustedData.maskRect)
             scrollView.contentInset = oldAdjustedData.contentInset
@@ -204,12 +220,15 @@ extension EditorAdjusterView {
                 zoomScale: zoomScale,
                 animated: animated
             ) { [weak self] in
+                completion?()
                 self?.clipsToBounds = true
+                self?.contentView.isStickerEnabled = true
+                self?.contentView.stickerView.resetMirror()
             }
             return
         }
         clipsToBounds = false
-        adjustedData = .init()
+        adjustedFactor = .init()
         let maskRect = getContentBaseFrame()
         updateMaskRect(to: maskRect, animated: animated)
         frameView.hide(animated: animated)
@@ -227,14 +246,71 @@ extension EditorAdjusterView {
             guard let self = self else { return }
             completion?()
             self.delegate?.editorAdjusterView(editDidDisappear: self)
+            self.contentView.isStickerEnabled = true
+            self.contentView.stickerView.resetMirror()
         }
+    }
+    
+    func getCurrentAdjusted() -> (AdjustedFactor?, CGSize) {
+        if state != .edit {
+            return (oldAdjustedFactor, editSize)
+        }
+        
+        let fromSize = getExactnessSize(contentView.size)
+        let toSize = getExactnessSize(frameView.controlView.size)
+        
+        let isEqualSize = (
+            !fromSize.equalTo(toSize)
+            ||
+            (fromSize.equalTo(toSize) &&
+             frameView.isRoundCrop
+            )
+        )
+        var cAdjustmentData: AdjustedFactor?
+        if canReset || (!canReset && isEqualSize ) {
+            // 调整裁剪框至中心
+            adjustmentViews(false)
+            
+            let contentInset = scrollView.contentInset
+            let contentSize = scrollView.contentSize
+            let contentOffset = scrollView.contentOffset
+            
+            var oldData = AdjustedFactor()
+            // 记录当前数据
+            oldData.zoomScale = scrollView.zoomScale
+            oldData.contentOffset = contentOffset
+            oldData.contentInset = contentInset
+            oldData.maskRect = frameView.controlView.frame
+            oldData.angle = adjustedFactor.angle
+            oldData.mirrorTransform = adjustedFactor.mirrorTransform
+            oldData.transform = scrollView.transform
+            oldData.rotateTransform = rotateView.transform
+            
+            let offsetXScale = (contentOffset.x + contentInset.left) / contentSize.width
+            let offsetYScale = (contentOffset.y + contentInset.top) / contentSize.height
+            oldData.contentOffsetScale = .init(x: offsetXScale, y: offsetYScale)
+            oldData.min_zoom_scale = scrollView.zoomScale / getScrollViewMinimumZoomScale(oldData.maskRect)
+            oldData.isRoundMask = isRoundMask
+            oldData.maskImage = adjustedFactor.maskImage
+            cAdjustmentData = oldData
+        }
+        let maxWidth = containerView.width
+        let rectW = maxWidth
+        let scale = maxWidth / frameView.controlView.width
+        let rectH = frameView.controlView.height * scale
+        var rectY: CGFloat = 0
+        if rectH < containerView.height {
+            rectY = (containerView.height - rectH) * 0.5
+        }
+        let maskRect = CGRect(x: 0, y: rectY, width: rectW, height: rectH)
+        return (cAdjustmentData, maskRect.size)
     }
 }
 
 extension EditorAdjusterView {
     var canReset: Bool {
-        let isUpDirection = adjustedData.angle.truncatingRemainder(dividingBy: 360) == 0
-        let isIdentityMirror = adjustedData.mirrorTransform == .identity
+        let isUpDirection = adjustedFactor.angle.truncatingRemainder(dividingBy: 360) == 0
+        let isIdentityMirror = adjustedFactor.mirrorTransform == .identity
         if !isUpDirection || !isIdentityMirror {
             return true
         }
@@ -242,7 +318,7 @@ extension EditorAdjusterView {
             // 裁剪框大小还未初始化时
             return false
         }
-        if isFixedRatio && !ignoreFixedRatio {
+        if isFixedRatio && !isResetIgnoreFixedRatio {
             // 开启了固定比例
             let zoomScale = initialZoomScale
             let maskViewFrame = getMaskRect(true)
@@ -278,10 +354,17 @@ extension EditorAdjusterView {
             if abs(controlFrame.height - maskViewFrame.height) > 0.00001 {
                 frameIsEqual = false
             }
-            
+            let allowDifference: Float
+            if UIDevice.isPad {
+                /// iPad上允许0.22以内的误差
+                allowDifference = 0.22
+            }else {
+                /// iPhone上允许0.18以内的误差
+                allowDifference = 0.18
+            }
             if zoomScaleDifference > 0.0000001 ||
                 !frameIsEqual ||
-                difference > 0.18 {
+                difference > allowDifference {
                 /// 缩放大小不一致、裁剪框位置大小不一致、不在中心点位置、角度不为0都可以还原
                 return true
             }
@@ -292,22 +375,23 @@ extension EditorAdjusterView {
         return !fromSize.equalTo(toSize)
     }
     
-    func reset(_ animated: Bool) {
+    func reset(_ animated: Bool, completion: (() -> Void)? = nil) {
         if !canReset {
+            completion?()
             return
         }
         delegate?.editorAdjusterView(willBeginEditing: self)
         stopTimer()
-        if ignoreFixedRatio {
+        if isResetIgnoreFixedRatio {
             isFixedRatio = false
         }else {
             if !isFixedRatio {
                 frameView.aspectRatio = .zero
             }
         }
-        let mask_Image = adjustedData.maskImage
-        adjustedData = .init()
-        adjustedData.maskImage = mask_Image
+        let mask_Image = adjustedFactor.maskImage
+        adjustedFactor = .init()
+        adjustedFactor.maskImage = mask_Image
         // 初始的缩放比例
         let zoomScale = initialZoomScale
         let minimumZoomScale = zoomScale
@@ -331,6 +415,7 @@ extension EditorAdjusterView {
                     )
             )
         }
+        contentView.stickerView.initialMirror(.init(x: mirrorView.transform.a, y: mirrorView.transform.d))
         updateScrollViewContent(
             contentInset: scrollViewContentInset,
             zoomScale: zoomScale,
@@ -340,6 +425,7 @@ extension EditorAdjusterView {
         ) { [weak self] in
             guard let self = self else { return }
             self.changedMaskRectCompletion(animated)
+            completion?()
         }
     }
 }
@@ -355,12 +441,9 @@ extension EditorAdjusterView {
     }
     
     func setupEdit(maskRect: CGRect) {
-        let zoomScale = oldAdjustedData?.zoomScale ?? initialZoomScale
-        if let oldAdjustedData = oldAdjustedData {
-            scrollView.contentInset = oldAdjustedData.contentInset
-        }
+        let zoomScale = oldAdjustedFactor?.zoomScale ?? initialZoomScale
         scrollView.zoomScale = zoomScale
-        if let oldAdjustedData = oldAdjustedData {
+        if let oldAdjustedData = oldAdjustedFactor {
             scrollView.contentInset = oldAdjustedData.contentInset
             scrollView.contentOffset = getZoomOffset(
                 oldAdjustedData.contentOffset,
@@ -406,11 +489,7 @@ extension EditorAdjusterView {
         }
         frameView.blackMask(isShow: true, animated: animated)
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 animatedAction()
             } completion: { (_) in
                 completion?()
@@ -437,7 +516,7 @@ extension EditorAdjusterView {
         func animatedAction() {
             if resetAngle {
                 setScrollViewTransform()
-                if let mirrorTransform = oldAdjustedData?.mirrorTransform, isCancel {
+                if let mirrorTransform = oldAdjustedFactor?.mirrorTransform, isCancel {
                     mirrorView.transform = mirrorTransform
                 }else {
                     mirrorView.transform = .identity
@@ -450,11 +529,7 @@ extension EditorAdjusterView {
             scrollView.contentOffset = contentOffset
         }
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 animatedAction()
             } completion: { (isFinished) in
                 completion?()

@@ -214,15 +214,14 @@ extension PhotoPickerController {
         operation.addExecutionBlock { [unowned operation] in
             var totalFileSize = 0
             for photoAsset in self.selectedAssetArray {
-                if operation.isCancelled {
-                    return
-                }
+                if operation.isCancelled { return }
                 if let fileSize = photoAsset.getPFileSize() {
                     totalFileSize += fileSize
                     continue
                 }
                 totalFileSize += photoAsset.fileSize
             }
+            if operation.isCancelled { return }
             DispatchQueue.main.async {
                 completion(
                     totalFileSize,

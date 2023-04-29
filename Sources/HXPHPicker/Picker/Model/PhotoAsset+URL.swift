@@ -12,6 +12,46 @@ public extension PhotoAsset {
     
     typealias AssetURLCompletion = (Result<AssetURLResult, AssetError>) -> Void
     
+    /// 获取image，视频为封面图片
+    /// - Parameters:
+    ///   - compressionQuality: 压缩参数 0-1
+    ///   - completion: 获取完成
+    func getImage(
+        compressionQuality: CGFloat? = nil,
+        completion: @escaping (UIImage?) -> Void
+    ) {
+        #if canImport(Kingfisher)
+        if isNetworkAsset && photoEdit == nil && videoEdit == nil {
+            getNetworkImage { image in
+                if let compressionQuality {
+                    DispatchQueue.global().async {
+                        guard let imageData = PhotoTools.getImageData(for: image),
+                              let data = PhotoTools.imageCompress(
+                                imageData,
+                                  compressionQuality: compressionQuality
+                              ),
+                              let image = UIImage(data: data)?.normalizedImage() else {
+                            DispatchQueue.main.async {
+                                completion(nil)
+                            }
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            completion(image)
+                        }
+                    }
+                }else {
+                    completion(image)
+                }
+            }
+            return
+        }
+        #endif
+        requestImage(compressionScale: compressionQuality) { image, _ in
+            completion(image)
+        }
+    }
+    
     /// 获取url
     /// - Parameters:
     ///   - compression: 压缩参数，nil - 原图
@@ -49,7 +89,7 @@ public extension PhotoAsset {
     
     /// 获取图片url
     /// - Parameters:
-    ///   - compressionQuality: 压缩比例[0.1-0.9]，不传就是原图。gif不会压缩
+    ///   - compressionQuality: 压缩比例，不传就是原图。gif不会压缩
     ///   - completion: 获取完成
     func getImageURL(
         compressionQuality: CGFloat? = nil,
@@ -114,7 +154,7 @@ public extension PhotoAsset {
         let videoExportParameter: VideoExportParameter?
         
         /// 压缩图片
-        /// - Parameter imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
+        /// - Parameter imageCompressionQuality: 图片压缩质量 [0 - 1]
         public init(
             imageCompressionQuality: CGFloat
         ) {
@@ -134,7 +174,7 @@ public extension PhotoAsset {
         
         /// 压缩图片、视频
         /// - Parameters:
-        ///   - imageCompressionQuality: 图片压缩质量 [0.1 - 0.9]
+        ///   - imageCompressionQuality: 图片压缩质量 [0 - 1]
         ///   - preset: 视频分辨率
         ///   - quality: 视频质量 [1-10]
         public init(

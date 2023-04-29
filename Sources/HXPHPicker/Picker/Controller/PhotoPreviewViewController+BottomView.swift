@@ -92,6 +92,13 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
             ), !shouldEdit {
                 return
             }
+            if photoAsset.mediaSubType == .livePhoto ||
+               photoAsset.mediaSubType == .localLivePhoto {
+                let cell = getCell(
+                    for: currentPreviewIndex
+                )
+                cell?.scrollContentView.stopLivePhoto()
+            }
             photoEditorConfig.languageType = pickerConfig.languageType
             photoEditorConfig.appearanceStyle = pickerConfig.appearanceStyle
             photoEditorConfig.indicatorType = pickerConfig.indicatorType

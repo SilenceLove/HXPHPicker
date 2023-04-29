@@ -67,7 +67,7 @@ class EditorControlView: UIView {
     }()
     var factor: Factor = .init()
     
-    var maxSize: CGSize = .init(width: 40, height: 40)
+    var maxSize: CGSize = .init(width: 38, height: 38)
     
     var maxImageresizerFrame: CGRect = .zero
     var imageresizerFrame: CGRect = .zero
@@ -548,6 +548,9 @@ class EditorControlView: UIView {
     }
     
     @objc func panGestureRecognizerHandler(pan: UIPanGestureRecognizer) {
+        if !isUserInteractionEnabled {
+            return
+        }
         let view = pan.view
         let point = pan.translation(in: view)
         if pan.state == .began {

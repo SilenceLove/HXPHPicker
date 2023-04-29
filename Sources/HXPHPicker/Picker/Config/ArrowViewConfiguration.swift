@@ -14,13 +14,13 @@ public struct ArrowViewConfiguration {
     public var backgroundColor: UIColor = .black
     
     /// 箭头颜色
-    public var arrowColor: UIColor = "#ffffff".color
+    public var arrowColor: UIColor = "#ffffff".hx.color
     
     /// 暗黑风格下箭头背景颜色
-    public var backgroudDarkColor: UIColor = "#ffffff".color
+    public var backgroudDarkColor: UIColor = "#ffffff".hx.color
     
     /// 暗黑风格下箭头颜色
-    public var arrowDarkColor: UIColor = "#333333".color
+    public var arrowDarkColor: UIColor = "#333333".hx.color
     
     public init() { }
 }

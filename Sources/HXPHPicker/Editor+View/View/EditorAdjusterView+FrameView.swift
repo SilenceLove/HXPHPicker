@@ -8,11 +8,29 @@
 import UIKit
 
 extension EditorAdjusterView: EditorFrameViewDelegate {
+    
+    var finalView: UIView {
+        frameView.controlView
+    }
+    
+    func updateControlScaleSize() {
+        let contentSize = contentView.bounds.size
+        let controlSize = getControlInContentRect(true).size
+        let width = imageSize.width * (controlSize.width / contentSize.width)
+        let height = imageSize.height * (controlSize.height / contentSize.height)
+        let size =  CGSize(width: width, height: height)
+        if !frameView.imageSizeScale.equalTo(size) {
+            frameView.imageSizeScale = size
+        }
+    }
+    
     func frameView(beganChanged frameView: EditorFrameView, _ rect: CGRect) {
+        updateControlScaleSize()
         delegate?.editorAdjusterView(willBeginEditing: self)
     }
     
     func frameView(didChanged frameView: EditorFrameView, _ rect: CGRect) {
+        updateControlScaleSize()
         scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(rect)
         let minSize = getMinimuzmControlSize(rect: rect)
         var changedZoomScale = false
@@ -64,6 +82,7 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
         let controlBeforeRect = getControlInContentRect()
         /// 更新裁剪框坐标
         frameView.updateFrame(to: rect, animated: animated)
+        updateControlScaleSize()
         /// 裁剪框更新之后再imageView上的坐标
         let controlAfterRect = getControlInContentRect()
         let scrollCotentInset = getScrollViewContentInset(rect)
@@ -87,11 +106,7 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             isUserInteractionEnabled = false
             let currentOffset = scrollView.contentOffset
             scrollView.setContentOffset(currentOffset, animated: false)
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 self.setScrollViewContentInset(rect)
                 if needZoomScale {
                     /// 需要进行缩放
@@ -103,7 +118,7 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
                     )
                 }
                 self.scrollView.contentOffset = offset
-            } completion: { (isFinished) in
+            } completion: { _ in
                 self.scrollView.minimumZoomScale = self.getScrollViewMinimumZoomScale(rect)
                 self.frameView.showMaskBgView()
                 self.isMaskBgViewShowing = false
@@ -125,6 +140,7 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             scrollView.contentOffset = offset
             scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(rect)
             frameView.showMaskBgView(animated: false)
+            updateControlScaleSize()
             isMaskBgViewShowing = false
             frameView.inControlTimer = false
             delegate?.editorAdjusterView(didEndEditing: self)

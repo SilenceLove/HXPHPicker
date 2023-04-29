@@ -8,6 +8,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public enum PickerTransitionType {
     case push
@@ -52,8 +55,11 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         using transitionContext: UIViewControllerContextTransitioning
     ) {
         // swiftlint:enable function_body_length
-        let fromVC = transitionContext.viewController(forKey: .from)!
-        let toVC = transitionContext.viewController(forKey: .to)!
+        guard let fromVC = transitionContext.viewController(forKey: .from),
+              let toVC = transitionContext.viewController(forKey: .to) else {
+            transitionContext.completeTransition(true)
+            return
+        }
         
         var previewVC: PhotoPreviewViewController?
         var pickerVC: PhotoPickerViewController?
@@ -176,14 +182,14 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             toView?.isHidden = true
         }
         var pickerShowParompt = false
-        if AssetManager.authorizationStatusIsLimited() && pickerVC?.config.bottomView.showPrompt ?? false {
+        if AssetManager.authorizationStatusIsLimited() && pickerVC?.config.bottomView.isShowPrompt ?? false {
             pickerShowParompt = true
         }
         let pickerController = previewVC.pickerController
         let maskHeight = 50 + UIDevice.bottomMargin
         var previewShowSelectedView = false
         if let pickerController = pickerController,
-           previewVC.config.bottomView.showSelectedView,
+           previewVC.config.bottomView.isShowSelectedView,
            pickerController.config.selectMode == .multiple {
             if pickerController.selectedAssetArray.isEmpty == false {
                 previewShowSelectedView = true
@@ -307,8 +313,11 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         using transitionContext: UIViewControllerContextTransitioning
     ) {
         // swiftlint:enable function_body_length
-        let fromVC = transitionContext.viewController(forKey: .from)!
-        let toVC = transitionContext.viewController(forKey: .to)!
+        guard let fromVC = transitionContext.viewController(forKey: .from),
+              let toVC = transitionContext.viewController(forKey: .to) else {
+            transitionContext.completeTransition(true)
+            return
+        }
         
         let containerView = transitionContext.containerView
         let contentView = UIView()
@@ -381,8 +390,52 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
                     requestAssetImage(for: phAsset)
                 }else if pushImageView.image == nil || photoAsset.isLocalAsset {
-                    pushImageView.image = photoAsset.originalImage
+                    if let image = photoAsset.originalImage {
+                        pushImageView.image = image
+                    }
                 }
+                #if canImport(Kingfisher)
+                if let networkImage = photoAsset.networkImageAsset {
+                    let cacheKey = networkImage.originalURL.cacheKey
+                    if ImageCache.default.isCached(forKey: cacheKey) {
+                        ImageCache.default.retrieveImage(
+                            forKey: cacheKey,
+                            options: [],
+                            callbackQueue: .mainAsync
+                        ) { [weak self] in
+                            guard let self = self else { return }
+                            switch $0 {
+                            case .success(let value):
+                                if let image = value.image, self.pushImageView.superview != nil {
+                                    self.pushImageView.setImage(image, duration: 0.4, animated: true)
+                                }
+                            default:
+                                break
+                            }
+                        }
+                    }else {
+                        let cacheKey = networkImage.thumbnailURL.cacheKey
+                        if ImageCache.default.isCached(forKey: cacheKey) {
+                            ImageCache.default.retrieveImage(
+                                forKey: cacheKey,
+                                options: [],
+                                callbackQueue: .mainAsync
+                            ) { [weak self] in
+                                guard let self = self else { return }
+                                switch $0 {
+                                case .success(let value):
+                                    if let image = value.image,
+                                       self.pushImageView.superview != nil {
+                                        self.pushImageView.setImage(image, duration: 0.4, animated: true)
+                                    }
+                                default:
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+                #endif
                 if UIDevice.isPad && photoAsset.mediaType == .video {
                     toRect = PhotoTools.transformImageSize(
                         photoAsset.imageSize,

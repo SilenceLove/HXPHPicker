@@ -448,7 +448,7 @@ extension EditorConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func fixedCropStateAction(_ indexPath: IndexPath) {
         photoConfig.fixedCropState = !photoConfig.fixedCropState
@@ -493,7 +493,7 @@ extension EditorConfigurationViewController {
             self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func aspectRatiosAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "aspectRatiosAction", message: nil, preferredStyle: .alert)
@@ -534,7 +534,7 @@ extension EditorConfigurationViewController {
             self?.tableView.reloadData()
         }))
         alert.addAction(.init(title: "取消", style: .cancel))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func defaultSeletedIndexAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "defaultSeletedIndexAction", message: nil, preferredStyle: .alert)
@@ -571,7 +571,7 @@ extension EditorConfigurationViewController {
             self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func resetToOriginalAction(_ indexPath: IndexPath) {
         photoConfig.cropping.resetToOriginal = !photoConfig.cropping.resetToOriginal
@@ -603,7 +603,7 @@ extension EditorConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func exportPresetNameAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "exportPresetNameAction", message: nil, preferredStyle: .alert)
@@ -626,7 +626,7 @@ extension EditorConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func defaultStateAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "defaultState", message: nil, preferredStyle: .alert)
@@ -647,7 +647,7 @@ extension EditorConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func mustBeTailoredAction(_ indexPath: IndexPath) {
         videoConfig.mustBeTailored = !videoConfig.mustBeTailored
@@ -672,7 +672,7 @@ extension EditorConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func minimumVideoCroppingTimeAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maximumVideoCroppingTime", message: nil, preferredStyle: .alert)
@@ -693,7 +693,7 @@ extension EditorConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
 }
 extension EditorConfigurationViewController {

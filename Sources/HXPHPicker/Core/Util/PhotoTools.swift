@@ -59,6 +59,21 @@ public struct PhotoTools {
             }else {
                 let hour = Int(min / 60)
                 min -= hour * 60
+                if hour < 10 {
+                    if min < 10 {
+                        if sec < 10 {
+                            return String(format: "0%d:0%d:0%d", arguments: [hour, min, sec])
+                        }else {
+                            return String(format: "0%d:0%d:%d", arguments: [hour, min, sec])
+                        }
+                    }else {
+                        if sec < 10 {
+                            return String(format: "0%d:%d:0%d", arguments: [hour, min, sec])
+                        }else {
+                            return String(format: "0%d:%d:%d", arguments: [hour, min, sec])
+                        }
+                    }
+                }
                 if min < 10 {
                     if sec < 10 {
                         return String(format: "%d:0%d:0%d", arguments: [hour, min, sec])
@@ -118,10 +133,7 @@ public struct PhotoTools {
             return nil
         }
         let urlAsset = AVURLAsset(url: videoURL)
-        return getVideoThumbnailImage(
-            avAsset: urlAsset as AVAsset,
-            atTime: atTime
-        )
+        return urlAsset.getImage(at: atTime)
     }
     
     /// 根据视频地址获取视频封面
@@ -129,23 +141,10 @@ public struct PhotoTools {
         avAsset: AVAsset?,
         atTime: TimeInterval
     ) -> UIImage? {
-        if let avAsset = avAsset {
-            let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset)
-            assetImageGenerator.appliesPreferredTrackTransform = true
-            assetImageGenerator.apertureMode = .encodedPixels
-            do {
-                let thumbnailImageRef = try assetImageGenerator.copyCGImage(
-                    at: CMTime(
-                        value: CMTimeValue(atTime),
-                        timescale: avAsset.duration.timescale
-                    ),
-                    actualTime: nil
-                )
-                let image = UIImage.init(cgImage: thumbnailImageRef)
-                return image
-            } catch { }
+        guard let avAsset = avAsset else {
+            return nil
         }
-        return nil
+        return avAsset.getImage(at: atTime)
     }
     
     /// 获视频缩略图
@@ -378,7 +377,7 @@ public struct PhotoTools {
         guard var resultImage = UIImage(data: data) else {
             return nil
         }
-        let compression = max(0.1, min(0.9, compressionQuality))
+        let compression = max(0, min(1, compressionQuality))
         let maxLength = Int(CGFloat(data.count) * compression)
         var data = data
         
@@ -422,15 +421,18 @@ public struct PhotoTools {
         return animation
     }
     
-    static func getGradientShadowLayer(_ isTop: Bool) -> CAGradientLayer {
+    static func getGradientShadowLayer(
+        _ isTop: Bool,
+        colors: [CGColor] = [UIColor.black.withAlphaComponent(0).cgColor,
+                             UIColor.black.withAlphaComponent(0.2).cgColor,
+                             UIColor.black.withAlphaComponent(0.3).cgColor,
+                             UIColor.black.withAlphaComponent(0.4).cgColor,
+                             UIColor.black.withAlphaComponent(0.5).cgColor],
+        locations: [NSNumber] = [0.1, 0.3, 0.5, 0.7, 0.9]
+    ) -> CAGradientLayer {
         let layer = CAGradientLayer()
         layer.contentsScale = UIScreen.main.scale
-        let blackColor = UIColor.black
-        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
-                        blackColor.withAlphaComponent(0.2).cgColor,
-                        blackColor.withAlphaComponent(0.3).cgColor,
-                        blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.6).cgColor]
+        layer.colors = colors
         if isTop {
             layer.startPoint = CGPoint(x: 0, y: 1)
             layer.endPoint = CGPoint(x: 0, y: 0)
@@ -438,7 +440,7 @@ public struct PhotoTools {
             layer.startPoint = CGPoint(x: 0, y: 0)
             layer.endPoint = CGPoint(x: 0, y: 1)
         }
-        layer.locations = [0.1, 0.3, 0.5, 0.7, 0.9]
+        layer.locations = locations
         layer.borderWidth = 0.0
         return layer
     }

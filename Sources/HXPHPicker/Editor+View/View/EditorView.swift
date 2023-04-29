@@ -8,9 +8,9 @@
 import UIKit
 
 public protocol EditorViewDelegate: AnyObject {
-    /// 编辑状态发生改变
+    /// 编辑状态将要发生改变
     func editorView(willBeginEditing editorView: EditorView)
-    /// 编辑状态改变结束
+    /// 编辑状态改变已经结束
     func editorView(didEndEditing editorView: EditorView)
     /// 即将进入编辑状态
     func editorView(editWillAppear editorView: EditorView)
@@ -24,7 +24,7 @@ public protocol EditorViewDelegate: AnyObject {
     func editorView(contentViewBeganDrag editorView: EditorView)
     /// 画笔/涂鸦/贴图结束改变
     func editorView(contentViewEndDraw editorView: EditorView)
-    /// 点击的文字贴纸
+    /// 点击了文字贴纸
 //    func editorView(_ editorView: EditorView, didSelectedStickerText item: EditorStickerItem)
     /// 移除了音乐贴纸
     func editorView(didRemoveAudio editorView: EditorView)
@@ -38,16 +38,23 @@ public protocol EditorViewDelegate: AnyObject {
 ///             - rotateView (旋转处理)
 ///             - scrollView (滚动视图)
 ///                 - contentView (内容视图)
-///                     - imageView/videoView (图片/视频内容)
+///                     - imageView/videoView (图片/视频层)
 ///                     - drawView (画笔绘图层)
-///                     - mosaic (马赛克图层)
+///                     - mosaic (马赛克涂抹图层)
 ///         - frameView (遮罩、控制裁剪范围)
 open class EditorView: UIScrollView {
     
     // MARK: public
     public weak var editDelegate: EditorViewDelegate?
     
-    /// 内容边距（进入/退出 编辑状态不会有 缩小/放大 动画）
+    /// 编辑之后的地址配置，默认在tmp下
+    /// 每次编辑时请设置不同地址，防止之前存在的数据被覆盖
+    /// 如果编辑的是GIF，请设置gif后缀的地址
+    public var urlConfig: EditorURLConfig? {
+        didSet { adjusterView.urlConfig = urlConfig }
+    }
+    
+    /// 内容边距（进入/退出 编辑状态，不会有 缩小/放大 动画）
     /// 每次设置都会重置编辑内容
     open override var contentInset: UIEdgeInsets {
         didSet {
@@ -56,7 +63,7 @@ open class EditorView: UIScrollView {
         }
     }
     
-    /// 编辑状态下的边距（进入/退出 编辑状态会有 缩小/放大 动画）
+    /// 编辑状态下的边距（进入/退出 编辑状态，会有 缩小/放大 动画）
     /// 每次设置都会重置编辑内容 
     public var editContentInset: ((EditorView) -> UIEdgeInsets)? {
         didSet {
@@ -89,9 +96,7 @@ open class EditorView: UIScrollView {
     }
     
     open override var zoomScale: CGFloat {
-        didSet {
-            adjusterView.zoomScale = zoomScale
-        }
+        didSet { adjusterView.zoomScale = zoomScale }
     }
     
     // MARK: private
@@ -101,7 +106,6 @@ open class EditorView: UIScrollView {
     var contentScale: CGFloat {
         adjusterView.contentScale
     }
-    var animateDuration: TimeInterval = 0.3
     var layoutContent: Bool = true
     var reloadContent: Bool = false
     var operates: [Operate] = []
@@ -135,13 +139,21 @@ open class EditorView: UIScrollView {
         }
     }
     
-    required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let view = super.hitTest(point, with: event)
+        if view == adjusterView.containerView {
+            if isDrawEnabled {
+                return adjusterView.contentView.drawView
+            }
+            if isMosaicEnabled {
+                return adjusterView.contentView.mosaicView
+            }
+        }
+        return view
     }
     
-    public func update() {
-        updateContentSize()
-        adjusterView.update()
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -230,11 +242,7 @@ extension EditorView {
             allowZoom = true
         }
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: [.curveLinear]
-            ) {
+            UIView.animate {
                 if self.zoomScale != 1 {
                     self.zoomScale = 1
                 }
@@ -266,6 +274,8 @@ extension EditorView {
             adjusterView.state = .normal
             resetZoomScale(false)
         }
+        undoAllDraw()
+        undoAllMosaic()
     }
     
     func resetEdit() {
@@ -283,29 +293,42 @@ extension EditorView {
     func operatesHandler() {
         for operate in operates {
             switch operate {
-            case .startEdit:
-                startEdit(false)
-            case .finishEdit:
-                finishEdit(false)
-            case .cancelEdit:
-                cancelEdit(false)
-            case .rotate(let angle):
-                rotate(angle, animated: false)
-            case .rotateLeft:
-                rotateLeft(false)
-            case .rotateRight:
-                rotateRight(false)
-            case .mirrorHorizontally:
-                mirrorHorizontally(false)
-            case .mirrorVertically:
-                mirrorVertically(false)
-            case .reset:
-                reset(false)
+            case .startEdit(let completion):
+                startEdit(false, completion: completion)
+            case .finishEdit(let completion):
+                finishEdit(false, completion: completion)
+            case .cancelEdit(let completion):
+                cancelEdit(false, completion: completion)
+            case .rotate(let angle, let completion):
+                rotate(angle, animated: false, completion: completion)
+            case .rotateLeft(let completion):
+                rotateLeft(false, completion: completion)
+            case .rotateRight(let completion):
+                rotateRight(false, completion: completion)
+            case .mirrorHorizontally(let completion):
+                mirrorHorizontally(false, completion: completion)
+            case .mirrorVertically(let completion):
+                mirrorVertically(false, completion: completion)
+            case .reset(let completion):
+                reset(false, completion: completion)
             case .setRoundMask(let isRound):
                 setRoundMask(isRound, animated: false)
+            case .setData(let data):
+                setAdjustmentData(data)
             }
         }
         operates.removeAll()
+    }
+    
+    func updateEditSize() {
+        if editSize == .zero {
+            return
+        }
+        let viewWidth = width - contentInset.left - contentInset.right
+        let controlScale = editSize.height / editSize.width
+        let rectW = viewWidth
+        let rectH = viewWidth * controlScale
+        editSize = .init(width: rectW, height: rectH)
     }
 }
 

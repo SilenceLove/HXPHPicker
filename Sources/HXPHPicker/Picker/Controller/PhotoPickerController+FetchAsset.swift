@@ -82,6 +82,7 @@ extension PhotoPickerController {
             var firstSetImage = true
             for phAsset in self.selectedAssetArray where
                 phAsset.phAsset == nil {
+                if operation.isCancelled { return }
                 let inLocal = self.localAssetArray.contains(
                     where: {
                     $0.isEqual(phAsset)
@@ -99,9 +100,7 @@ extension PhotoPickerController {
                     localCount += 1
                 }
             }
-            if operation.isCancelled {
-                return
-            }
+            if operation.isCancelled { return }
             if !self.config.allowLoadPhotoLibrary {
                 DispatchQueue.main.async {
                     self.cameraAssetCollection?.realCoverImage = coverImage
@@ -282,7 +281,7 @@ extension PhotoPickerController {
                 }
                 photoAssets.append(asset)
             })
-            if self.config.photoList.showAssetNumber {
+            if self.config.photoList.isShowAssetNumber {
                 localAssets.forEach {
                     if $0.mediaType == .photo {
                         photoCount += 1

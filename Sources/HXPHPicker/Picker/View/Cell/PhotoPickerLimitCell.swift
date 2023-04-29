@@ -50,7 +50,7 @@ class PhotoPickerLimitCell: UICollectionViewCell {
         guard let config = config else {
             return
         }
-        titleLb.text = config.title?.localized
+        titleLb.text = config.title
         let isDark = PhotoManager.isDark
         backgroundColor = isDark ? config.backgroundDarkColor : config.backgroundColor
         lineLayer.strokeColor = isDark ? config.lineDarkColor.cgColor : config.lineColor.cgColor

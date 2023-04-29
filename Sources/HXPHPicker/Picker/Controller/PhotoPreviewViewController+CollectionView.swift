@@ -119,15 +119,15 @@ extension PhotoPreviewViewController: UICollectionViewDelegate {
                 }
             }
             if !firstLayoutSubviews &&
-                config.bottomView.showSelectedView &&
+                config.bottomView.isShowSelectedView &&
                 (isMultipleSelect || isExternalPreview) &&
-                config.showBottomView {
+                config.isShowBottomView {
                 bottomView.selectedView.scrollTo(photoAsset: photoAsset)
             }
             #if HXPICKER_ENABLE_EDITOR
             if let pickerController = pickerController,
-               !config.bottomView.editButtonHidden,
-               config.showBottomView {
+               !config.bottomView.isHiddenEditButton,
+               config.isShowBottomView {
                 if photoAsset.mediaType == .photo {
                     bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                 }else if photoAsset.mediaType == .video {
@@ -181,7 +181,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
         currentCell?.statusBarShouldBeHidden = statusBarShouldBeHidden
         let videoCell = currentCell as? PreviewVideoViewCell
         if !statusBarShouldBeHidden {
-            if config.showBottomView {
+            if config.isShowBottomView {
                 bottomView.isHidden = false
             }
             if currentCell?.photoAsset.mediaType == .video && config.singleClickCellAutoPlayVideo {
@@ -200,7 +200,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
                 liveCell.hideMark()
             }
         }
-        if config.showBottomView {
+        if config.isShowBottomView {
             UIView.animate(withDuration: 0.25) {
                 self.bottomView.alpha = self.statusBarShouldBeHidden ? 0 : 1
             } completion: { (finish) in
@@ -236,7 +236,7 @@ extension PhotoPreviewViewController: PhotoPreviewViewCellDelegate {
             )
         }
         delegate?.previewViewController(self, networkImagedownloadSuccess: photoCell.photoAsset)
-        if config.showBottomView {
+        if config.isShowBottomView {
             bottomView.requestAssetBytes()
         }
         #endif

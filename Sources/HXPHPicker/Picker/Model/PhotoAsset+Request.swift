@@ -7,6 +7,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 // MARK: Request Photo
 public extension PhotoAsset {
@@ -45,29 +48,31 @@ public extension PhotoAsset {
     
     /// 获取图片
     /// - Parameters:
-    ///   - compressionScale: 压缩比例，获取系统相册里的资源时有效 
+    ///   - compressionScale: 压缩比例 [0 - 1]
     ///   - completion: 获取完成
     /// - Returns: 请求系统相册资源的请求id
     @discardableResult
     func requestImage(
-        compressionScale: CGFloat = 0.5,
+        compressionScale: CGFloat? = nil,
         completion: ((UIImage?, PhotoAsset) -> Void)?
     ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
-            completion?(
-                UIImage(
-                    contentsOfFile: photoEdit.editedImageURL.path
-                ),
-                self
-            )
-            return nil
-        }
-        if let videoEdit = videoEdit {
-            completion?(
-                videoEdit.coverImage,
-                self
-            )
+        if photoEdit != nil || videoEdit != nil {
+            getEditedImageURL(
+                compressionQuality: compressionScale
+            ) { result in
+                switch result {
+                case .success(let urlResult):
+                    completion?(
+                        UIImage(
+                            contentsOfFile: urlResult.url.path
+                        ),
+                        self
+                    )
+                case .failure(_):
+                    completion?(nil, self)
+                }
+            }
             return nil
         }
         #endif
@@ -89,11 +94,27 @@ public extension PhotoAsset {
         ) { (result) in
             switch result {
             case .success(let dataResult):
+                if let compressionScale = compressionScale {
+                    DispatchQueue.global().async {
+                        if let data = PhotoTools.imageCompress(
+                            dataResult.imageData,
+                            compressionQuality: compressionScale
+                        ), let image = UIImage(data: data)?.normalizedImage() {
+                            DispatchQueue.main.async {
+                                completion?(image, self)
+                            }
+                        }else {
+                            DispatchQueue.main.async {
+                                completion?(nil, self)
+                            }
+                        }
+                    }
+                    return
+                }
                 let image = UIImage(
                     data: dataResult.imageData
                 )?
-                .normalizedImage()?
-                .scaleImage(toScale: compressionScale)
+                .normalizedImage()
                 completion?(image, self)
             case .failure(_):
                 completion?(nil, self)
@@ -291,14 +312,17 @@ public extension PhotoAsset {
         success: ((PhotoAsset, PHLivePhoto, [AnyHashable: Any]?) -> Void)?,
         failure: PhotoAssetFailureHandler?
     ) -> PHImageRequestID {
-        if phAsset == nil {
+        guard let phAsset = phAsset else {
             failure?(self, nil, .invalidPHAsset)
             return 0
         }
         if downloadStatus != .succeed {
             downloadStatus = .downloading
         }
-        return AssetManager.requestLivePhoto(for: phAsset!, targetSize: targetSize) { (iCloudRequestID) in
+        return AssetManager.requestLivePhoto(
+            for: phAsset,
+            targetSize: targetSize
+        ) { (iCloudRequestID) in
             iCloudHandler?(self, iCloudRequestID)
         } progressHandler: { (progress, error, stop, info) in
             self.downloadProgress = progress
@@ -476,6 +500,9 @@ public extension PhotoAsset {
     
     class LocalLivePhotoRequest {
         var videoURL: URL
+        #if canImport(Kingfisher)
+        var imageTask: Kingfisher.DownloadTask?
+        #endif
         var writer: AVAssetWriter?
         var videoInput: AVAssetWriterInput?
         var videoReader: AVAssetReader?
@@ -491,6 +518,11 @@ public extension PhotoAsset {
         
         func cancelRequest() {
             isCancel = true
+            #if canImport(Kingfisher)
+            if let task = imageTask {
+                task.cancel()
+            }
+            #endif
             PhotoManager.shared.removeTask(videoURL)
             writer?.cancelWriting()
             videoInput?.markAsFinished()
@@ -513,11 +545,60 @@ public extension PhotoAsset {
             failure?(self, nil, .localLivePhotoIsEmpty)
             return nil
         }
+        let imageURL = livePhoto.imageURL
         let videoURL = livePhoto.videoURL
+        let imageIdentifier = livePhoto.imageIdentifier
+        let videoIdentifier = livePhoto.videoIdentifier
         let request = LocalLivePhotoRequest(videoURL: videoURL)
-        func write(videoURL: URL) {
+        func mergeToLivePhoto(imageURL: URL, videoURL: URL) {
+            if success == nil && failure == nil {
+                return
+            }
+            let image = UIImage(contentsOfFile: imageURL.path)
+            request.requestID = PHLivePhoto.request(
+                withResourceFileURLs: [videoURL, imageURL],
+                placeholderImage: image,
+                targetSize: .zero,
+                contentMode: .aspectFill
+            ) { phLivePhoto, info in
+                guard let phLivePhoto = phLivePhoto else {
+                    DispatchQueue.main.async {
+                        failure?(self, nil, .localLivePhotoWriteVideoFailed)
+                    }
+                    return
+                }
+                let isDegraded = info[PHLivePhotoInfoIsDegradedKey] as? Int
+                let isCancel = info[PHLivePhotoInfoCancelledKey] as? Int
+                DispatchQueue.main.async {
+                    if let isDegraded = isDegraded {
+                        if isDegraded == 0 {
+                            success?(self, phLivePhoto)
+                        }
+                    }else if let isCancel = isCancel {
+                        if isCancel == 0 {
+                            success?(self, phLivePhoto)
+                        }else {
+                            failure?(self, info, .localLivePhotoRequestFailed)
+                        }
+                    }
+                }
+            }
+        }
+        if livePhoto.isCache {
+            mergeToLivePhoto(imageURL: livePhoto.jpgURL, videoURL: livePhoto.movURL)
+            return request
+        }
+        func write(
+            imageURL:URL,
+            imageCacheKey: String?,
+            videoURL: URL,
+            videoCacheKey: String?
+        ) {
             DispatchQueue.global().async {
-                PhotoTools.getLivePhotoJPGURL(livePhoto.imageURL) { url in
+                PhotoTools.getLivePhotoJPGURL(
+                    imageURL,
+                    cacheKey: imageCacheKey
+                ) { url in
                     guard let imageURL = url else {
                         DispatchQueue.main.async {
                             URLHandler?(nil, nil)
@@ -533,7 +614,8 @@ public extension PhotoAsset {
                         return
                     }
                     PhotoTools.getLivePhotoVideoMovURL(
-                        videoURL
+                        videoURL,
+                        cacheKey: videoCacheKey
                     ) { writer, videoInput, videoReader, audioInput, audioReader in
                         request.writer = writer
                         request.videoInput = videoInput
@@ -551,53 +633,88 @@ public extension PhotoAsset {
                         DispatchQueue.main.async {
                             URLHandler?(imageURL, videoURL)
                         }
-                        if success == nil && failure == nil {
-                            return
-                        }
-                        let image = UIImage(contentsOfFile: imageURL.path)
-                        request.requestID = PHLivePhoto.request(
-                            withResourceFileURLs: [videoURL, imageURL],
-                            placeholderImage: image,
-                            targetSize: .zero,
-                            contentMode: .aspectFill
-                        ) { phLivePhoto, info in
-                            guard let phLivePhoto = phLivePhoto else {
-                                DispatchQueue.main.async {
-                                    failure?(self, nil, .localLivePhotoWriteVideoFailed)
-                                }
-                                return
-                            }
-                            let isDegraded = info[PHLivePhotoInfoIsDegradedKey] as? Int
-                            let isCancel = info[PHLivePhotoInfoCancelledKey] as? Int
-                            DispatchQueue.main.async {
-                                if let isDegraded = isDegraded {
-                                    if isDegraded == 0 {
-                                        success?(self, phLivePhoto)
-                                    }
-                                }else if let isCancel = isCancel {
-                                    if isCancel == 0 {
-                                        success?(self, phLivePhoto)
-                                    }else {
-                                        failure?(self, info, .localLivePhotoRequestFailed)
-                                    }
-                                }
-                            }
-                        }
+                        mergeToLivePhoto(imageURL: imageURL, videoURL: videoURL)
                     }
                 }
             }
         }
-        if videoURL.isFileURL {
-            write(videoURL: videoURL)
-        }else {
+        
+        if imageURL.isFileURL && videoURL.isFileURL {
+            write(
+                imageURL: imageURL,
+                imageCacheKey: imageIdentifier,
+                videoURL: videoURL,
+                videoCacheKey: videoIdentifier
+            )
+        }else if !imageURL.isFileURL && videoURL.isFileURL {
+            #if canImport(Kingfisher)
+            request.imageTask = KingfisherManager.shared.retrieveImage(with: imageURL) { result in
+                switch result {
+                case .success(_):
+                    let cachePath = ImageCache.default.cachePath(forKey: imageURL.cacheKey)
+                    let cacheURL = URL(fileURLWithPath: cachePath)
+                    write(
+                        imageURL: cacheURL,
+                        imageCacheKey: imageURL.absoluteString,
+                        videoURL: videoURL,
+                        videoCacheKey: videoIdentifier
+                    )
+                case .failure(_):
+                    URLHandler?(nil, nil)
+                    failure?(self, nil, .imageDownloadFailed)
+                }
+            }
+            #else
+            assert(
+                false,
+                "下载网络图片请导入 Kingfisher"
+            )
+            #endif
+        }else if imageURL.isFileURL && !videoURL.isFileURL  {
             PhotoManager.shared.downloadTask(with: videoURL) { url, error, ext in
-                guard let videoURL = url else {
+                guard let video_URL = url else {
                     URLHandler?(nil, nil)
                     failure?(self, nil, .videoDownloadFailed)
                     return
                 }
-                write(videoURL: videoURL)
+                write(
+                    imageURL: imageURL,
+                    imageCacheKey: imageIdentifier,
+                    videoURL: video_URL,
+                    videoCacheKey: videoURL.absoluteString
+                )
             }
+        }else {
+            #if canImport(Kingfisher)
+            request.imageTask = KingfisherManager.shared.retrieveImage(with: imageURL) { result in
+                switch result {
+                case .success(_):
+                    let cachePath = ImageCache.default.cachePath(forKey: imageURL.cacheKey)
+                    let cacheURL = URL(fileURLWithPath: cachePath)
+                    PhotoManager.shared.downloadTask(with: videoURL) { url, error, ext in
+                        guard let video_URL = url else {
+                            URLHandler?(nil, nil)
+                            failure?(self, nil, .videoDownloadFailed)
+                            return
+                        }
+                        write(
+                            imageURL: cacheURL,
+                            imageCacheKey: imageURL.absoluteString,
+                            videoURL: video_URL,
+                            videoCacheKey: videoURL.absoluteString
+                        )
+                    }
+                case .failure(_):
+                    URLHandler?(nil, nil)
+                    failure?(self, nil, .imageDownloadFailed)
+                }
+            }
+            #else
+            assert(
+                false,
+                "下载网络图片请导入 Kingfisher"
+            )
+            #endif
         }
         return request
     }

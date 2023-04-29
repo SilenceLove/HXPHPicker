@@ -13,11 +13,11 @@ public struct AlbumListConfiguration {
     
     /// Prompt color under Accessibility
     /// 可访问权限下的提示语颜色
-    public var limitedStatusPromptColor: UIColor = "#999999".color
+    public var limitedStatusPromptColor: UIColor = "#999999".hx.color
     
     /// Hint color for dark style accessibility
     /// 暗黑风格可访问权限下的提示语颜色
-    public var limitedStatusPromptDarkColor: UIColor = "#999999".color
+    public var limitedStatusPromptDarkColor: UIColor = "#999999".hx.color
     
     /// Album name when there are no resources in the album
     /// 当相册里没有资源时的相册名称
@@ -47,7 +47,7 @@ public struct AlbumListConfiguration {
     
     /// Cell background color in dark style
     /// 暗黑风格下cell背景颜色
-    public var cellbackgroundDarkColor: UIColor = "#2E2F30".color
+    public var cellbackgroundDarkColor: UIColor = "#2E2F30".hx.color
     
     /// The color of the cell when it is selected
     /// cell选中时的颜色
@@ -70,38 +70,38 @@ public struct AlbumListConfiguration {
     public var albumNameDarkColor: UIColor = .white
     
     /// 相册名称字体
-    public var albumNameFont: UIFont = .mediumPingFang(ofSize: 15)
+    public var albumNameFont: UIFont = HXPickerWrapper<UIFont>.mediumPingFang(ofSize: 15)
     
     /// 照片数量颜色
-    public var photoCountColor: UIColor = "#999999".color
+    public var photoCountColor: UIColor = "#999999".hx.color
     
     /// Photo quantity color in dark style
     /// 暗黑风格下照片数量颜色
-    public var photoCountDarkColor: UIColor = "#dadada".color
+    public var photoCountDarkColor: UIColor = "#dadada".hx.color
     
     /// Whether to show the number of photos
     /// 是否显示照片数量
-    public var showPhotoCount: Bool = true
+    public var isShowPhotoCount: Bool = true
     
     /// photo quantity font
     /// 照片数量字体
-    public var photoCountFont: UIFont = .mediumPingFang(ofSize: 12)
+    public var photoCountFont: UIFont = HXPickerWrapper<UIFont>.mediumPingFang(ofSize: 12)
     
     /// Divider color
     /// 分隔线颜色
-    public var separatorLineColor: UIColor = "#eeeeee".color
+    public var separatorLineColor: UIColor = "#eeeeee".hx.color
     
     /// Divider color in dark style
     /// 暗黑风格下分隔线颜色
-    public var separatorLineDarkColor: UIColor = "#434344".color.withAlphaComponent(0.6)
+    public var separatorLineDarkColor: UIColor = "#434344".hx.color.withAlphaComponent(0.6)
     
     /// Check the color of the tick
     /// 选中勾勾的颜色
-    public var tickColor: UIColor = .systemTintColor
+    public var tickColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// Dark style checked tick color
     /// 暗黑风格选中勾勾的颜色
-    public var tickDarkColor: UIColor = "#ffffff".color
+    public var tickDarkColor: UIColor = "#ffffff".hx.color
     
     public init() { }
 }

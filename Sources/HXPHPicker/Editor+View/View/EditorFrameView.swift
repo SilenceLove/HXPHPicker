@@ -16,7 +16,6 @@ protocol EditorFrameViewDelegate: AnyObject {
 class EditorFrameView: UIView {
     weak var delegate: EditorFrameViewDelegate?
     
-    var animateDuration: TimeInterval = 0.3
     var maskBgShowTimer: Timer?
     var controlTimer: Timer?
     var inControlTimer: Bool = false
@@ -108,6 +107,9 @@ class EditorFrameView: UIView {
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if !controlView.isUserInteractionEnabled {
+            return nil
+        }
         let view = super.hitTest(point, with: event)
         let controlPoint = convert(point, to: controlView)
         if let cView = controlView.canUserEnabled(controlPoint) {
@@ -166,29 +168,35 @@ extension EditorFrameView {
         maskBgView.isHidden
     }
     
-    func show(_ animated: Bool) {
-        if animated {
+    func show(isLines: Bool = true, isMaskBg: Bool = true, _ animated: Bool) {
+        if isMaskBg {
             maskBgView.isHidden = false
+        }
+        if isLines {
             maskLinesView.isHidden = false
-            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
-                self.maskBgView.alpha = 1
-                self.maskLinesView.alpha = 1
+        }
+        if animated {
+            UIView.animate {
+                if isMaskBg {
+                    self.maskBgView.alpha = 1
+                }
+                if isLines {
+                    self.maskLinesView.alpha = 1
+                }
             }
         }else {
-            maskBgView.isHidden = false
-            maskLinesView.isHidden = false
-            maskBgView.alpha = 1
-            maskLinesView.alpha = 1
+            if isMaskBg {
+                maskBgView.alpha = 1
+            }
+            if isLines {
+                maskLinesView.alpha = 1
+            }
         }
     }
     
     func hide(isLines: Bool = true, isMaskBg: Bool = true, animated: Bool) {
         if animated {
-            UIView.animate(
-                withDuration: animateDuration,
-                delay: 0,
-                options: .curveEaseOut
-            ) {
+            UIView.animate {
                 if isLines {
                     self.maskLinesView.alpha = 0
                 }
@@ -260,7 +268,7 @@ extension EditorFrameView {
     
     func showCustomMaskView(_ animated: Bool) {
         if animated {
-            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 self.customMaskView.alpha = 1
             }
         }else {
@@ -270,7 +278,7 @@ extension EditorFrameView {
     
     func hideCustomMaskView(_ animated: Bool) {
         if animated {
-            UIView.animate(withDuration: animateDuration, delay: 0, options: .curveEaseOut) {
+            UIView.animate {
                 self.customMaskView.alpha = 0
             }
         }else {
@@ -288,6 +296,15 @@ extension EditorFrameView {
         maskLinesView.updateLayers(rect, animated)
     }
     
+    var imageSizeScale: CGSize {
+        get {
+            maskLinesView.imageSize
+        }
+        set {
+            maskLinesView.imageSize = newValue
+        }
+    }
+    
     var isRoundCrop: Bool {
         get {
             maskBgView.isRoundCrop
@@ -301,6 +318,15 @@ extension EditorFrameView {
     func setRoundCrop(isRound: Bool, animated: Bool) {
         maskBgView.updateRoundCrop(isRound: isRound, animated: animated)
         maskLinesView.updateRoundCrop(isRound: isRound, animated: animated)
+    }
+    
+    var isShowScaleSize: Bool {
+        get {
+            maskLinesView.isShowScaleSize
+        }
+        set {
+            maskLinesView.isShowScaleSize = newValue
+        }
     }
     
     func startShowMaskBgTimer() {

@@ -27,7 +27,7 @@ public struct PhotoListConfiguration {
     
     /// Background color in dark style
     /// 暗黑风格下背景颜色
-    public var backgroundDarkColor: UIColor = "#2E2F30".color
+    public var backgroundDarkColor: UIColor = "#2E2F30".hx.color
     
     /// Cancel button configuration is only valid when albumShowMode = .popup
     /// Cancel button type
@@ -119,7 +119,7 @@ public struct PhotoListConfiguration {
     
     /// After the photo is completed, save it to the system album
     /// 拍照完成后保存到系统相册
-    public var saveSystemAlbum: Bool = true
+    public var isSaveSystemAlbum: Bool = true
     
     /// The name saved in the custom album, or BundleName when it is empty
     /// 保存在自定义相册的名字，为空时则取 BundleName
@@ -135,7 +135,7 @@ public struct PhotoListConfiguration {
     
     /// The bottom shows the number of photos/videos
     /// 底部显示 照片/视频 数量
-    public var showAssetNumber: Bool = true
+    public var isShowAssetNumber: Bool = true
     
     public var assetNumber: AssetNumber = .init()
     
@@ -197,11 +197,11 @@ extension PhotoListConfiguration {
         public var allowPreview: Bool = false
         
         /// 背景颜色
-        public var backgroundColor: UIColor? = "#f1f1f1".color
+        public var backgroundColor: UIColor? = "#f1f1f1".hx.color
         
         /// Background color in dark style
         /// 暗黑风格下背景颜色
-        public var backgroundDarkColor: UIColor? = "#404040".color
+        public var backgroundDarkColor: UIColor? = "#404040".hx.color
         
         /// camera icon
         /// 相机图标
@@ -220,18 +220,18 @@ extension PhotoListConfiguration {
     public struct LimitCell {
         
         /// 背景颜色
-        public var backgroundColor: UIColor? = "#f1f1f1".color
+        public var backgroundColor: UIColor? = "#f1f1f1".hx.color
         
         /// Background color in dark mode
         /// 暗黑模式下的背景颜色
-        public var backgroundDarkColor: UIColor? = "#404040".color
+        public var backgroundDarkColor: UIColor? = "#404040".hx.color
         
         /// 加号颜色
-        public var lineColor: UIColor = "#999999".color
+        public var lineColor: UIColor = "#999999".hx.color
         
         /// plus color in dark mode
         /// 加号暗黑模式下的颜色
-        public var lineDarkColor: UIColor = "#ffffff".color
+        public var lineDarkColor: UIColor = "#ffffff".hx.color
         
         /// The width of the two lines of the plus sign
         /// 加号两条线的宽度
@@ -243,19 +243,19 @@ extension PhotoListConfiguration {
         
         /// text title
         /// 文字标题
-        public var title: String? = "更多"
+        public var title: String? = "更多".hx.localized
         
         /// title color
         /// 标题颜色
-        public var titleColor: UIColor = "#999999".color
+        public var titleColor: UIColor = "#999999".hx.color
         
         /// The color of the title in dark mode
         /// 标题暗黑模式下的颜色
-        public var titleDarkColor: UIColor = "#ffffff".color
+        public var titleDarkColor: UIColor = "#ffffff".hx.color
         
         /// title font
         /// 标题字体
-        public var titleFont: UIFont = .mediumPingFang(ofSize: 14)
+        public var titleFont: UIFont = HXPickerWrapper<UIFont>.mediumPingFang(ofSize: 14)
         
         public init() { }
     }
@@ -264,9 +264,9 @@ extension PhotoListConfiguration {
 extension PhotoListConfiguration {
     
     public struct AssetNumber {
-        public var textColor: UIColor = "#333333".color
-        public var textDarkColor: UIColor = "#ffffff".color
-        public var textFont: UIFont = .mediumPingFang(ofSize: 15)
+        public var textColor: UIColor = "#333333".hx.color
+        public var textDarkColor: UIColor = "#ffffff".hx.color
+        public var textFont: UIFont = HXPickerWrapper<UIFont>.mediumPingFang(ofSize: 15)
         public init() { }
     }
 }

@@ -7,13 +7,21 @@
 
 import UIKit
 
-public class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSliderViewDelegate {
+open class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSliderViewDelegate {
     
-    lazy var maskLayer: CAGradientLayer = {
+    public lazy var maskLayer: CAGradientLayer = {
         let layer = PhotoTools.getGradientShadowLayer(false)
         return layer
     }()
-    lazy var sliderView: PreviewVideoSliderView = {
+    
+    public lazy var maskBackgroundView: UIView = {
+        let view = UIView()
+        view.layer.addSublayer(maskLayer)
+        view.alpha = 0
+        return view
+    }()
+    
+    public lazy var sliderView: PreviewVideoSliderView = {
         let view = PreviewVideoSliderView()
         view.delegate = self
         view.alpha = 0
@@ -22,7 +30,7 @@ public class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSlid
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.layer.addSublayer(maskLayer)
+        contentView.addSubview(maskBackgroundView)
         contentView.addSubview(sliderView)
     }
     
@@ -64,13 +72,22 @@ public class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSlid
         hideMask()
     }
     public override func showMask() {
-        if maskLayer.isHidden {
-            maskLayer.isHidden = false
+        if maskBackgroundView.alpha == 0 {
+            maskBackgroundView.isHidden = false
+            UIView.animate(withDuration: 0.15) {
+                self.maskBackgroundView.alpha = 1
+            }
         }
     }
     public override func hideMask() {
-        if !maskLayer.isHidden {
-            maskLayer.isHidden = true
+        if maskBackgroundView.alpha == 1 {
+            UIView.animate(withDuration: 0.15) {
+                self.maskBackgroundView.alpha = 0
+            } completion: { isFinished in
+                if isFinished && self.maskBackgroundView.alpha == 0 {
+                    self.maskBackgroundView.isHidden = true
+                }
+            }
         }
     }
     
@@ -97,11 +114,11 @@ public class PreviewVideoControlViewCell: PreviewVideoViewCell, PreviewVideoSlid
             width: width,
             height: 50 + UIDevice.bottomMargin
         )
-        
-        maskLayer.frame = CGRect(x: 0, y: sliderView.y - 20, width: width, height: sliderView.height + 20)
+        maskBackgroundView.frame = sliderView.frame
+        maskLayer.frame = CGRect(x: 0, y: -20, width: width, height: maskBackgroundView.height + 20)
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
@@ -118,7 +135,7 @@ protocol PreviewVideoSliderViewDelegate: AnyObject {
     )
 }
 
-class PreviewVideoSliderView: UIView, SliderViewDelegate {
+public class PreviewVideoSliderView: UIView, SliderViewDelegate {
     
     weak var delegate: PreviewVideoSliderViewDelegate?
     
@@ -146,6 +163,9 @@ class PreviewVideoSliderView: UIView, SliderViewDelegate {
         label.textColor = .white
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 15)
+        label.layer.shadowColor = UIColor.black.withAlphaComponent(0.7).cgColor
+        label.layer.shadowOpacity = 0.5
+        label.layer.shadowOffset = .init(width: -1, height: 1)
         return label
     }()
     
@@ -155,6 +175,9 @@ class PreviewVideoSliderView: UIView, SliderViewDelegate {
         label.textColor = .white
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 15)
+        label.layer.shadowColor = UIColor.black.withAlphaComponent(0.7).cgColor
+        label.layer.shadowOpacity = 0.5
+        label.layer.shadowOffset = .init(width: -1, height: 1)
         return label
     }()
     
@@ -203,7 +226,7 @@ class PreviewVideoSliderView: UIView, SliderViewDelegate {
         delegate?.videoSliderView(self, didChangedPlayDuration: videoDuration * value, state: state)
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         playButton.x = 15 + UIDevice.leftMargin
         playButton.centerY = 25
@@ -234,6 +257,9 @@ class PlayButton: UIControl {
         playLayer.lineCap = .round
         playLayer.lineJoin = .round
         playLayer.contentsScale = UIScreen.main.scale
+        
+        playLayer.shadowColor = UIColor.black.withAlphaComponent(0.3).cgColor
+        playLayer.shadowOpacity = 0.3
         return playLayer
     }()
     
@@ -331,6 +357,8 @@ class SliderView: UIView {
         let imageSize = CGSize(width: 18, height: 18)
         let view = UIImageView(image: .image(for: .white, havingSize: imageSize, radius: 9))
         view.size = imageSize
+        view.layer.shadowColor = UIColor.black.withAlphaComponent(0.3).cgColor
+        view.layer.shadowOpacity = 0.3
         return view
     }()
     var value: CGFloat = 0
@@ -382,6 +410,8 @@ class SliderView: UIView {
         view.backgroundColor = .white
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 1
+        view.layer.shadowColor = UIColor.black.withAlphaComponent(0.3).cgColor
+        view.layer.shadowOpacity = 0.3
         return view
     }()
     

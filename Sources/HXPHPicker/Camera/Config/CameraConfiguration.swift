@@ -45,7 +45,7 @@ public class CameraConfiguration: BaseConfiguration {
     public var takePhotoMode: TakePhotoMode = .press
     
     /// 主题色
-    public var tintColor: UIColor = .systemTintColor {
+    public var tintColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor {
         didSet {
             #if HXPICKER_ENABLE_EDITOR
             setupEditorColor()
@@ -86,8 +86,10 @@ public class CameraConfiguration: BaseConfiguration {
     public lazy var videoEditor: VideoEditorConfiguration = .init()
     #endif
     
+    #if HXPICKER_ENABLE_CAMERA_LOCATION
     /// 允许启动定位
     public var allowLocation: Bool = true
+    #endif
     
     public override init() {
         super.init()

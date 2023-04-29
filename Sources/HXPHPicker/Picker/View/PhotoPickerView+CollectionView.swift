@@ -145,7 +145,7 @@ extension PhotoPickerView: UICollectionViewDelegate {
         if let myCell = cell as? PhotoPickerBaseViewCell {
             let photoAsset = getPhotoAsset(for: indexPath.item)
             if !photoAsset.isSelected &&
-                config.cell.showDisableMask &&
+                config.cell.isShowDisableMask &&
                 manager.config.maximumSelectedVideoFileSize == 0 &&
                 manager.config.maximumSelectedPhotoFileSize == 0 {
                 myCell.canSelect = manager.canSelectAsset(

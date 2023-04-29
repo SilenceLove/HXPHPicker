@@ -23,38 +23,6 @@ public extension EditorController {
     }
 }
 
-public struct EditorURLConfig: Codable {
-    public enum PathType: Codable {
-        case document
-        case caches
-        case temp
-    }
-    /// 文件名称
-    public let fileName: String
-    /// 路径类型
-    public let pathType: PathType
-    
-    public init(fileName: String, type: PathType) {
-        self.fileName = fileName
-        self.pathType = type
-    }
-    
-    /// 文件地址
-    public var url: URL {
-        var filePath: String = ""
-        switch pathType {
-        case .document:
-            filePath = FileManager.documentPath + "/"
-        case .caches:
-            filePath = FileManager.cachesPath + "/"
-        case .temp:
-            filePath = FileManager.tempPath
-        }
-        filePath.append(contentsOf: fileName)
-        return .init(fileURLWithPath: filePath)
-    }
-}
-
 /// 照片编辑控制器的状态
 public extension PhotoEditorViewController {
     enum State: Int {

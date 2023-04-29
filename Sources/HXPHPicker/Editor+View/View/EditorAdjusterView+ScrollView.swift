@@ -40,6 +40,7 @@ extension EditorAdjusterView: UIScrollViewDelegate {
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         setScrollViewContentInset(frameView.controlView.frame)
+        updateControlScaleSize()
     }
     
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
@@ -57,6 +58,7 @@ extension EditorAdjusterView: UIScrollViewDelegate {
         }
         zoomScale = scale
         scrollDidEnd()
+        updateControlScaleSize()
     }
     
     func scrollDidEnd() {

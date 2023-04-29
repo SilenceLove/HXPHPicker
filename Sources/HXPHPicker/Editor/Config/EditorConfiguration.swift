@@ -60,7 +60,7 @@ public struct EditorCropSizeConfiguration {
     public var maskType: EditorImageResizerMaskView.MaskType = .darkBlurEffect
     
     /// 宽高比选中颜色
-    public var aspectRatioSelectedColor: UIColor = .systemTintColor
+    public var aspectRatioSelectedColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 宽高比数组默认选择的下标
     /// 选中不代表默认就是对应的宽高比

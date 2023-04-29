@@ -45,8 +45,17 @@ open class PhotoBrowser: PhotoPickerController {
     /// 长按时触发
     public var longPressHandler: AssetHandler?
     
+    /// 页面指示器布局的位置
+    public var pageIndicatorLocal: PageIndicatorLocal = .bottom
+    
     /// 页面指示器，nil则不显示
-    public var pageIndicator: PhotoBrowserPageIndicator? = PhotoBrowserDefaultPageIndicator(frame: .init(origin: .zero, size: .init(width: 100, height: 30)))
+    public lazy var pageIndicator: PhotoBrowserPageIndicator? = {
+        let indicator = PhotoBrowserPageControlIndicator(frame: .init(x: 0, y: 0, width: 0, height: 30))
+        indicator.pageControlChanged = { [weak self] index in
+            self?.pageIndex = index
+        }
+        return indicator
+    }()
     
     /// 获取页数
     /// 动态设置数据时必须实现（assets.isEmpty）
@@ -99,7 +108,7 @@ open class PhotoBrowser: PhotoPickerController {
         hideSourceView = _config.browserConfig.hideSourceView
         self.transitionalImage = transitionalImage
         super.init(
-            preview: _config.previeConfig,
+            preview: _config.previewConfig,
             previewAssets: assets,
             currentIndex: pageIndex,
             modalPresentationStyle: _config.browserConfig.modalPresentationStyle
@@ -214,9 +223,44 @@ open class PhotoBrowser: PhotoPickerController {
         )
     }
     
+    var rightItemHandler: ((PhotoBrowser) -> Void)?
+    
+    public func addRightItem(
+        title: String?,
+        style: UIBarButtonItem.Style = .plain,
+        handler: @escaping (PhotoBrowser) -> Void
+    ) {
+        rightItemHandler = handler
+        previewViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: title,
+            style: style,
+            target: self,
+            action: #selector(didRightItemClick)
+        )
+    }
+    
+    public func addRightItem(
+        image: UIImage?,
+        style: UIBarButtonItem.Style = .plain,
+        handler: @escaping (PhotoBrowser) -> Void
+    ) {
+        rightItemHandler = handler
+        previewViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: image,
+            style: style,
+            target: self,
+            action: #selector(didRightItemClick)
+        )
+    }
+    
+    @objc
+    func didRightItemClick() {
+        rightItemHandler?(self)
+    }
+    
     private static func getConfig(
         _ config: Configuration?
-    ) -> (previeConfig: PickerConfiguration, browserConfig: Configuration) {
+    ) -> (previewConfig: PickerConfiguration, browserConfig: Configuration) {
         let previewConfig = PickerConfiguration()
         previewConfig.prefersStatusBarHidden = true
         previewConfig.statusBarStyle = .lightContent
@@ -224,9 +268,12 @@ open class PhotoBrowser: PhotoPickerController {
         
         var pConfig = PreviewViewConfiguration()
         pConfig.singleClickCellAutoPlayVideo = false
-        pConfig.showBottomView = false
+        pConfig.isShowBottomView = false
         pConfig.cancelType = .image
         pConfig.cancelPosition = .left
+        pConfig.livePhotoMark.blurStyle = .dark
+        pConfig.livePhotoMark.imageColor = "#ffffff".color
+        pConfig.livePhotoMark.textColor = "#ffffff".color
         
         let browserConfig: Configuration = config ?? .init()
         pConfig.loadNetworkVideoMode = browserConfig.loadNetworkVideoMode
@@ -299,18 +346,70 @@ open class PhotoBrowser: PhotoPickerController {
         navigationBar.barTintColor = .clear
         navigationBar.backgroundColor = .clear
         view.insertSubview(gradualShadowImageView, belowSubview: navigationBar)
-        pageIndicator?.reloadData(numberOfPages: pageCount, pageIndex: currentPreviewIndex)
-        previewViewController?.navigationItem.titleView = pageIndicator
+        if let pageIndicator = pageIndicator {
+            pageIndicator.reloadData(numberOfPages: pageCount, pageIndex: currentPreviewIndex)
+            if pageIndicatorLocal == .titleView {
+                previewViewController?.navigationItem.titleView = pageIndicator
+            }else if pageIndicatorLocal == .bottom {
+                pageIndicator.alpha = 0
+                view.addSubview(pageIndicator)
+            }
+        }
+        
+        if #available(iOS 13.0, *) {
+            return
+        }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(deviceOrientationDidChanged(notify:)),
+            name: UIApplication.didChangeStatusBarOrientationNotification,
+            object: nil
+        )
+    }
+    
+    @objc open func deviceOrientationDidChanged(notify: Notification) {
+        let imageHeight = navigationBar.frame.maxY + 20
+        gradualShadowImageView.image = UIImage.gradualShadowImage(
+            CGSize(
+                width: view.width,
+                height: imageHeight
+            )
+        )
+    }
+    
+    open override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+        guard #available(iOS 13.0, *) else {
+            return
+        }
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.deviceOrientationDidChanged(
+                notify: .init(
+                    name: UIApplication.didChangeStatusBarOrientationNotification
+                )
+            )
+        }
     }
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let imageHeight = UIDevice.isAllIPhoneX ? navigationBar.height + 54 : navigationBar.height + 30
+        let imageHeight = navigationBar.frame.maxY + 20
         gradualShadowImageView.frame = CGRect(origin: .zero, size: CGSize(width: view.width, height: imageHeight))
+        if let pageIndicator = pageIndicator, pageIndicatorLocal == .bottom {
+            pageIndicator.width = view.width
+            pageIndicator.y = view.height - UIDevice.bottomMargin - pageIndicator.height
+        }
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -339,7 +438,7 @@ extension PhotoBrowser {
         /// 网络视频加载方式
         public var loadNetworkVideoMode: PhotoAsset.LoadNetworkVideoMode = .play
         /// 自定义视频Cell，默认带有滑动条
-        public var customVideoCellClass: PreviewVideoViewCell.Type? = PreviewVideoControlViewCell.self
+        public var customVideoCellClass: PreviewVideoViewCell.Type? = PhotoBrowserVideoCell.self
         /// 视频播放类型
         public var videoPlayType: PhotoPreviewViewController.PlayType = .normal
         /// LivePhoto播放类型
@@ -354,6 +453,11 @@ extension PhotoBrowser {
         public var modalPresentationStyle: UIModalPresentationStyle = .custom
         
         public init() { }
+    }
+    
+    public enum PageIndicatorLocal {
+        case titleView
+        case bottom
     }
 }
 
@@ -392,8 +496,10 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
         }else {
             didHidden = !didHidden
             UIView.animate(withDuration: 0.25) {
+                self.pageIndicator?.alpha =  self.didHidden ? 0 : 1
                 self.gradualShadowImageView.alpha = self.didHidden ? 0 : 1
             } completion: { _ in
+                self.pageIndicator?.alpha =  self.didHidden ? 0 : 1
                 self.gradualShadowImageView.alpha = self.didHidden ? 0 : 1
             }
         }
@@ -488,6 +594,7 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
         _ pickerController: PhotoPickerController,
         animateTransition type: PickerTransitionType
     ) {
+        pageIndicator?.alpha = type == .present ? 1 : 0
         gradualShadowImageView.alpha = type == .present ? 1 : 0
     }
     
@@ -497,6 +604,7 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
         type: PickerInteractiveTransitionType
     ) {
         if didHidden { return }
+        pageIndicator?.alpha = scale
         gradualShadowImageView.alpha = scale
     }
     
@@ -504,6 +612,7 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
         _ pickerController: PhotoPickerController,
         interPercentDidFinishAnimation type: PickerInteractiveTransitionType
     ) {
+        pageIndicator?.alpha = 0
         gradualShadowImageView.alpha = 0
     }
     
@@ -512,6 +621,7 @@ extension PhotoBrowser: PhotoPickerControllerDelegate {
         interPercentDidCancelAnimation type: PickerInteractiveTransitionType
     ) {
         if !didHidden {
+            pageIndicator?.alpha = 1
             gradualShadowImageView.alpha = 1
         }
     }
@@ -528,6 +638,7 @@ public protocol PhotoBrowserPageIndicator: UIView {
     /// 当前页面发生改变
     /// - Parameter pageIndex: 当前显示的页面下标
     func didChanged(pageIndex: Int)
+    
 }
 
 open class PhotoBrowserDefaultPageIndicator: UIView, PhotoBrowserPageIndicator {
@@ -568,5 +679,88 @@ open class PhotoBrowserDefaultPageIndicator: UIView, PhotoBrowserPageIndicator {
     open override func layoutSubviews() {
         super.layoutSubviews()
         titleLabel.frame = bounds
+    }
+}
+
+open class PhotoBrowserPageControlIndicator: UIView, PhotoBrowserPageIndicator {
+    
+    public lazy var maskLayer: CAGradientLayer = {
+        let layer = PhotoTools.getGradientShadowLayer(
+            false
+        )
+        return layer
+    }()
+    
+    public lazy var pageControl: UIPageControl = {
+        let pageControl = UIPageControl()
+        pageControl.addTarget(self, action: #selector(pageControlDidChanged), for: .valueChanged)
+        return pageControl
+    }()
+    
+    public var pageControlChanged: ((Int) -> Void)?
+    
+    @objc
+    func pageControlDidChanged() {
+        pageControlChanged?(pageControl.currentPage)
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.addSublayer(maskLayer)
+        addSubview(pageControl)
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func reloadData(numberOfPages: Int, pageIndex: Int) {
+        pageControl.numberOfPages = numberOfPages
+        pageControl.currentPage = pageIndex
+    }
+    
+    public func didChanged(pageIndex: Int) {
+        pageControl.currentPage = pageIndex
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        pageControl.frame = bounds
+        maskLayer.frame = CGRect(
+            x: 0,
+            y: -20,
+            width: width,
+            height: height + 20 + UIDevice.bottomMargin
+        )
+    }
+}
+
+open class PhotoBrowserVideoCell: PreviewVideoControlViewCell {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        maskLayer.colors = [UIColor.black.withAlphaComponent(0).cgColor,
+                            UIColor.black.withAlphaComponent(0.1).cgColor,
+                            UIColor.black.withAlphaComponent(0.2).cgColor,
+                            UIColor.black.withAlphaComponent(0.2).cgColor,
+                            UIColor.black.withAlphaComponent(0.1).cgColor,
+                            UIColor.black.withAlphaComponent(0).cgColor]
+        maskLayer.locations = [0.1, 0.2, 0.4, 0.5, 0.7, 1]
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        sliderView.frame = CGRect(
+            x: 0,
+            y: height - 50 - UIDevice.bottomMargin - 30,
+            width: width,
+            height: 50 + UIDevice.bottomMargin
+        )
+        maskBackgroundView.frame = sliderView.frame
+        maskLayer.frame = maskBackgroundView.bounds
     }
 }

@@ -9,12 +9,18 @@ import UIKit
 
 extension EditorFrameView: EditorControlViewDelegate {
     func controlView(beganChanged controlView: EditorControlView, _ rect: CGRect) {
+        if !controlView.isUserInteractionEnabled {
+            return
+        }
         hideMaskBgView()
         stopControlTimer()
         delegate?.frameView(beganChanged: self, rect)
     }
     
     func controlView(didChanged controlView: EditorControlView, _ rect: CGRect) {
+        if !controlView.isUserInteractionEnabled {
+            return
+        }
         stopControlTimer()
         maskBgView.updateLayers(rect, false)
         customMaskView.updateLayers(rect, false)
@@ -23,6 +29,9 @@ extension EditorFrameView: EditorControlViewDelegate {
     }
     
     func controlView(endChanged controlView: EditorControlView, _ rect: CGRect) {
+        if !controlView.isUserInteractionEnabled {
+            return
+        }
         startControlTimer()
     }
 }

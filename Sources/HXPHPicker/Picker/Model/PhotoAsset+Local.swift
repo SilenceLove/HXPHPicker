@@ -173,6 +173,7 @@ extension PhotoAsset {
                 localImageAsset?.image = img
                 image = img
             }else if let imageURL = localLivePhoto?.imageURL,
+                     imageURL.isFileURL,
                      let img = UIImage(contentsOfFile: imageURL.path) {
                 image = img
            }

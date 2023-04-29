@@ -53,11 +53,12 @@ struct EditorStickerItem {
         }
         return CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight)
     }
-    init(image: UIImage,
-         imageData: Data?,
-         text: EditorStickerText?,
-         music: VideoEditorMusic? = nil,
-         videoSize: CGSize? = nil) {
+    init(
+        image: UIImage,
+        imageData: Data?,
+        text: EditorStickerText?,
+        music: VideoEditorMusic? = nil
+    ) {
         self.image = image
         self.imageData = imageData
         self.text = text

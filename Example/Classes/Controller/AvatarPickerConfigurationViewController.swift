@@ -156,7 +156,7 @@ extension AvatarPickerConfigurationViewController {
             self.tableView.reloadRows(at: [indexPath], with: .fade)
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func selectModeAction(_ indexPath: IndexPath) {
         tableView.reloadRows(at: [indexPath], with: .fade)
@@ -172,7 +172,7 @@ extension AvatarPickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func photoSelectionTapAction(_ indexPath: IndexPath) {
         tableView.reloadRows(at: [indexPath], with: .fade)
@@ -212,7 +212,7 @@ extension AvatarPickerConfigurationViewController {
             self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func aspectRatiosAction(_ indexPath: IndexPath) {
         if config.photoEditor.cropping.aspectRatios.isEmpty {
@@ -252,7 +252,7 @@ extension AvatarPickerConfigurationViewController {
             self.tableView.reloadData()
         }))
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
     func maskTypeAction(_ indexPath: IndexPath) {
         let alert = UIAlertController.init(title: "maskTypeAction", message: nil, preferredStyle: .alert)
@@ -275,7 +275,7 @@ extension AvatarPickerConfigurationViewController {
             }))
         }
         alert.addAction(UIAlertAction.init(title: "取消", style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        presendAlert(alert)
     }
 }
 extension AvatarPickerConfigurationViewController {

@@ -11,49 +11,6 @@ import CoreImage
 import CoreServices
 
 extension PhotoTools {
-    static func createAnimatedImage(
-        images: [UIImage],
-        delays: [Double],
-        toFile filePath: URL? = nil
-    ) -> URL? {
-        if images.isEmpty || delays.isEmpty {
-            return nil
-        }
-        let frameCount = images.count
-        let imageURL = filePath == nil ? getImageTmpURL(.gif) : filePath!
-        guard let destination = CGImageDestinationCreateWithURL(
-                imageURL as CFURL,
-                kUTTypeGIF as CFString,
-                frameCount, nil
-        ) else {
-            return nil
-        }
-        let gifProperty = [
-            kCGImagePropertyGIFDictionary: [
-                kCGImagePropertyGIFHasGlobalColorMap: true,
-                kCGImagePropertyColorModel: kCGImagePropertyColorModelRGB,
-                kCGImagePropertyDepth: 8,
-                kCGImagePropertyGIFLoopCount: 0
-            ]
-        ]
-        CGImageDestinationSetProperties(destination, gifProperty as CFDictionary)
-        for (index, image) in images.enumerated() {
-            let delay = delays[index]
-            let framePreperty = [
-                kCGImagePropertyGIFDictionary: [
-                    kCGImagePropertyGIFDelayTime: delay
-                ]
-            ]
-            if let cgImage = image.cgImage {
-                CGImageDestinationAddImage(destination, cgImage, framePreperty as CFDictionary)
-            }
-        }
-        if CGImageDestinationFinalize(destination) {
-            return imageURL
-        }
-        removeFile(fileURL: imageURL)
-        return nil
-    }
     
     static func getFrameDuration(from gifInfo: [String: Any]?) -> TimeInterval {
         let defaultFrameDuration = 0.1

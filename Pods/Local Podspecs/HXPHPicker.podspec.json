@@ -104,7 +104,7 @@
             ]
           },
           "pod_target_xcconfig": {
-            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITORVIEW"
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITOR_VIEW"
           }
         },
         {
@@ -156,6 +156,20 @@
 
         ],
         "HXPHPicker/Editor/Lite": [
+
+        ],
+        "HXPHPicker/Camera/Lite": [
+
+        ]
+      }
+    },
+    {
+      "name": "NoLocation",
+      "dependencies": {
+        "HXPHPicker/Picker": [
+
+        ],
+        "HXPHPicker/Editor": [
 
         ],
         "HXPHPicker/Camera/Lite": [

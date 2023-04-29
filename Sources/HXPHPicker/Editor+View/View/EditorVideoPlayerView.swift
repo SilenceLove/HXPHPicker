@@ -11,7 +11,7 @@ import AVKit
 protocol EditorVideoPlayerViewDelegate: AnyObject {
     func playerView(_ playerView: EditorVideoPlayerView, didPlayAt time: CMTime)
     func playerView(_ playerView: EditorVideoPlayerView, didPauseAt time: CMTime)
-    func playerView(_ playerViewReadyForDisplay: EditorVideoPlayerView)
+    func playerView(readyForDisplay playerView: EditorVideoPlayerView)
 }
 
 class EditorVideoPlayerView: VideoPlayerView {
@@ -47,71 +47,84 @@ class EditorVideoPlayerView: VideoPlayerView {
         addSubview(coverImageView)
     }
     func configAsset(_ completion: ((Bool) -> Void)? = nil) {
-        if let avAsset = avAsset {
-            try? AVAudioSession.sharedInstance().setCategory(.playback)
-            let playerItem = AVPlayerItem(asset: avAsset)
-            playerItem.videoComposition = videoComposition(avAsset)
-            player.replaceCurrentItem(with: playerItem)
-            playerLayer.player = player
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(appDidEnterBackground),
-                name: UIApplication.didEnterBackgroundNotification,
-                object: nil
-            )
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(appDidEnterPlayGround),
-                name: UIApplication.didBecomeActiveNotification,
-                object: nil
-            )
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)),
-                name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                object: player.currentItem
-            )
-            rateObservation = player
-                .observe(
-                    \.rate,
-                    options: [.new, .old]
-                ) { [weak self] player, change in
-                    guard let self = self else { return }
-                    if player.rate == 0 && self.isPlaying {
-                        self.pause()
-                    }
-            }
-            statusObservation = player
-                .observe(
-                    \.status,
-                    options: [.new, .old]
-                ) { player, change in
-                    switch player.status {
-                    case .readyToPlay:
-                        completion?(true)
-                    case .failed:
-                        completion?(false)
-                    case .unknown:
-                        break
-                    @unknown default:
-                        break
-                    }
-            }
-            readyForDisplayObservation = playerLayer
-                .observe(
-                    \.isReadyForDisplay,
-                    options: [.new, .old]
-                ) { [weak self] playerLayer, change in
-                    guard let self = self else { return }
-                    if playerLayer.isReadyForDisplay {
-                        self.coverImageView.isHidden = true
-                        self.play()
-                        self.videoSize = playerLayer.videoRect.size
-                        self.delegate?.playerView(self)
-                    }
-            }
-        }else {
+        guard let avAsset = avAsset else {
             completion?(false)
+            return
+        }
+        avAsset.loadValuesAsynchronously(forKeys: ["tracks"]) { [weak self] in
+            DispatchQueue.main.async {
+                if avAsset.statusOfValue(forKey: "tracks", error: nil) != .loaded {
+                    completion?(false)
+                    return
+                }
+                self?.setupAsset(avAsset, completion: completion)
+            }
+        }
+    }
+    func setupAsset(_ avAsset: AVAsset, completion: ((Bool) -> Void)? = nil) {
+        if let videoTrack = avAsset.tracks(withMediaType: .video).first {
+            self.videoSize = videoTrack.naturalSize
+        }
+        try? AVAudioSession.sharedInstance().setCategory(.playback)
+        let playerItem = AVPlayerItem(asset: avAsset)
+        playerItem.videoComposition = videoComposition(avAsset)
+        player.replaceCurrentItem(with: playerItem)
+        playerLayer.player = player
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterPlayGround),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playerItemDidPlayToEndTimeNotification(notifi:)),
+            name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+            object: player.currentItem
+        )
+        rateObservation = player
+            .observe(
+                \.rate,
+                options: [.new, .old]
+            ) { [weak self] player, change in
+                guard let self = self else { return }
+                if player.rate == 0 && self.isPlaying {
+                    self.pause()
+                }
+        }
+        statusObservation = player
+            .observe(
+                \.status,
+                options: [.new, .old]
+            ) { player, change in
+                switch player.status {
+                case .readyToPlay:
+                    completion?(true)
+                case .failed:
+                    completion?(false)
+                case .unknown:
+                    break
+                @unknown default:
+                    break
+                }
+        }
+        readyForDisplayObservation = playerLayer
+            .observe(
+                \.isReadyForDisplay,
+                options: [.new, .old]
+            ) { [weak self] playerLayer, change in
+                guard let self = self else { return }
+                if playerLayer.isReadyForDisplay {
+                    self.coverImageView.isHidden = true
+                    self.play()
+                    self.delegate?.playerView(readyForDisplay: self)
+                }
         }
     }
     func videoComposition(_ avAsset: AVAsset) -> AVMutableVideoComposition {
@@ -135,11 +148,17 @@ class EditorVideoPlayerView: VideoPlayerView {
         videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
         return videoComposition
     }
+    
+    var beforEnterIsPlaying: Bool = false
+    
     @objc func appDidEnterBackground() {
+        beforEnterIsPlaying = isPlaying
         pause()
     }
     @objc  func appDidEnterPlayGround() {
-        play()
+        if beforEnterIsPlaying {
+            play()
+        }
     }
     @objc func playerItemDidPlayToEndTimeNotification(notifi: Notification) {
         resetPlay()
@@ -186,6 +205,7 @@ class EditorVideoPlayerView: VideoPlayerView {
         }
     }
     func clear() {
+        avAsset?.cancelLoading()
         NotificationCenter.default.removeObserver(self)
         statusObservation = nil
         rateObservation = nil
@@ -204,10 +224,7 @@ class EditorVideoPlayerView: VideoPlayerView {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
-        statusObservation = nil
-        rateObservation = nil
-        readyForDisplayObservation = nil
-        NotificationCenter.default.removeObserver(self)
+        clear()
     }
 }
 

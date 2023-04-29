@@ -40,7 +40,7 @@ public class PickerManager: NSObject {
             !config.allowSelectedTogether &&
             config.maximumSelectedVideoCount == 1 &&
             config.selectOptions.isPhoto && config.selectOptions.isVideo &&
-            config.photoList.cell.singleVideoHideSelect {
+            config.photoList.cell.isHiddenSingleVideoSelect {
             return true
         }
         return false

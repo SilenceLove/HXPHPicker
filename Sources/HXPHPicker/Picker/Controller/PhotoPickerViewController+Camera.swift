@@ -92,8 +92,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         var image: UIImage? = (info[.editedImage] ?? info[.originalImage]) as? UIImage
         image = image?.scaleSuitableSize()
         if let image = image {
-            if config.saveSystemAlbum {
-                saveSystemAlbum(for: image, mediaType: .image)
+            if config.isSaveSystemAlbum {
+                saveSystemAlbum(type: .image(image))
                 return
             }
             addedCameraPhotoAsset(
@@ -133,8 +133,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         }
         guard let startTime = startTime,
               let endTime = endTime  else {
-            if config.saveSystemAlbum {
-                saveSystemAlbum(for: videoURL, mediaType: .video)
+            if config.isSaveSystemAlbum {
+                saveSystemAlbum(type: .videoURL(videoURL))
                 return
             }
             addedCameraPhotoAsset(
@@ -166,8 +166,8 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                     self.showExportFailed()
                     return
                 }
-                if self.config.saveSystemAlbum {
-                    self.saveSystemAlbum(for: url, mediaType: .video)
+                if self.config.isSaveSystemAlbum {
+                    self.saveSystemAlbum(type: .videoURL(url))
                     return
                 }
                 let phAsset: PhotoAsset = PhotoAsset.init(localVideoAsset: .init(videoURL: url))
@@ -185,24 +185,17 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         )
     }
     func saveSystemAlbum(
-        for asset: Any,
-        mediaType: PHAssetMediaType,
+        type: AssetManager.SaveType,
         location: CLLocation? = nil,
         isCapture: Bool = false,
-        completion: (() -> Void)? = nil) {
+        completion: (() -> Void)? = nil
+    ) {
         AssetManager.saveSystemAlbum(
-            forAsset: asset,
-            mediaType: mediaType,
+            type: type,
             customAlbumName: config.customAlbumName,
             location: location
-        ) { (phAsset) in
-            if let phAsset = phAsset {
-                self.addedCameraPhotoAsset(
-                    PhotoAsset(asset: phAsset),
-                    isCapture: isCapture,
-                    completion: completion
-                )
-            }else {
+        ) {
+            guard let phAsset = $0 else {
                 DispatchQueue.main.async {
                     ProgressHUD.hide(
                         forView: self.navigationController?.view,
@@ -216,7 +209,13 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                     )
                     completion?()
                 }
+                return
             }
+            self.addedCameraPhotoAsset(
+                PhotoAsset(asset: phAsset),
+                isCapture: isCapture,
+                completion: completion
+            )
         }
     }
     func addedCameraPhotoAsset(
@@ -278,17 +277,14 @@ extension PhotoPickerViewController: CameraControllerDelegate {
             animated: true
         )
         DispatchQueue.global().async {
-            let asset: Any
-            let mediaType: PHAssetMediaType
+            let saveType: AssetManager.SaveType
             let photoAsset: PhotoAsset
             switch result {
             case .image(let image):
-                asset = image
-                mediaType = .image
+                saveType = .image(image)
                 photoAsset = .init(localImageAsset: .init(image: image))
             case .video(let videoURL):
-                asset = videoURL
-                mediaType = .video
+                saveType = .videoURL(videoURL)
                 let videoDuration = PhotoTools.getVideoDuration(videoURL: videoURL)
                 photoAsset = .init(localVideoAsset: .init(videoURL: videoURL, duration: videoDuration))
             }
@@ -312,10 +308,9 @@ extension PhotoPickerViewController: CameraControllerDelegate {
                 }
                 didDismiss = true
             }
-            if self.config.saveSystemAlbum {
+            if self.config.isSaveSystemAlbum {
                 self.saveSystemAlbum(
-                    for: asset,
-                    mediaType: mediaType,
+                    type: saveType,
                     location: location,
                     isCapture: true
                 ) { [weak self] in

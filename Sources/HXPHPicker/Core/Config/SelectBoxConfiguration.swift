@@ -42,10 +42,10 @@ public struct SelectBoxConfiguration {
     public var darkBackgroundColor: UIColor = .black.withAlphaComponent(0.2)
     
     /// 选中之后的背景颜色
-    public var selectedBackgroundColor: UIColor = .systemTintColor
+    public var selectedBackgroundColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 暗黑风格下选中之后的背景颜色
-    public var selectedBackgroudDarkColor: UIColor = .systemTintColor
+    public var selectedBackgroudDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 未选中时的边框宽度
     public var borderWidth: CGFloat = 1.5

@@ -146,6 +146,8 @@ public extension HXPickerWrapper where Base == String {
         Base.fileName(suffix: suffix)
     }
     
+    var localized: String { Bundle.localizedString(for: base) }
+    
     var color: UIColor { base.color }
     
     var image: UIImage? { base.image }

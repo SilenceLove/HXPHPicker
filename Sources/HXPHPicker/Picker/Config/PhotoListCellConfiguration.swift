@@ -31,7 +31,7 @@ public struct PhotoListCellConfiguration {
     
     /// Whether to show the iCloud logo if the asset is on iCloud
     /// 如果资产在iCloud上，是否显示iCloud标示
-    public var showICloudMark: Bool = true
+    public var isShowICloudMark: Bool = true
     
     /// 背景颜色
     public var backgroundColor: UIColor?
@@ -50,11 +50,11 @@ public struct PhotoListCellConfiguration {
     /// Not valid if the file size of the photo/video is limited
     /// cell在不可选择状态下是否显示禁用遮罩
     /// 如果限制了照片/视频的文件大小，则无效
-    public var showDisableMask: Bool = true
+    public var isShowDisableMask: Bool = true
     
     /// Whether the video cell hides the selection box when the photo and video cannot be selected at the same time and the maximum number of video selections is 1
     /// 照片视频不能同时选择并且视频最大选择数为1时视频cell是否隐藏选择框
-    public var singleVideoHideSelect: Bool = true
+    public var isHiddenSingleVideoSelect: Bool = true
     
     /// Spacing at the top of the selection box
     /// 选择框顶部的间距

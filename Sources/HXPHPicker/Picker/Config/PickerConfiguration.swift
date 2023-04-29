@@ -91,10 +91,10 @@ public class PickerConfiguration: BaseConfiguration {
     #if HXPICKER_ENABLE_EDITOR
     /// Editable resource type
     /// Video editing allowed: When the selected video duration exceeds the limit, it will automatically enter the editing interface
-    /// The configuration for displaying the edit button is: previewView.bottomView.editButtonHidden = false
+    /// The configuration for displaying the edit button is: previewView.bottomView.isHiddenEditButton = false
     /// 可编辑资源类型
     /// 视频允许编辑：当选择的视频时长超过限制将自动进入编辑界面
-    /// 显示编辑按钮的配置为：previewView.bottomView.editButtonHidden = false
+    /// 显示编辑按钮的配置为：previewView.bottomView.isHiddenEditButton = false
     public var editorOptions: PickerAssetOptions = [.photo, .video]
     
     /// The maximum editing time of the video. If it is 0, there is no limit. If the limit is exceeded, it cannot be edited.
@@ -114,17 +114,14 @@ public class PickerConfiguration: BaseConfiguration {
     public var editorCustomTransition: Bool = true
     #endif
     
+    /// Allow custom transition animations when jumping
+    /// 跳转时允许自定义转场动画
+    public var allowCustomTransitionAnimation: Bool = true
+    
     /// Selector display style, effective when albumShowMode = .popup and fullscreen popup
     /// 选择器展示样式，当 albumShowMode = .popup 并且全屏弹出时有效
-    public var pickerPresentStyle: PickerPresentStyle = .present
-    
-    /// Whether to allow the right swipe gesture to return when albumShowMode = .popup and fullscreen popup. Consistent with WeChat right swipe gesture return
-    /// 当 albumShowMode = .popup 并且全屏弹出时，是否允许右滑手势返回。与微信右滑手势返回一致
-    public var allowRightSwipeGestureBack: Bool = true
-    
-    /// Swipe right to return to the gesture trigger range, the distance from the left side of the screen
-    /// 右滑返回手势触发范围，距离屏幕左边的距离
-    public var rightSwipeGestureTriggerRange: CGFloat = 50
+    /// rightSwipe: 是否允许右滑手势返回。与微信右滑手势返回一致
+    public var pickerPresentStyle: PickerPresentStyle = .present()
     
     /// Status bar style
     /// 状态栏样式
@@ -140,7 +137,7 @@ public class PickerConfiguration: BaseConfiguration {
     
     /// Navigation controller background color in dark style
     /// 暗黑风格下导航控制器背景颜色
-    public var navigationViewBackgroudDarkColor: UIColor = "#2E2F30".color
+    public var navigationViewBackgroudDarkColor: UIColor = "#2E2F30".hx.color
     
     /// Navigation bar style
     /// 导航栏样式
@@ -190,5 +187,9 @@ public class PickerConfiguration: BaseConfiguration {
     public override init() {
         super.init()
         PhotoManager.shared.isCacheCameraAlbum = isCacheCameraAlbum
+    }
+    
+    public class var `default`: PickerConfiguration  {
+        PhotoTools.getWXPickerConfig()
     }
 }

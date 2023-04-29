@@ -113,7 +113,7 @@ public class PhotoPreviewViewController: BaseViewController {
             sourceType: isExternalPreview ? .browser : .preview
         )
         bottomView.hx_delegate = self
-        if config.bottomView.showSelectedView && (isMultipleSelect || isExternalPreview) {
+        if config.bottomView.isShowSelectedView && (isMultipleSelect || isExternalPreview) {
             bottomView.selectedView.reloadData(
                 photoAssets: pickerController!.selectedAssetArray
             )
@@ -155,8 +155,8 @@ public class PhotoPreviewViewController: BaseViewController {
             guard let photoAsset = photoAsset(for: currentPreviewIndex) else {
                 return
             }
-            if config.bottomView.showSelectedView &&
-                (isMultipleSelect || isExternalPreview) && config.showBottomView {
+            if config.bottomView.isShowSelectedView &&
+                (isMultipleSelect || isExternalPreview) && config.isShowBottomView {
                 DispatchQueue.main.async {
                     self.bottomView.selectedView.scrollTo(
                         photoAsset: photoAsset,
@@ -190,9 +190,9 @@ public class PhotoPreviewViewController: BaseViewController {
         }
     }
     public override func deviceOrientationDidChanged(notify: Notification) {
-        if config.bottomView.showSelectedView &&
+        if config.bottomView.isShowSelectedView &&
             (isMultipleSelect || isExternalPreview) &&
-            config.showBottomView {
+            config.isShowBottomView {
             bottomView.selectedView.reloadSectionInset()
         }
     }
@@ -266,7 +266,7 @@ extension PhotoPreviewViewController {
      
     private func initView() {
         view.addSubview(collectionView)
-        if config.showBottomView {
+        if config.isShowBottomView {
             view.addSubview(bottomView)
             bottomView.updateFinishButtonTitle()
         }
@@ -317,7 +317,7 @@ extension PhotoPreviewViewController {
             }
             if assetCount > 0 && currentPreviewIndex == 0 {
                 if let photoAsset = photoAsset(for: 0) {
-                    if config.bottomView.showSelectedView && config.showBottomView {
+                    if config.bottomView.isShowSelectedView && config.isShowBottomView {
                         bottomView.selectedView.scrollTo(photoAsset: photoAsset)
                     }
                     if !isExternalPreview {
@@ -329,8 +329,8 @@ extension PhotoPreviewViewController {
                         }
                     }
                     #if HXPICKER_ENABLE_EDITOR
-                    if let pickerController = pickerController, !config.bottomView.editButtonHidden,
-                       config.showBottomView {
+                    if let pickerController = pickerController, !config.bottomView.isHiddenEditButton,
+                       config.isShowBottomView {
                         if photoAsset.mediaType == .photo {
                             bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                         }else if photoAsset.mediaType == .video {
@@ -357,8 +357,8 @@ extension PhotoPreviewViewController {
             if assetCount > 0 && currentPreviewIndex == 0 {
                 if let photoAsset = photoAsset(for: 0) {
                     #if HXPICKER_ENABLE_EDITOR
-                    if let pickerController = pickerController, !config.bottomView.editButtonHidden,
-                       config.showBottomView {
+                    if let pickerController = pickerController, !config.bottomView.isHiddenEditButton,
+                       config.isShowBottomView {
                         if photoAsset.mediaType == .photo {
                             bottomView.editBtn.isEnabled = pickerController.config.editorOptions.isPhoto
                         }else if photoAsset.mediaType == .video {
@@ -375,15 +375,15 @@ extension PhotoPreviewViewController {
         }
     }
     func configBottomViewFrame() {
-        if !config.showBottomView {
+        if !config.isShowBottomView {
             return
         }
         var bottomHeight: CGFloat = 0
         if isExternalPreview {
             bottomHeight = (pickerController?.selectedAssetArray.isEmpty ?? true) ? 0 : UIDevice.bottomMargin + 70
             #if HXPICKER_ENABLE_EDITOR
-            if !config.bottomView.showSelectedView && config.bottomView.editButtonHidden {
-                if config.bottomView.editButtonHidden {
+            if !config.bottomView.isShowSelectedView && config.bottomView.isHiddenEditButton {
+                if config.bottomView.isHiddenEditButton {
                     bottomHeight = 0
                 }else {
                     bottomHeight = UIDevice.bottomMargin + 50
@@ -395,7 +395,7 @@ extension PhotoPreviewViewController {
                 bottomHeight = picker.selectedAssetArray.isEmpty ?
                     50 + UIDevice.bottomMargin : 50 + UIDevice.bottomMargin + 70
             }
-            if !config.bottomView.showSelectedView || !isMultipleSelect {
+            if !config.bottomView.isShowSelectedView || !isMultipleSelect {
                 bottomHeight = 50 + UIDevice.bottomMargin
             }
         }
@@ -417,7 +417,7 @@ extension PhotoPreviewViewController {
         }
         let indexPath = IndexPath(item: item, section: 0)
         collectionView.reloadItems(at: [indexPath])
-        if config.showBottomView {
+        if config.isShowBottomView {
             bottomView.selectedView.reloadData(photoAsset: photoAsset)
             bottomView.requestAssetBytes()
         }
@@ -565,7 +565,7 @@ extension PhotoPreviewViewController {
             photoAssets.append(photoAsset)
         }
         collectionView.deleteItems(at: indexPaths)
-        if config.showBottomView {
+        if config.isShowBottomView {
             bottomView.selectedView.removePhotoAssets(photoAssets)
         }
         if let pickerController = pickerController {
@@ -592,9 +592,9 @@ extension PhotoPreviewViewController {
     }
     func addedCameraPhotoAsset(_ photoAsset: PhotoAsset) {
         guard let picker = pickerController else { return }
-        if config.bottomView.showSelectedView &&
+        if config.bottomView.isShowSelectedView &&
             (isMultipleSelect || isExternalPreview) &&
-            config.showBottomView {
+            config.isShowBottomView {
             bottomView.selectedView.reloadData(
                 photoAssets: picker.selectedAssetArray
             )
