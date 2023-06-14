@@ -58,7 +58,7 @@ open class AlbumViewCell: UITableViewCell {
             }
             albumNameLb.font = config.albumNameFont
             photoCountLb.font = config.photoCountFont
-            photoCountLb.isHidden = !config.showPhotoCount
+            photoCountLb.isHidden = !config.isShowPhotoCount
             configColor()
         }
     }
@@ -135,7 +135,7 @@ open class AlbumViewCell: UITableViewCell {
         albumNameLb.x = albumCoverView.frame.maxX + 10
         albumNameLb.size = CGSize(width: tickView.x - albumNameLb.x - 20, height: 16)
         
-        if let showPhotoCount = config?.showPhotoCount, showPhotoCount {
+        if let isShowPhotoCount = config?.isShowPhotoCount, isShowPhotoCount {
             albumNameLb.centerY = height / 2 - albumNameLb.height / 2
             
             photoCountLb.x = albumCoverView.frame.maxX + 10

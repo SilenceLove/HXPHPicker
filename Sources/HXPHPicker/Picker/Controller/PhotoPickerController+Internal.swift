@@ -48,14 +48,13 @@ extension PhotoPickerController {
             disablesCustomDismiss = true
         }
         if autoDismiss {
-            dismiss(animated: true, completion: nil)
+            dismiss(true)
         }
     }
     func cancelCallback() {
         #if HXPICKER_ENABLE_EDITOR
         editedPhotoAssetArray.forEach {
-            $0.photoEdit = $0.initialPhotoEdit
-            $0.videoEdit = $0.initialVideoEdit
+            $0.editedResult = $0.initialEditedResult
         }
         editedPhotoAssetArray.removeAll()
         #endif
@@ -123,33 +122,33 @@ extension PhotoPickerController {
     #if HXPICKER_ENABLE_EDITOR
     func shouldEditPhotoAsset(
         photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool {
-        if let shouldEditAsset = pickerDelegate?.pickerController(
+    ) -> EditorConfiguration? {
+        if let config = pickerDelegate?.pickerController(
             self,
             shouldEditPhotoAsset: photoAsset,
             editorConfig: editorConfig,
             atIndex: atIndex
         ) {
-            return shouldEditAsset
+            return config
         }
-        return true
+        return editorConfig
     }
     func shouldEditVideoAsset(
         videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool {
-        if let shouldEditAsset = pickerDelegate?.pickerController(
+    ) -> EditorConfiguration? {
+        if let config = pickerDelegate?.pickerController(
             self,
             shouldEditVideoAsset: videoAsset,
             editorConfig: editorConfig,
             atIndex: atIndex
         ) {
-            return shouldEditAsset
+            return config
         }
-        return true
+        return editorConfig
     }
     #endif
     
@@ -214,21 +213,18 @@ extension PhotoPickerController {
         operation.addExecutionBlock { [unowned operation] in
             var totalFileSize = 0
             for photoAsset in self.selectedAssetArray {
-                if operation.isCancelled {
-                    return
-                }
+                if operation.isCancelled { return }
                 if let fileSize = photoAsset.getPFileSize() {
                     totalFileSize += fileSize
                     continue
                 }
                 totalFileSize += photoAsset.fileSize
             }
+            if operation.isCancelled { return }
             DispatchQueue.main.async {
                 completion(
                     totalFileSize,
-                    PhotoTools.transformBytesToString(
-                            bytes: totalFileSize
-                    )
+                    totalFileSize.bytesString
                 )
             }
         }
@@ -360,9 +356,7 @@ extension PhotoPickerController {
         if photoAsset.mediaType == .photo {
             if config.maximumSelectedPhotoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedPhotoFileSize {
-                    text = "照片大小超过最大限制".localized + PhotoTools.transformBytesToString(
-                        bytes: config.maximumSelectedPhotoFileSize
-                    )
+                    text = "照片大小超过最大限制".localized + config.maximumSelectedPhotoFileSize.bytesString
                     canSelect = false
                 }
             }
@@ -396,9 +390,7 @@ extension PhotoPickerController {
         if photoAsset.mediaType == .video {
             if config.maximumSelectedVideoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedVideoFileSize {
-                    text = "视频大小超过最大限制".localized + PhotoTools.transformBytesToString(
-                        bytes: config.maximumSelectedVideoFileSize
-                    )
+                    text = "视频大小超过最大限制".localized + config.maximumSelectedVideoFileSize.bytesString
                     canSelect = false
                 }
             }
@@ -531,8 +523,7 @@ extension PhotoPickerController {
             return
         }
         for photoAsset in editedPhotoAssetArray {
-            photoAsset.initialPhotoEdit = nil
-            photoAsset.initialVideoEdit = nil
+            photoAsset.initialEditedResult = nil
         }
         editedPhotoAssetArray.removeAll()
     }

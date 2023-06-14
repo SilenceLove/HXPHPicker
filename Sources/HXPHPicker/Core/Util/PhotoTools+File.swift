@@ -29,27 +29,48 @@ public extension PhotoTools {
     static func folderSize(atPath path: String) -> Int {
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: path) { return 0 }
-        let childFiles = fileManager.subpaths(atPath: path)
         var folderSize = 0
-        childFiles?.forEach({ (fileName) in
-            let fileAbsolutePath = path + "/" + fileName
-            folderSize += fileSize(atPath: fileAbsolutePath)
-        })
+        do {
+            let childFiles = try fileManager.contentsOfDirectory(atPath: path)
+            childFiles.forEach({ (fileName) in
+                let fileAbsolutePath = path + "/" + fileName
+                var isDirecotry = ObjCBool(false)
+                if fileManager.fileExists(atPath: fileAbsolutePath, isDirectory: &isDirecotry), !isDirecotry.boolValue {
+                    folderSize += fileSize(atPath: fileAbsolutePath)
+                }
+            })
+        } catch {
+            
+        }
         return folderSize
+    }
+    
+    static var cacheFolderPath: String {
+        var cachePath = FileManager.cachesPath
+        cachePath.append(contentsOf: "/com.silence.HXPHPicker/cache")
+        folderExists(atPath: cachePath)
+        return cachePath
     }
     
     /// 获取图片缓存文件夹路径
     static func getImageCacheFolderPath() -> String {
-        var cachePath = FileManager.cachesPath
-        cachePath.append(contentsOf: "/com.silence.HXPHPicker/imageCache")
+        var cachePath = cacheFolderPath
+        cachePath.append(contentsOf: "/imageCache")
         folderExists(atPath: cachePath)
         return cachePath
     }
     
     /// 获取视频缓存文件夹路径
     static func getVideoCacheFolderPath() -> String {
-        var cachePath = FileManager.cachesPath
-        cachePath.append(contentsOf: "/com.silence.HXPHPicker/videoCache")
+        var cachePath = cacheFolderPath
+        cachePath.append(contentsOf: "/videoCache")
+        folderExists(atPath: cachePath)
+        return cachePath
+    }
+    
+    static func getAudioCacheFolderPath() -> String {
+        var cachePath = cacheFolderPath
+        cachePath.append(contentsOf: "/audioCache")
         folderExists(atPath: cachePath)
         return cachePath
     }
@@ -80,6 +101,7 @@ public extension PhotoTools {
         removeVideoCache()
         removeImageCache()
         removeAudioCache()
+        removeAudioTmpCache()
     }
     
     /// 删除视频缓存
@@ -96,8 +118,13 @@ public extension PhotoTools {
     
     /// 删除音频临时缓存
     @discardableResult
-    static func removeAudioCache() -> Bool {
+    static func removeAudioTmpCache() -> Bool {
         return removeFile(filePath: getAudioTmpFolderPath())
+    }
+    
+    @discardableResult
+    static func removeAudioCache() -> Bool {
+        return removeFile(filePath: getAudioCacheFolderPath())
     }
     
     /// 获取视频缓存文件大小
@@ -106,12 +133,26 @@ public extension PhotoTools {
         return folderSize(atPath: getVideoCacheFolderPath())
     }
     
+    @discardableResult
+    static func getCacheURL(for key: String) -> URL {
+        var cachePath = cacheFolderPath
+        cachePath.append(contentsOf: "/" + key.md5)
+        return URL.init(fileURLWithPath: cachePath)
+    }
+    
     /// 获取视频缓存文件地址
     /// - Parameter key: 生成文件的key
     @discardableResult
     static func getVideoCacheURL(for key: String) -> URL {
         var cachePath = getVideoCacheFolderPath()
         cachePath.append(contentsOf: "/" + key.md5 + ".mp4")
+        return URL.init(fileURLWithPath: cachePath)
+    }
+    
+    @discardableResult
+    static func getAudioCacheURL(for key: String) -> URL {
+        var cachePath = getAudioCacheFolderPath()
+        cachePath.append(contentsOf: "/" + key.md5 + ".mp3")
         return URL.init(fileURLWithPath: cachePath)
     }
     
@@ -176,6 +217,18 @@ public extension PhotoTools {
             return jpegData
         }
         return nil
+    }
+    static func getImageData(_ image: UIImage, queueLabel: String, completion: @escaping (Data?) -> Void) {
+        let serialQueue = DispatchQueue(label: queueLabel, qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem, target: nil)
+        serialQueue.async {
+            autoreleasepool {
+                guard let imageData = self.getImageData(for: image) else {
+                    completion(nil)
+                    return
+                }
+                completion(imageData)
+            }
+        }
     }
     
     @discardableResult

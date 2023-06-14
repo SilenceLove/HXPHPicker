@@ -10,7 +10,7 @@ import HXPHPicker
 
 class CustomPickerCellViewController: UIViewController {
     
-    let config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: false)
+    var config: PickerConfiguration = PhotoTools.getWXPickerConfig(isMoment: false)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +37,7 @@ class CustomPickerCellViewController: UIViewController {
 }
 extension CustomPickerCellViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
-        pickerController.dismiss(animated: true) {
+        pickerController.dismiss(true) {
             let pickerResultVC = PickerResultViewController.init()
             pickerResultVC.config = pickerController.config
             pickerResultVC.selectedAssets = result.photoAssets

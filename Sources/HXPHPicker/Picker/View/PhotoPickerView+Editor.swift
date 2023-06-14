@@ -8,53 +8,54 @@
 import UIKit
 
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
-extension PhotoPickerView: PhotoEditorViewControllerDelegate {
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        didFinish result: PhotoEditResult
+extension PhotoPickerView: EditorViewControllerDelegate {
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
+        didFinish asset: EditorAsset
     ) {
-        let photoAsset = photoEditorViewController.photoAsset!
-        photoAsset.photoEdit = result
-        if !isMultipleSelect {
-            if manager.canSelectAsset(for: photoAsset, showHUD: true) {
-                manager.addedPhotoAsset(photoAsset: photoAsset)
-                finishSelectionAsset([photoAsset])
-            }
+        guard let photoAsset = asset.type.photoAsset else {
             return
         }
-        if !photoAsset.isSelected {
-            let cell = getCell(for: photoAsset)
-            cell?.photoAsset = photoAsset
-            if manager.addedPhotoAsset(photoAsset: photoAsset) {
-                updateCellSelectedTitle()
+        photoAsset.editedResult = asset.result
+        if asset.result != nil {
+            if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
+                if manager.canSelectAsset(for: photoAsset, showHUD: true) {
+                    manager.addedPhotoAsset(photoAsset: photoAsset)
+                    finishSelectionAsset([photoAsset])
+                }
+                return
+            }
+            if !photoAsset.isSelected {
+                let cell = getCell(for: photoAsset)
+                cell?.photoAsset = photoAsset
+                if manager.addedPhotoAsset(photoAsset: photoAsset) {
+                    updateCellSelectedTitle()
+                }
+            }else {
+                reloadCell(for: photoAsset)
             }
         }else {
-            reloadCell(for: photoAsset)
+            if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
+                if manager.canSelectAsset(for: photoAsset, showHUD: true) {
+                    manager.addedPhotoAsset(photoAsset: photoAsset)
+                    finishSelectionAsset([photoAsset])
+                }
+                return
+            }
+            let cell = getCell(for: photoAsset)
+            cell?.photoAsset = photoAsset
+            if !photoAsset.isSelected {
+                if manager.addedPhotoAsset(photoAsset: photoAsset) {
+                    updateCellSelectedTitle()
+                }
+            }
         }
     }
-    public func photoEditorViewController(
-        didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
+        loadTitleChartlet response: @escaping EditorTitleChartletResponse
     ) {
-        let photoAsset = photoEditorViewController.photoAsset!
-        photoAsset.photoEdit = nil
-        if !isMultipleSelect {
-            if manager.canSelectAsset(for: photoAsset, showHUD: true) {
-                manager.addedPhotoAsset(photoAsset: photoAsset)
-                finishSelectionAsset([photoAsset])
-            }
-            return
-        }
-        let cell = getCell(for: photoAsset)
-        cell?.photoAsset = photoAsset
-        if !photoAsset.isSelected {
-            if manager.addedPhotoAsset(photoAsset: photoAsset) {
-                updateCellSelectedTitle()
-            }
-        }
-    }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
         guard let delegate = delegate else {
             #if canImport(Kingfisher)
             let titles = PhotoTools.defaultTitleChartlet()
@@ -66,15 +67,17 @@ extension PhotoPickerView: PhotoEditorViewControllerDelegate {
         }
         delegate.photoPickerView(
             self,
-            loadTitleChartlet: photoEditorViewController,
+            loadTitleChartlet: editorViewController,
             response: response
         )
     }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
-        loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
+        loadChartletList response: @escaping EditorChartletListResponse
+    ) {
         guard let delegate = delegate else {
             #if canImport(Kingfisher)
             let chartletList = PhotoTools.defaultNetworkChartlet()
@@ -86,68 +89,25 @@ extension PhotoPickerView: PhotoEditorViewControllerDelegate {
         }
         delegate.photoPickerView(
             self,
-            loadChartletList: photoEditorViewController,
+            loadChartletList: editorViewController,
             titleChartlet: titleChartlet,
             titleIndex: titleIndex,
             response: response
         )
     }
-}
-
-extension PhotoPickerView: VideoEditorViewControllerDelegate {
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadTitleChartlet response: @escaping EditorTitleChartletResponse) {
-        guard let delegate = delegate else {
-            #if canImport(Kingfisher)
-            let titles = PhotoTools.defaultTitleChartlet()
-            response(titles)
-            #else
-            response([])
-            #endif
-            return
-        }
-        delegate.photoPickerView(
-            self,
-            loadTitleChartlet: videoEditorViewController,
-            response: response
-        )
-    }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        titleChartlet: EditorChartlet,
-        titleIndex: Int,
-        loadChartletList response: @escaping EditorChartletListResponse) {
-        guard let delegate = delegate else {
-            #if canImport(Kingfisher)
-            let chartletList = PhotoTools.defaultNetworkChartlet()
-            response(titleIndex, chartletList)
-            #else
-            response(titleIndex, [])
-            #endif
-            return
-        }
-        delegate.photoPickerView(
-            self,
-            loadChartletList: videoEditorViewController,
-            titleChartlet: titleChartlet,
-            titleIndex: titleIndex,
-            response: response
-        )
-    }
-    public func videoEditorViewController(
-        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
-    ) -> Bool {
+    
+    public func editorViewController(shouldClickMusicTool editorViewController: EditorViewController) -> Bool {
         if let shouldClick = delegate?.photoPickerView(
             self,
-            videoEditorShouldClickMusicTool: videoEditorViewController
+            videoEditorShouldClickMusicTool: editorViewController
            ) {
             return shouldClick
         }
         return true
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
         loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
     ) -> Bool {
         guard let delegate = delegate else {
@@ -156,13 +116,14 @@ extension PhotoPickerView: VideoEditorViewControllerDelegate {
         }
         return delegate.photoPickerView(
             self,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             loadMusic: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didSearch text: String?,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
+        didSearchMusic text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     ) {
         guard let delegate = delegate else {
@@ -171,14 +132,15 @@ extension PhotoPickerView: VideoEditorViewControllerDelegate {
         }
         delegate.photoPickerView(
             self,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             didSearch: text,
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMore text: String?,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
+        loadMoreMusic text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     ) {
         guard let delegate = delegate else {
@@ -187,57 +149,10 @@ extension PhotoPickerView: VideoEditorViewControllerDelegate {
         }
         delegate.photoPickerView(
             self,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             loadMore: text,
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult
-    ) {
-        let photoAsset = videoEditorViewController.photoAsset!
-        photoAsset.videoEdit = result
-        if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
-            if manager.canSelectAsset(for: photoAsset, showHUD: true) {
-                manager.addedPhotoAsset(photoAsset: photoAsset)
-                finishSelectionAsset([photoAsset])
-            }
-            return
-        }
-        if !photoAsset.isSelected {
-            let cell = getCell(for: photoAsset)
-            cell?.photoAsset = photoAsset
-            if manager.addedPhotoAsset(photoAsset: photoAsset) {
-                updateCellSelectedTitle()
-            }
-        }else {
-            reloadCell(for: photoAsset)
-        }
-    }
-    public func videoEditorViewController(
-        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
-    ) {
-        let photoAsset = videoEditorViewController.photoAsset!
-        let beforeHasEdit = photoAsset.videoEdit != nil
-        photoAsset.videoEdit = nil
-        if (photoAsset.mediaType == .video && videoLoadSingleCell) || !isMultipleSelect {
-            if manager.canSelectAsset(for: photoAsset, showHUD: true) {
-                manager.addedPhotoAsset(photoAsset: photoAsset)
-                finishSelectionAsset([photoAsset])
-            }
-            return
-        }
-        if beforeHasEdit {
-            let cell = getCell(for: photoAsset)
-            cell?.photoAsset = photoAsset
-        }
-        if !photoAsset.isSelected {
-            if manager.addedPhotoAsset(photoAsset: photoAsset) {
-                updateCellSelectedTitle()
-            }
-        }
-    }
 }
-
 #endif

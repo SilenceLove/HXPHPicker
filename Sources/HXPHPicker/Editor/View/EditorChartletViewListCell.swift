@@ -51,7 +51,7 @@ class EditorChartletViewListCell: UICollectionViewCell,
             resetOffset()
         }
     }
-    var editorType: EditorController.EditorType = .photo
+    var editorType: EditorContentViewType = .image
     
     func resetOffset() {
         collectionView.contentOffset = CGPoint(
@@ -110,7 +110,7 @@ class EditorChartletViewListCell: UICollectionViewCell,
         let cell = collectionView.cellForItem(at: indexPath) as! EditorChartletViewCell
         if var image = cell.chartlet.image {
             let imageData: Data?
-            if editorType == .photo {
+            if editorType == .image {
                 if let count = image.images?.count,
                    let img = image.images?.first,
                    count > 0 {
@@ -129,14 +129,16 @@ class EditorChartletViewListCell: UICollectionViewCell,
             #if canImport(Kingfisher)
             if let url = cell.chartlet.url, cell.downloadCompletion {
                 let options: KingfisherOptionsInfo = []
+                ProgressHUD.showLoading(addedTo: superview)
                 PhotoTools.downloadNetworkImage(
                     with: url,
-                    cancelOrigianl: false,
+                    cancelOrigianl: true,
                     options: options,
                     completionHandler: { [weak self] (image) in
                     guard let self = self else { return }
+                    ProgressHUD.hide(forView: self.superview)
                     if let image = image {
-                        if self.editorType == .photo {
+                        if self.editorType == .image {
                             if let data = image.kf.gifRepresentation(),
                                let img = UIImage(data: data) {
                                 self.delegate?.listCell(self, didSelectImage: img, imageData: nil)

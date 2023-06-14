@@ -9,13 +9,13 @@ import UIKit
 
 extension UIImageView {
     
-    func setImage(_ image: UIImage?, animated: Bool) {
+    func setImage(_ image: UIImage?, duration: CFTimeInterval = 0.2, animated: Bool = true) {
         if let image = image {
             self.image = image
             if animated {
                 let transition = CATransition()
                 transition.type = .fade
-                transition.duration = 0.2
+                transition.duration = duration
                 transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
                 layer.add(transition, forKey: nil)
             }

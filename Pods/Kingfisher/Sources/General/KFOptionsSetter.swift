@@ -237,6 +237,18 @@ extension KFOptionSetter {
         return self
     }
 
+    /// Sets writing options for an original image on a first write
+    /// - Parameter writingOptions: Options to control the writing of data to a disk storage.
+    /// - Returns: A `Self` value with changes applied.
+    /// If set, options will be passed the store operation for a new files.
+    ///
+    /// This is useful if you want to implement file enctyption on first write - eg [.completeFileProtection]
+    ///
+    public func diskStoreWriteOptions(_ writingOptions: Data.WritingOptions) -> Self {
+        options.diskStoreWriteOptions = writingOptions
+        return self
+    }
+
     /// Sets whether the disk storage loading should happen in the same calling queue.
     /// - Parameter enabled: Whether the disk storage loading should happen in the same calling queue.
     /// - Returns: A `Self` value with changes applied.
@@ -355,7 +367,7 @@ extension KFOptionSetter {
     /// This is the last chance you can modify the image download request. You can modify the request for some
     /// customizing purpose, such as adding auth token to the header, do basic HTTP auth or something like url mapping.
     ///
-    public func requestModifier(_ modifier: ImageDownloadRequestModifier) -> Self {
+    public func requestModifier(_ modifier: AsyncImageDownloadRequestModifier) -> Self {
         options.requestModifier = modifier
         return self
     }
@@ -430,8 +442,7 @@ extension KFOptionSetter {
     ///                         to form a processor pipeline.
     /// - Returns: A `Self` value with changes applied.
     ///
-    /// - Note:
-    /// To append processors to current ones instead of replacing them all, concatenate them by `|>`, then use
+    /// - Note: To append processors to current ones instead of replacing them all, concatenate them by `|>`, then use
     /// `appendProcessor(_:)`.
     public func setProcessors(_ processors: [ImageProcessor]) -> Self {
         switch processors.count {
@@ -464,7 +475,7 @@ extension KFOptionSetter {
     ///   - backgroundColor: Background color of the output image. If `nil`, it will use a transparent background.
     /// - Returns: A `Self` value with changes applied.
     public func roundCorner(
-        radius: RoundCornerImageProcessor.Radius,
+        radius: Radius,
         targetSize: CGSize? = nil,
         roundingCorners corners: RectCorner = .all,
         backgroundColor: KFCrossPlatformColor? = nil

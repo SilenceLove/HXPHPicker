@@ -37,8 +37,8 @@ public extension AssetManager {
     static func requestImageData(
         for asset: PHAsset,
         version: PHImageRequestOptionsVersion,
-        iCloudHandler: ((PHImageRequestID) -> Void)?,
-        progressHandler: PHAssetImageProgressHandler?,
+        iCloudHandler: ((PHImageRequestID) -> Void)? = nil,
+        progressHandler: PHAssetImageProgressHandler? = nil,
         resultHandler: @escaping ImageDataResultHandler
     ) -> PHImageRequestID {
         return requestImageData(

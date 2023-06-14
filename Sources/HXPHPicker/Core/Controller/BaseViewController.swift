@@ -27,11 +27,13 @@ open class BaseViewController: UIViewController {
         )
     }
     
-    @objc open func deviceOrientationDidChanged(notify: Notification) {
+    @objc
+    open func deviceOrientationDidChanged(notify: Notification) {
         
     }
     
-    @objc open func deviceOrientationWillChanged(notify: Notification) {
+    @objc
+    open func deviceOrientationWillChanged(notify: Notification) {
         
     }
     

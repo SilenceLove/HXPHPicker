@@ -31,11 +31,17 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
         return 0.25
     }
     
+    var transitionContext: UIViewControllerContextTransitioning?
+    
     public func animateTransition(
         using transitionContext: UIViewControllerContextTransitioning
     ) {
-        let fromVC = transitionContext.viewController(forKey: .from)!
-        let toVC = transitionContext.viewController(forKey: .to)!
+        self.transitionContext = transitionContext
+        guard let fromVC = transitionContext.viewController(forKey: .from),
+              let toVC = transitionContext.viewController(forKey: .to) else {
+            transitionContext.completeTransition(transitionContext.transitionWasCancelled)
+            return
+        }
         
         let containerView = transitionContext.containerView
         let bgView = UIView(frame: containerView.bounds)
@@ -46,7 +52,32 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
             containerView.addSubview(bgView)
             containerView.addSubview(toVC.view)
         }else {
-            containerView.addSubview(toVC.view)
+            if toVC.transitioningDelegate == nil || toVC is PhotoPickerController {
+                containerView.addSubview(toVC.view)
+            }else {
+                if let vc = fromVC as? PhotoPickerController {
+                    switch vc.config.pickerPresentStyle {
+                    case .push(let rightSwipe):
+                        guard let rightSwipe = rightSwipe else {
+                            break
+                        }
+                        for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
+                            containerView.addSubview(toVC.view)
+                            break
+                        }
+                    case .present(let rightSwipe):
+                        guard let rightSwipe = rightSwipe else {
+                            break
+                        }
+                        for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
+                            containerView.addSubview(toVC.view)
+                            break
+                        }
+                    default:
+                        break
+                    }
+                }
+            }
             containerView.addSubview(bgView)
             containerView.addSubview(fromVC.view)
         }
@@ -61,7 +92,6 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
             options = .curveLinear
         default:
             options = .curveLinear
-            break
         }
         UIView.animate(
             withDuration: duration,
@@ -89,7 +119,7 @@ class PickerControllerTransition: NSObject, UIViewControllerAnimatedTransitionin
             default:
                 break
             }
-            transitionContext.completeTransition(true)
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
         }
     }
 }

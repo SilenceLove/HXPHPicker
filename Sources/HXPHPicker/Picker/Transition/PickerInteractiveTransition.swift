@@ -476,7 +476,7 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
                 if !previewViewController.statusBarShouldBeHidden {
                     previewViewController.bottomView.alpha = 1
                     if AssetManager.authorizationStatusIsLimited() &&
-                        pickerViewController.config.bottomView.showPrompt {
+                        pickerViewController.config.bottomView.isShowPrompt {
                         pickerViewController.bottomView.alpha = 0
                     }
                 }
@@ -528,14 +528,14 @@ class PickerInteractiveTransition: UIPercentDrivenInteractiveTransition, UIGestu
             pickerViewController.navigationController?.navigationBar.alpha = 0
             previewViewController.navigationController?.setNavigationBarHidden(false, animated: false)
         }else {
-            if previewViewController.config.bottomView.showSelectedView == true &&
+            if previewViewController.config.bottomView.isShowSelectedView == true &&
                 previewViewController.pickerController?.config.selectMode == .multiple &&
                 !previewViewController.statusBarShouldBeHidden {
                 if previewViewController.pickerController?.selectedAssetArray.isEmpty == false {
                     previewShowSelectedView = true
                 }
             }
-            if AssetManager.authorizationStatusIsLimited() && previewViewController.config.bottomView.showPrompt {
+            if AssetManager.authorizationStatusIsLimited() && previewViewController.config.bottomView.isShowPrompt {
                 pickerShowParompt = true
             }
         }

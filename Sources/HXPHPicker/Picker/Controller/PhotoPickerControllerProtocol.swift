@@ -132,9 +132,9 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     func pickerController(
         _ pickerController: PhotoPickerController,
         shouldEditPhotoAsset photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool
+    ) -> EditorConfiguration?
     
     /// 即将编辑视频
     ///   - pickerController: 对应的 PhotoPickerController
@@ -144,9 +144,9 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     func pickerController(
         _ pickerController: PhotoPickerController,
         shouldEditVideoAsset videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool
+    ) -> EditorConfiguration?
     
     /// 照片/视频编辑器加载贴图标题资源
     /// - Parameters:
@@ -155,7 +155,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - loadTitleChartlet: 传入标题数组
     func pickerController(
         _ pickerController: PhotoPickerController,
-        loadTitleChartlet editorViewController: UIViewController,
+        loadTitleChartlet editorViewController: EditorViewController,
         response: @escaping EditorTitleChartletResponse
     )
     
@@ -168,7 +168,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - response: 传入 title索引 和 贴图数据
     func pickerController(
         _ pickerController: PhotoPickerController,
-        loadChartletList editorViewController: UIViewController,
+        loadChartletList editorViewController: EditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
         response: @escaping EditorChartletListResponse
@@ -180,7 +180,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - videoEditorViewController: 对应的 VideoEditorViewController
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditorShouldClickMusicTool videoEditorViewController: VideoEditorViewController
+        videoEditorShouldClickMusicTool editorViewController: EditorViewController
     ) -> Bool
     
     /// 视频编辑器加载配乐信息，当music.infos为空时触发
@@ -191,7 +191,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - completionHandler: 传入配乐信息
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
     ) -> Bool
     
@@ -202,7 +202,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - completion: 传入配乐信息，是否需要加载更多
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         didSearch text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     )
@@ -214,7 +214,7 @@ public protocol PhotoPickerControllerDelegate: AnyObject {
     ///   - completion: 传入配乐信息，是否还有更多数据
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         loadMore text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     )
@@ -530,20 +530,20 @@ public extension PhotoPickerControllerDelegate {
     func pickerController(
         _ pickerController: PhotoPickerController,
         shouldEditPhotoAsset photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool { true }
+    ) -> EditorConfiguration? { editorConfig }
     
     func pickerController(
         _ pickerController: PhotoPickerController,
         shouldEditVideoAsset videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration,
+        editorConfig: EditorConfiguration,
         atIndex: Int
-    ) -> Bool { true }
+    ) -> EditorConfiguration? { editorConfig }
     
     func pickerController(
         _ pickerController: PhotoPickerController,
-        loadTitleChartlet editorViewController: UIViewController,
+        loadTitleChartlet editorViewController: EditorViewController,
         response: @escaping EditorTitleChartletResponse
     ) {
         #if canImport(Kingfisher)
@@ -555,7 +555,7 @@ public extension PhotoPickerControllerDelegate {
     }
     func pickerController(
         _ pickerController: PhotoPickerController,
-        loadChartletList editorViewController: UIViewController,
+        loadChartletList editorViewController: EditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
         response: @escaping EditorChartletListResponse
@@ -571,12 +571,12 @@ public extension PhotoPickerControllerDelegate {
     func pickerController(
         _ pickerController: PhotoPickerController,
         videoEditorShouldClickMusicTool
-            videoEditorViewController: VideoEditorViewController
+        editorViewController: EditorViewController
     ) -> Bool { true }
     
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
     ) -> Bool {
         completionHandler(PhotoTools.defaultMusicInfos())
@@ -584,7 +584,7 @@ public extension PhotoPickerControllerDelegate {
     }
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         didSearch text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     ) {
@@ -592,7 +592,7 @@ public extension PhotoPickerControllerDelegate {
     }
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         loadMore text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     ) {

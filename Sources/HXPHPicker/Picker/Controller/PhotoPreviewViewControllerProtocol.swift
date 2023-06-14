@@ -22,13 +22,13 @@ protocol PhotoPreviewViewControllerDelegate: AnyObject {
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditPhotoAsset photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration
-    ) -> Bool
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration?
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditVideoAsset videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration
-    ) -> Bool
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration?
     #endif
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
@@ -65,13 +65,13 @@ extension PhotoPreviewViewControllerDelegate {
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditPhotoAsset photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration
-    ) -> Bool { true }
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration? { editorConfig }
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditVideoAsset videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration
-    ) -> Bool { true }
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration? { editorConfig }
     #endif
     func previewViewController(
         _ previewController: PhotoPreviewViewController,

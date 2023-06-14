@@ -44,6 +44,8 @@ open class PhotoPreviewContentView: UIView {
     
     lazy var imageView: ImageView = {
         let view = ImageView()
+        view.size = size
+        view.imageView.size = size
         return view
     }()
     
@@ -82,6 +84,9 @@ open class PhotoPreviewContentView: UIView {
     var currentLoadAssetLocalIdentifier: String?
     public var photoAsset: PhotoAsset! {
         didSet {
+            #if canImport(Kingfisher)
+            photoAsset.loadNetworkImageHandler = nil
+            #endif
             requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
             setAnimatedImageCompletion = false
             switch photoAsset.mediaSubType {
@@ -89,12 +94,22 @@ open class PhotoPreviewContentView: UIView {
                 if #available(iOS 9.1, *) {
                     livePhotoView.livePhoto = nil
                 }
+                if let localLivePhoto = photoAsset.localLivePhoto,
+                   !localLivePhoto.imageURL.isFileURL {
+                    requestNetworkCompletion = false
+                    requestNetworkImage()
+                }
             case .localImage:
                 requestCompletion = true
             case .networkImage(_), .networkVideo:
                 networkVideoLoading = false
                 requestNetworkCompletion = false
                 requestNetworkImage()
+                #if canImport(Kingfisher)
+                photoAsset.loadNetworkImageHandler = { [weak self] in
+                    self?.requestNetworkImage(loadOriginal: true, $0)
+                }
+                #endif
                 return
             default:
                 break
@@ -163,6 +178,13 @@ open class PhotoPreviewContentView: UIView {
             text: text?.localized,
             animated: true
         )
+    }
+    
+    func stopLivePhoto() {
+        if photoAsset.mediaSubType == .livePhoto ||
+           photoAsset.mediaSubType == .localLivePhoto {
+            livePhotoView.stopPlayback()
+        }
     }
     
     func stopVideo() {
@@ -256,17 +278,33 @@ open class PhotoPreviewContentView: UIView {
 // MARK: Request Network
 extension PhotoPreviewContentView {
     
-    func requestNetworkImage() {
+    func requestNetworkImage(loadOriginal: Bool = false, _ completion: ((PhotoAsset) -> Void)? = nil) {
         requestCompletion = true
+        var isLoaclLivePhoto = false
         #if canImport(Kingfisher)
         if photoAsset.mediaSubType != .networkVideo {
-            if !ImageCache.default.isCached(forKey: photoAsset.networkImageAsset!.originalURL.cacheKey) {
+            var key: String = ""
+            if let networkImage = photoAsset.networkImageAsset {
+                if networkImage.originalLoadMode == .alwaysThumbnail,
+                   !loadOriginal {
+                    key = networkImage.thumbnailURL.cacheKey
+                }else {
+                    key = networkImage.originalURL.cacheKey
+                }
+            }else if let livePhoto = photoAsset.localLivePhoto,
+                         !livePhoto.imageURL.isFileURL {
+                key = livePhoto.imageURL.cacheKey
+                requestCompletion = false
+                isLoaclLivePhoto = true
+            }
+            if !ImageCache.default.isCached(forKey: key) {
                 showLoadingView(text: nil)
             }
         }
         imageTask = imageView.setImage(
             for: photoAsset,
-            urlType: .original
+            urlType: .original,
+            forciblyOriginal: loadOriginal
         ) { [weak self] (receivedData, totolData) in
             guard let self = self else { return }
             if self.photoAsset.mediaSubType != .networkVideo {
@@ -277,6 +315,13 @@ extension PhotoPreviewContentView {
             self?.imageTask = downloadTask
         } completionHandler: { [weak self] (image, error, photoAsset) in
             guard let self = self else { return }
+            completion?(photoAsset)
+            if isLoaclLivePhoto {
+                if let image = image {
+                    self.updateContentSize(image: image)
+                }
+                return
+            }
             if self.photoAsset.mediaSubType != .networkVideo {
                 self.requestNetworkCompletion = true
                 if let image = image {
@@ -311,8 +356,8 @@ extension PhotoPreviewContentView {
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = photoAsset.videoEdit {
-            networkVideoRequestCompletion(videoEdit.editedURL)
+        if let videoEdit = photoAsset.videoEditedResult {
+            networkVideoRequestCompletion(videoEdit.url)
             return
         }
         #endif
@@ -469,19 +514,19 @@ extension PhotoPreviewContentView {
     
     func requestOriginalImage() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
+        if let photoEdit = photoAsset.photoEditedResult {
             if photoEdit.imageType == .gif {
                 do {
-                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
+                    let imageData = try Data(contentsOf: photoEdit.url)
                     imageView.setImageData(imageData)
                 }catch {
-                    imageView.setImage(photoEdit.editedImage, animated: true)
+                    imageView.setImage(photoEdit.image, animated: true)
                 }
             }else {
-                if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+                if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                     imageView.setImage(image, animated: true)
                 }else {
-                    imageView.setImage(photoEdit.editedImage, animated: true)
+                    imageView.setImage(photoEdit.image, animated: true)
                 }
             }
             requestCompletion = true
@@ -518,19 +563,9 @@ extension PhotoPreviewContentView {
                         var image: UIImage?
                         let dataCount = CGFloat(dataResult.imageData.count)
                         if dataCount > 3000000 {
-                            let compressionQuality: CGFloat
-                            if dataCount > 30000000 {
-                                compressionQuality = 30000000 / dataCount
-                            }else if dataCount > 15000000 {
-                                compressionQuality = 10000000 / dataCount
-                            }else if dataCount > 10000000 {
-                                compressionQuality = 6000000 / dataCount
-                            }else {
-                                compressionQuality = 3000000 / dataCount
-                            }
                             if let imageData = PhotoTools.imageCompress(
                                 dataResult.imageData,
-                                compressionQuality: compressionQuality
+                                compressionQuality: dataCount.compressionQuality
                             ) {
                                 image = .init(data: imageData)
                             }
@@ -556,11 +591,11 @@ extension PhotoPreviewContentView {
     @available(iOS 9.1, *)
     func requestLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
-            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+        if let photoEdit = photoAsset.photoEditedResult {
+            if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                 imageView.setImage(image, animated: true)
             }else {
-                imageView.setImage(photoEdit.editedImage, animated: true)
+                imageView.setImage(photoEdit.image, animated: true)
             }
             requestCompletion = true
             return
@@ -603,17 +638,19 @@ extension PhotoPreviewContentView {
     }
     func requestLocalLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
-            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+        if let photoEdit = photoAsset.photoEditedResult {
+            if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                 imageView.setImage(image, animated: true)
             }else {
-                imageView.setImage(photoEdit.editedImage, animated: true)
+                imageView.setImage(photoEdit.image, animated: true)
             }
             requestCompletion = true
             return
         }
         #endif
-        loadingView = ProgressHUD.showLoading(addedTo: hudSuperview(), animated: true)
+        if let livePhoto = photoAsset.localLivePhoto, !livePhoto.isCache {
+            loadingView = ProgressHUD.showLoading(addedTo: hudSuperview(), animated: true)
+        }
         localLivePhotoRequest = photoAsset.requestLocalLivePhoto(success: { [weak self] photoAsset, livePhoto in
             guard let self = self else { return }
             if photoAsset == self.photoAsset {
@@ -680,7 +717,14 @@ extension PhotoPreviewContentView {
         showLoadingView(text: "正在同步iCloud".localized)
     }
     func requestUpdateProgress(progress: Double, isICloud: Bool) {
-        loadingView?.progress = CGFloat(progress)
+        guard let loadingView = loadingView else {
+            return
+        }
+        if loadingView.mode == .circleProgress {
+            loadingView.progress = CGFloat(progress)
+        }else {
+            loadingView.text = "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)"
+        }
     }
     func resetLoadingState() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -724,6 +768,7 @@ extension PhotoPreviewContentView {
             imageGenerator.cancelAllCGImageGeneration()
         }
         #endif
+        imageTask = nil
     }
     func cancelRequest() {
         guard let photoAsset = photoAsset else { return }
@@ -785,7 +830,7 @@ extension PhotoPreviewContentView: PHLivePhotoViewDelegate {
     ) {
         livePhotoIsAnimating = false
         delegate?.contentView(livePhotoDidEndPlayback: self)
-        if livePhotoPlayType == .auto {
+        if livePhotoPlayType == .auto && livePhotoView.alpha != 0 {
             livePhotoView.startPlayback(with: .full)
         }
     }

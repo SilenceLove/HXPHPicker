@@ -64,7 +64,7 @@ class DeniedAuthorizationView: UIView {
     }
     
     func configView() {
-        if !config.hiddenCloseButton {
+        if !config.isHiddenCloseButton {
             addSubview(navigationBar)
         }
         addSubview(titleLb)

@@ -38,16 +38,16 @@ extension PhotoAsset {
     }
     func getEditedFileSize() -> Int {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
+        if photoEditedResult != nil {
             if let imageData = getLocalImageData() {
                 pFileSize = imageData.count
                 return imageData.count
             }
             return 0
         }
-        if let videoEdit = videoEdit {
-            pFileSize = videoEdit.editedFileSize
-            return videoEdit.editedFileSize
+        if let videoEdit = videoEditedResult {
+            pFileSize = videoEdit.fileSize
+            return videoEdit.fileSize
         }
         #endif
         return -1
@@ -90,9 +90,6 @@ extension PhotoAsset {
                     default:
                         break
                     }
-                }
-                if let photoFileSize = assetResource.value(forKey: "fileSize") as? Int {
-                    fileSize += photoFileSize
                 }
             }
         }else {

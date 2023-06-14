@@ -25,7 +25,7 @@ class EditorChartletViewCell: UICollectionViewCell {
         view.imageView.contentMode = .scaleAspectFit
         return view
     }()
-    var editorType: EditorController.EditorType = .photo
+    var editorType: EditorContentViewType = .image
     var downloadCompletion = false
     
     var titleChartlet: EditorChartletTitle! {

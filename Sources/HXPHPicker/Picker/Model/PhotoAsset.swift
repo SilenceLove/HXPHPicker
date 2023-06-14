@@ -8,6 +8,9 @@
 
 import UIKit
 import Photos
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public typealias PhotoAssetICloudHandler = (PhotoAsset, PHImageRequestID) -> Void
 public typealias PhotoAssetProgressHandler = (PhotoAsset, Double) -> Void
@@ -25,14 +28,34 @@ open class PhotoAsset: Equatable {
     public var mediaSubType: MediaSubType = .image
     
     #if HXPICKER_ENABLE_EDITOR
-    /// 图片编辑数据
-    public var photoEdit: PhotoEditResult? { didSet { pFileSize = nil } }
+    /// 编辑之后的数据
+    public var editedResult: EditedResult? { didSet { pFileSize = nil } }
+    var initialEditedResult: EditedResult?
     
-    /// 视频编辑数据
-    public var videoEdit: VideoEditResult? { didSet { pFileSize = nil } }
-    
-    var initialPhotoEdit: PhotoEditResult?
-    var initialVideoEdit: VideoEditResult?
+    /// 图片编辑结果
+    public var photoEditedResult: ImageEditedResult? {
+        guard let editedResult = editedResult else {
+            return nil
+        }
+        switch editedResult {
+        case .image(let result, _):
+            return result
+        default:
+            return nil
+        }
+    }
+    /// 视频编辑结果
+    public var videoEditedResult: VideoEditedResult? {
+        guard let editedResult = editedResult else {
+            return nil
+        }
+        switch editedResult {
+        case .video(let result, _):
+            return result
+        default:
+            return nil
+        }
+    }
     #endif
     
     /// 原图
@@ -46,7 +69,7 @@ open class PhotoAsset: Equatable {
     /// 视频时长 格式：00:00
     public var videoTime: String? {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.videoTime
         }
         #endif
@@ -56,7 +79,7 @@ open class PhotoAsset: Equatable {
     /// 视频时长 秒
     public var videoDuration: TimeInterval {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.videoDuration
         }
         #endif
@@ -183,6 +206,8 @@ open class PhotoAsset: Equatable {
     public var networkImageAsset: NetworkImageAsset?
     
     var localImageType: DonwloadURLType = .thumbnail
+    
+    var loadNetworkImageHandler: ((((PhotoAsset) -> Void)?) -> Void)?
     #endif
     
     /// 网络视频
@@ -249,14 +274,17 @@ extension PhotoAsset {
     }
     
     func setMediaType() {
-        if phAsset?.mediaType.rawValue == 1 {
+        guard let phAsset = phAsset else {
+            return
+        }
+        if phAsset.mediaType == .image {
             mediaType = .photo
             mediaSubType = .image
-        }else if phAsset?.mediaType.rawValue == 2 {
+        }else if phAsset.mediaType == .video {
             mediaType = .video
             mediaSubType = .video
-            pVideoDuration = phAsset!.duration
-            pVideoTime = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(phAsset!.duration)))
+            pVideoDuration = phAsset.duration
+            pVideoTime = PhotoTools.transformVideoDurationToString(duration: TimeInterval(round(phAsset.duration)))
         }
     }
     
@@ -266,14 +294,23 @@ extension PhotoAsset {
     }
     func getOriginalImage() -> UIImage? {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             return getEditedImage()
         }
         #endif
         guard let phAsset = phAsset else {
             if mediaType == .photo {
                 if let livePhoto = localLivePhoto {
-                    return UIImage(contentsOfFile: livePhoto.imageURL.path)
+                    if livePhoto.imageURL.isFileURL {
+                        return UIImage(contentsOfFile: livePhoto.imageURL.path)
+                    }else {
+                        #if canImport(Kingfisher)
+                        if ImageCache.default.isCached(forKey: livePhoto.imageURL.cacheKey) {
+                            return ImageCache.default.retrieveImageInMemoryCache(forKey: livePhoto.imageURL.cacheKey, options: [])
+                        }
+                        #endif
+                        return nil
+                    }
                 }
                 if let image = localImageAsset?.image {
                     return image
@@ -315,10 +352,10 @@ extension PhotoAsset {
     }
     func getImageSize() -> CGSize {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
-            return photoEdit.editedImage.size
+        if let photoEdit = photoEditedResult {
+            return photoEdit.image.size
         }
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
         }
         #endif
@@ -338,9 +375,6 @@ extension PhotoAsset {
             }else if let imageURL = localImageAsset?.imageURL,
                      let image = UIImage(contentsOfFile: imageURL.path) {
                 localImageAsset?.image = image
-                size = image.size
-            }else if let localLivePhoto = localLivePhoto,
-                     let image = UIImage(contentsOfFile: localLivePhoto.imageURL.path) {
                 size = image.size
             }else if let localVideoAsset = localVideoAsset {
                 if !localVideoAsset.videoSize.equalTo(.zero) {
@@ -369,15 +403,44 @@ extension PhotoAsset {
                     size = CGSize(width: 200, height: 200)
                 }
             }else {
-                #if canImport(Kingfisher)
-                if let networkImageSize = networkImageAsset?.imageSize, !networkImageSize.equalTo(.zero) {
-                    size = networkImageSize
-                } else {
+                if let localLivePhoto = localLivePhoto {
+                    if localLivePhoto.size.equalTo(.zero) {
+                        if localLivePhoto.imageURL.isFileURL {
+                            let image = UIImage(contentsOfFile: localLivePhoto.imageURL.path)
+                            size = image?.size ?? .init(width: 200, height: 200)
+                            self.localLivePhoto?.size = size
+                        }else {
+                            #if canImport(Kingfisher)
+                            if ImageCache.default.isCached(forKey: localLivePhoto.imageURL.cacheKey) {
+                                let cachePath = ImageCache.default.cachePath(forKey: localLivePhoto.imageURL.cacheKey)
+                                if let image = UIImage(contentsOfFile: cachePath) {
+                                    size = image.size
+                                    self.localLivePhoto?.size = size
+                                }else {
+                                    size = .init(width: 200, height: 200)
+                                }
+                            }else {
+                                size = .init(width: 200, height: 200)
+                            }
+                            #else
+                            size = .init(width: 200, height: 200)
+                            #endif
+                        }
+                    }else {
+                        size = localLivePhoto.size
+                    }
+                }else {
+                    #if canImport(Kingfisher)
+                    if let networkImageSize = networkImageAsset?.imageSize, !networkImageSize.equalTo(.zero) {
+                        size = networkImageSize
+                    } else {
+                        size = CGSize(width: 200, height: 200)
+                    }
+                    #else
                     size = CGSize(width: 200, height: 200)
+                    #endif
                 }
-                #else
-                size = CGSize(width: 200, height: 200)
-                #endif
+                
             }
         }
         return size
@@ -387,10 +450,7 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         let coverURL = fileURL ?? PhotoTools.getImageTmpURL(.jpg)
-        requestImageData(
-            iCloudHandler: nil,
-            progressHandler: nil
-        ) { photoAsset, result in
+        requestImageData { photoAsset, result in
             switch result {
             case .success(let dataResult):
                 let imageData = dataResult.imageData
@@ -428,7 +488,7 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if (photoEdit != nil || videoEdit != nil) && !filterEditor {
+        if (editedResult != nil) && !filterEditor {
             getEditedImageURL(
                 toFile: fileURL,
                 compressionQuality: compressionQuality,
@@ -568,16 +628,16 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             if let fileURL = fileURL {
-                if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
+                if PhotoTools.copyFile(at: videoEdit.url, to: fileURL) {
                     resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .video)))
                 }else {
                     resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(.success(.init(url: videoEdit.editedURL, urlType: .local, mediaType: .video)))
+            resultHandler(.success(.init(url: videoEdit.url, urlType: .local, mediaType: .video)))
             return
         }
         #endif

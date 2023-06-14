@@ -275,24 +275,13 @@ extension PhotoTools {
         return nil
     }
     
-    /// 将字节转换成字符串
-    static func transformBytesToString(bytes: Int) -> String {
-        if CGFloat(bytes) >= 0.5 * 1000 * 1000 {
-            return String.init(format: "%0.1fM", arguments: [CGFloat(bytes) / 1000 / 1000])
-        }else if bytes >= 1000 {
-            return String.init(format: "%0.0fK", arguments: [CGFloat(bytes) / 1000])
-        }else {
-            return String.init(format: "%dB", arguments: [bytes])
-        }
-    }
-    
     /// 获取和微信主题一致的配置
     // swiftlint:disable function_body_length
     public static func getWXPickerConfig(
         isMoment: Bool = false
     ) -> PickerConfiguration {
         // swiftlint:enable function_body_length
-        let config = PickerConfiguration()
+        var config = PickerConfiguration()
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         if isMoment {
             config.maximumSelectedCount = 9
@@ -397,37 +386,11 @@ extension PhotoTools {
         
         #if HXPICKER_ENABLE_EDITOR
         config.previewView.bottomView.editButtonTitleColor = .white
-        
-        config.videoEditor.cropTime.maximumVideoCroppingTime = 60
-        config.videoEditor.cropSize.aspectRatioSelectedColor = wxColor
-        config.videoEditor.cropConfirmView.finishButtonBackgroundColor = wxColor
-        config.videoEditor.cropConfirmView.finishButtonDarkBackgroundColor = wxColor
-        config.videoEditor.toolView.finishButtonBackgroundColor = wxColor
-        config.videoEditor.toolView.finishButtonDarkBackgroundColor = wxColor
-        config.videoEditor.toolView.toolSelectedColor = wxColor
-        config.videoEditor.toolView.musicSelectedColor = wxColor
-        config.videoEditor.music.tintColor = wxColor
-        config.videoEditor.text.tintColor = wxColor
-        config.videoEditor.filter = .init(
-            infos: defaultVideoFilters(),
-            selectedColor: wxColor
-        )
-        
-        config.photoEditor.toolView.toolSelectedColor = wxColor
-        config.photoEditor.toolView.finishButtonBackgroundColor = wxColor
-        config.photoEditor.toolView.finishButtonDarkBackgroundColor = wxColor
-        config.photoEditor.cropConfimView.finishButtonBackgroundColor = wxColor
-        config.photoEditor.cropConfimView.finishButtonDarkBackgroundColor = wxColor
-        config.photoEditor.cropping.aspectRatioSelectedColor = wxColor
-        config.photoEditor.filter = .init(
-            infos: defaultFilters(),
-            selectedColor: wxColor
-        )
-        config.photoEditor.text.tintColor = wxColor
+        config.editor.video.cropTime.maximumTime = 60
         #endif
         
         #if HXPICKER_ENABLE_CAMERA
-        let cameraConfig = CameraConfiguration()
+        var cameraConfig = CameraConfiguration()
         cameraConfig.videoMaximumDuration = 60
         cameraConfig.tintColor = wxColor
         cameraConfig.modalPresentationStyle = .fullScreen

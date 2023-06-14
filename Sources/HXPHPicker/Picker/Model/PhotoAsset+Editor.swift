@@ -10,19 +10,19 @@ import UIKit
 extension PhotoAsset {
     #if HXPICKER_ENABLE_EDITOR
     func getEditedImageData() -> Data? {
-        if let photoEdit = photoEdit {
-            return try? Data(contentsOf: photoEdit.editedImageURL)
+        if let photoEdit = photoEditedResult {
+            return try? Data(contentsOf: photoEdit.url)
         }
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return PhotoTools.getImageData(for: videoEdit.coverImage)
         }
         return nil
     }
     func getEditedImage() -> UIImage? {
-        if let photoEdit = photoEdit {
-            return .init(contentsOfFile: photoEdit.editedImageURL.path)
+        if let photoEdit = photoEditedResult {
+            return .init(contentsOfFile: photoEdit.url.path)
         }
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.coverImage
         }
         return nil
@@ -37,7 +37,7 @@ extension PhotoAsset {
                 resultHandler(result)
             }
         }
-        if let photoEdit = photoEdit {
+        if let photoEdit = photoEditedResult {
             func completion(_ imageURL: URL) {
                 let url: URL
                 if let fileURL = fileURL {
@@ -59,7 +59,7 @@ extension PhotoAsset {
                     ))
                 )
             }
-            let imageURL = photoEdit.editedImageURL
+            let imageURL = photoEdit.url
             if let compressionQuality = compressionQuality,
                photoEdit.imageType != .gif {
                 DispatchQueue.global().async {
@@ -83,7 +83,7 @@ extension PhotoAsset {
             }else {
                 completion(imageURL)
             }
-        }else if let videoEdit = videoEdit {
+        }else if let videoEdit = videoEditedResult {
             DispatchQueue.global().async {
                 let imageData = PhotoTools.getImageData(
                     for: videoEdit.coverImage
@@ -114,7 +114,7 @@ extension PhotoAsset {
         toFile fileURL: URL? = nil,
         resultHandler: AssetURLCompletion
     ) {
-        guard let videoEdit = videoEdit else {
+        guard let videoEdit = videoEditedResult else {
             resultHandler(
                 .failure(
                     .invalidEditedData
@@ -124,7 +124,7 @@ extension PhotoAsset {
         }
         let url: URL
         if let fileURL = fileURL {
-            if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
+            if PhotoTools.copyFile(at: videoEdit.url, to: fileURL) {
                 url = fileURL
             }else {
                 resultHandler(
@@ -135,7 +135,7 @@ extension PhotoAsset {
                 return
             }
         }else {
-            url = videoEdit.editedURL
+            url = videoEdit.url
         }
         resultHandler(
             .success(

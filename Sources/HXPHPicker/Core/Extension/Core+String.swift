@@ -13,7 +13,12 @@ extension String: HXPickerCompatibleValue {
     
     var localized: String { Bundle.localizedString(for: self) }
     
-    var color: UIColor { UIColor.init(hexString: self) }
+    var color: UIColor {
+        if isEmpty {
+            return .clear
+        }
+        return UIColor(hexString: self)
+    }
     
     var image: UIImage? { UIImage.image(for: self) }
     
@@ -56,12 +61,20 @@ extension String: HXPickerCompatibleValue {
         return suffix.isEmpty ? fileName.md5 : fileName.md5 + "." + suffix
     }
     
+    func boundingRect(ofAttributes attributes: [NSAttributedString.Key: Any], size: CGSize) -> CGRect {
+        hx.boundingRect(ofAttributes: attributes, size: size)
+    }
+    
     func size(ofAttributes attributes: [NSAttributedString.Key: Any], maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {
         hx.size(
             ofAttributes: attributes,
             maxWidth: maxWidth,
             maxHeight: maxHeight
         )
+    }
+    
+    func size(ofFont font: UIFont, maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {
+        hx.size(ofFont: font, maxWidth: maxWidth, maxHeight: maxHeight)
     }
     
     /// 字符串宽度
@@ -146,16 +159,33 @@ public extension HXPickerWrapper where Base == String {
         Base.fileName(suffix: suffix)
     }
     
+    var localized: String { Bundle.localizedString(for: base) }
+    
     var color: UIColor { base.color }
     
     var image: UIImage? { base.image }
     
+    
+    func boundingRect(ofAttributes attributes: [NSAttributedString.Key: Any], size: CGSize) -> CGRect {
+        let boundingBox = base.boundingRect(
+            with: size,
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attributes,
+            context: nil
+        )
+        return boundingBox
+    }
+    
     func size(ofAttributes attributes: [NSAttributedString.Key: Any], maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {
+        boundingRect(ofAttributes: attributes, size: .init(width: maxWidth, height: maxHeight)).size
+    }
+    
+    func size(ofFont font: UIFont, maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {
         let constraintRect = CGSize(width: maxWidth, height: maxHeight)
         let boundingBox = base.boundingRect(
             with: constraintRect,
-            options: .usesLineFragmentOrigin,
-            attributes: attributes,
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font],
             context: nil
         )
         return boundingBox.size

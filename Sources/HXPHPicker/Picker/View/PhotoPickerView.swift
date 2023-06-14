@@ -95,7 +95,7 @@ open class PhotoPickerView: UIView {
             manager.config.maximumSelectedVideoCount == 1 &&
             manager.config.selectOptions.isPhoto &&
             manager.config.selectOptions.isVideo &&
-            manager.config.photoList.cell.singleVideoHideSelect {
+            manager.config.photoList.cell.isHiddenSingleVideoSelect {
             videoLoadSingleCell = true
         }else {
             videoLoadSingleCell = false
@@ -228,7 +228,7 @@ open class PhotoPickerView: UIView {
     }()
     lazy var deniedView: DeniedAuthorizationView = {
         var config = manager.config.notAuthorized
-        config.hiddenCloseButton = true
+        config.isHiddenCloseButton = true
         let deniedView = DeniedAuthorizationView(config: config)
         return deniedView
     }()
@@ -321,8 +321,5 @@ open class PhotoPickerView: UIView {
     }
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    deinit {
-//        print("deinit:\(self)")
     }
 }

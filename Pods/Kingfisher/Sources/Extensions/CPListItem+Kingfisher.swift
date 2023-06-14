@@ -25,7 +25,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-#if canImport(CarPlay)
+#if canImport(CarPlay) && !targetEnvironment(macCatalyst)
 import CarPlay
 
 @available(iOS 14.0, *)
@@ -155,20 +155,12 @@ extension KingfisherWrapper where Base: CPListItem {
             options.onDataReceived = (options.onDataReceived ?? []) + [ImageLoadingProgressSideEffect(block)]
         }
         
-        if let provider = ImageProgressiveProvider(options, refresh: { image in
-            self.base.setImage(image)
-        }) {
-            options.onDataReceived = (options.onDataReceived ?? []) + [provider]
-        }
-        
-        options.onDataReceived?.forEach {
-            $0.onShouldApply = { issuedIdentifier == self.taskIdentifier }
-        }
-        
         let task = KingfisherManager.shared.retrieveImage(
             with: source,
             options: options,
             downloadTaskUpdated: { mutatingSelf.imageTask = $0 },
+            progressiveImageSetter: { self.base.setImage($0) },
+            referenceTaskIdentifierChecker: { issuedIdentifier == self.taskIdentifier },
             completionHandler: { result in
                 CallbackQueue.mainCurrentOrAsync.execute {
                     guard issuedIdentifier == self.taskIdentifier else {
@@ -207,12 +199,7 @@ extension KingfisherWrapper where Base: CPListItem {
                                 if let unwrapped = image {
                                     self.base.setImage(unwrapped)
                                 }
-                                #endif
-                                
-                            } else {
-                                #if compiler(>=5.4)
-                                self.base.setImage(nil)
-                                #endif
+                                #endif   
                             }
                             completionHandler?(result)
                     }

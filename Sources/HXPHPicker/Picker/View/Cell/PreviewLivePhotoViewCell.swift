@@ -27,7 +27,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
                 view.y = UIDevice.navigationBarHeight + 5
             }
         }
-        view.x = 5
+        view.x = 5 + UIDevice.leftMargin
         view.height = 24
         view.layer.cornerRadius = 3
         view.layer.masksToBounds = true
@@ -58,7 +58,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
     override var photoAsset: PhotoAsset! {
         didSet {
             #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.photoEdit != nil {
+            if photoAsset.photoEditedResult != nil {
                 liveMarkView.isHidden = true
             }
             else {
@@ -99,6 +99,11 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
         addSubview(liveMarkView)
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setupLiveMarkFrame()
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -122,7 +127,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if photoAsset.photoEdit != nil {
+        if photoAsset.photoEditedResult != nil {
             return
         }
         #endif
@@ -141,12 +146,27 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
             self.liveMarkView.alpha = 1
         }
     }
+    func setupLiveMarkFrame() {
+        guard let liveMarkConfig = liveMarkConfig, liveMarkConfig.allowShow else {
+            return
+        }
+        if let nav = UIViewController.topViewController?.navigationController, !nav.navigationBar.isHidden {
+            liveMarkView.y = nav.navigationBar.frame.maxY + 5
+        }else {
+            if UIApplication.shared.isStatusBarHidden {
+                liveMarkView.y = UIDevice.navigationBarHeight + UIDevice.generalStatusBarHeight + 5
+            }else {
+                liveMarkView.y = UIDevice.navigationBarHeight + 5
+            }
+        }
+        liveMarkView.x = 5 + UIDevice.leftMargin
+    }
     func hideMark() {
         guard let liveMarkConfig = liveMarkConfig else {
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if photoAsset.photoEdit != nil {
+        if photoAsset.photoEditedResult != nil {
             return
         }
         #endif

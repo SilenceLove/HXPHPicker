@@ -26,8 +26,8 @@ public extension AssetManager {
     /// 根据 Asset 的本地唯一标识符获取 Asset
     /// - Parameter withLocalIdentifiers: 本地唯一标识符
     /// - Returns: 对应获取的 PHAsset
-    static func fetchAsset
-    (withLocalIdentifier: String
+    static func fetchAsset(
+        withLocalIdentifier: String
     ) -> PHAsset? {
         return fetchAssets(
             withLocalIdentifiers: [withLocalIdentifier]

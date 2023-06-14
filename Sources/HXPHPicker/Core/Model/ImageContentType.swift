@@ -13,3 +13,10 @@ public enum ImageContentType: String {
         return self.rawValue
     }
 }
+
+enum FileType: String {
+    case unknown
+    case image
+    case auido
+    case video
+}

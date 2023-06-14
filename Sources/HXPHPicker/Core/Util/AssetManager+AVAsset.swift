@@ -33,8 +33,8 @@ public extension AssetManager {
     static func requestAVAsset(
         for asset: PHAsset,
         deliveryMode: PHVideoRequestOptionsDeliveryMode = .automatic,
-        iCloudHandler: ((PHImageRequestID) -> Void)?,
-        progressHandler: PHAssetImageProgressHandler?,
+        iCloudHandler: ((PHImageRequestID) -> Void)? = nil,
+        progressHandler: PHAssetImageProgressHandler? = nil,
         resultHandler: @escaping AVAssetResultHandler
     ) -> PHImageRequestID {
         let version = PHVideoRequestOptionsVersion.current

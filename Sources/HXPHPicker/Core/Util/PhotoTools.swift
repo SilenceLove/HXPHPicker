@@ -59,6 +59,21 @@ public struct PhotoTools {
             }else {
                 let hour = Int(min / 60)
                 min -= hour * 60
+                if hour < 10 {
+                    if min < 10 {
+                        if sec < 10 {
+                            return String(format: "0%d:0%d:0%d", arguments: [hour, min, sec])
+                        }else {
+                            return String(format: "0%d:0%d:%d", arguments: [hour, min, sec])
+                        }
+                    }else {
+                        if sec < 10 {
+                            return String(format: "0%d:%d:0%d", arguments: [hour, min, sec])
+                        }else {
+                            return String(format: "0%d:%d:%d", arguments: [hour, min, sec])
+                        }
+                    }
+                }
                 if min < 10 {
                     if sec < 10 {
                         return String(format: "%d:0%d:0%d", arguments: [hour, min, sec])
@@ -118,10 +133,7 @@ public struct PhotoTools {
             return nil
         }
         let urlAsset = AVURLAsset(url: videoURL)
-        return getVideoThumbnailImage(
-            avAsset: urlAsset as AVAsset,
-            atTime: atTime
-        )
+        return urlAsset.getImage(at: atTime)
     }
     
     /// 根据视频地址获取视频封面
@@ -129,23 +141,10 @@ public struct PhotoTools {
         avAsset: AVAsset?,
         atTime: TimeInterval
     ) -> UIImage? {
-        if let avAsset = avAsset {
-            let assetImageGenerator = AVAssetImageGenerator.init(asset: avAsset)
-            assetImageGenerator.appliesPreferredTrackTransform = true
-            assetImageGenerator.apertureMode = .encodedPixels
-            do {
-                let thumbnailImageRef = try assetImageGenerator.copyCGImage(
-                    at: CMTime(
-                        value: CMTimeValue(atTime),
-                        timescale: avAsset.duration.timescale
-                    ),
-                    actualTime: nil
-                )
-                let image = UIImage.init(cgImage: thumbnailImageRef)
-                return image
-            } catch { }
+        guard let avAsset = avAsset else {
+            return nil
         }
-        return nil
+        return avAsset.getImage(at: atTime)
     }
     
     /// 获视频缩略图
@@ -225,28 +224,34 @@ public struct PhotoTools {
         ) { (result) in
             switch result {
             case .success(let value):
-                if let gifImage = DefaultImageProcessor.default.process(
-                    item: .data(value.originalData),
-                    options: .init([])
-                ) {
+                DispatchQueue.global().async {
+                    if let gifImage = DefaultImageProcessor.default.process(
+                        item: .data(value.originalData),
+                        options: .init([])
+                    ) {
+                        if cancelOrigianl {
+                            ImageCache.default.store(
+                                gifImage,
+                                original: value.originalData,
+                                forKey: key
+                            )
+                        }
+                        DispatchQueue.main.async {
+                            completionHandler?(gifImage)
+                        }
+                        return
+                    }
                     if cancelOrigianl {
                         ImageCache.default.store(
-                            gifImage,
+                            value.image,
                             original: value.originalData,
                             forKey: key
                         )
                     }
-                    completionHandler?(gifImage)
-                    return
+                    DispatchQueue.main.async {
+                        completionHandler?(value.image)
+                    }
                 }
-                if cancelOrigianl {
-                    ImageCache.default.store(
-                        value.image,
-                        original: value.originalData,
-                        forKey: key
-                    )
-                }
-                completionHandler?(value.image)
             case .failure(_):
                 completionHandler?(nil)
             }
@@ -318,7 +323,9 @@ public struct PhotoTools {
                 }
             }
         }else if directions.contains(.horizontal) {
-            size = handleHorizontal(imageSize, viewSize).0
+            let content = handleHorizontal(imageSize, viewSize)
+            size = content.0
+            center = content.1
         }else if directions.contains(.vertical) {
             let content = handleVertical(imageSize, viewSize)
             size = content.0
@@ -378,7 +385,7 @@ public struct PhotoTools {
         guard var resultImage = UIImage(data: data) else {
             return nil
         }
-        let compression = max(0.1, min(0.9, compressionQuality))
+        let compression = max(0, min(1, compressionQuality))
         let maxLength = Int(CGFloat(data.count) * compression)
         var data = data
         
@@ -406,6 +413,29 @@ public struct PhotoTools {
         return data
     }
     
+    static func compressImageData(
+        _ imageData: Data,
+        compressionQuality: CGFloat?,
+        queueLabel: String,
+        completion: @escaping (Data?) -> Void
+    ) {
+        let serialQueue = DispatchQueue(label: queueLabel, qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem, target: nil)
+        serialQueue.async {
+            autoreleasepool {
+                if let compressionQuality = compressionQuality {
+                    if let data = self.imageCompress(
+                        imageData,
+                        compressionQuality: compressionQuality
+                    ) {
+                        completion(data)
+                        return
+                    }
+                }
+                completion(imageData)
+            }
+        }
+    }
+    
     static func getBasicAnimation(
         _ keyPath: String,
         _ fromValue: Any?,
@@ -422,23 +452,39 @@ public struct PhotoTools {
         return animation
     }
     
-    static func getGradientShadowLayer(_ isTop: Bool) -> CAGradientLayer {
+    static func getGradientShadowLayer(
+        _ isTop: Bool,
+        colors: [CGColor] = [UIColor.black.withAlphaComponent(0).cgColor,
+                             UIColor.black.withAlphaComponent(0.2).cgColor,
+                             UIColor.black.withAlphaComponent(0.3).cgColor,
+                             UIColor.black.withAlphaComponent(0.4).cgColor,
+                             UIColor.black.withAlphaComponent(0.5).cgColor],
+        locations: [NSNumber] = [0.1, 0.3, 0.5, 0.7, 0.9]
+    ) -> CAGradientLayer {
+        getGradientShadowLayer(
+            startPoint: isTop ? CGPoint(x: 0, y: 1) : CGPoint(x: 0, y: 0),
+            endPoint: isTop ? CGPoint(x: 0, y: 0) : CGPoint(x: 0, y: 1),
+            colors: colors,
+            locations: locations
+        )
+    }
+    
+    static func getGradientShadowLayer(
+        startPoint: CGPoint,
+        endPoint: CGPoint,
+        colors: [CGColor] = [UIColor.black.withAlphaComponent(0).cgColor,
+                             UIColor.black.withAlphaComponent(0.2).cgColor,
+                             UIColor.black.withAlphaComponent(0.3).cgColor,
+                             UIColor.black.withAlphaComponent(0.4).cgColor,
+                             UIColor.black.withAlphaComponent(0.5).cgColor],
+        locations: [NSNumber] = [0.1, 0.3, 0.5, 0.7, 0.9]
+    ) -> CAGradientLayer {
         let layer = CAGradientLayer()
         layer.contentsScale = UIScreen.main.scale
-        let blackColor = UIColor.black
-        layer.colors = [blackColor.withAlphaComponent(0).cgColor,
-                        blackColor.withAlphaComponent(0.2).cgColor,
-                        blackColor.withAlphaComponent(0.4).cgColor,
-                        blackColor.withAlphaComponent(0.6).cgColor,
-                        blackColor.withAlphaComponent(0.8).cgColor]
-        if isTop {
-            layer.startPoint = CGPoint(x: 0, y: 1)
-            layer.endPoint = CGPoint(x: 0, y: 0)
-        }else {
-            layer.startPoint = CGPoint(x: 0, y: 0)
-            layer.endPoint = CGPoint(x: 0, y: 1)
-        }
-        layer.locations = [0.1, 0.3, 0.5, 0.7, 0.9]
+        layer.colors = colors
+        layer.startPoint = startPoint
+        layer.endPoint = endPoint
+        layer.locations = locations
         layer.borderWidth = 0.0
         return layer
     }
@@ -456,7 +502,7 @@ public struct PhotoTools {
         return CIImage(color: color).cropped(to: rect)
     }
     #endif
-    
+     
     private init() { }
 }
 

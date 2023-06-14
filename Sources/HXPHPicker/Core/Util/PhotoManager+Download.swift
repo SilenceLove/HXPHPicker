@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CoreServices
+import UniformTypeIdentifiers
 
 #if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_EDITOR
 extension PhotoManager: URLSessionDownloadDelegate {
@@ -19,7 +21,8 @@ extension PhotoManager: URLSessionDownloadDelegate {
         completionHandler: @escaping (URL?, Error?, Any?) -> Void
     ) -> URLSessionDownloadTask {
         let key = url.absoluteString
-        if (key.hasSuffix("mp4") || key.hasSuffix("MP4")) && PhotoTools.isCached(forVideo: key) {
+        let urlType = getURLType(for: url)
+        if urlType == .video && PhotoTools.isCached(forVideo: key) {
             let videoURL = PhotoTools.getVideoCacheURL(for: key)
             if let fileURL = fileURL,
                videoURL.absoluteString != fileURL.absoluteString {
@@ -29,8 +32,7 @@ extension PhotoManager: URLSessionDownloadDelegate {
                 completionHandler(videoURL, nil, ext)
             }
             return URLSessionDownloadTask()
-        }
-        if (key.hasSuffix("mp3") || key.hasSuffix("MP3")) && PhotoTools.isCached(forAudio: key) {
+        }else if urlType == .auido && PhotoTools.isCached(forAudio: key) {
             let audioURL = PhotoTools.getAudioTmpURL(for: key)
             if let fileURL = fileURL,
                audioURL.absoluteString != fileURL.absoluteString {
@@ -54,6 +56,9 @@ extension PhotoManager: URLSessionDownloadDelegate {
         if let task = downloadTasks[key] {
             if task.state == .suspended {
                 task.resume()
+                return task
+            }
+            if task.state == .running {
                 return task
             }
         }
@@ -122,27 +127,71 @@ extension PhotoManager: URLSessionDownloadDelegate {
             DispatchQueue.main.async {
                 completionHandler?(nil, nil, ext)
             }
+            removeTask(responseURL)
             return
         }
         if let url = downloadFileURLs[key] {
-            PhotoTools.removeFile(fileURL: url)
-            try? FileManager.default.moveItem(at: location, to: url)
+            if !PhotoTools.removeFile(fileURL: url) {
+                DispatchQueue.main.async {
+                    completionHandler?(nil, nil, ext)
+                }
+                removeTask(responseURL)
+                return
+            }
+            do {
+                try FileManager.default.moveItem(at: location, to: url)
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler?(nil, nil, ext)
+                }
+                removeTask(responseURL)
+                return
+            }
             DispatchQueue.main.async {
                 completionHandler?(url, nil, ext)
             }
         }else {
             let url: URL
-            if key.hasSuffix("mp4") || key.hasSuffix("MP4") {
+            switch location.fileType {
+            case .video:
                 let videoURL = PhotoTools.getVideoCacheURL(for: key)
-                PhotoTools.removeFile(fileURL: videoURL)
-                try? FileManager.default.moveItem(at: location, to: videoURL)
-                url = videoURL
-            }else if key.hasSuffix("mp3") || key.hasSuffix("mp3") {
+                if !PhotoTools.removeFile(fileURL: videoURL) {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+                do {
+                    try FileManager.default.moveItem(at: location, to: videoURL)
+                    url = videoURL
+                } catch {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+            case .auido:
                 let audioURL = PhotoTools.getAudioTmpURL(for: key)
-                PhotoTools.removeFile(fileURL: audioURL)
-                try? FileManager.default.moveItem(at: location, to: audioURL)
-                url = audioURL
-            }else {
+                if !PhotoTools.removeFile(fileURL: audioURL) {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+                do {
+                    try FileManager.default.moveItem(at: location, to: audioURL)
+                    url = audioURL
+                } catch {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+            default:
                 url = location
             }
             DispatchQueue.main.async {
@@ -173,7 +222,71 @@ extension PhotoManager: URLSessionDownloadDelegate {
                 completionHandler?(nil, error, ext)
             }
         }
-        self.removeTask(responseURL)
+        removeTask(responseURL)
+    }
+    
+    func getURLType(for url: URL) -> FileType {
+        if #available(iOS 14.0, *) {
+            if let utType = UTType(
+                tag: url.pathExtension,
+                tagClass: .filenameExtension,
+                conformingTo: nil
+            ) {
+                switch utType {
+                case .video,
+                     .mpeg2Video,
+                     .appleProtectedMPEG4Video,
+                     .mpeg4Movie,
+                     .quickTimeMovie,
+                     .movie:
+                    return .video
+                case .audio,
+                     .mp3:
+                    return .auido
+                case .livePhoto,
+                     .image,
+                     .rawImage,
+                     .diskImage,
+                     .gif,
+                     .png,
+                     .jpeg:
+                    return .image
+                default:
+                    break
+                }
+            }
+        } else {
+            let utType = UTTypeCreatePreferredIdentifierForTag(
+                kUTTagClassFilenameExtension,
+                url.pathExtension as CFString,
+                nil
+            )
+            if let utType = utType {
+                switch utType.takeRetainedValue() {
+                case kUTTypeMovie,
+                     kUTTypeVideo,
+                     kUTTypeQuickTimeMovie,
+                     kUTTypeMPEG,
+                     kUTTypeMPEG4:
+                    return .video
+                case kUTTypeMP3,
+                     kUTTypeAudio:
+                    return .auido
+                case kUTTypeImage,
+                     kUTTypeRawImage,
+                     kUTTypeDiskImage,
+                     kUTTypeLivePhoto,
+                     kUTTypeGIF,
+                     kUTTypePNG,
+                     kUTTypeJPEG,
+                     kUTTypeJPEG2000:
+                    return .image
+                default:
+                    break
+                }
+            }
+        }
+        return .unknown
     }
 }
 #endif

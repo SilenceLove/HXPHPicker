@@ -40,7 +40,7 @@ public class PickerManager: NSObject {
             !config.allowSelectedTogether &&
             config.maximumSelectedVideoCount == 1 &&
             config.selectOptions.isPhoto && config.selectOptions.isVideo &&
-            config.photoList.cell.singleVideoHideSelect {
+            config.photoList.cell.isHiddenSingleVideoSelect {
             return true
         }
         return false
@@ -377,9 +377,7 @@ public extension PickerManager {
             DispatchQueue.main.async {
                 completion(
                     totalFileSize,
-                    PhotoTools.transformBytesToString(
-                            bytes: totalFileSize
-                    )
+                    totalFileSize.bytesString
                 )
             }
         }
@@ -476,9 +474,7 @@ extension PickerManager {
         if photoAsset.mediaType == .photo {
             if config.maximumSelectedPhotoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedPhotoFileSize {
-                    text = "照片大小超过最大限制".localized + PhotoTools.transformBytesToString(
-                        bytes: config.maximumSelectedPhotoFileSize
-                    )
+                    text = "照片大小超过最大限制".localized + config.maximumSelectedPhotoFileSize.bytesString
                     canSelect = false
                 }
             }
@@ -502,9 +498,7 @@ extension PickerManager {
         }else if photoAsset.mediaType == .video {
             if config.maximumSelectedVideoFileSize > 0 {
                 if photoAsset.fileSize > config.maximumSelectedVideoFileSize {
-                    text = "视频大小超过最大限制".localized + PhotoTools.transformBytesToString(
-                        bytes: config.maximumSelectedVideoFileSize
-                    )
+                    text = "视频大小超过最大限制".localized + config.maximumSelectedVideoFileSize.bytesString
                     canSelect = false
                 }
             }

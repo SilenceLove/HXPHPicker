@@ -102,9 +102,13 @@ open class PhotoThumbnailView: UIView {
         }
         loadCompletion = false
         cancelRequest()
+        var isNetworkLivePhotoImage: Bool = false
+        if let livePhoto = photoAsset.localLivePhoto?.imageURL, !livePhoto.isFileURL {
+            isNetworkLivePhotoImage = true
+        }
         if photoAsset.isNetworkAsset ||
-            photoAsset.mediaSubType == .localVideo {
-            
+            photoAsset.mediaSubType == .localVideo ||
+            isNetworkLivePhotoImage {
             downloadStatus = .downloading
             #if canImport(Kingfisher)
             task = imageView.setImage(

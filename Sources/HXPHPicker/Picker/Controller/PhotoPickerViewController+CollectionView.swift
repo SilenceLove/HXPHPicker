@@ -107,7 +107,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         myCell.request()
         let photoAsset = getPhotoAsset(for: indexPath.item)
         if !photoAsset.isSelected &&
-            config.cell.showDisableMask &&
+            config.cell.isShowDisableMask &&
             pickerController.config.maximumSelectedVideoFileSize == 0 &&
             pickerController.config.maximumSelectedPhotoFileSize == 0 {
             myCell.canSelect = pickerController.canSelectAsset(
@@ -275,27 +275,32 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if pickerController.config.editorOptions.contains(.photo) {
-            let config = pickerController.config.photoEditor
-            if !pickerController.shouldEditPhotoAsset(
+            guard var config = pickerController.shouldEditPhotoAsset(
                 photoAsset: photoAsset,
-                editorConfig: config,
+                editorConfig: pickerController.config.editor,
                 atIndex: editIndex
-            ) {
+            ) else {
                 return false
             }
             config.languageType = pickerController.config.languageType
-            config.appearanceStyle = pickerController.config.appearanceStyle
             config.indicatorType = pickerController.config.indicatorType
-            let photoEditorVC = PhotoEditorViewController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.photoEdit,
-                config: config
+            let photoEditorVC = EditorViewController(
+                .init(type: .photoAsset(photoAsset), result: photoAsset.editedResult),
+                config: config,
+                delegate: self
             )
-            photoEditorVC.delegate = self
-            if pickerController.config.editorCustomTransition {
-                navigationController?.delegate = photoEditorVC
+            switch pickerController.config.editorJumpStyle {
+            case .push(let style):
+                if style == .custom {
+                    navigationController?.delegate = photoEditorVC
+                }
+                navigationController?.pushViewController(photoEditorVC, animated: animated)
+            case .present(let style):
+                if style == .fullScreen {
+                    photoEditorVC.modalPresentationStyle = .fullScreen
+                }
+                present(photoEditorVC, animated: animated)
             }
-            navigationController?.pushViewController(photoEditorVC, animated: animated)
             return true
         }
         #endif
@@ -318,38 +323,39 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if pickerController.config.editorOptions.contains(.video) {
             let isExceedsTheLimit = pickerController.videoDurationExceedsTheLimit(photoAsset: photoAsset)
-            let config: VideoEditorConfiguration
+            var config = pickerController.config.editor
             if isExceedsTheLimit {
-                config = pickerController.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
-                config.defaultState = .cropTime
-                config.cropTime.maximumVideoCroppingTime = TimeInterval(
+                config.video.defaultSelectedToolOption = .time
+                config.video.cropTime.maximumTime = TimeInterval(
                     pickerController.config.maximumSelectedVideoDuration
                 )
-                config.mustBeTailored = true
-            }else {
-                config = pickerController.config.videoEditor
             }
-            if !pickerController.shouldEditVideoAsset(
+            guard var config = pickerController.shouldEditVideoAsset(
                 videoAsset: photoAsset,
                 editorConfig: config,
                 atIndex: editIndex
-            ) {
+            ) else {
                 return false
             }
             config.languageType = pickerController.config.languageType
-            config.appearanceStyle = pickerController.config.appearanceStyle
             config.indicatorType = pickerController.config.indicatorType
-            let videoEditorVC = VideoEditorViewController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.videoEdit,
-                config: config
+            let videoEditorVC = EditorViewController(
+                .init(type: .photoAsset(photoAsset), result: photoAsset.editedResult),
+                config: config,
+                delegate: self
             )
-            videoEditorVC.coverImage = coverImage
-            videoEditorVC.delegate = self
-            if pickerController.config.editorCustomTransition {
-                navigationController?.delegate = videoEditorVC
+            switch pickerController.config.editorJumpStyle {
+            case .push(let style):
+                if style == .custom {
+                    navigationController?.delegate = videoEditorVC
+                }
+                navigationController?.pushViewController(videoEditorVC, animated: animated)
+            case .present(let style):
+                if style == .fullScreen {
+                    videoEditorVC.modalPresentationStyle = .fullScreen
+                }
+                present(videoEditorVC, animated: animated)
             }
-            navigationController?.pushViewController(videoEditorVC, animated: animated)
             return true
         }
         #endif
@@ -469,7 +475,7 @@ extension PhotoPickerViewController: UICollectionViewDelegate {
         viewForSupplementaryElementOfKind kind: String,
         at indexPath: IndexPath
     ) -> UICollectionReusableView {
-        if config.showAssetNumber &&
+        if config.isShowAssetNumber &&
             kind == UICollectionView.elementKindSectionFooter &&
             (photoCount > 0 || videoCount > 0) {
             let view = collectionView
@@ -569,7 +575,7 @@ extension PhotoPickerViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForFooterInSection section: Int
     ) -> CGSize {
-        if config.showAssetNumber && (photoCount > 0 || videoCount > 0) {
+        if config.isShowAssetNumber && (photoCount > 0 || videoCount > 0) {
             return CGSize(width: view.width, height: 50)
         }
         return .zero

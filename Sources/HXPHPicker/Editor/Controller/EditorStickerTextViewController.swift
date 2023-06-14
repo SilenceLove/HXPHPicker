@@ -14,7 +14,7 @@ protocol EditorStickerTextViewControllerDelegate: AnyObject {
     )
     func stickerTextViewController(
         _ controller: EditorStickerTextViewController,
-        didFinish stickerItem: EditorStickerItem
+        didFinishUpdate stickerText: EditorStickerText
     )
 }
 
@@ -26,12 +26,12 @@ class EditorStickerTextController: UINavigationController {
 
 final class EditorStickerTextViewController: BaseViewController {
     weak var delegate: EditorStickerTextViewControllerDelegate?
-    private let config: EditorTextConfiguration
-    private let stickerItem: EditorStickerItem?
-    init(config: EditorTextConfiguration,
-         stickerItem: EditorStickerItem? = nil) {
+    private let config: EditorConfiguration.Text
+    private let stickerText: EditorStickerText?
+    init(config: EditorConfiguration.Text,
+         stickerText: EditorStickerText? = nil) {
         self.config = config
-        self.stickerItem = stickerItem
+        self.stickerText = stickerText
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,7 +59,7 @@ final class EditorStickerTextViewController: BaseViewController {
         let button = UIButton(type: .system)
         let text = "完成".localized
         button.setTitle(text, for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(config.doneTitleColor, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17)
         var textWidth = text.width(ofFont: .systemFont(ofSize: 17), maxHeight: 30)
         if textWidth < 60 {
@@ -68,14 +68,16 @@ final class EditorStickerTextViewController: BaseViewController {
             textWidth += 10
         }
         button.size = CGSize(width: textWidth, height: 30)
-        button.setBackgroundImage(
-            UIImage.image(
-                for: config.tintColor,
-                havingSize: button.size,
-                radius: 3
-            ),
-            for: .normal
-        )
+        if config.doneBackgroundColor != UIColor.clear {
+            button.setBackgroundImage(
+                UIImage.image(
+                    for: config.doneBackgroundColor,
+                    havingSize: button.size,
+                    radius: 3
+                ),
+                for: .normal
+            )
+        }
         button.addTarget(
             self,
             action: #selector(didFinishButtonClick),
@@ -92,9 +94,8 @@ final class EditorStickerTextViewController: BaseViewController {
                 textColor: textView.currentSelectedColor,
                 showBackgroud: textView.showBackgroudColor
             )
-            if stickerItem != nil {
-                let stickerItem = EditorStickerItem(image: image, imageData: nil, text: stickerText)
-                delegate?.stickerTextViewController(self, didFinish: stickerItem)
+            if self.stickerText != nil {
+                delegate?.stickerTextViewController(self, didFinishUpdate: stickerText)
             }else {
                 delegate?.stickerTextViewController(self, didFinish: stickerText)
             }
@@ -104,7 +105,7 @@ final class EditorStickerTextViewController: BaseViewController {
     }
     
     lazy var textView: EditorStickerTextView = {
-        let view = EditorStickerTextView(config: config, stickerText: stickerItem?.text)
+        let view = EditorStickerTextView(config: config, stickerText: stickerText)
         return view
     }()
     

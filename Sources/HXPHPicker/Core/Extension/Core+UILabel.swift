@@ -9,10 +9,13 @@ import UIKit
 
 extension UILabel {
     var textHeight: CGFloat {
-        text?.height(ofFont: font, maxWidth: width > 0 ? width : CGFloat(MAXFLOAT)) ?? 0
+        text?.height(ofFont: font, maxWidth: width > 0 ? width : .max) ?? 0
     }
     var textWidth: CGFloat {
-        text?.width(ofFont: font, maxHeight: height > 0 ? height : CGFloat(MAXFLOAT)) ?? 0
+        text?.width(ofFont: font, maxHeight: height > 0 ? height : .max) ?? 0
+    }
+    var textSize: CGSize {
+        text?.size(ofFont: font, maxWidth: .max, maxHeight: .max) ?? .zero
     }
 }
 

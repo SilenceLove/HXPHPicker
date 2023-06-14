@@ -9,76 +9,21 @@ import UIKit
 import ImageIO
 import CoreImage
 import CoreServices
-#if canImport(Harbeth)
-import Harbeth
-#endif
 
 extension PhotoTools {
-    static func createAnimatedImage(
-        images: [UIImage],
-        delays: [Double],
-        toFile filePath: URL? = nil
-    ) -> URL? {
-        if images.isEmpty || delays.isEmpty {
-            return nil
-        }
-        let frameCount = images.count
-        let imageURL = filePath == nil ? getImageTmpURL(.gif) : filePath!
-        guard let destination = CGImageDestinationCreateWithURL(
-                imageURL as CFURL,
-                kUTTypeGIF as CFString,
-                frameCount, nil
-        ) else {
-            return nil
-        }
-        let gifProperty = [
-            kCGImagePropertyGIFDictionary: [
-                kCGImagePropertyGIFHasGlobalColorMap: true,
-                kCGImagePropertyColorModel: kCGImagePropertyColorModelRGB,
-                kCGImagePropertyDepth: 8,
-                kCGImagePropertyGIFLoopCount: 0
-            ]
-        ]
-        CGImageDestinationSetProperties(destination, gifProperty as CFDictionary)
-        for (index, image) in images.enumerated() {
-            let delay = delays[index]
-            let framePreperty = [
-                kCGImagePropertyGIFDictionary: [
-                    kCGImagePropertyGIFDelayTime: delay
-                ]
-            ]
-            if let cgImage = image.cgImage {
-                CGImageDestinationAddImage(destination, cgImage, framePreperty as CFDictionary)
-            }
-        }
-        if CGImageDestinationFinalize(destination) {
-            return imageURL
-        }
-        removeFile(fileURL: imageURL)
-        return nil
-    }
     
-    static func getFrameDuration(from gifInfo: [String: Any]?) -> TimeInterval {
-        let defaultFrameDuration = 0.1
-        guard let gifInfo = gifInfo else { return defaultFrameDuration }
-        
-        let unclampedDelayTime = gifInfo[kCGImagePropertyGIFUnclampedDelayTime as String] as? NSNumber
-        let delayTime = gifInfo[kCGImagePropertyGIFDelayTime as String] as? NSNumber
-        let duration = unclampedDelayTime ?? delayTime
-        
-        guard let frameDuration = duration else { return defaultFrameDuration }
-        return frameDuration.doubleValue > 0.011 ? frameDuration.doubleValue : defaultFrameDuration
-    }
-
-    static func getFrameDuration(
-        from imageSource: CGImageSource,
-        at index: Int
-    ) -> TimeInterval {
-        guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil)
-            as? [String: Any] else { return 0.0 }
-
-        let gifInfo = properties[kCGImagePropertyGIFDictionary as String] as? [String: Any]
-        return getFrameDuration(from: gifInfo)
+    static func getCompressionQuality(_ dataCount: CGFloat) -> CGFloat? {
+        var compressionQuality: CGFloat?
+        if dataCount > 30000000 {
+            compressionQuality = 25000000 / dataCount
+        }else if dataCount > 15000000 {
+            compressionQuality = 10000000 / dataCount
+        }else if dataCount > 10000000 {
+            compressionQuality = 6000000 / dataCount
+        }else if dataCount > 3000000 {
+            compressionQuality = 3000000 / dataCount
+        }
+        return compressionQuality
     }
     
     public static func defaultColors() -> [String] {
@@ -89,7 +34,7 @@ extension PhotoTools {
         if let audioURL = URL(string: "http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/%E5%A4%A9%E5%A4%96%E6%9D%A5%E7%89%A9.mp3"), // swiftlint:disable:this line_length
            let lrc = "天外来物".lrc {
             let info = VideoEditorMusicInfo(
-                audioURL: audioURL,
+                audioURL: .network(url: audioURL),
                 lrc: lrc
             )
             infos.append(info)
@@ -119,8 +64,8 @@ extension PhotoTools {
     
     /// 默认滤镜
     public static func defaultFilters() -> [PhotoEditorFilterInfo] {
-//        return defaultMetalFilters()
-        [
+        var filters: [PhotoEditorFilterInfo] = []
+        filters.append(contentsOf: [
             PhotoEditorFilterInfo(
                 filterName: "唯美".localized
             ) { image, _, parameters, _ in
@@ -139,7 +84,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "怀旧".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectInstant",
                     parameters: [:]
                 )
@@ -147,7 +92,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "岁月".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectTransfer",
                     parameters: [:]
                 )
@@ -161,7 +106,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "褪色".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectFade",
                     parameters: [:]
                 )
@@ -169,7 +114,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "冲印".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectProcess",
                     parameters: [:]
                 )
@@ -177,7 +122,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "铬黄".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectChrome",
                     parameters: [:]
                 )
@@ -191,7 +136,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectTonal",
                     parameters: [:]
                 )
@@ -199,7 +144,7 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "单色".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectMono",
                     parameters: [:]
                 )
@@ -207,12 +152,13 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "黑白".localized
             ) { (image, _, parameters, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectNoir",
                     parameters: [:]
                 )
             }
-        ]
+        ])
+        return filters
     }
     
     public static func defaultVideoFilters() -> [PhotoEditorFilterInfo] {
@@ -241,22 +187,22 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "怀旧".localized
             ) { image, _, _, _ in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectInstant",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectInstant", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectInstant", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "岁月".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectTransfer",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectTransfer", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectTransfer", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "模糊".localized,
@@ -264,7 +210,7 @@ extension PhotoTools {
                 filterHandler: { image, _, _, _ in
                     return image.blurredImage(10)
             }, videoFilterHandler: {
-                $0.filter(
+                $0.hx.filter(
                     name: "CIGaussianBlur",
                     parameters: [kCIInputRadiusKey: 50.0 * $1[0].value]
                 )
@@ -272,32 +218,32 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "褪色".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectFade",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectFade", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectFade", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "冲印".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectProcess",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectProcess", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectProcess", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "铬黄".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectChrome",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectChrome", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectChrome", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "老电影".localized,
@@ -310,32 +256,32 @@ extension PhotoTools {
             PhotoEditorFilterInfo(
                 filterName: "色调".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectTonal",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectTonal", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectTonal", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "单色".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectMono",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectMono", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectMono", parameters: [:])
             },
             PhotoEditorFilterInfo(
                 filterName: "黑白".localized
             ) { (image, _, _, _) in
-                image.filter(
+                image.hx.filter(
                     name: "CIPhotoEffectNoir",
                     parameters: [:]
                 )
             } videoFilterHandler: { ciImage, _ in
-                ciImage.filter(name: "CIPhotoEffectNoir", parameters: [:])
+                ciImage.hx.filter(name: "CIPhotoEffectNoir", parameters: [:])
             }
         ]
     }
@@ -471,60 +417,3 @@ extension PhotoTools {
                 ])
     }
 }
-
-#if canImport(Harbeth)
-extension PhotoTools {
-    public static func defaultMetalFilters() -> [PhotoEditorFilterInfo] {
-        [
-            .init(
-                filterName: "马赛克".localized,
-                parameter: .init(defaultValue: 0.5),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let pixelWidth: Float
-                    if isCover {
-                        pixelWidth = 0.02
-                    }else {
-                        pixelWidth = 0.01 + 0.03 * value
-                    }
-                    var filter = C7Pixellated()
-                    filter.pixelWidth = pixelWidth
-                    return filter
-                }
-            ),
-            .init(
-                filterName: "波点".localized,
-                parameter: .init(defaultValue: 0.6),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let fractionalWidth: Float
-                    if isCover {
-                        fractionalWidth = 0.02
-                    }else {
-                        fractionalWidth = 0.01 + 0.05 * value
-                    }
-                    var filter = C7PolkaDot()
-                    filter.fractionalWidth = fractionalWidth
-                    return filter
-                }
-            ),
-            .init(
-                filterName: "漩涡".localized,
-                parameter: .init(defaultValue: 0.8),
-                metalFilterHandler: { parameter, isCover in
-                    let value = parameter?.value ?? 0
-                    let radius: Float
-                    if isCover {
-                        radius = 0.25
-                    }else {
-                        radius = 0.01 + value * 0.5
-                    }
-                    var filter = C7Swirl()
-                    filter.radius = radius
-                    return filter
-                }
-            )
-        ]
-    }
-}
-#endif

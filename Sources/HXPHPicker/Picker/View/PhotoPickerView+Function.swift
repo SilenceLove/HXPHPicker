@@ -224,7 +224,7 @@ extension PhotoPickerView {
                let photoAsset = (visibleCell as? PhotoPickerBaseViewCell)?.photoAsset {
                 let cell = visibleCell as! PhotoPickerBaseViewCell
                 if !photoAsset.isSelected &&
-                    config.cell.showDisableMask &&
+                    config.cell.isShowDisableMask &&
                     manager.config.maximumSelectedVideoFileSize == 0  &&
                     manager.config.maximumSelectedPhotoFileSize == 0 {
                     cell.canSelect = manager.canSelectAsset(

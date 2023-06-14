@@ -16,7 +16,7 @@ open class CameraViewController: BaseViewController {
     public weak var delegate: CameraViewControllerDelegate?
     
     /// 相机配置
-    public let config: CameraConfiguration
+    public var config: CameraConfiguration
     /// 相机类型
     public let type: CameraController.CaptureType
     /// 内部自动dismiss
@@ -48,6 +48,7 @@ open class CameraViewController: BaseViewController {
         self.type = type
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
+        self.autoDismiss = config.isAutoBack
     }
     private var didLayoutPreview = false
     lazy var previewView: CameraPreviewView = {
@@ -119,7 +120,8 @@ open class CameraViewController: BaseViewController {
                 title: "相机不可用!".localized,
                 message: nil,
                 actionTitle: "确定".localized
-            ) { _ in
+            ) { [weak self] _ in
+                guard let self = self else { return }
                 self.dismiss(animated: true)
             }
             return
@@ -232,7 +234,6 @@ open class CameraViewController: BaseViewController {
                     self.addAudioInput()
                 }
             } catch {
-                print(error)
                 self.cameraManager.session.commitConfiguration()
                 DispatchQueue.main.async {
                     PhotoTools.showConfirm(

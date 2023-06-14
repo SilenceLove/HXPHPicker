@@ -81,7 +81,7 @@ public class PhotoPickerViewController: BaseViewController {
                     NSStringFromClass(PhotoPickerLimitCell.classForCoder())
             )
         }
-        if config.showAssetNumber {
+        if config.isShowAssetNumber {
             collectionView.register(
                 PhotoPickerBottomNumberView.self,
                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
@@ -277,6 +277,8 @@ public class PhotoPickerViewController: BaseViewController {
             return
         }
     }
+    
+    var navigationBarHeight: CGFloat?
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let margin: CGFloat = UIDevice.leftMargin
@@ -285,9 +287,14 @@ public class PhotoPickerViewController: BaseViewController {
         if let nav = navigationController {
             if nav.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
                 if UIApplication.shared.isStatusBarHidden {
-                    collectionTop = nav.navigationBar.height + UIDevice.generalStatusBarHeight
+                    if let navigationBarHeight = navigationBarHeight {
+                        collectionTop = navigationBarHeight
+                    }else {
+                        collectionTop = nav.navigationBar.height + UIDevice.generalStatusBarHeight
+                    }
                 }else {
                     collectionTop = UIDevice.navigationBarHeight
+                    navigationBarHeight = collectionTop
                 }
             }else {
                 collectionTop = nav.navigationBar.height
@@ -307,7 +314,7 @@ public class PhotoPickerViewController: BaseViewController {
         }
         if isMultipleSelect {
             let promptHeight: CGFloat = (AssetManager.authorizationStatusIsLimited() &&
-                                            config.bottomView.showPrompt &&
+                                            config.bottomView.isShowPrompt &&
                                             allowLoadPhotoLibrary) ? 70 : 0
             let bottomHeight: CGFloat = 50 + UIDevice.bottomMargin + promptHeight
             bottomView.frame = CGRect(x: 0, y: view.height - bottomHeight, width: view.width, height: bottomHeight)
@@ -656,7 +663,7 @@ extension PhotoPickerViewController {
         for case let cell as PhotoPickerBaseViewCell in collectionView.visibleCells {
             guard let photoAsset = cell.photoAsset else { continue }
             if !photoAsset.isSelected &&
-                config.cell.showDisableMask &&
+                config.cell.isShowDisableMask &&
                 picker.config.maximumSelectedVideoFileSize == 0  &&
                 picker.config.maximumSelectedPhotoFileSize == 0 {
                 cell.canSelect = picker.canSelectAsset(

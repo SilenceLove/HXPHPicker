@@ -13,6 +13,7 @@ open class PhotoPreviewSelectedViewCell: UICollectionViewCell {
     
     public lazy var photoView: PhotoThumbnailView = {
         let photoView = PhotoThumbnailView()
+        photoView.imageView.size = size
         return photoView
     }()
     

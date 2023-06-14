@@ -28,86 +28,99 @@ extension PhotoPreviewViewController: PhotoPickerBottomViewDelegate {
         }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         beforeNavDelegate = navigationController?.delegate
-        let pickerConfig = picker.config
+        var pickerConfig = picker.config
         if photoAsset.mediaType == .video && pickerConfig.editorOptions.isVideo {
             let cell = getCell(
                 for: currentPreviewIndex
             )
             cell?.scrollContentView.stopVideo()
-            let videoEditorConfig: VideoEditorConfiguration
+            var videoEditorConfig = pickerConfig.editor
             let isExceedsTheLimit = picker.videoDurationExceedsTheLimit(
                 photoAsset: photoAsset
             )
             if isExceedsTheLimit {
-                videoEditorConfig = pickerConfig.videoEditor.mutableCopy() as! VideoEditorConfiguration
-                videoEditorConfig.defaultState = .cropTime
-                videoEditorConfig.mustBeTailored = true
-            }else {
-                videoEditorConfig = pickerConfig.videoEditor
+                videoEditorConfig.video.defaultSelectedToolOption = .time
             }
-            if !picker.shouldEditVideoAsset(
+            guard let videoEditorConfig = picker.shouldEditVideoAsset(
                 videoAsset: photoAsset,
                 editorConfig: videoEditorConfig,
                 atIndex: currentPreviewIndex
-            ) {
+            ) else {
                 return
             }
-            if let shouldEdit = delegate?.previewViewController(
+            guard var videoEditorConfig = delegate?.previewViewController(
                 self,
                 shouldEditVideoAsset: photoAsset,
                 editorConfig: videoEditorConfig
-            ), !shouldEdit {
+            ) else {
                 return
             }
             videoEditorConfig.languageType = pickerConfig.languageType
-            videoEditorConfig.appearanceStyle = pickerConfig.appearanceStyle
             videoEditorConfig.indicatorType = pickerConfig.indicatorType
-            let videoEditorVC = VideoEditorViewController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.videoEdit,
-                config: videoEditorConfig
+            let videoEditorVC = EditorViewController(
+                .init(
+                    type: .photoAsset(photoAsset),
+                    result: photoAsset.editedResult
+                ),
+                config: videoEditorConfig,
+                delegate: self
             )
-            videoEditorVC.coverImage = cell?.scrollContentView.imageView.image
-            videoEditorVC.delegate = self
-            if pickerConfig.editorCustomTransition {
-                navigationController?.delegate = videoEditorVC
+            switch pickerConfig.editorJumpStyle {
+            case .push(let style):
+                if style == .custom {
+                    navigationController?.delegate = videoEditorVC
+                }
+                navigationController?.pushViewController(videoEditorVC, animated: true)
+            case .present(let style):
+                if style == .fullScreen {
+                    videoEditorVC.modalPresentationStyle = .fullScreen
+                }
+                present(videoEditorVC, animated: true)
             }
-            navigationController?.pushViewController(
-                videoEditorVC,
-                animated: true
-            )
         }else if pickerConfig.editorOptions.isPhoto {
-            let photoEditorConfig = pickerConfig.photoEditor
-            if !picker.shouldEditPhotoAsset(
+            guard let photoEditorConfig = picker.shouldEditPhotoAsset(
                 photoAsset: photoAsset,
-                editorConfig: photoEditorConfig,
+                editorConfig: pickerConfig.editor,
                 atIndex: currentPreviewIndex
-            ) {
+            ) else {
                 return
             }
-            if let shouldEdit = delegate?.previewViewController(
+            guard var photoEditorConfig = delegate?.previewViewController(
                 self,
                 shouldEditPhotoAsset: photoAsset,
                 editorConfig: photoEditorConfig
-            ), !shouldEdit {
+            ) else {
                 return
             }
-            photoEditorConfig.languageType = pickerConfig.languageType
-            photoEditorConfig.appearanceStyle = pickerConfig.appearanceStyle
-            photoEditorConfig.indicatorType = pickerConfig.indicatorType
-            let photoEditorVC = PhotoEditorViewController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.photoEdit,
-                config: photoEditorConfig
-            )
-            photoEditorVC.delegate = self
-            if pickerConfig.editorCustomTransition {
-                navigationController?.delegate = photoEditorVC
+            if photoAsset.mediaSubType == .livePhoto ||
+               photoAsset.mediaSubType == .localLivePhoto {
+                let cell = getCell(
+                    for: currentPreviewIndex
+                )
+                cell?.scrollContentView.stopLivePhoto()
             }
-            navigationController?.pushViewController(
-                photoEditorVC,
-                animated: true
+            photoEditorConfig.languageType = pickerConfig.languageType
+            photoEditorConfig.indicatorType = pickerConfig.indicatorType
+            let photoEditorVC = EditorViewController(
+                .init(
+                    type: .photoAsset(photoAsset),
+                    result: photoAsset.editedResult
+                ),
+                config: photoEditorConfig,
+                delegate: self
             )
+            switch pickerConfig.editorJumpStyle {
+            case .push(let style):
+                if style == .custom {
+                    navigationController?.delegate = photoEditorVC
+                }
+                navigationController?.pushViewController(photoEditorVC, animated: true)
+            case .present(let style):
+                if style == .fullScreen {
+                    photoEditorVC.modalPresentationStyle = .fullScreen
+                }
+                present(photoEditorVC, animated: true)
+            }
         }
         #endif
     }

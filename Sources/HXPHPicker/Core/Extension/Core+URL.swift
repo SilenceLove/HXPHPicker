@@ -6,8 +6,11 @@
 //
 
 import Foundation
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
-extension URL {
+extension URL: HXPickerCompatibleValue {
     var isGif: Bool {
         absoluteString.hasSuffix("gif") || absoluteString.hasSuffix("GIF")
     }
@@ -17,4 +20,26 @@ extension URL {
         }
         return fileSize.fileSize ?? 0
     }
+    
+    #if canImport(Kingfisher)
+    var isCache: Bool {
+        ImageCache.default.isCached(forKey: cacheKey)
+    }
+    #endif
+    
+    var fileType: FileType {
+        guard let fileData = try? Data(contentsOf: self) else {
+            return .unknown
+        }
+        return fileData.fileType
+    }
+}
+
+
+public extension HXPickerWrapper where Base == URL {
+    #if canImport(Kingfisher)
+    var isCache: Bool {
+        base.isCache
+    }
+    #endif
 }

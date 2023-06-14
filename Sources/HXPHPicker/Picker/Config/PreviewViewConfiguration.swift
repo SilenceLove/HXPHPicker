@@ -8,7 +8,7 @@
 
 import UIKit
 
-// MARK: 预览界面配置类
+// MARK: Preview interface configuration class / 预览界面配置类
 public struct PreviewViewConfiguration {
     
     /// 自定义视频Cell
@@ -49,7 +49,7 @@ public struct PreviewViewConfiguration {
     public var singleClickCellAutoPlayVideo: Bool = true
     
     /// 显示底部视图
-    public var showBottomView: Bool = true
+    public var isShowBottomView: Bool = true
     
     /// 底部视图相关配置
     public var bottomView: PickerBottomViewConfiguration
@@ -70,12 +70,12 @@ public struct PreviewViewConfiguration {
     public init() {
         PhotoManager.shared.loadNetworkVideoMode = loadNetworkVideoMode
         var bottomConfig = PickerBottomViewConfiguration()
-        bottomConfig.previewButtonHidden = true
+        bottomConfig.isHiddenPreviewButton = true
         bottomConfig.disableFinishButtonWhenNotSelected = false
         #if HXPICKER_ENABLE_EDITOR
-        bottomConfig.editButtonHidden = false
+        bottomConfig.isHiddenEditButton = false
         #endif
-        bottomConfig.showSelectedView = true
+        bottomConfig.isShowSelectedView = true
         self.bottomView = bottomConfig
     }
 }
@@ -88,11 +88,11 @@ extension PreviewViewConfiguration {
         var blurStyle: UIBlurEffect.Style = .extraLight
         var blurDarkStyle: UIBlurEffect.Style = .dark
         
-        var imageColor: UIColor = "#666666".color
-        var textColor: UIColor = "#666666".color
+        var imageColor: UIColor = "#666666".hx.color
+        var textColor: UIColor = "#666666".hx.color
         
-        var imageDarkColor: UIColor = "#ffffff".color
-        var textDarkColor: UIColor = "#ffffff".color
+        var imageDarkColor: UIColor = "#ffffff".hx.color
+        var textDarkColor: UIColor = "#ffffff".hx.color
         
         public init() {
             

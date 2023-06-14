@@ -67,20 +67,32 @@ final class ImageView: UIView {
         }
     }
     
-    func setImage(_ img: UIImage) {
+    func setImage(_ img: UIImage?) {
         #if canImport(Kingfisher)
-        let image = DefaultImageProcessor.default.process(item: .image(img), options: .init([]))
-        my.image = image
+        if let img = img {
+            let image = DefaultImageProcessor.default.process(item: .image(img), options: .init([]))
+            my.image = image
+        }else {
+            my.image = img
+        }
         #else
         my.image = img
         #endif
     }
     
-    func setImageData(_ imageData: Data) {
+    func setImageData(_ imageData: Data?) {
         #if canImport(Kingfisher)
+        guard let imageData = imageData else {
+            my.image = nil
+            return
+        }
         let image = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))
         my.image = image
         #else
+        guard let imageData = imageData else {
+            my.gifImage = nil
+            return
+        }
         let image = GIFImage.init(data: imageData)
         my.gifImage = image
         #endif

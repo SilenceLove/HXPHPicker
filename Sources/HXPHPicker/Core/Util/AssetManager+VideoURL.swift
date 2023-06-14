@@ -72,9 +72,7 @@ public extension AssetManager {
     ) {
         if let exportParameter = exportParameter {
             requestAVAsset(
-                for: asset,
-                iCloudHandler: nil,
-                progressHandler: nil
+                for: asset
             ) { (result) in
                 switch result {
                 case .success(let avResult):

@@ -10,9 +10,6 @@ import UIKit
 import ImageIO
 import CoreGraphics
 import MobileCoreServices
-#if canImport(Kingfisher)
-import Kingfisher
-#endif
 
 extension UIImage {
     var width: CGFloat {
@@ -92,7 +89,7 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return image
     }
-    class func image(for color: UIColor?, havingSize: CGSize, radius: CGFloat = 0) -> UIImage? {
+    class func image(for color: UIColor?, havingSize: CGSize, radius: CGFloat = 0, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
         if let color = color {
             let rect: CGRect
             if havingSize.equalTo(CGSize.zero) {
@@ -100,7 +97,7 @@ extension UIImage {
             }else {
                 rect = CGRect(x: 0, y: 0, width: havingSize.width, height: havingSize.height)
             }
-            UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
+            UIGraphicsBeginImageContextWithOptions(rect.size, false, scale)
             let context = UIGraphicsGetCurrentContext()
             context?.setFillColor(color.cgColor)
             let path = UIBezierPath(roundedRect: rect, cornerRadius: radius).cgPath
@@ -129,7 +126,9 @@ extension UIImage {
     }
     func roundCropping() -> UIImage? {
         UIGraphicsBeginImageContext(size)
-        let path = UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        let width = min(size.width, size.height)
+        let rect = CGRect(x: (size.width - width) * 0.5, y: (size.height - width) * 0.5, width: width, height: width)
+        let path = UIBezierPath(ovalIn: rect)
         path.addClip()
         draw(at: .zero)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()

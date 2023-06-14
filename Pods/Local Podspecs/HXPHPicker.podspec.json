@@ -1,6 +1,6 @@
 {
   "name": "HXPHPicker",
-  "version": "1.4.6",
+  "version": "2.0.0",
   "summary": "Photo selector - Support LivePhoto, GIF selection",
   "homepage": "https://github.com/SilenceLove/HXPHPicker",
   "license": {
@@ -18,7 +18,7 @@
   },
   "source": {
     "git": "https://github.com/SilenceLove/HXPHPicker.git",
-    "tag": "1.4.6"
+    "tag": "2.0.0"
   },
   "frameworks": [
     "UIKit",
@@ -68,7 +68,7 @@
           "name": "Lite",
           "source_files": "Sources/HXPHPicker/Editor/**/*.{swift}",
           "dependencies": {
-            "HXPHPicker/Core": [
+            "HXPHPicker/EditorView/Lite": [
 
             ]
           },
@@ -79,7 +79,38 @@
         {
           "name": "KF",
           "dependencies": {
+            "HXPHPicker/EditorView/KF": [
+
+            ],
             "HXPHPicker/Editor/Lite": [
+
+            ],
+            "Kingfisher": [
+              "~> 7.0"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "EditorView",
+      "subspecs": [
+        {
+          "name": "Lite",
+          "source_files": "Sources/HXPHPicker/Editor+View/**/*.{swift}",
+          "dependencies": {
+            "HXPHPicker/Core": [
+
+            ]
+          },
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_EDITOR_VIEW"
+          }
+        },
+        {
+          "name": "KF",
+          "dependencies": {
+            "HXPHPicker/EditorView/Lite": [
 
             ],
             "Kingfisher": [
@@ -107,16 +138,13 @@
         {
           "name": "Location",
           "source_files": "Sources/HXPHPicker/Camera+Location/**/*.{swift}",
+          "pod_target_xcconfig": {
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA_LOCATION"
+          },
           "dependencies": {
-            "HXPHPicker/Core": [
-
-            ],
             "HXPHPicker/Camera/Lite": [
 
             ]
-          },
-          "pod_target_xcconfig": {
-            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "HXPICKER_ENABLE_CAMERA_LOCATION"
           }
         }
       ]
@@ -128,6 +156,20 @@
 
         ],
         "HXPHPicker/Editor/Lite": [
+
+        ],
+        "HXPHPicker/Camera/Lite": [
+
+        ]
+      }
+    },
+    {
+      "name": "NoLocation",
+      "dependencies": {
+        "HXPHPicker/Picker": [
+
+        ],
+        "HXPHPicker/Editor": [
 
         ],
         "HXPHPicker/Camera/Lite": [

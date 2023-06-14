@@ -8,7 +8,7 @@
 import UIKit
 
 class EditorStickerTextView: UIView {
-    let config: EditorTextConfiguration
+    let config: EditorConfiguration.Text
     lazy var textView: UITextView = {
         let textView = UITextView()
         textView.backgroundColor = .clear
@@ -76,7 +76,7 @@ class EditorStickerTextView: UIView {
             collectionView.contentInsetAdjustmentBehavior = .never
         }
         collectionView.register(
-            PhotoEditorBrushColorViewCell.self,
+            EditorStickerTextViewCell.self,
             forCellWithReuseIdentifier: "EditorStickerTextViewCellID"
         )
         return collectionView
@@ -95,8 +95,10 @@ class EditorStickerTextView: UIView {
     var keyboardFrame: CGRect = .zero
     var maxIndex: Int = 0
     
-    init(config: EditorTextConfiguration,
-         stickerText: EditorStickerText?) {
+    init(
+        config: EditorConfiguration.Text,
+        stickerText: EditorStickerText?
+    ) {
         self.config = config
         self.stickerText = stickerText
         super.init(frame: .zero)
@@ -241,4 +243,110 @@ class EditorStickerTextView: UIView {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+}
+
+class EditorStickerTextViewCell: UICollectionViewCell {
+    lazy var colorBgView: UIView = {
+        let view = UIView.init()
+        view.size = CGSize(width: 22, height: 22)
+        view.layer.cornerRadius = 11
+        view.layer.masksToBounds = true
+        view.addSubview(imageView)
+        return view
+    }()
+    
+    lazy var imageView: UIImageView = {
+        let view = UIImageView(image: "hx_editor_brush_color_custom".image)
+        view.isHidden = true
+        
+        let bgLayer = CAShapeLayer()
+        bgLayer.contentsScale = UIScreen.main.scale
+        bgLayer.frame = CGRect(x: 0, y: 0, width: 22, height: 22)
+        bgLayer.fillColor = UIColor.white.cgColor
+        let bgPath = UIBezierPath(
+            roundedRect: CGRect(x: 1.5, y: 1.5, width: 19, height: 19),
+            cornerRadius: 19 * 0.5
+        )
+        bgLayer.path = bgPath.cgPath
+        view.layer.addSublayer(bgLayer)
+
+        let maskLayer = CAShapeLayer()
+        maskLayer.contentsScale = UIScreen.main.scale
+        maskLayer.frame = CGRect(x: 0, y: 0, width: 22, height: 22)
+        let maskPath = UIBezierPath(rect: bgLayer.bounds)
+        maskPath.append(
+            UIBezierPath(
+                roundedRect: CGRect(x: 3, y: 3, width: 16, height: 16),
+                cornerRadius: 8
+            ).reversing()
+        )
+        maskLayer.path = maskPath.cgPath
+        view.layer.mask = maskLayer
+        return view
+    }()
+    
+    lazy var colorView: UIView = {
+        let view = UIView.init()
+        view.size = CGSize(width: 16, height: 16)
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
+    var colorHex: String! {
+        didSet {
+            imageView.isHidden = true
+            guard let colorHex = colorHex else { return }
+            let color = colorHex.color
+            if color.isWhite {
+                colorBgView.backgroundColor = "#dadada".color
+            }else {
+                colorBgView.backgroundColor = .white
+            }
+            colorView.backgroundColor = color
+        }
+    }
+    
+    var customColor: PhotoEditorBrushCustomColor? {
+        didSet {
+            guard let customColor = customColor else {
+                return
+            }
+            imageView.isHidden = false
+            colorView.backgroundColor = customColor.color
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            UIView.animate(withDuration: 0.2) {
+                self.colorBgView.transform = self.isSelected ? .init(scaleX: 1.25, y: 1.25) : .identity
+                self.colorView.transform = self.isSelected ? .init(scaleX: 1.3, y: 1.3) : .identity
+            }
+        }
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(colorBgView)
+        contentView.addSubview(colorView)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        colorBgView.center = CGPoint(x: width / 2, y: height / 2)
+        imageView.frame = colorBgView.bounds
+        colorView.center = CGPoint(x: width / 2, y: height / 2)
+    }
+}
+
+struct PhotoEditorBrushCustomColor {
+    var isFirst: Bool = true
+    var isSelected: Bool = false
+    var color: UIColor
 }

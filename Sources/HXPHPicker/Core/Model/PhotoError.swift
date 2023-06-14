@@ -14,7 +14,6 @@ public enum PhotoError: LocalizedError {
         case videoEmpty
         case exportFailed
     }
-    
     case error(type: Type, message: String)
 }
 
@@ -66,6 +65,8 @@ public enum AssetError: Error {
     case exportLivePhotoURLFailed(Error?, Error?)
     /// 图片压缩失败
     case imageCompressionFailed
+    /// 图片下载失败
+    case imageDownloadFailed
     /// 视频下载失败
     case videoDownloadFailed
     /// 本地livePhoto取消写入
@@ -77,3 +78,5 @@ public enum AssetError: Error {
     /// 本地livePhoto合成失败
     case localLivePhotoRequestFailed
 }
+
+

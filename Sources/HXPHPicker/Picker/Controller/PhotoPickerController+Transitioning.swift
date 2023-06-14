@@ -15,22 +15,37 @@ extension PhotoPickerController: UIViewControllerTransitioningDelegate {
         presenting: UIViewController,
         source: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        if allowPushPresent {
-            return PickerControllerTransition(type: .push)
-        }
-        if isSwipeRightBack {
+        if !config.allowCustomTransitionAnimation {
             return nil
+        }
+        if modalPresentationStyle == .fullScreen &&
+            config.albumShowMode == .popup {
+            switch config.pickerPresentStyle {
+            case .push:
+                return PickerControllerTransition(type: .push)
+            default:
+                return nil
+            }
         }
         return PickerTransition(type: .present)
     }
+    
     public func animationController(
         forDismissed dismissed: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        if allowPushPresent {
-            return PickerControllerTransition(type: .pop)
+        if !config.allowCustomTransitionAnimation {
+            return nil
         }
-        if isSwipeRightBack {
-            return PickerControllerTransition(type: .dismiss)
+        if modalPresentationStyle == .fullScreen &&
+            config.albumShowMode == .popup {
+            switch config.pickerPresentStyle {
+            case .push:
+                return PickerControllerTransition(type: .pop)
+            case .present:
+                return PickerControllerTransition(type: .dismiss)
+            default:
+                return nil
+            }
         }
         if disablesCustomDismiss {
             return nil

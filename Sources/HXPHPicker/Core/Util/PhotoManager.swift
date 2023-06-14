@@ -49,7 +49,7 @@ public final class PhotoManager: NSObject {
     /// 是否使用了自定义的语言
     var isCustomLanguage: Bool = false
     /// 加载指示器类型
-    var indicatorType: BaseConfiguration.IndicatorType = .circle
+    var indicatorType: IndicatorType = .circle
     
     #if HXPICKER_ENABLE_PICKER
     /// 加载网络视频方式
@@ -80,15 +80,6 @@ public final class PhotoManager: NSObject {
     var downloadProgresss: [String: (Double, URLSessionDownloadTask) -> Void] = [:]
     var downloadFileURLs: [String: URL] = [:]
     var downloadExts: [String: Any] = [:]
-    #endif
-    
-    #if HXPICKER_ENABLE_EDITOR
-    lazy var audioSession: AVAudioSession = {
-        let session = AVAudioSession.sharedInstance()
-        return session
-    }()
-    var audioPlayer: AVAudioPlayer?
-    var audioPlayFinish: (() -> Void)?
     #endif
     
     #if HXPICKER_ENABLE_PICKER || HXPICKER_ENABLE_CAMERA

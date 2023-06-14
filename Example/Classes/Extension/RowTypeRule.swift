@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import HXPHPicker
  
 protocol HomeRowTypeRule {
     var title: String { get }

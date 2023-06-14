@@ -123,7 +123,7 @@ class CameraRenderer {
             kCVPixelBufferPixelFormatTypeKey as String: UInt(inputMediaSubType),
             kCVPixelBufferWidthKey as String: Int(inputDimensions.width),
             kCVPixelBufferHeightKey as String: Int(inputDimensions.height),
-            kCVPixelBufferIOSurfacePropertiesKey as String: [:]
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:] as [String: Any]
         ]
         
         // Get pixel buffer attributes and color space from the input format description.

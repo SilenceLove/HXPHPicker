@@ -114,9 +114,7 @@ public extension AssetManager {
         completionHandler: ((Result<URL, AssetManager.AVAssetError>) -> Void)?
     ) {
         requestAVAsset(
-            for: asset,
-            iCloudHandler: nil,
-            progressHandler: nil
+            for: asset
         ) { (result) in
             switch result {
             case .success(let avResult):

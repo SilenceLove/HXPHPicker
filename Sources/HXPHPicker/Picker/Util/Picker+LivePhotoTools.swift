@@ -48,9 +48,16 @@ extension PhotoTools {
     
     static func getLivePhotoJPGURL(
         _ origianURL: URL,
+        cacheKey: String?,
         completion: (URL?) -> Void
     ) {
-        let jpgPath = getLivePhotoImageCachePath(for: getLocalURLKey(for: origianURL))
+        let key: String
+        if let cacheKey = cacheKey {
+            key = cacheKey
+        }else {
+            key = getLocalURLKey(for: origianURL)
+        }
+        let jpgPath = getLivePhotoImageCachePath(for: key)
         let jpgURL = URL(fileURLWithPath: jpgPath)
         if FileManager.default.fileExists(atPath: jpgURL.path) {
             completion(jpgURL)
@@ -74,10 +81,17 @@ extension PhotoTools {
     
     static func getLivePhotoVideoMovURL(
         _ originMovURL: URL,
+        cacheKey: String?,
         header: (AVAssetWriter?, AVAssetWriterInput?, AVAssetReader?, AVAssetWriterInput?, AVAssetReader?) -> Void,
         completion: (URL?) -> Void
     ) {
-        let movPath = getLivePhotoVideoCachePath(for: getLocalURLKey(for: originMovURL))
+        let key: String
+        if let cacheKey = cacheKey {
+            key = cacheKey
+        }else {
+            key = getLocalURLKey(for: originMovURL)
+        }
+        let movPath = getLivePhotoVideoCachePath(for: key)
         let movURL = URL(fileURLWithPath: movPath)
         if FileManager.default.fileExists(atPath: movURL.path) {
             completion(movURL)

@@ -109,7 +109,7 @@ extension PhotoManager {
             }else if preferredLanguage.hasPrefix("en") {
                 language = "en"
                 break
-            } else if preferredLanguage.hasPrefix("ar") {
+            }else if preferredLanguage.hasPrefix("ar") {
                 language = "ar"
                 break
             }

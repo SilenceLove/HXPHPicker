@@ -50,7 +50,7 @@ extension KingfisherWrapper where Base == String {
 
     var ext: String? {
         var ext = ""
-        if let index  = base.lastIndex(of: ".") {
+        if let index = base.lastIndex(of: ".") {
             let extRange = base.index(index, offsetBy: 1)..<base.endIndex
             ext = String(base[extRange])
         }
@@ -86,15 +86,6 @@ extension Int {
     // Array of bytes with optional padding (little-endian)
     func bytes(_ totalBytes: Int = MemoryLayout<Int>.size) -> [UInt8] {
         return arrayOfBytes(self, length: totalBytes)
-    }
-
-}
-
-extension NSMutableData {
-
-    // Convenient way to append bytes
-    func appendBytes(_ arrayOfBytes: [UInt8]) {
-        append(arrayOfBytes, length: arrayOfBytes.count)
     }
 
 }
@@ -178,7 +169,6 @@ func rotateLeft(_ value: UInt32, bits: UInt32) -> UInt32 {
 
 class MD5: HashProtocol {
 
-    static let size = 16 // 128 / 8
     let message: [UInt8]
 
     init (_ message: [UInt8]) {
@@ -248,19 +238,15 @@ class MD5: HashProtocol {
                 case 0...15:
                     F = (B & C) | ((~B) & D)
                     g = j
-                    break
                 case 16...31:
                     F = (D & B) | (~D & C)
                     g = (5 * j + 1) % 16
-                    break
                 case 32...47:
                     F = B ^ C ^ D
                     g = (3 * j + 5) % 16
-                    break
                 case 48...63:
                     F = C ^ (B | (~D))
                     g = (7 * j) % 16
-                    break
                 default:
                     break
                 }

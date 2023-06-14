@@ -1,37 +1,42 @@
 PODS:
   - GDPerformanceView-Swift (2.1.1)
-  - HXPHPicker (1.4.6):
-    - HXPHPicker/Full (= 1.4.6)
-  - HXPHPicker/Camera (1.4.6):
-    - HXPHPicker/Camera/Lite (= 1.4.6)
-    - HXPHPicker/Camera/Location (= 1.4.6)
-  - HXPHPicker/Camera/Lite (1.4.6):
+  - HXPHPicker (2.0.0):
+    - HXPHPicker/Full (= 2.0.0)
+  - HXPHPicker/Camera (2.0.0):
+    - HXPHPicker/Camera/Lite (= 2.0.0)
+    - HXPHPicker/Camera/Location (= 2.0.0)
+  - HXPHPicker/Camera/Lite (2.0.0):
     - HXPHPicker/Core
-  - HXPHPicker/Camera/Location (1.4.6):
+  - HXPHPicker/Camera/Location (2.0.0):
     - HXPHPicker/Camera/Lite
-    - HXPHPicker/Core
-  - HXPHPicker/Core (1.4.6)
-  - HXPHPicker/Editor (1.4.6):
-    - HXPHPicker/Editor/KF (= 1.4.6)
-    - HXPHPicker/Editor/Lite (= 1.4.6)
-  - HXPHPicker/Editor/KF (1.4.6):
+  - HXPHPicker/Core (2.0.0)
+  - HXPHPicker/Editor (2.0.0):
+    - HXPHPicker/Editor/KF (= 2.0.0)
+    - HXPHPicker/Editor/Lite (= 2.0.0)
+  - HXPHPicker/Editor/KF (2.0.0):
     - HXPHPicker/Editor/Lite
+    - HXPHPicker/EditorView/KF
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Editor/Lite (1.4.6):
+  - HXPHPicker/Editor/Lite (2.0.0):
+    - HXPHPicker/EditorView/Lite
+  - HXPHPicker/EditorView/KF (2.0.0):
+    - HXPHPicker/EditorView/Lite
+    - Kingfisher (~> 7.0)
+  - HXPHPicker/EditorView/Lite (2.0.0):
     - HXPHPicker/Core
-  - HXPHPicker/Full (1.4.6):
+  - HXPHPicker/Full (2.0.0):
     - HXPHPicker/Camera
     - HXPHPicker/Editor
     - HXPHPicker/Picker
-  - HXPHPicker/Picker (1.4.6):
-    - HXPHPicker/Picker/KF (= 1.4.6)
-    - HXPHPicker/Picker/Lite (= 1.4.6)
-  - HXPHPicker/Picker/KF (1.4.6):
+  - HXPHPicker/Picker (2.0.0):
+    - HXPHPicker/Picker/KF (= 2.0.0)
+    - HXPHPicker/Picker/Lite (= 2.0.0)
+  - HXPHPicker/Picker/KF (2.0.0):
     - HXPHPicker/Picker/Lite
     - Kingfisher (~> 7.0)
-  - HXPHPicker/Picker/Lite (1.4.6):
+  - HXPHPicker/Picker/Lite (2.0.0):
     - HXPHPicker/Core
-  - Kingfisher (7.1.1)
+  - Kingfisher (7.6.2)
 
 DEPENDENCIES:
   - GDPerformanceView-Swift
@@ -48,9 +53,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
-  HXPHPicker: 44b541272c3066196da5d0af6d7f5ac61234b8cc
-  Kingfisher: f738f9c4a3415823b8e2985d10aa2d6a9f37bc4d
+  HXPHPicker: 4fdbc2c27e0ca43a8f2c0060e128dfead5255594
+  Kingfisher: 6c5449c6450c5239166510ba04afe374a98afc4f
 
 PODFILE CHECKSUM: 022685221be8605f1ae599c42b709a8786891c1b
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
