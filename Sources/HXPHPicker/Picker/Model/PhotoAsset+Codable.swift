@@ -13,6 +13,7 @@ extension PhotoAsset {
         let localImageAsset: LocalImageAsset?
         let localVideoAsset: LocalVideoAsset?
         let localLivePhoto: LocalLivePhotoAsset?
+        let mediaSubType: MediaSubType
         let networkVideoAsset: NetworkVideoAsset?
         
         #if canImport(Kingfisher)
@@ -20,8 +21,7 @@ extension PhotoAsset {
         #endif
         
         #if HXPICKER_ENABLE_EDITOR
-        let photoEdit: PhotoEditResult?
-        let videoEdit: VideoEditResult?
+        let editedResult: EditedResult?
         #endif
     }
     
@@ -36,10 +36,10 @@ extension PhotoAsset {
                 localImageAsset: localImageAsset,
                 localVideoAsset: localVideoAsset,
                 localLivePhoto: localLivePhoto,
+                mediaSubType: mediaSubType,
                 networkVideoAsset: networkVideoAsset,
                 networkImageAsset: networkImageAsset,
-                photoEdit: photoEdit,
-                videoEdit: videoEdit
+                editedResult: editedResult
             )
             #else
             simplify = Simplify(
@@ -47,9 +47,9 @@ extension PhotoAsset {
                 localImageAsset: localImageAsset,
                 localVideoAsset: localVideoAsset,
                 localLivePhoto: localLivePhoto,
+                mediaSubType: mediaSubType,
                 networkVideoAsset: networkVideoAsset,
-                photoEdit: photoEdit,
-                videoEdit: videoEdit
+                editedResult: editedResult
             )
             #endif
         #else
@@ -59,6 +59,7 @@ extension PhotoAsset {
                 localImageAsset: localImageAsset,
                 localVideoAsset: localVideoAsset,
                 localLivePhoto: localLivePhoto,
+                mediaSubType: mediaSubType,
                 networkVideoAsset: networkVideoAsset,
                 networkImageAsset: networkImageAsset
             )
@@ -68,6 +69,7 @@ extension PhotoAsset {
                 localImageAsset: localImageAsset,
                 localVideoAsset: localVideoAsset,
                 localLivePhoto: localLivePhoto,
+                mediaSubType: mediaSubType,
                 networkVideoAsset: networkVideoAsset
             )
             #endif
@@ -104,14 +106,11 @@ extension PhotoAsset {
                 }
                 #endif
             }
+            photoAsset?.mediaSubType = simplify.mediaSubType
             #if HXPICKER_ENABLE_EDITOR
-            if let ImageURL = simplify.photoEdit?.editedImageURL,
-               FileManager.default.fileExists(atPath: ImageURL.path) {
-                photoAsset?.photoEdit = simplify.photoEdit
-            }
-            if let videoURL = simplify.videoEdit?.editedURL,
-               FileManager.default.fileExists(atPath: videoURL.path) {
-                photoAsset?.videoEdit = simplify.videoEdit
+            if let url = simplify.editedResult?.url,
+               FileManager.default.fileExists(atPath: url.path) {
+                photoAsset?.editedResult = simplify.editedResult
             }
             #endif
         } catch  {

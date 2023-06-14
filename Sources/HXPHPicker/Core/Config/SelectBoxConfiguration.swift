@@ -33,13 +33,13 @@ public struct SelectBoxConfiguration {
     public var tickColor: UIColor = .white
     
     /// 暗黑风格下选中之后的 勾勾 颜色
-    public var tickDarkColor: UIColor = .black
+    public var tickDarkColor: UIColor = .white
     
     /// 未选中时框框中间的颜色
     public var backgroundColor: UIColor = .black.withAlphaComponent(0.4)
     
     /// 暗黑风格下未选中时框框中间的颜色
-    public var darkBackgroundColor: UIColor = .black.withAlphaComponent(0.2)
+    public var darkBackgroundColor: UIColor = .black.withAlphaComponent(0.4)
     
     /// 选中之后的背景颜色
     public var selectedBackgroundColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor

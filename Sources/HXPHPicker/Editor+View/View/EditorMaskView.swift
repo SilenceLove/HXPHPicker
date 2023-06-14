@@ -135,7 +135,7 @@ class EditorMaskView: UIView {
     
     lazy var gridlinesLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.strokeColor = UIColor.white.withAlphaComponent(0.7).cgColor
+        layer.strokeColor = UIColor.white.cgColor
         layer.fillColor = UIColor.clear.cgColor
         layer.lineWidth = 0.5
         layer.shadowOffset = CGSize(width: -1, height: 1)
@@ -145,6 +145,27 @@ class EditorMaskView: UIView {
         layer.shadowOpacity = 0.5
         return layer
     }()
+    
+    
+    lazy var gridGraylinesView: UIView = {
+        let view = UIView()
+        view.alpha = 0
+        view.isUserInteractionEnabled = false
+        view.layer.addSublayer(gridGraylinesLayer)
+        return view
+    }()
+    
+    lazy var gridGraylinesLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.strokeColor = UIColor.gray.withAlphaComponent(0.75).cgColor
+        layer.fillColor = UIColor.clear.cgColor
+        layer.lineWidth = 0.5
+        layer.contentsScale = UIScreen.main.scale
+        layer.shouldRasterize = true
+        layer.rasterizationScale = layer.contentsScale
+        return layer
+    }()
+    
     /// 圆形裁剪框
     var isRoundCrop: Bool = false
     var animationDuration: TimeInterval = 0.3
@@ -219,7 +240,8 @@ class EditorMaskView: UIView {
             }
             UIView.animate {
                 self.customMaskView.alpha = image == nil ? 0 : 1
-            } completion: { _ in
+            } completion: {
+                if !$0 { return }
                 if image == nil {
                     self.maskImage = image
                     self.maskImageView.image = image
@@ -251,6 +273,7 @@ class EditorMaskView: UIView {
         switch type {
         case .frame:
             addSubview(frameView)
+            addSubview(gridGraylinesView)
             addSubview(gridlinesView)
         case .mask:
             switch maskType {
@@ -389,7 +412,8 @@ class EditorMaskView: UIView {
             }
             UIView.animate {
                 self.blackMaskView.alpha = isShow ? 1 : 0
-            } completion: { (_) in
+            } completion: {
+                if !$0 { return }
                 if !isShow {
                     self.blackMaskView.isHidden = true
                 }
@@ -455,6 +479,7 @@ class EditorMaskView: UIView {
             )
             framePath = UIBezierPath(roundedRect: frameRect, cornerRadius: isRoundCrop ? min(frameRect.width, frameRect.height) * 0.5 : 0.1)
             let gridlinePath = getGridlinePath(rect)
+            let gridGraylinePath = getGridGraylinePath(rect)
             let dotsPath = getDotsPath(
                 CGRect(
                     x: rect.minX - frameLayer.lineWidth,
@@ -464,18 +489,30 @@ class EditorMaskView: UIView {
                 )
             )
             if animated {
+                frameLayer.removeAnimation(forKey: "frameAnimation")
+                gridGraylinesLayer.removeAnimation(forKey: "gridGraylinesAnimation")
+                gridlinesLayer.removeAnimation(forKey: "gridlinesAnimation")
+                dotsLayer.removeAnimation(forKey: "dotsGroupAnimation")
+                dotsLayer.removeAnimation(forKey: "dotsAnimation")
                 let frameAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     frameLayer.path,
                     framePath.cgPath
                 )
-                frameLayer.add(frameAnimation, forKey: nil)
+                frameLayer.add(frameAnimation, forKey: "frameAnimation")
                 let gridlinesAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     gridlinesLayer.path,
                     isRoundCrop ? nil : gridlinePath.cgPath
                 )
-                gridlinesLayer.add(gridlinesAnimation, forKey: nil)
+                gridlinesLayer.add(gridlinesAnimation, forKey: "gridlinesAnimation")
+                let gridGraylinesAnimation = PhotoTools.getBasicAnimation(
+                    "path",
+                    gridGraylinesLayer.path,
+                    isRoundCrop ? nil : gridGraylinePath.cgPath
+                )
+                gridGraylinesLayer.add(gridGraylinesAnimation, forKey: "gridGraylinesAnimation")
+                
                 let dotsAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     dotsLayer.path,
@@ -495,9 +532,9 @@ class EditorMaskView: UIView {
                     )
                     let dotsGroupAnimation = CAAnimationGroup()
                     dotsGroupAnimation.animations = [dotsAnimation, dotsOpacityAnimation]
-                    dotsLayer.add(dotsGroupAnimation, forKey: nil)
+                    dotsLayer.add(dotsGroupAnimation, forKey: "dotsGroupAnimation")
                 }else {
-                    dotsLayer.add(dotsAnimation, forKey: nil)
+                    dotsLayer.add(dotsAnimation, forKey: "dotsAnimation")
                 }
                 let beforCenter = sizeLb.center
                 sizeLb.width = frameRect.width - 2
@@ -515,10 +552,12 @@ class EditorMaskView: UIView {
             frameLayer.path = framePath.cgPath
             if !isRoundCrop {
                 gridlinesLayer.path = gridlinePath.cgPath
+                gridGraylinesLayer.path = gridGraylinePath.cgPath
                 dotsLayer.path = dotsPath.cgPath
                 dotsLayer.opacity = 1
             }else {
                 gridlinesLayer.path = nil
+                gridGraylinesLayer.path = nil
                 dotsLayer.path = nil
                 dotsLayer.opacity = 0
             }
@@ -528,12 +567,13 @@ class EditorMaskView: UIView {
             let maskRect = CGRect(x: rect.minX + maskInsets.left, y: rect.minY + maskInsets.top, width: rect.width, height: rect.height)
             maskPath.append(UIBezierPath(roundedRect: maskRect, cornerRadius: isRoundCrop ? min(rect.width, rect.height) * 0.5 : 0.1).reversing())
             if animated {
+                maskLayer.removeAnimation(forKey: "maskAnimation")
                 let maskAnimation = PhotoTools.getBasicAnimation(
                     "path",
                     maskLayer.path,
                     maskPath.cgPath
                 )
-                maskLayer.add(maskAnimation, forKey: nil)
+                maskLayer.add(maskAnimation, forKey: "maskAnimation")
             }
             CATransaction.begin()
             CATransaction.setDisableActions(true)
@@ -594,6 +634,32 @@ class EditorMaskView: UIView {
         }
     }
     
+    func showGridGraylinesView(animated: Bool) {
+        if gridGraylinesView.alpha == 1 {
+            return
+        }
+        if animated {
+            UIView.animate(withDuration: animationDuration) {
+                self.gridGraylinesView.alpha = 1
+            }
+        }else {
+            gridGraylinesView.alpha = 1
+        }
+    }
+    
+    func hideGridGraylinesView(animated: Bool) {
+        if gridGraylinesView.alpha == 0 {
+            return
+        }
+        if animated {
+            UIView.animate(withDuration: animationDuration) {
+                self.gridGraylinesView.alpha = 0
+            }
+        }else {
+            gridGraylinesView.alpha = 0
+        }
+    }
+    
     func getDotsPath(
         _ rect: CGRect
     ) -> UIBezierPath {
@@ -626,6 +692,27 @@ class EditorMaskView: UIView {
         path.move(to: rightBottomStartPoint)
         path.addLine(to: rightBottomMidPoint)
         path.addLine(to: rightBottomEndPoint)
+        
+        let centerLineWidth: CGFloat = 30
+        let topCenterStartPoint = CGPoint(x: rect.midX - centerLineWidth * 0.5, y: rect.minY)
+        let topCenterEndPoint = CGPoint(x: rect.midX + centerLineWidth * 0.5, y: rect.minY)
+        path.move(to: topCenterStartPoint)
+        path.addLine(to: topCenterEndPoint)
+        
+        let leftCenterStartPoint = CGPoint(x: rect.minX, y: rect.midY - centerLineWidth * 0.5)
+        let leftCenterEndPoint = CGPoint(x: rect.minX, y: rect.midY + centerLineWidth * 0.5)
+        path.move(to: leftCenterStartPoint)
+        path.addLine(to: leftCenterEndPoint)
+        
+        let rightCenterStartPoint = CGPoint(x: rect.maxX, y: rect.midY - centerLineWidth * 0.5)
+        let rightCenterEndPoint = CGPoint(x: rect.maxX, y: rect.midY + centerLineWidth * 0.5)
+        path.move(to: rightCenterStartPoint)
+        path.addLine(to: rightCenterEndPoint)
+        
+        let bottomCenterStartPoint = CGPoint(x: rect.midX - centerLineWidth * 0.5, y: rect.maxY)
+        let bottomCenterEndPoint = CGPoint(x: rect.midX + centerLineWidth * 0.5, y: rect.maxY)
+        path.move(to: bottomCenterStartPoint)
+        path.addLine(to: bottomCenterEndPoint)
         return path
     }
     
@@ -650,6 +737,31 @@ class EditorMaskView: UIView {
         }
         return path
     }
+    
+    func getGridGraylinePath(
+        _ rect: CGRect
+    ) -> UIBezierPath {
+        let gridCount: Int = 9
+        let horSpace = rect.width / CGFloat(gridCount)
+        let verSpace = rect.height / CGFloat(gridCount)
+        let path = UIBezierPath()
+        for index in 1..<gridCount {
+            if CGFloat(index).truncatingRemainder(dividingBy: 3) == 0 {
+                continue
+            }
+            var px = rect.minX
+            var py = rect.minY + verSpace * CGFloat(index)
+            path.move(to: CGPoint(x: px, y: py))
+            path.addLine(to: CGPoint(x: px + rect.width, y: py))
+            
+            px = rect.minX + horSpace * CGFloat(index)
+            py = rect.minY
+            path.move(to: CGPoint(x: px, y: py))
+            path.addLine(to: CGPoint(x: px, y: py + rect.height))
+        }
+        return path
+    }
+    
     public override func layoutSubviews() {
         super.layoutSubviews()
         switch type {
@@ -659,6 +771,8 @@ class EditorMaskView: UIView {
             dotsLayer.frame = frameView.bounds
             gridlinesView.frame = bounds
             gridlinesLayer.frame = gridlinesView.bounds
+            gridGraylinesView.frame = bounds
+            gridGraylinesLayer.frame = gridGraylinesView.bounds
         case .mask:
             visualEffectView.frame = bounds
             blackMaskView.frame = bounds

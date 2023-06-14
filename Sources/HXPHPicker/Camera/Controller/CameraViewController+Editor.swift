@@ -8,48 +8,47 @@
 import UIKit
 
 #if HXPICKER_ENABLE_EDITOR
-extension CameraViewController: PhotoEditorViewControllerDelegate {
-    func openPhotoEditor(_ image: UIImage) {
-        let vc = PhotoEditorViewController(
-            image: image,
-            config: config.photoEditor
-        )
-        vc.autoBack = autoDismiss
-        vc.delegate = self
-        navigationController?.pushViewController(vc, animated: false)
-    }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        didFinish result: PhotoEditResult
-    ) {
-        if let image = UIImage(contentsOfFile: result.editedImageURL.path) {
-            didFinish(withImage: image)
+extension CameraViewController: EditorViewControllerDelegate {
+    public func editorViewController(_ editorViewController: EditorViewController, didFinish asset: EditorAsset) {
+        guard let result = asset.result else {
+            if let image = asset.type.image {
+                didFinish(withImage: image)
+            }
+            if let videoURL = asset.type.videoURL {
+                didFinish(withVideo: videoURL)
+            }
+            return
         }
-    }
-    public func photoEditorViewController(didFinishWithUnedited photoEditorViewController: PhotoEditorViewController) {
-        didFinish(withImage: photoEditorViewController.image)
+        switch result {
+        case .image(let editedResult, _):
+            if let image = UIImage(contentsOfFile: editedResult.url.path) {
+                didFinish(withImage: image)
+            }
+        case .video(let editedResult, _):
+            didFinish(withVideo: editedResult.url)
+        }
     }
 }
-extension CameraViewController: VideoEditorViewControllerDelegate {
-    func openVideoEditor(_ videoURL: URL) {
-        let vc = VideoEditorViewController(
-            videoURL: videoURL,
-            config: config.videoEditor
+extension CameraViewController{
+    func openPhotoEditor(_ image: UIImage) {
+        config.editor.isAutoBack = autoDismiss
+        let vc = EditorViewController(
+            .init(type: .image(image)),
+            config: config.editor,
+            delegate: self
         )
-        vc.autoBack = autoDismiss
-        vc.delegate = self
         navigationController?.pushViewController(vc, animated: false)
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult
-    ) {
-        didFinish(withVideo: result.editedURL)
-    }
-    public func videoEditorViewController(didFinishWithUnedited videoEditorViewController: VideoEditorViewController) {
-        if let videoURL = videoEditorViewController.videoURL {
-            didFinish(withVideo: videoURL)
-        }
+}
+extension CameraViewController {
+    func openVideoEditor(_ videoURL: URL) {
+        config.editor.isAutoBack = autoDismiss
+        let vc = EditorViewController(
+            .init(type: .video(videoURL)),
+            config: config.editor,
+            delegate: self
+        )
+        navigationController?.pushViewController(vc, animated: false)
     }
 }
 #endif

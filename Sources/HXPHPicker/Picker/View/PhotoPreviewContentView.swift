@@ -84,7 +84,9 @@ open class PhotoPreviewContentView: UIView {
     var currentLoadAssetLocalIdentifier: String?
     public var photoAsset: PhotoAsset! {
         didSet {
+            #if canImport(Kingfisher)
             photoAsset.loadNetworkImageHandler = nil
+            #endif
             requestFailed(info: [PHImageCancelledKey: 1], isICloud: false)
             setAnimatedImageCompletion = false
             switch photoAsset.mediaSubType {
@@ -103,9 +105,11 @@ open class PhotoPreviewContentView: UIView {
                 networkVideoLoading = false
                 requestNetworkCompletion = false
                 requestNetworkImage()
+                #if canImport(Kingfisher)
                 photoAsset.loadNetworkImageHandler = { [weak self] in
                     self?.requestNetworkImage(loadOriginal: true, $0)
                 }
+                #endif
                 return
             default:
                 break
@@ -352,8 +356,8 @@ extension PhotoPreviewContentView {
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = photoAsset.videoEdit {
-            networkVideoRequestCompletion(videoEdit.editedURL)
+        if let videoEdit = photoAsset.videoEditedResult {
+            networkVideoRequestCompletion(videoEdit.url)
             return
         }
         #endif
@@ -510,19 +514,19 @@ extension PhotoPreviewContentView {
     
     func requestOriginalImage() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
+        if let photoEdit = photoAsset.photoEditedResult {
             if photoEdit.imageType == .gif {
                 do {
-                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
+                    let imageData = try Data(contentsOf: photoEdit.url)
                     imageView.setImageData(imageData)
                 }catch {
-                    imageView.setImage(photoEdit.editedImage, animated: true)
+                    imageView.setImage(photoEdit.image, animated: true)
                 }
             }else {
-                if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+                if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                     imageView.setImage(image, animated: true)
                 }else {
-                    imageView.setImage(photoEdit.editedImage, animated: true)
+                    imageView.setImage(photoEdit.image, animated: true)
                 }
             }
             requestCompletion = true
@@ -587,11 +591,11 @@ extension PhotoPreviewContentView {
     @available(iOS 9.1, *)
     func requestLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
-            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+        if let photoEdit = photoAsset.photoEditedResult {
+            if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                 imageView.setImage(image, animated: true)
             }else {
-                imageView.setImage(photoEdit.editedImage, animated: true)
+                imageView.setImage(photoEdit.image, animated: true)
             }
             requestCompletion = true
             return
@@ -634,11 +638,11 @@ extension PhotoPreviewContentView {
     }
     func requestLocalLivePhoto() {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoAsset.photoEdit {
-            if let image = UIImage(contentsOfFile: photoEdit.editedImageURL.path) {
+        if let photoEdit = photoAsset.photoEditedResult {
+            if let image = UIImage(contentsOfFile: photoEdit.url.path) {
                 imageView.setImage(image, animated: true)
             }else {
-                imageView.setImage(photoEdit.editedImage, animated: true)
+                imageView.setImage(photoEdit.image, animated: true)
             }
             requestCompletion = true
             return
@@ -713,7 +717,14 @@ extension PhotoPreviewContentView {
         showLoadingView(text: "正在同步iCloud".localized)
     }
     func requestUpdateProgress(progress: Double, isICloud: Bool) {
-        loadingView?.progress = CGFloat(progress)
+        guard let loadingView = loadingView else {
+            return
+        }
+        if loadingView.mode == .circleProgress {
+            loadingView.progress = CGFloat(progress)
+        }else {
+            loadingView.text = "正在同步iCloud".localized + "(" + String(Int(photoAsset.downloadProgress * 100)) + "%)"
+        }
     }
     func resetLoadingState() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false

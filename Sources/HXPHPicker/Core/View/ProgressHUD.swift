@@ -127,7 +127,7 @@ final class ProgressHUD: UIView {
     }()
     
     /// 加载指示器类型
-    let indicatorType: BaseConfiguration.IndicatorType
+    let indicatorType: IndicatorType
     
     var text: String? {
         didSet {
@@ -142,7 +142,7 @@ final class ProgressHUD: UIView {
     init(
         addedTo view: UIView,
         mode: Mode,
-        indicatorType: BaseConfiguration.IndicatorType = .system
+        indicatorType: IndicatorType = .system
     ) {
         self.indicatorType = indicatorType
         self.mode = mode
@@ -340,10 +340,10 @@ final class ProgressHUD: UIView {
         text: String?,
         afterDelay: TimeInterval ,
         animated: Bool,
-        indicatorType: BaseConfiguration.IndicatorType? = nil
+        indicatorType: IndicatorType? = nil
     ) -> ProgressHUD? {
         guard let view = view else { return nil }
-        let type: BaseConfiguration.IndicatorType
+        let type: IndicatorType
         if let indicatorType = indicatorType {
             type = indicatorType
         }else {

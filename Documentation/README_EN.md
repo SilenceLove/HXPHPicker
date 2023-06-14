@@ -1,16 +1,16 @@
-
-<img src="http://tsnrhapp.oss-cn-hangzhou.aliyuncs.com/chartle/hxphpickerpreview.png">
-
-<p align="left">
-<a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%2012.0%2B?color=cyan&icon=apple&label"></a>
-<a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
-<a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
-<a href="http://mit-license.org"><img src="http://img.shields.io/badge/license-MIT-333333.svg?logo=letterboxd&logoColor=ffffff"></a>
-</p>
-
-`HXPHPicker` is a photo/video selector-supports LivePhoto, GIF selection, iCloud resource online download, photo/video editing
-
-> [中文说明](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/README_CN.md)
+<h4 align="right"><strong><a href="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/README_CN.md">中文</a></strong> | English</h4>
+      
+<p align="center">
+    <a><img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/sample_graph_en.png"  width = "396" height = "292.65" ></a>
+    
+<p align="center">
+    <a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%2012.0%2B?color=cyan&icon=apple&label"></a>
+    <a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
+    <a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
+    <a href="http://mit-license.org"><img src="http://img.shields.io/badge/license-MIT-333333.svg?logo=letterboxd&logoColor=ffffff"></a>
+    <div align="center"><a href="https://www.buymeacoffee.com/fengye" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a></div>
+    <div align="center">photo/video selector-supports LivePhoto, GIF selection, iCloud resource online download, photo/video editing</div>
+</p> 
 
 ## <a id="Features"></a> Features
 
@@ -54,8 +54,8 @@
     - [x] iOS
     - [x] iPadOS
 - [x] Internationalization support
-    - [x] 🇬🇧 English (en)
     - [x] 🇨🇳 Chinese, Simplified (zh-Hans)
+    - [x] 🇬🇧 English (en)
     - [x] 🇨🇳 Chinese, traditional (zh-Hant)
     - [x] 🇯🇵 Japanese (ja)
     - [x] 🇰🇷 Korean (ko)
@@ -83,7 +83,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "1.4.6"))
+    .package(url: "https://github.com/SilenceLove/HXPHPicker.git", .upToNextMajor(from: "2.0.0"))
 ]
 ```
 
@@ -256,23 +256,8 @@ photoAsset.getURL(compression: compression) { result in
 
 | Version | Release Date | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
+| [v2.0.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#200) | 2023-06-14 | 14.3.0 | 5.7.0 | 12.0+ |
 | [v1.4.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#146) | 2022-11-20 | 14.0.0 | 5.7.0 | 12.0+ |
-| [v1.4.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#145) | 2022-11-07 | 14.0.0 | 5.7.0 | 12.0+ |
-| [v1.4.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#144) | 2022-10-26 | 14.0.0 | 5.7.0 | 12.0+ |
-| [v1.4.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#143) | 2022-09-15 | 14.0.0 | 5.7.0 | 12.0+ |
-| [v1.4.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#142) | 2022-09-13 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.4.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#141) | 2022-05-24 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.4.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#140) | 2022-04-13 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#139) | 2022-03-24 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.7](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#137) | 2022-02-19 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.5](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#135) | 2022-02-09 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.4](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#134) | 2022-01-26 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.3](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#133) | 2022-01-19 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.2](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#132) | 2022-01-14 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.1](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#131) | 2022-01-05 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.3.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#130) | 2021-12-16 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.2.9](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#129) | 2021-12-02 | 13.1.0 | 5.4.2 | 12.0+ |
-| [v1.2.8](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#128) | 2021-11-26 | 12.5.1 | 5.4.2 | 12.0+ |
 
 ## License
 

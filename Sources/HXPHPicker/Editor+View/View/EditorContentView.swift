@@ -12,15 +12,28 @@ protocol EditorContentViewDelegate: AnyObject {
     func contentView(_ contentView: EditorContentView, videoDidPlayAt time: CMTime)
     func contentView(_ contentView: EditorContentView, videoDidPauseAt time: CMTime)
     func contentView(videoReadyForDisplay contentView: EditorContentView)
+    func contentView(_ contentView: EditorContentView, isPlaybackLikelyToKeepUp: Bool)
+    func contentView(resetPlay contentView: EditorContentView)
+    func contentView(_ contentView: EditorContentView, readyToPlay duration: CMTime)
+    func contentView(_ contentView: EditorContentView, didChangedBuffer time: CMTime)
+    func contentView(_ contentView: EditorContentView, didChangedTimeAt time: CMTime)
     
     func contentView(drawViewBeganDraw contentView: EditorContentView)
     func contentView(drawViewEndDraw contentView: EditorContentView)
-//    func contentView(_ contentView: EditorContentView, updateStickerText item: EditorStickerItem)
-     
+    func contentView(_ contentView: EditorContentView, didTapSticker itemView: EditorStickersItemView)
+    func contentView(_ contentView: EditorContentView, shouldRemoveSticker itemView: EditorStickersItemView)
+    func contentView(_ contentView: EditorContentView, didRemovedSticker itemView: EditorStickersItemView)
+    func contentView(_ contentView: EditorContentView, resetItemViews itemViews: [EditorStickersItemBaseView])
+    func contentView(_ contentView: EditorContentView, shouldAddAudioItem audio: EditorStickerAudio) -> Bool
+    
     func contentView(_ contentView: EditorContentView, stickersView: EditorStickersView, moveToCenter itemView: EditorStickersItemView) -> Bool
     func contentView(_ contentView: EditorContentView, stickerMaxScale itemSize: CGSize) -> CGFloat
-    func contentView(_ contentView: EditorContentView, updateStickerText item: EditorStickerItem)
     func contentView(_ contentView: EditorContentView, stickerItemCenter stickersView: EditorStickersView) -> CGPoint?
+    func contentView(rotateVideo contentView: EditorContentView)
+    func contentView(resetVideoRotate contentView: EditorContentView)
+    
+    func contentView(_ contentView: EditorContentView, videoApplyFilter sourceImage: CIImage, at time: CMTime) -> CIImage
+    
 }
 
 class EditorContentView: UIView {
@@ -41,7 +54,6 @@ class EditorContentView: UIView {
         set {
             type = .image
             imageView.setImage(newValue)
-            setMosaicImage()
         }
     }
     
@@ -90,7 +102,6 @@ class EditorContentView: UIView {
         set {
             type = .image
             imageView.setImageData(newValue)
-            setMosaicImage()
         }
     }
     
@@ -102,12 +113,21 @@ class EditorContentView: UIView {
         }
     }
     
+    var isVideoPlayToEndTimeAutoPlay: Bool {
+        get { videoView.isPlayToEndTimeAutoPlay}
+        set { videoView.isPlayToEndTimeAutoPlay = newValue }
+    }
+    
     var mosaicOriginalImage: UIImage? {
         get { mosaicView.originalImage }
         set {
             mosaicView.originalImage = newValue
-            mosaicImageQueue.cancelAllOperations()
         }
+    }
+    
+    var mosaicOriginalCGImage: CGImage? {
+        get { mosaicView.originalCGImage }
+        set { mosaicView.originalCGImage = newValue }
     }
 
     /// 缩放比例
@@ -183,6 +203,10 @@ class EditorContentView: UIView {
         set { stickerView.isEnabled = newValue }
     }
     
+    var stickerCount: Int {
+        stickerView.count
+    }
+    
     var isStickerShowTrash: Bool {
         get { stickerView.isShowTrash }
         set { stickerView.isShowTrash = newValue }
@@ -196,52 +220,47 @@ class EditorContentView: UIView {
     func addSticker(
         _ item: EditorStickerItem,
         isSelected: Bool = false
-    ) {
+    ) -> EditorStickersItemBaseView {
         stickerView.add(sticker: item, isSelected: isSelected)
+    }
+    
+    func removeSticker(at itemView: EditorStickersItemBaseView) {
+        stickerView.removeSticker(at: itemView)
+    }
+    
+    func removeAllSticker() {
+        stickerView.removeAllSticker()
+    }
+    
+    func updateSticker(
+        _ text: EditorStickerText
+    ) {
+        stickerView.update(text: text)
     }
     
     func deselectedSticker() {
         stickerView.deselectedSticker()
     }
     
-    var mosaicImageWidth: CGFloat = 20
-    
-    lazy var mosaicImageQueue: OperationQueue = {
-        let mosaicImageQueue = OperationQueue()
-        mosaicImageQueue.maxConcurrentOperationCount = 1
-        return mosaicImageQueue
-    }()
-    
-    func setMosaicImage() {
-        guard var image = image else {
+    func showStickersView() {
+        if stickerView.alpha == 1 {
             return
         }
-        mosaicImageQueue.cancelAllOperations()
-        let operation = BlockOperation()
-        operation.addExecutionBlock { [unowned operation] in
-            if operation.isCancelled { return }
-            let minSize: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-            if image.width > minSize {
-                let thumbnailScale = minSize / image.width
-                if let img = image
-                    .scaleImage(toScale: thumbnailScale)?
-                    .mosaicImage(level: self.mosaicImageWidth) {
-                    image = img
-                }
-            }else {
-                if let img = image.mosaicImage(level: self.mosaicImageWidth) {
-                    image = img
-                }
-            }
-            if operation.isCancelled { return }
-            DispatchQueue.main.async {
-                self.mosaicOriginalImage = image
-            }
+        UIView.animate(withDuration: 0.2) {
+            self.stickerView.alpha = 1
         }
-        mosaicImageQueue.addOperation(operation)
     }
     
-    var type: EditorContentViewType = .image {
+    func hideStickersView() {
+        if stickerView.alpha == 0 {
+            return
+        }
+        UIView.animate(withDuration: 0.2) {
+            self.stickerView.alpha = 0
+        }
+    }
+    
+    var type: EditorContentViewType = .unknown {
         willSet {
             if type == .video {
                 videoView.clear()
@@ -317,10 +336,10 @@ class EditorContentView: UIView {
     }()
     
     lazy var stickerView: EditorStickersView = {
-        let mosaicView = EditorStickersView()
-        mosaicView.delegate = self
+        let stickerView = EditorStickersView()
+        stickerView.delegate = self
 //        mosaicView.isHidden = true
-        return mosaicView
+        return stickerView
     }()
     
     required init?(coder: NSCoder) {
@@ -333,11 +352,59 @@ extension EditorContentView: EditorVideoPlayerViewDelegate {
         videoView.isPlaying
     }
     
-    func loadAsset(_ completion: ((Bool) -> Void)? = nil) {
-        videoView.configAsset(completion)
+    var playTime: CMTime {
+        videoView.playTime
     }
-    func seek(to time: CMTime, comletion: ((Bool) -> Void)? = nil) {
-        videoView.seek(to: time, comletion: comletion)
+    var duration: CMTime {
+        videoView.duration
+    }
+    var startTime: CMTime? {
+        get { videoView.startTime }
+        set {
+            videoView.startTime = newValue
+            if let startTime = videoView.startTime, let endTime = videoView.endTime {
+                delegate?.contentView(self, readyToPlay: .init(seconds: endTime.seconds - startTime.seconds, preferredTimescale: 1000))
+            }else if let startTime = videoView.startTime {
+                delegate?.contentView(self, readyToPlay: .init(seconds: duration.seconds - startTime.seconds, preferredTimescale: 1000))
+            }else if let endTime = videoView.endTime {
+                delegate?.contentView(self, readyToPlay: endTime)
+            }else {
+                delegate?.contentView(self, readyToPlay: duration)
+            }
+        }
+    }
+    var endTime: CMTime? {
+        get { videoView.endTime }
+        set {
+            videoView.endTime = newValue
+            if let startTime = videoView.startTime, let endTime = videoView.endTime {
+                delegate?.contentView(self, readyToPlay: .init(seconds: endTime.seconds - startTime.seconds, preferredTimescale: 1000))
+            }else if let startTime = videoView.startTime {
+                delegate?.contentView(self, readyToPlay: .init(seconds: duration.seconds - startTime.seconds, preferredTimescale: 1000))
+            }else if let endTime = videoView.endTime {
+                delegate?.contentView(self, readyToPlay: endTime)
+            }else {
+                delegate?.contentView(self, readyToPlay: duration)
+            }
+        }
+    }
+    var volume: CGFloat {
+        get {
+            videoView.volume
+        }
+        set {
+            videoView.volume = newValue
+        }
+    }
+    
+    func loadAsset(isPlay: Bool, _ completion: ((Bool) -> Void)? = nil) {
+        videoView.configAsset(isPlay: isPlay, completion)
+    }
+    func seek(to time: CMTime, isPlay: Bool, comletion: ((Bool) -> Void)? = nil) {
+        videoView.seek(to: time, isPlay: isPlay, comletion: comletion)
+    }
+    func seek(to time: TimeInterval, isPlay: Bool, comletion: ((Bool) -> Void)? = nil) {
+        videoView.seek(to: time, isPlay: isPlay, comletion: comletion)
     }
     func play() {
         videoView.play()
@@ -359,6 +426,24 @@ extension EditorContentView: EditorVideoPlayerViewDelegate {
     
     func playerView(readyForDisplay playerView: EditorVideoPlayerView) {
         delegate?.contentView(videoReadyForDisplay: self)
+    }
+    func playerView(_ playerView: EditorVideoPlayerView, isPlaybackLikelyToKeepUp: Bool) {
+        delegate?.contentView(self, isPlaybackLikelyToKeepUp: isPlaybackLikelyToKeepUp)
+    }
+    func playerView(resetPlay playerView: EditorVideoPlayerView) {
+        delegate?.contentView(resetPlay: self)
+    }
+    func playerView(_ playerView: EditorVideoPlayerView, readyToPlay duration: CMTime) {
+        delegate?.contentView(self, readyToPlay: duration)
+    }
+    func playerView(_ playerView: EditorVideoPlayerView, didChangedBuffer time: CMTime) {
+        delegate?.contentView(self, didChangedBuffer: time)
+    }
+    func playerView(_ playerView: EditorVideoPlayerView, didChangedTimeAt time: CMTime) {
+        delegate?.contentView(self, didChangedTimeAt: time)
+    }
+    func playerView(_ playerView: EditorVideoPlayerView, applyFilter sourceImage: CIImage, at time: CMTime) -> CIImage {
+        delegate?.contentView(self, videoApplyFilter: sourceImage, at: time) ?? sourceImage
     }
 }
 
@@ -385,6 +470,17 @@ extension EditorContentView: EditorMosaicViewDelegate {
 }
 
 extension EditorContentView: EditorStickersViewDelegate {
+    func stickerView(rotateVideo stickerView: EditorStickersView) {
+        delegate?.contentView(rotateVideo: self)
+    }
+    func stickerView(resetVideoRotate stickerView: EditorStickersView) {
+        delegate?.contentView(resetVideoRotate: self)
+    }
+    
+    func stickerView(_ stickerView: EditorStickersView, shouldAddAudioItem audio: EditorStickerAudio) -> Bool {
+        delegate?.contentView(self, shouldAddAudioItem: audio) ?? true
+    }
+    
     func stickerView(touchBegan stickerView: EditorStickersView) {
         delegate?.contentView(drawViewBeganDraw: self)
     }
@@ -400,13 +496,19 @@ extension EditorContentView: EditorStickersViewDelegate {
     func stickerView(_ stickerView: EditorStickersView, maxScale itemSize: CGSize) -> CGFloat {
         delegate?.contentView(self, stickerMaxScale: itemSize) ?? 5
     }
-    func stickerView(_ stickerView: EditorStickersView, updateStickerText item: EditorStickerItem) {
-        delegate?.contentView(self, updateStickerText: item)
+    func stickerView(_ stickerView: EditorStickersView, didTapStickerItem itemView: EditorStickersItemView) {
+        delegate?.contentView(self, didTapSticker: itemView)
     }
-    func stickerView(didRemoveAudio stickerView: EditorStickersView) {
-        
+    func stickerView(_ stickerView: EditorStickersView, didRemoveItem itemView: EditorStickersItemView) {
+        delegate?.contentView(self, didRemovedSticker: itemView)
+    }
+    func stickerView(_ stickerView: EditorStickersView, shouldRemoveItem itemView: EditorStickersItemView) {
+        delegate?.contentView(self, shouldRemoveSticker: itemView)
     }
     func stickerView(itemCenter stickerView: EditorStickersView) -> CGPoint? {
         delegate?.contentView(self, stickerItemCenter: stickerView)
+    }
+    func stickerView(_ stickerView: EditorStickersView, resetItemViews itemViews: [EditorStickersItemBaseView]) {
+        delegate?.contentView(self, resetItemViews: itemViews)
     }
 }

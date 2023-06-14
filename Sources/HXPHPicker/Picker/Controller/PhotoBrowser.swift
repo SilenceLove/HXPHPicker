@@ -261,7 +261,7 @@ open class PhotoBrowser: PhotoPickerController {
     private static func getConfig(
         _ config: Configuration?
     ) -> (previewConfig: PickerConfiguration, browserConfig: Configuration) {
-        let previewConfig = PickerConfiguration()
+        var previewConfig = PickerConfiguration()
         previewConfig.prefersStatusBarHidden = true
         previewConfig.statusBarStyle = .lightContent
         previewConfig.adaptiveBarAppearance = false

@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 
 class CameraManager: NSObject {
-    let config: CameraConfiguration
+    var config: CameraConfiguration
     
     lazy var session: AVCaptureSession = {
         AVCaptureSession()
@@ -88,9 +88,9 @@ class CameraManager: NSObject {
     init(config: CameraConfiguration) {
         self.flashMode = config.flashMode
         self.config = config
-        var photoFilters = config.photoFilters
+        var photoFilters = self.config.photoFilters
         photoFilters.insert(OriginalFilter(), at: 0)
-        var videoFilters = config.videoFilters
+        var videoFilters = self.config.videoFilters
         videoFilters.insert(OriginalFilter(), at: 0)
         var index = config.defaultFilterIndex
         if index == -1 {

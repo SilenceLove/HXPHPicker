@@ -21,7 +21,13 @@ public extension PhotoAsset {
         completion: @escaping (UIImage?) -> Void
     ) {
         #if canImport(Kingfisher)
-        if isNetworkAsset && photoEdit == nil && videoEdit == nil {
+        let hasEdited: Bool
+        #if HXPICKER_ENABLE_EDITOR
+        hasEdited = editedResult != nil
+        #else
+        hasEdited = false
+        #endif
+        if isNetworkAsset && !hasEdited {
             getNetworkImage { image in
                 if let compressionQuality {
                     DispatchQueue.global().async {

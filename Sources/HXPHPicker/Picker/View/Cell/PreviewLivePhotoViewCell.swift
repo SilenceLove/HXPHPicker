@@ -58,7 +58,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
     override var photoAsset: PhotoAsset! {
         didSet {
             #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.photoEdit != nil {
+            if photoAsset.photoEditedResult != nil {
                 liveMarkView.isHidden = true
             }
             else {
@@ -127,7 +127,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if photoAsset.photoEdit != nil {
+        if photoAsset.photoEditedResult != nil {
             return
         }
         #endif
@@ -166,7 +166,7 @@ class PreviewLivePhotoViewCell: PhotoPreviewViewCell, PhotoPreviewContentViewDel
             return
         }
         #if HXPICKER_ENABLE_EDITOR
-        if photoAsset.photoEdit != nil {
+        if photoAsset.photoEditedResult != nil {
             return
         }
         #endif

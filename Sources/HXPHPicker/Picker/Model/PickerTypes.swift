@@ -63,9 +63,26 @@ public enum PickerPresentStyle {
     public struct RightSwipe {
         /// 右滑返回手势触发范围，距离屏幕左边的距离
         public let triggerRange: CGFloat
-        public init(_ triggerRange: CGFloat) {
+        /// 如果返回过程中没有显示背景视图，请将fromVC传入
+        public let viewControlls: [UIViewController.Type]
+        public init(_ triggerRange: CGFloat, viewControlls: [UIViewController.Type] = []) {
             self.triggerRange = triggerRange
+            self.viewControlls = viewControlls
         }
+    }
+}
+
+public enum EditorJumpStyle {
+    case push(PushStyle = .custom)
+    case present(PresentStyle = .automatic)
+    
+    public enum PushStyle {
+        case normal
+        case custom
+    }
+    public enum PresentStyle {
+        case automatic
+        case fullScreen
     }
 }
 
@@ -90,7 +107,7 @@ public extension PhotoAsset {
         case video = 1
     }
 
-    enum MediaSubType: Equatable {
+    enum MediaSubType: Equatable, Codable {
         /// 手机相册里的图片
         case image
         /// 手机相册里的动图

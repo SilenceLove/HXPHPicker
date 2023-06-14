@@ -42,6 +42,7 @@ public extension PhotoAsset {
             case .success(let response):
                 if response.mediaType == .photo {
                     if response.urlType == .network {
+                        #if canImport(Kingfisher)
                         PhotoTools.downloadNetworkImage(
                             with: response.url,
                             options: [],
@@ -52,6 +53,7 @@ public extension PhotoAsset {
                                 completion?(nil)
                             }
                         })
+                        #endif
                     }else {
                         save(.imageURL(response.url))
                     }

@@ -15,28 +15,63 @@ extension EditorAdjusterView {
         let cropFactor = CropFactor(
             drawLayer: contentView.drawView.count > 0 ? contentView.drawView.layer : nil,
             mosaicLayer: nil,
+            stickersLayer: contentView.stickerView.count > 0 ? contentView.stickerView.layer : nil,
             isCropImage: canReset,
             isRound: isCropRund,
             maskImage: maskImage,
             angle: currentAngle,
             mirrorScale: currentMirrorScale,
             centerRatio: cropRatio.centerRatio,
-            sizeRatio: cropRatio.sizeRatio
+            sizeRatio: cropRatio.sizeRatio,
+            waterSizeRatio: .zero,
+            waterCenterRatio: .zero
         )
         return cropFactor.allowCroped
+    }
+    
+    func getVideoWaterCropOption() -> (centerRatio: CGPoint, sizeRatio: CGPoint) {
+        let viewSize = contentView.size
+        let controlFrame = frameView.controlView.frame
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        let isUpDirection = currentAngle.truncatingRemainder(dividingBy: 360) == 0
+        if !isUpDirection {
+            resetVideoRotate(true)
+        }
+        var rect = frameView.convert(controlFrame, to: contentView)
+        rect = CGRect(
+            x: rect.minX * scrollView.zoomScale,
+            y: rect.minY * scrollView.zoomScale,
+            width: rect.width * scrollView.zoomScale,
+            height: rect.height * scrollView.zoomScale
+        )
+        if !isUpDirection {
+            resetVideoRotate(false)
+        }
+        CATransaction.commit()
+        let centerRatio = CGPoint(x: rect.midX / viewSize.width, y: rect.midY / viewSize.height)
+        let sizeRatio = CGPoint(
+            x: rect.width / viewSize.width,
+            y: rect.height / viewSize.height
+        )
+        return (centerRatio: centerRatio, sizeRatio: sizeRatio)
     }
     
     struct LastVideoFator {
         let urlConfig: EditorURLConfig
         let factor: EditorVideoFactor
         let watermarkCount: Int
+        let stickerCount: Int
         let cropFactor: EditorAdjusterView.CropFactor
+        let filter: VideoCompositionFilter?
+        var videoResult: VideoEditedResult
     }
     
     func cropVideo(
         factor: EditorVideoFactor,
+        filter: VideoCompositionFilter? = nil,
         progress: ((CGFloat) -> Void)? = nil,
-        completion: @escaping (Result<EditResult.Video, EditorError>) -> Void
+        completion: @escaping (Result<VideoEditedResult, EditorError>) -> Void
     ) {
         if !DispatchQueue.isMain {
             DispatchQueue.main.async {
@@ -48,17 +83,23 @@ extension EditorAdjusterView {
             }
             return
         }
+        deselectedSticker()
+        let editAdjustmentData = getData()
         let cropRatio = getCropOption()
+        let waterRatio = getVideoWaterCropOption()
         let cropFactor = CropFactor(
             drawLayer: nil,
             mosaicLayer: nil,
+            stickersLayer: nil,
             isCropImage: canReset,
             isRound: isCropRund,
             maskImage: maskImage,
             angle: currentAngle,
             mirrorScale: currentMirrorScale,
             centerRatio: cropRatio.centerRatio,
-            sizeRatio: cropRatio.sizeRatio
+            sizeRatio: cropRatio.sizeRatio,
+            waterSizeRatio: waterRatio.sizeRatio,
+            waterCenterRatio: waterRatio.centerRatio
         )
         let urlConfig: EditorURLConfig
         if let _urlConfig = self.urlConfig {
@@ -85,13 +126,33 @@ extension EditorAdjusterView {
                 isDrawVideoMark = true
             }
         }
+        var isStickerVideoMark = contentView.stickerView.isVideoMark
+        let stickerCount = contentView.stickerView.count
+        if stickerCount > 0 {
+            contentView.stickerView.isVideoMark = true
+        }else {
+            if let lastVideoFator = lastVideoFator,
+               lastVideoFator.stickerCount > 0 {
+                isStickerVideoMark = false
+            }else {
+                isStickerVideoMark = true
+            }
+        }
+        let isFilter: Bool
+        if lastVideoFator?.filter == nil && filter == nil {
+            isFilter = false
+        }else {
+            isFilter = true
+        }
         if let lastVideoFator = lastVideoFator,
            lastVideoFator.urlConfig.url.path == urlConfig.url.path,
            lastVideoFator.factor.isEqual(factor),
            lastVideoFator.cropFactor.isEqual(cropFactor),
            isDrawVideoMark,
+           isStickerVideoMark,
+           !isFilter,
            FileManager.default.fileExists(atPath: urlConfig.url.path) {
-            completion(.success(.init(urlConfig: urlConfig, data: getData())))
+            completion(.success(lastVideoFator.videoResult))
             return
         }else {
             if FileManager.default.fileExists(atPath: urlConfig.url.path) {
@@ -103,17 +164,13 @@ extension EditorAdjusterView {
                 }
             }
         }
-        lastVideoFator = .init(
-            urlConfig: urlConfig,
-            factor: factor,
-            watermarkCount: layers.count,
-            cropFactor: cropFactor
-        )
         exportVideo(
             outputURL: urlConfig.url,
             factor: factor,
             watermark: .init(layers: layers, images: []),
+            stickers: contentView.stickerView.getStickerInfo(),
             cropFactor: cropFactor,
+            filter: filter,
             progress: progress
         ) { [weak self] in
             guard let self = self else {
@@ -121,10 +178,32 @@ extension EditorAdjusterView {
             }
             switch $0 {
             case .success(_):
-                completion(.success(.init(
-                    urlConfig: urlConfig,
-                    data: self.getData()
-                )))
+                DispatchQueue.global(qos: .userInteractive).async {
+                    let fileSize = urlConfig.url.fileSize
+                    let videoDuration = PhotoTools.getVideoDuration(videoURL: urlConfig.url)
+                    let coverImage = PhotoTools.getVideoThumbnailImage(videoURL: urlConfig.url, atTime: 0.1)
+                    let videoTime = PhotoTools.transformVideoDurationToString(duration: videoDuration)
+                    DispatchQueue.main.async {
+                        let videoResult = VideoEditedResult(
+                            urlConfig: urlConfig,
+                            coverImage: coverImage,
+                            fileSize: fileSize,
+                            videoTime: videoTime,
+                            videoDuration: videoDuration,
+                            data: editAdjustmentData
+                        )
+                        self.lastVideoFator = .init(
+                            urlConfig: urlConfig,
+                            factor: factor,
+                            watermarkCount: layers.count,
+                            stickerCount: stickerCount,
+                            cropFactor: cropFactor,
+                            filter: filter,
+                            videoResult: videoResult
+                        )
+                        completion(.success(videoResult))
+                    }
+                }
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -136,7 +215,9 @@ extension EditorAdjusterView {
         outputURL: URL,
         factor: EditorVideoFactor,
         watermark: EditorVideoTool.Watermark,
+        stickers: [EditorStickersView.Info],
         cropFactor: CropFactor,
+        filter: VideoCompositionFilter? = nil,
         progress: ((CGFloat) -> Void)? = nil,
         completion: @escaping (Result<URL, EditorError>) -> Void
     ) {
@@ -145,13 +226,15 @@ extension EditorAdjusterView {
             return
         }
         videoTool?.cancelExport()
-        let videoTool = EditorVideoTool.init(
+        let videoTool = EditorVideoTool(
             avAsset: avAsset,
             outputURL: outputURL,
             factor: factor,
             watermark: watermark,
+            stickers: stickers,
             cropFactor: cropFactor,
-            maskType: factor.maskType ?? maskType
+            maskType: factor.maskType ?? maskType,
+            filter: filter
         )
         videoTool.export(
             progressHandler: progress,

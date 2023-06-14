@@ -27,4 +27,21 @@ extension Data {
     var isGif: Bool {
         imageContentType == .gif
     }
+    
+    
+    var fileType: FileType {
+        guard let firstByte = first else {
+            return .unknown
+        }
+        switch firstByte {
+        case 0xFF:
+            return .image
+        case 0x25:
+            return .auido
+        case 0x00:
+            return .video
+        default:
+            return .unknown
+        }
+    }
 }

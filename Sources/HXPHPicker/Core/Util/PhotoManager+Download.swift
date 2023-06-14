@@ -22,7 +22,7 @@ extension PhotoManager: URLSessionDownloadDelegate {
     ) -> URLSessionDownloadTask {
         let key = url.absoluteString
         let urlType = getURLType(for: url)
-        if urlType == 1 && PhotoTools.isCached(forVideo: key) {
+        if urlType == .video && PhotoTools.isCached(forVideo: key) {
             let videoURL = PhotoTools.getVideoCacheURL(for: key)
             if let fileURL = fileURL,
                videoURL.absoluteString != fileURL.absoluteString {
@@ -32,7 +32,7 @@ extension PhotoManager: URLSessionDownloadDelegate {
                 completionHandler(videoURL, nil, ext)
             }
             return URLSessionDownloadTask()
-        }else if urlType == 2 && PhotoTools.isCached(forAudio: key) {
+        }else if urlType == .auido && PhotoTools.isCached(forAudio: key) {
             let audioURL = PhotoTools.getAudioTmpURL(for: key)
             if let fileURL = fileURL,
                audioURL.absoluteString != fileURL.absoluteString {
@@ -56,6 +56,9 @@ extension PhotoManager: URLSessionDownloadDelegate {
         if let task = downloadTasks[key] {
             if task.state == .suspended {
                 task.resume()
+                return task
+            }
+            if task.state == .running {
                 return task
             }
         }
@@ -124,28 +127,71 @@ extension PhotoManager: URLSessionDownloadDelegate {
             DispatchQueue.main.async {
                 completionHandler?(nil, nil, ext)
             }
+            removeTask(responseURL)
             return
         }
         if let url = downloadFileURLs[key] {
-            PhotoTools.removeFile(fileURL: url)
-            try? FileManager.default.moveItem(at: location, to: url)
+            if !PhotoTools.removeFile(fileURL: url) {
+                DispatchQueue.main.async {
+                    completionHandler?(nil, nil, ext)
+                }
+                removeTask(responseURL)
+                return
+            }
+            do {
+                try FileManager.default.moveItem(at: location, to: url)
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler?(nil, nil, ext)
+                }
+                removeTask(responseURL)
+                return
+            }
             DispatchQueue.main.async {
                 completionHandler?(url, nil, ext)
             }
         }else {
             let url: URL
-            let urlType = getURLType(for: responseURL)
-            if urlType == 1 {
+            switch location.fileType {
+            case .video:
                 let videoURL = PhotoTools.getVideoCacheURL(for: key)
-                PhotoTools.removeFile(fileURL: videoURL)
-                try? FileManager.default.moveItem(at: location, to: videoURL)
-                url = videoURL
-            }else if urlType == 2 {
+                if !PhotoTools.removeFile(fileURL: videoURL) {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+                do {
+                    try FileManager.default.moveItem(at: location, to: videoURL)
+                    url = videoURL
+                } catch {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+            case .auido:
                 let audioURL = PhotoTools.getAudioTmpURL(for: key)
-                PhotoTools.removeFile(fileURL: audioURL)
-                try? FileManager.default.moveItem(at: location, to: audioURL)
-                url = audioURL
-            }else {
+                if !PhotoTools.removeFile(fileURL: audioURL) {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+                do {
+                    try FileManager.default.moveItem(at: location, to: audioURL)
+                    url = audioURL
+                } catch {
+                    DispatchQueue.main.async {
+                        completionHandler?(nil, nil, ext)
+                    }
+                    removeTask(responseURL)
+                    return
+                }
+            default:
                 url = location
             }
             DispatchQueue.main.async {
@@ -176,11 +222,10 @@ extension PhotoManager: URLSessionDownloadDelegate {
                 completionHandler?(nil, error, ext)
             }
         }
-        self.removeTask(responseURL)
+        removeTask(responseURL)
     }
     
-    func getURLType(for url: URL) -> Int {
-        var urlType: Int = 0
+    func getURLType(for url: URL) -> FileType {
         if #available(iOS 14.0, *) {
             if let utType = UTType(
                 tag: url.pathExtension,
@@ -194,10 +239,18 @@ extension PhotoManager: URLSessionDownloadDelegate {
                      .mpeg4Movie,
                      .quickTimeMovie,
                      .movie:
-                    urlType = 1
+                    return .video
                 case .audio,
                      .mp3:
-                    urlType = 2
+                    return .auido
+                case .livePhoto,
+                     .image,
+                     .rawImage,
+                     .diskImage,
+                     .gif,
+                     .png,
+                     .jpeg:
+                    return .image
                 default:
                     break
                 }
@@ -215,16 +268,25 @@ extension PhotoManager: URLSessionDownloadDelegate {
                      kUTTypeQuickTimeMovie,
                      kUTTypeMPEG,
                      kUTTypeMPEG4:
-                    urlType = 1
+                    return .video
                 case kUTTypeMP3,
                      kUTTypeAudio:
-                    urlType = 2
+                    return .auido
+                case kUTTypeImage,
+                     kUTTypeRawImage,
+                     kUTTypeDiskImage,
+                     kUTTypeLivePhoto,
+                     kUTTypeGIF,
+                     kUTTypePNG,
+                     kUTTypeJPEG,
+                     kUTTypeJPEG2000:
+                    return .image
                 default:
                     break
                 }
             }
         }
-        return urlType
+        return .unknown
     }
 }
 #endif

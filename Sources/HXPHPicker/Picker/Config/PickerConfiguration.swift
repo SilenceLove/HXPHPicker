@@ -8,7 +8,41 @@
 
 import UIKit
 
-public class PickerConfiguration: BaseConfiguration {
+public struct PickerConfiguration: IndicatorTypeConfig {
+    
+    public var modalPresentationStyle: UIModalPresentationStyle
+    
+    /// Selector display style, effective when albumShowMode = .popup and fullscreen popup
+    /// 选择器展示样式，当 albumShowMode = .popup 并且全屏弹出时有效
+    /// rightSwipe: 是否允许右滑手势返回。与微信右滑手势返回一致
+    public var pickerPresentStyle: PickerPresentStyle = .present()
+    
+    /// If the built-in language is not enough, you can add a custom language text
+    /// PhotoManager.shared.customLanguages - custom language array
+    /// PhotoManager.shared.fixedCustomLanguage - If there are multiple custom languages, one can be fixed to display
+    /// 如果自带的语言不够，可以添加自定义的语言文字
+    /// PhotoManager.shared.customLanguages - 自定义语言数组
+    /// PhotoManager.shared.fixedCustomLanguage - 如果有多种自定义语言，可以固定显示某一种
+    public var languageType: LanguageType = .system
+    
+    /// Appearance style
+    /// 外观风格
+    public var appearanceStyle: AppearanceStyle = .varied
+    
+    /// hide status bar
+    /// 隐藏状态栏
+    public var prefersStatusBarHidden: Bool = false
+    
+    /// Rotation is allowed, and rotation can only be disabled in full screen
+    /// 允许旋转，全屏情况下才可以禁止旋转
+    public var shouldAutorotate: Bool = true
+    
+    /// supported directions
+    /// 支持的方向
+    public var supportedInterfaceOrientations: UIInterfaceOrientationMask = .all
+    
+    /// 自动返回
+    public var isAutoBack: Bool = true
     
     /// Resource options, control the type of system album resources obtained
     /// .livePhoto .gifPhoto is a child of photo
@@ -101,27 +135,17 @@ public class PickerConfiguration: BaseConfiguration {
     /// 视频最大编辑时长，为0则不限制，超过限制不可编辑（视频时长超出最大选择时长才生效）
     public var maximumVideoEditDuration: Int = 0
     
-    /// Video Editing Configuration
-    /// 视频编辑配置
-    public lazy var videoEditor: VideoEditorConfiguration = .init()
+    /// 编辑器配置
+    public lazy var editor: EditorConfiguration = .init()
     
-    /// Photo editing configuration
-    /// 照片编辑配置
-    public lazy var photoEditor: PhotoEditorConfiguration = .init()
-    
-    /// Jump editing interface to customize transition animation
-    /// 跳转编辑界面自定义转场动画
-    public var editorCustomTransition: Bool = true
+    /// Jump edit interface style
+    /// 跳转编辑界面样式
+    public var editorJumpStyle: EditorJumpStyle = .push()
     #endif
     
     /// Allow custom transition animations when jumping
     /// 跳转时允许自定义转场动画
     public var allowCustomTransitionAnimation: Bool = true
-    
-    /// Selector display style, effective when albumShowMode = .popup and fullscreen popup
-    /// 选择器展示样式，当 albumShowMode = .popup 并且全屏弹出时有效
-    /// rightSwipe: 是否允许右滑手势返回。与微信右滑手势返回一致
-    public var pickerPresentStyle: PickerPresentStyle = .present()
     
     /// Status bar style
     /// 状态栏样式
@@ -184,12 +208,16 @@ public class PickerConfiguration: BaseConfiguration {
     /// 是否缓存[相机胶卷/所有照片]相册
     public var isCacheCameraAlbum: Bool = true
     
-    public override init() {
-        super.init()
+    public init() {
+        if #available(iOS 13.0, *) {
+            modalPresentationStyle = .automatic
+        } else {
+            modalPresentationStyle = .fullScreen
+        }
         PhotoManager.shared.isCacheCameraAlbum = isCacheCameraAlbum
     }
     
-    public class var `default`: PickerConfiguration  {
+    public static var `default`: PickerConfiguration  {
         PhotoTools.getWXPickerConfig()
     }
 }

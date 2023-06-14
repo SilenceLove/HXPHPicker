@@ -24,9 +24,9 @@ class HomeViewController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        #if canImport(GDPerformanceView_Swift)
-        PerformanceMonitor.shared().start()
-        #endif
+//        #if canImport(GDPerformanceView_Swift)
+//        PerformanceMonitor.shared().start()
+//        #endif
     }
     
     // MARK: - Table view data source
@@ -131,7 +131,7 @@ extension HomeViewController {
                     return EditorConfigurationViewController(style: .grouped)
                 }
             case .camera:
-                let config = CameraConfiguration()
+                var config = CameraConfiguration()
                 #if canImport(GPUImage)
                 config.defaultFilterIndex = 0
                 config.photoFilters = FilterTools.filters()
@@ -191,7 +191,7 @@ extension HomeViewController {
             case .collectionView:
                 return PickerResultViewController()
             case .customCell:
-                let config: PickerConfiguration = PhotoTools.getWXPickerConfig(
+                var config: PickerConfiguration = PhotoTools.getWXPickerConfig(
                     isMoment: false
                 )
                 config.photoSelectionTapAction = .quickSelect
@@ -220,7 +220,7 @@ extension HomeViewController {
 
 extension HomeViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
-        pickerController.dismiss(animated: true) {
+        pickerController.dismiss(true) {
             let pickerResultVC = PickerResultViewController.init()
             pickerResultVC.config = pickerController.config
             pickerResultVC.selectedAssets = result.photoAssets

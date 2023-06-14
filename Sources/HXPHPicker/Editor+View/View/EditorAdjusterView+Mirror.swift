@@ -10,6 +10,10 @@ import UIKit
 extension EditorAdjusterView {
     
     func mirrorHorizontally(animated: Bool, completion: (() -> Void)? = nil) {
+        if state == .normal {
+            completion?()
+            return
+        }
 //        if rotating {
 //            return
 //        }
@@ -39,6 +43,10 @@ extension EditorAdjusterView {
     }
     
     func mirrorVertically(animated: Bool, completion: (() -> Void)? = nil) {
+        if state == .normal {
+            completion?()
+            return
+        }
 //        if rotating {
 //            return
 //        }

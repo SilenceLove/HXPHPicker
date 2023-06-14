@@ -277,6 +277,8 @@ public class PhotoPickerViewController: BaseViewController {
             return
         }
     }
+    
+    var navigationBarHeight: CGFloat?
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let margin: CGFloat = UIDevice.leftMargin
@@ -285,9 +287,14 @@ public class PhotoPickerViewController: BaseViewController {
         if let nav = navigationController {
             if nav.modalPresentationStyle == .fullScreen && UIDevice.isPortrait {
                 if UIApplication.shared.isStatusBarHidden {
-                    collectionTop = nav.navigationBar.height + UIDevice.generalStatusBarHeight
+                    if let navigationBarHeight = navigationBarHeight {
+                        collectionTop = navigationBarHeight
+                    }else {
+                        collectionTop = nav.navigationBar.height + UIDevice.generalStatusBarHeight
+                    }
                 }else {
                     collectionTop = UIDevice.navigationBarHeight
+                    navigationBarHeight = collectionTop
                 }
             }else {
                 collectionTop = nav.navigationBar.height

@@ -47,7 +47,7 @@ class EditorChartletPreviewView: UIView {
     #if canImport(Kingfisher)
     init(
         imageURL: URL,
-        editorType: EditorController.EditorType,
+        editorType: EditorContentViewType,
         touch center: CGPoint,
         touchView viewSize: CGSize
     ) {

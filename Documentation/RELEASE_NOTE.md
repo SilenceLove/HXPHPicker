@@ -1,5 +1,10 @@
 # Release Notes
 
+## 2.0.0
+
+- Fixed some issues
+- Editor optimization refactoring
+
 ## 1.4.6
 
 ### Resolved

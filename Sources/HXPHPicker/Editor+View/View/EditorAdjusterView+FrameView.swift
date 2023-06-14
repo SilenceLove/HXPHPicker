@@ -121,6 +121,12 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             } completion: { _ in
                 self.scrollView.minimumZoomScale = self.getScrollViewMinimumZoomScale(rect)
                 self.frameView.showMaskBgView()
+                if self.isContinuousRotation {
+                    self.frameView.showGridGraylinesLayer()
+                }
+                if self.state == .edit {
+                    self.frameView.showVideoSlider(true)
+                }
                 self.isMaskBgViewShowing = false
                 self.frameView.inControlTimer = false
                 self.isUserInteractionEnabled = true
@@ -140,10 +146,55 @@ extension EditorAdjusterView: EditorFrameViewDelegate {
             scrollView.contentOffset = offset
             scrollView.minimumZoomScale = getScrollViewMinimumZoomScale(rect)
             frameView.showMaskBgView(animated: false)
+            if isContinuousRotation {
+                frameView.showGridGraylinesLayer(animated: false)
+            }
+            if state == .edit {
+                frameView.showVideoSlider(false)
+            }
             updateControlScaleSize()
             isMaskBgViewShowing = false
             frameView.inControlTimer = false
             delegate?.editorAdjusterView(didEndEditing: self)
         }
     }
+    
+    func frameView(_ frameView: EditorFrameView, didChangedPlayTime time: CGFloat, for state: VideoControlEvent) {
+        var toTime: CGFloat
+        if let startTime = videoStartTime, let _ = videoEndTime {
+            toTime = startTime.seconds + time
+        }else if let startTime = videoStartTime {
+            toTime = startTime.seconds + time
+        }else {
+            toTime = time
+        }
+        seekVideo(to: toTime, isPlay: false)
+        delegate?.editorAdjusterView(self, videoControlDidChangedTimeAt: TimeInterval(toTime), for: state)
+    }
+    
+    func frameView(_ frameView: EditorFrameView, didPlayButtonClick isSelected: Bool) {
+        if isSelected {
+            playVideo()
+        }else {
+            pauseVideo()
+        }
+    }
+}
+
+extension EditorAdjusterView {
+    
+    func showVideoControl(_ animated: Bool) {
+        if state == .edit {
+            return
+        }
+        frameView.showVideoSlider(animated)
+    }
+    
+    func hideVideoControl(_ animated: Bool) {
+        if state == .edit {
+            return
+        }
+        frameView.hideVideoSilder(animated)
+    }
+    
 }

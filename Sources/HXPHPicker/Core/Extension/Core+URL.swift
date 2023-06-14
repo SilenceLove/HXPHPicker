@@ -26,6 +26,13 @@ extension URL: HXPickerCompatibleValue {
         ImageCache.default.isCached(forKey: cacheKey)
     }
     #endif
+    
+    var fileType: FileType {
+        guard let fileData = try? Data(contentsOf: self) else {
+            return .unknown
+        }
+        return fileData.fileType
+    }
 }
 
 

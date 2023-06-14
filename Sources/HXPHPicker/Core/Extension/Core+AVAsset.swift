@@ -5,6 +5,7 @@
 //  Created by Slience on 2023/1/12.
 //
 
+import UIKit
 import AVFoundation
 
 extension AVAsset: HXPickerCompatibleValue {

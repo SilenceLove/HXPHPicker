@@ -8,18 +8,45 @@
 import UIKit
 
 #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
-// MARK: PhotoEditorViewControllerDelegate
-extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        didFinish result: PhotoEditResult
-    ) {
+
+extension PhotoPreviewViewController: EditorViewControllerDelegate {
+    public func editorViewController(_ editorViewController: EditorViewController, didFinish asset: EditorAsset) {
         guard let picker = pickerController else { return }
-        let photoAsset = photoEditorViewController.photoAsset!
-        photoAsset.photoEdit = result
-        if isExternalPreview {
-            replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
+        guard let photoAsset = asset.type.photoAsset else {
+            return
+        }
+        if let result = asset.result {
+            photoAsset.editedResult = result
+            if isExternalPreview {
+                replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
+            }else {
+                if (videoLoadSingleCell && photoAsset.mediaType == .video) || !isMultipleSelect {
+                    if picker.canSelectAsset(for: photoAsset, showHUD: true) {
+                        if isExternalPickerPreview {
+                            delegate?.previewViewController(
+                                self,
+                                didSelectBox: photoAsset,
+                                isSelected: true,
+                                updateCell: false
+                            )
+                        }
+                        delegate?.previewViewController(didFinishButton: self)
+                        picker.singleFinishCallback(for: photoAsset)
+                    }
+                    return
+                }
+                reloadCell(for: currentPreviewIndex)
+                if !photoAsset.isSelected {
+                    didSelectBoxControlClick()
+                }
+            }
+            picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
         }else {
+            let beforeHasEdit = photoAsset.editedResult != nil
+            photoAsset.editedResult = nil
+            if beforeHasEdit {
+                picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
+            }
             if (videoLoadSingleCell && photoAsset.mediaType == .video) || !isMultipleSelect {
                 if picker.canSelectAsset(for: photoAsset, showHUD: true) {
                     if isExternalPickerPreview {
@@ -35,134 +62,18 @@ extension PhotoPreviewViewController: PhotoEditorViewControllerDelegate {
                 }
                 return
             }
-            reloadCell(for: currentPreviewIndex)
-//            reloadCell(for: photoAsset)
             if !photoAsset.isSelected {
                 didSelectBoxControlClick()
             }
-        }
-        delegate?.previewViewController(self, editAssetFinished: photoAsset)
-        picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
-    }
-    public func photoEditorViewController(
-        didFinishWithUnedited photoEditorViewController: PhotoEditorViewController
-    ) {
-        guard let picker = pickerController else { return }
-        let photoAsset = photoEditorViewController.photoAsset!
-        let beforeHasEdit = photoAsset.photoEdit != nil
-        photoAsset.photoEdit = nil
-        if beforeHasEdit {
-            picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
-        }
-        if !isMultipleSelect {
-            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
-                if isExternalPickerPreview {
-                    delegate?.previewViewController(
-                        self,
-                        didSelectBox: photoAsset,
-                        isSelected: true,
-                        updateCell: false
-                    )
-                }
-                delegate?.previewViewController(didFinishButton: self)
-                picker.singleFinishCallback(for: photoAsset)
+            if beforeHasEdit {
+                reloadCell(for: currentPreviewIndex)
             }
-            return
-        }
-        if !photoAsset.isSelected {
-            didSelectBoxControlClick()
-        }
-        if beforeHasEdit {
-            reloadCell(for: currentPreviewIndex)
-//            reloadCell(for: photoAsset)
         }
         delegate?.previewViewController(self, editAssetFinished: photoAsset)
     }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        loadTitleChartlet response: @escaping ([EditorChartlet]) -> Void) {
-        guard let pickerController = pickerController,
-              let pickerDelegate = pickerController.pickerDelegate else {
-            #if canImport(Kingfisher)
-            let titles = PhotoTools.defaultTitleChartlet()
-            response(titles)
-            #else
-            response([])
-            #endif
-            return
-        }
-        pickerDelegate.pickerController(
-            pickerController,
-            loadTitleChartlet: photoEditorViewController,
-            response: response
-        )
-    }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        titleChartlet: EditorChartlet,
-        titleIndex: Int,
-        loadChartletList response: @escaping (Int, [EditorChartlet]) -> Void) {
-        guard let pickerController = pickerController,
-              let pickerDelegate = pickerController.pickerDelegate else {
-            #if canImport(Kingfisher)
-            let chartletList = PhotoTools.defaultNetworkChartlet()
-            response(titleIndex, chartletList)
-            #else
-            response(titleIndex, [])
-            #endif
-            return
-        }
-        pickerDelegate.pickerController(
-            pickerController,
-            loadChartletList: photoEditorViewController,
-            titleChartlet: titleChartlet,
-            titleIndex: titleIndex,
-            response: response
-        )
-    }
-    public func photoEditorViewController(didCancel photoEditorViewController: PhotoEditorViewController) {
-        
-    }
-    public func photoEditorViewController(
-        transitionPreviewImage photoEditorViewController: PhotoEditorViewController
-    ) -> UIImage? {
-//        guard let photoAsset = photoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView.imageView.image
-//        return getCell(for: photoAsset)?.scrollContentView.imageView.image
-    }
-    public func photoEditorViewController(
-        _ photoEditorViewController: PhotoEditorViewController,
-        transitionDuration mode: EditorTransitionMode
-    ) -> TimeInterval {
-        0.35
-    }
     
-    public func photoEditorViewController(
-        transitioBegenPreviewView photoEditorViewController: PhotoEditorViewController
-    ) -> UIView? {
-//        guard let photoAsset = photoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView
-//        return getCell(for: photoAsset)?.scrollContentView
-    }
-    
-    public func photoEditorViewController(
-        transitioEndPreviewView photoEditorViewController: PhotoEditorViewController
-    ) -> UIView? {
-//        guard let photoAsset = photoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView
-//        return getCell(for: photoAsset)?.scrollContentView
-    }
-}
-// MARK: VideoEditorViewControllerDelegate
-extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
         loadTitleChartlet response: @escaping EditorTitleChartletResponse
     ) {
         guard let pickerController = pickerController,
@@ -177,12 +88,13 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         pickerDelegate.pickerController(
             pickerController,
-            loadTitleChartlet: videoEditorViewController,
+            loadTitleChartlet: editorViewController,
             response: response
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
         titleChartlet: EditorChartlet,
         titleIndex: Int,
         loadChartletList response: @escaping EditorChartletListResponse
@@ -199,26 +111,26 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         pickerDelegate.pickerController(
             pickerController,
-            loadChartletList: videoEditorViewController,
+            loadChartletList: editorViewController,
             titleChartlet: titleChartlet,
             titleIndex: titleIndex,
             response: response
         )
     }
-    public func videoEditorViewController(
-        shouldClickMusicTool videoEditorViewController: VideoEditorViewController
-    ) -> Bool {
+    
+    public func editorViewController(shouldClickMusicTool editorViewController: EditorViewController) -> Bool {
         if let pickerController = pickerController,
            let shouldClick = pickerController.pickerDelegate?.pickerController(
             pickerController,
-            videoEditorShouldClickMusicTool: videoEditorViewController
+            videoEditorShouldClickMusicTool: editorViewController
            ) {
             return shouldClick
         }
         return true
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
         loadMusic completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
     ) -> Bool {
         guard let pickerController = pickerController,
@@ -228,13 +140,14 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         return pickerDelegate.pickerController(
             pickerController,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             loadMusic: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didSearch text: String?,
+    
+    public func editorViewController(
+        _ editorViewController: EditorViewController,
+        didSearchMusic text: String?,
         completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void
     ) {
         guard let pickerController = pickerController,
@@ -244,15 +157,13 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         pickerDelegate.pickerController(
             pickerController,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             didSearch: text,
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        loadMore text: String?,
-        completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
+    
+    public func editorViewController(_ editorViewController: EditorViewController, loadMoreMusic text: String?, completionHandler: @escaping ([VideoEditorMusicInfo], Bool) -> Void) {
         guard let pickerController = pickerController,
               let pickerDelegate = pickerController.pickerDelegate else {
             completionHandler([], false)
@@ -260,117 +171,26 @@ extension PhotoPreviewViewController: VideoEditorViewControllerDelegate {
         }
         pickerDelegate.pickerController(
             pickerController,
-            videoEditor: videoEditorViewController,
+            videoEditor: editorViewController,
             loadMore: text,
             completionHandler: completionHandler
         )
     }
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        didFinish result: VideoEditResult
-    ) {
-        guard let picker = pickerController,
-              let photoAsset = videoEditorViewController.photoAsset else { return }
-        photoAsset.videoEdit = result
-        if isExternalPreview {
-            replacePhotoAsset(at: currentPreviewIndex, with: photoAsset)
-        }else {
-            if videoLoadSingleCell || !isMultipleSelect {
-                if picker.canSelectAsset(for: photoAsset, showHUD: true) {
-                    if isExternalPickerPreview {
-                        delegate?.previewViewController(
-                            self,
-                            didSelectBox: photoAsset,
-                            isSelected: true,
-                            updateCell: false
-                        )
-                    }
-                    delegate?.previewViewController(didFinishButton: self)
-                    picker.singleFinishCallback(for: photoAsset)
-                }
-                return
-            }
-            reloadCell(for: currentPreviewIndex)
-//            reloadCell(for: photoAsset)
-            if !photoAsset.isSelected {
-                didSelectBoxControlClick()
-            }
-        }
-        delegate?.previewViewController(self, editAssetFinished: photoAsset)
-        picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
-    }
-    public func videoEditorViewController(
-        didFinishWithUnedited videoEditorViewController: VideoEditorViewController
-    ) {
-        guard let picker = pickerController,
-              let photoAsset = videoEditorViewController.photoAsset else { return }
-        let beforeHasEdit = photoAsset.videoEdit != nil
-        photoAsset.videoEdit = nil
-        if beforeHasEdit {
-            picker.didEditAsset(photoAsset: photoAsset, atIndex: currentPreviewIndex)
-        }
-        if videoLoadSingleCell || !isMultipleSelect {
-            if picker.canSelectAsset(for: photoAsset, showHUD: true) {
-                if isExternalPickerPreview {
-                    delegate?.previewViewController(
-                        self,
-                        didSelectBox: photoAsset,
-                        isSelected: true,
-                        updateCell: false
-                    )
-                }
-                delegate?.previewViewController(didFinishButton: self)
-                picker.singleFinishCallback(for: photoAsset)
-            }
-            return
-        }
-        if beforeHasEdit {
-            reloadCell(for: currentPreviewIndex)
-//            reloadCell(for: photoAsset)
-        }
-        if !photoAsset.isSelected {
-            didSelectBoxControlClick()
-        }
-        delegate?.previewViewController(self, editAssetFinished: photoAsset)
-    }
-    public func videoEditorViewController(didCancel videoEditorViewController: VideoEditorViewController) {
-        
-    }
-    public func videoEditorViewController(
-        transitionPreviewImage videoEditorViewController: VideoEditorViewController
-    ) -> UIImage? {
-//        guard let photoAsset = videoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView.imageView.image
-//        return getCell(for: photoAsset)?.scrollContentView.imageView.image
+    
+    public func editorViewController(transitionPreviewImage editorViewController: EditorViewController) -> UIImage? {
+        getCell(for: currentPreviewIndex)?.scrollContentView.imageView.image
     }
     
-    public func videoEditorViewController(
-        _ videoEditorViewController: VideoEditorViewController,
-        transitionDuration mode: EditorTransitionMode
-    ) -> TimeInterval {
+    public func editorViewController(_ editorViewController: EditorViewController, transitionDuration mode: EditorTransitionMode) -> TimeInterval {
         0.35
     }
     
-    public func videoEditorViewController(
-        transitioBegenPreviewView videoEditorViewController: VideoEditorViewController
-    ) -> UIView? {
-//        guard let photoAsset = videoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView
-//        return getCell(for: photoAsset)?.scrollContentView
+    public func editorViewController(transitioStartPreviewView editorViewController: EditorViewController) -> UIView? {
+        getCell(for: currentPreviewIndex)?.scrollContentView
     }
     
-    public func videoEditorViewController(
-        transitioEndPreviewView videoEditorViewController: VideoEditorViewController
-    ) -> UIView? {
-//        guard let photoAsset = videoEditorViewController.photoAsset else {
-//            return nil
-//        }
-        return getCell(for: currentPreviewIndex)?.scrollContentView
-//        return getCell(for: photoAsset)?.scrollContentView
+    public func editorViewController(transitioEndPreviewView editorViewController: EditorViewController) -> UIView? {
+        getCell(for: currentPreviewIndex)?.scrollContentView
     }
 }
 #endif

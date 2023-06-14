@@ -9,14 +9,8 @@ import UIKit
 
 public struct VideoEditorMusicInfo {
     
-    public enum URLType: Int, Codable {
-        case unknown
-        case local
-        case network
-    }
-    
-    /// 音频文件本地/网络地址(MP3格式)
-    public let audioURL: URL
+    /// 音频文件地址
+    public let audioURL: VideoEditorMusicURL
     
     /// 歌词lrc内容(包含歌名和歌手名的话会显示)
     /// 内容必须有 t_time 如: [t_time:(00:38)] 音频时长
@@ -25,18 +19,27 @@ public struct VideoEditorMusicInfo {
     public let lrc: String
     
     public init(
-        audioURL: URL,
-        lrc: String) {
+        audioURL: VideoEditorMusicURL,
+        lrc: String
+    ) {
         self.audioURL = audioURL
         self.lrc = lrc
     }
 }
 
-class VideoEditorMusic: Equatable, Codable {
-    let audioURL: URL
+public class VideoEditorMusic: Equatable, Codable {
+    /// 音频文件
+    let audioURL: VideoEditorMusicURL
+    /// 歌词lrc内容(包含歌名和歌手名的话会显示)
+    /// 内容必须有 t_time 如: [t_time:(00:38)] 音频时长
+    /// 每段歌词必须包含时间点 [00:00.000]
+    /// 如果不包含的话那么显示歌词功能将会出错
     let lrc: String
-    init(audioURL: URL,
-         lrc: String) {
+    
+    public init(
+        audioURL: VideoEditorMusicURL,
+        lrc: String
+    ) {
         self.audioURL = audioURL
         self.lrc = lrc
     }
@@ -65,6 +68,9 @@ class VideoEditorMusic: Equatable, Codable {
     }
     
     func parseLrc() {
+        lyrics = []
+        metaData = [:]
+        lyricIsEmpty = false
         let lines = lrc.replacingOccurrences(
             of: "\r",
             with: ""
@@ -133,7 +139,7 @@ class VideoEditorMusic: Equatable, Codable {
                     lyrics.append(lyric)
                 }
                 if matches.isEmpty {
-                    let lyric = VideoEditorLyric.init(lyric: line)
+                    let lyric = VideoEditorLyric(lyric: line)
                     lyrics.append(lyric)
                 }
             }

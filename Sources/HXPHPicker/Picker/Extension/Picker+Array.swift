@@ -124,7 +124,7 @@ public extension Array where Element: PhotoAsset {
     /// - Parameters:
     ///   - options: 获取的类型
     ///   - compression: 压缩参数，nil - 原图
-    ///   - handler: 获取到url的回调
+    ///   - urlReceivedHandler: 获取到url的回调
     ///     - result: 获取的结果
     ///     - photoAsset: 对应的 PhotoAsset 对象
     ///     - index: 当前索引
@@ -155,7 +155,7 @@ public extension Array where Element: PhotoAsset {
                     #if HXPICKER_ENABLE_EDITOR
                     if (photoAsset.mediaSubType == .livePhoto ||
                         photoAsset.mediaSubType == .localLivePhoto) &&
-                        photoAsset.photoEdit != nil {
+                        photoAsset.editedResult != nil {
                         mediatype = .photo
                     }
                     #endif

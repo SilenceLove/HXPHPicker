@@ -57,7 +57,7 @@ public extension PhotoAsset {
         completion: ((UIImage?, PhotoAsset) -> Void)?
     ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             getEditedImageURL(
                 compressionQuality: compressionScale
             ) { result in
@@ -132,11 +132,11 @@ public extension PhotoAsset {
         completion: ((UIImage?, PhotoAsset, [AnyHashable: Any]?) -> Void)?
     ) -> PHImageRequestID? {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
-            completion?(photoEdit.editedImage, self, nil)
+        if let photoEdit = photoEditedResult {
+            completion?(photoEdit.image, self, nil)
             return nil
         }
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             completion?(videoEdit.coverImage, self, nil)
             return nil
         }
@@ -174,15 +174,15 @@ public extension PhotoAsset {
         ) -> Void)?
     ) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit, !filterEditor {
+        if let photoEdit = photoEditedResult, !filterEditor {
             do {
-                let imageData = try Data.init(contentsOf: photoEdit.editedImageURL)
+                let imageData = try Data.init(contentsOf: photoEdit.url)
                 resultHandler?(
                     self,
                     .success(
                         .init(
                             imageData: imageData,
-                            imageOrientation: photoEdit.editedImage.imageOrientation,
+                            imageOrientation: photoEdit.image.imageOrientation,
                             info: nil
                         )
                     )
@@ -192,7 +192,7 @@ public extension PhotoAsset {
             }
             return 0
         }
-        if let videoEdit = videoEdit, !filterEditor {
+        if let videoEdit = videoEditedResult, !filterEditor {
             let imageData = PhotoTools.getImageData(for: videoEdit.coverImage)
             if let imageData = imageData {
                 resultHandler?(
@@ -200,7 +200,7 @@ public extension PhotoAsset {
                     .success(
                         .init(
                             imageData: imageData,
-                            imageOrientation: videoEdit.coverImage!.imageOrientation,
+                            imageOrientation: videoEdit.coverImage?.imageOrientation ?? .up,
                             info: nil
                         )
                     )
@@ -351,7 +351,7 @@ public extension PhotoAsset {
         completion: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
+        if photoEditedResult != nil {
             getEditedImageURL(
                 compressionQuality: compression?.imageCompressionQuality,
                 resultHandler: completion
@@ -585,6 +585,9 @@ public extension PhotoAsset {
             }
         }
         if livePhoto.isCache {
+            DispatchQueue.main.async {
+                URLHandler?(livePhoto.jpgURL, livePhoto.movURL)
+            }
             mergeToLivePhoto(imageURL: livePhoto.jpgURL, videoURL: livePhoto.movURL)
             return request
         }
@@ -724,7 +727,7 @@ public extension PhotoAsset {
         completion: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
+        if photoEditedResult != nil {
             getEditedImageURL(
                 compressionQuality: compression?.imageCompressionQuality,
                 resultHandler: completion
@@ -802,8 +805,8 @@ public extension PhotoAsset {
         failure: PhotoAssetFailureHandler?
     ) -> PHImageRequestID {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit, !filterEditor {
-            success?(self, AVAsset.init(url: videoEdit.editedURL), nil)
+        if let videoEdit = videoEditedResult, !filterEditor {
+            success?(self, AVAsset.init(url: videoEdit.url), nil)
             return 0
         }
         #endif

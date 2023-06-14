@@ -46,7 +46,33 @@ class PickerControllerInteractiveTransition: UIPercentDrivenInteractiveTransitio
         let toVC = transitionContext.viewController(forKey: .to)!
         pickerControllerBackgroundColor = pickerController.view.backgroundColor
         let containerView = transitionContext.containerView
-        containerView.addSubview(toVC.view)
+        if toVC.transitioningDelegate == nil || toVC is PhotoPickerController {
+            containerView.addSubview(toVC.view)
+        }else {
+            let fromVC = transitionContext.viewController(forKey: .from)
+            if let vc = fromVC as? PhotoPickerController {
+                switch vc.config.pickerPresentStyle {
+                case .push(let rightSwipe):
+                    guard let rightSwipe = rightSwipe else {
+                        break
+                    }
+                    for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
+                        containerView.addSubview(toVC.view)
+                        break
+                    }
+                case .present(let rightSwipe):
+                    guard let rightSwipe = rightSwipe else {
+                        break
+                    }
+                    for type in rightSwipe.viewControlls where toVC.isKind(of: type) {
+                        containerView.addSubview(toVC.view)
+                        break
+                    }
+                default:
+                    break
+                }
+            }
+        }
         
         let bgView = UIView(frame: containerView.bounds)
         bgView.backgroundColor = .black.withAlphaComponent(0.1)

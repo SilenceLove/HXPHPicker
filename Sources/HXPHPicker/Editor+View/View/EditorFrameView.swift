@@ -11,15 +11,17 @@ protocol EditorFrameViewDelegate: AnyObject {
     func frameView(beganChanged frameView: EditorFrameView, _ rect: CGRect)
     func frameView(didChanged frameView: EditorFrameView, _ rect: CGRect)
     func frameView(endChanged frameView: EditorFrameView, _ rect: CGRect)
+    func frameView(_ frameView: EditorFrameView, didChangedPlayTime time: CGFloat, for state: VideoControlEvent)
+    func frameView(_ frameView: EditorFrameView, didPlayButtonClick isSelected: Bool)
 }
 
 class EditorFrameView: UIView {
     weak var delegate: EditorFrameViewDelegate?
     
+    var state: EditorView.State = .normal
     var maskBgShowTimer: Timer?
     var controlTimer: Timer?
     var inControlTimer: Bool = false
-    
     
     var maskType: EditorView.MaskType {
         get {
@@ -78,12 +80,22 @@ class EditorFrameView: UIView {
         return view
     }()
     
+    lazy var videoSliderView: VideoPlaySliderView = {
+        let view = VideoPlaySliderView(style: .editor)
+        view.isHidden = true
+        view.alpha = 0
+        view.delegate = self
+        return view
+    }()
+    
     var maskColor: UIColor? {
         didSet {
             maskBgView.maskColor = maskColor
             customMaskView.maskColor = maskColor
         }
     }
+    
+    var contentType: EditorContentViewType = .unknown
     
     init(maskColor: UIColor?) {
         self.maskColor = maskColor
@@ -92,6 +104,7 @@ class EditorFrameView: UIView {
         addSubview(customMaskView)
         addSubview(maskLinesView)
         addSubview(controlView)
+        addSubview(videoSliderView)
     }
     
     func setMaskBgFrame(_ rect: CGRect, insets: UIEdgeInsets) {
@@ -107,6 +120,9 @@ class EditorFrameView: UIView {
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if videoSliderView.frame.contains(point), videoSliderView.alpha == 1 {
+            return super.hitTest(point, with: event)
+        }
         if !controlView.isUserInteractionEnabled {
             return nil
         }
@@ -204,6 +220,7 @@ extension EditorFrameView {
                     self.maskBgView.alpha = 0
                 }
             } completion: { (isFinished) in
+                if !isFinished { return }
                 if isLines {
                     self.maskLinesView.isHidden = true
                 }
@@ -234,6 +251,14 @@ extension EditorFrameView {
     }
     func hideGridlinesLayer() {
         maskLinesView.showGridlinesLayer(false, animated: true)
+    }
+    func showGridGraylinesLayer(animated: Bool = true) {
+        maskLinesView.showGridlinesLayer(true, animated: true)
+        maskLinesView.showGridGraylinesView(animated: animated)
+    }
+    func hideGridGraylinesLayer() {
+        maskLinesView.showGridlinesLayer(false, animated: true)
+        maskLinesView.hideGridGraylinesView(animated: true)
     }
     
     func showBlackMask(animated: Bool = true, completion: (() -> Void)? = nil) {
@@ -294,6 +319,59 @@ extension EditorFrameView {
         maskBgView.updateLayers(rect, animated)
         customMaskView.updateLayers(rect, animated)
         maskLinesView.updateLayers(rect, animated)
+        updateVideoSlider(to: rect, animated: animated)
+    }
+    
+    func updateVideoSlider(to rect: CGRect, animated: Bool) {
+        let sliderRect: CGRect = .init(x: rect.minX + 10, y: rect.maxY - 50, width: rect.width - 20, height: 40)
+        if videoSliderView.frame.equalTo(sliderRect) {
+            return
+        }
+        if animated {
+            UIView.animate {
+                self.videoSliderView.frame = sliderRect
+            }
+        }else {
+            videoSliderView.frame = sliderRect
+        }
+    }
+    
+    func showVideoSlider(_ animated: Bool) {
+        if contentType != .video {
+            return
+        }
+        if isRoundCrop {
+            return
+        }
+        if !videoSliderView.isHidden && videoSliderView.alpha == 1  {
+            return
+        }
+        videoSliderView.isHidden = false
+        if animated {
+            UIView.animate {
+                self.videoSliderView.alpha = 1
+            }
+        }else {
+            videoSliderView.alpha = 1
+        }
+    }
+    
+    func hideVideoSilder(_ animated: Bool) {
+        if videoSliderView.isHidden && videoSliderView.alpha == 0 {
+            return
+        }
+        if animated {
+            UIView.animate {
+                self.videoSliderView.alpha = 0
+            } completion: {
+                if $0 {
+                    self.videoSliderView.isHidden = true
+                }
+            }
+        }else {
+            videoSliderView.alpha = 0
+            videoSliderView.isHidden = true
+        }
     }
     
     var imageSizeScale: CGSize {
@@ -310,12 +388,18 @@ extension EditorFrameView {
             maskBgView.isRoundCrop
         }
         set {
+            if newValue {
+                hideVideoSilder(false)
+            }
             maskBgView.isRoundCrop = newValue
             maskLinesView.isRoundCrop = newValue
         }
     }
     
     func setRoundCrop(isRound: Bool, animated: Bool) {
+        if isRound {
+            hideVideoSilder(animated)
+        }
         maskBgView.updateRoundCrop(isRound: isRound, animated: animated)
         maskLinesView.updateRoundCrop(isRound: isRound, animated: animated)
     }
@@ -332,7 +416,13 @@ extension EditorFrameView {
     func startShowMaskBgTimer() {
         maskBgShowTimer?.invalidate()
         maskBgShowTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { [weak self] _ in
-            self?.showMaskBgView()
+            guard let self = self else {
+                return
+            }
+            self.showMaskBgView()
+            if self.state == .edit {
+                self.showVideoSlider(true)
+            }
         }
     }
     

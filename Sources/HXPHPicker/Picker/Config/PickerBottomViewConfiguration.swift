@@ -37,7 +37,7 @@ public struct PickerBottomViewConfiguration {
     
     /// Preview button title color in dark style
     /// 暗黑风格下预览按钮标题颜色
-    public var previewButtonTitleDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    public var previewButtonTitleDarkColor: UIColor = .white
     
     /// Header color under preview button disabled
     /// 预览按钮禁用下的标题颜色
@@ -56,8 +56,8 @@ public struct PickerBottomViewConfiguration {
     public var originalButtonTitleColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// Preview button title color in dark style
-    /// 暗黑风格下预览按钮标题颜色
-    public var originalButtonTitleDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    /// 暗黑风格下原图按钮标题颜色
+    public var originalButtonTitleDarkColor: UIColor = .white
     
     /// Display original image file size
     /// 显示原图文件大小
@@ -124,7 +124,7 @@ public struct PickerBottomViewConfiguration {
     
     /// Edit button title color in dark style
     /// 暗黑风格下编辑按钮标题颜色
-    public var editButtonTitleDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    public var editButtonTitleDarkColor: UIColor = .white
     
     /// Header color under edit button disabled
     /// 编辑按钮禁用下的标题颜色
@@ -142,7 +142,7 @@ public struct PickerBottomViewConfiguration {
     
     /// The color of the prompt icon in the dark style
     /// 暗黑风格下提示图标颜色
-    public var promptIconDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    public var promptIconDarkColor: UIColor = .white
     
     /// prompt color
     /// 提示语颜色
@@ -150,7 +150,7 @@ public struct PickerBottomViewConfiguration {
     
     /// Prompt color in dark style
     /// 暗黑风格下提示语颜色
-    public var promptTitleDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    public var promptTitleDarkColor: UIColor = .white
     
     /// prompt arrow color
     /// 提示语箭头颜色
@@ -158,7 +158,7 @@ public struct PickerBottomViewConfiguration {
     
     /// The color of the prompt arrow in the dark style
     /// 暗黑风格下提示语箭头颜色
-    public var promptArrowDarkColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
+    public var promptArrowDarkColor: UIColor = .white
     
     /// Show selected resources
     /// 显示已选资源
@@ -175,12 +175,6 @@ public struct PickerBottomViewConfiguration {
     public init() {
         var boxConfig = SelectBoxConfiguration.init()
         boxConfig.style = .tick
-        // The background color of the original image button when it is selected
-        // 原图按钮选中时的背景颜色
-        boxConfig.selectedBackgroundColor = .systemTintColor
-        // The background color when the original image button is selected in the dark style
-        // 暗黑风格下原图按钮选中时的背景颜色
-        boxConfig.selectedBackgroudDarkColor = .systemTintColor
         // The width of the border when the original image button is not selected
         // 原图按钮未选中时的边框宽度
         boxConfig.borderWidth = 1
@@ -189,7 +183,7 @@ public struct PickerBottomViewConfiguration {
         boxConfig.borderColor = .systemTintColor
         // The border color of the original image button when the dark style is not selected
         // 暗黑风格下原图按钮未选中时的边框颜色
-        boxConfig.borderDarkColor = .systemTintColor
+        boxConfig.borderDarkColor = .white
         // The color in the middle of the frame when the original image button is not selected
         // 原图按钮未选中时框框中间的颜色
         boxConfig.backgroundColor = UIColor.white.withAlphaComponent(0.3)

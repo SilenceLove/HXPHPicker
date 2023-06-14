@@ -12,6 +12,29 @@ import CoreServices
 
 extension PhotoTools {
     
+    static func getFrameDuration(from gifInfo: [String: Any]?) -> TimeInterval {
+        let defaultFrameDuration = 0.1
+        guard let gifInfo = gifInfo else { return defaultFrameDuration }
+        
+        let unclampedDelayTime = gifInfo[kCGImagePropertyGIFUnclampedDelayTime as String] as? NSNumber
+        let delayTime = gifInfo[kCGImagePropertyGIFDelayTime as String] as? NSNumber
+        let duration = unclampedDelayTime ?? delayTime
+        
+        guard let frameDuration = duration else { return defaultFrameDuration }
+        return frameDuration.doubleValue > 0.011 ? frameDuration.doubleValue : defaultFrameDuration
+    }
+
+    static func getFrameDuration(
+        from imageSource: CGImageSource,
+        at index: Int
+    ) -> TimeInterval {
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil)
+            as? [String: Any] else { return 0.0 }
+
+        let gifInfo = properties[kCGImagePropertyGIFDictionary as String] as? [String: Any]
+        return getFrameDuration(from: gifInfo)
+    }
+    
     static func createAnimatedImage(
         images: [UIImage],
         delays: [Double],
@@ -35,7 +58,7 @@ extension PhotoTools {
                 kCGImagePropertyColorModel: kCGImagePropertyColorModelRGB,
                 kCGImagePropertyDepth: 8,
                 kCGImagePropertyGIFLoopCount: 0
-            ]
+            ] as [CFString : Any]
         ]
         CGImageDestinationSetProperties(destination, gifProperty as CFDictionary)
         for (index, image) in images.enumerated() {
@@ -161,4 +184,18 @@ extension PhotoTools {
         return image
     }
     
+    
+    static func createPixelBuffer(_ size: CGSize) -> CVPixelBuffer? {
+        var pixelBuffer: CVPixelBuffer?
+        let pixelBufferAttributes = [kCVPixelBufferIOSurfacePropertiesKey: [:] as [String: Any]]
+        CVPixelBufferCreate(
+            nil,
+            Int(size.width),
+            Int(size.height),
+            kCVPixelFormatType_32BGRA,
+            pixelBufferAttributes as CFDictionary,
+            &pixelBuffer
+        )
+        return pixelBuffer
+    }
 }

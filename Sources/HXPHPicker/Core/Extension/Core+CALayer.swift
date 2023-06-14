@@ -19,8 +19,10 @@ extension CALayer {
             toSize = size
         }
         UIGraphicsBeginImageContextWithOptions(toSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()
-        render(in: context!)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return nil
+        }
+        render(in: context)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image

@@ -25,6 +25,7 @@ public struct NetworkImageAsset: Codable {
         case alwaysThumbnail
     }
     
+    /// 网络图片下载时候的占位图
     public let placeholder: String?
     
     /// list cell display
@@ -104,6 +105,9 @@ public struct NetworkVideoAsset {
     /// 视频尺寸
     public var videoSize: CGSize
     
+    /// 封面的占位图
+    public var coverPlaceholder: String?
+    
     #if canImport(Kingfisher)
     /// 视频封面网络地址
     public var coverImageURL: URL?
@@ -114,7 +118,8 @@ public struct NetworkVideoAsset {
         fileSize: Int = 0,
         coverImage: UIImage? = nil,
         videoSize: CGSize = .zero,
-        coverImageURL: URL? = nil
+        coverImageURL: URL? = nil,
+        coverPlaceholder: String? = nil
     ) {
         self.videoURL = videoURL
         self.duration = duration
@@ -122,6 +127,7 @@ public struct NetworkVideoAsset {
         self.coverImage = coverImage
         self.videoSize = videoSize
         self.coverImageURL = coverImageURL
+        self.coverPlaceholder = coverPlaceholder
     }
     #else
     public init(
@@ -156,7 +162,11 @@ extension NetworkVideoAsset: Codable {
         videoURL = try container.decode(URL.self, forKey: .videoURL)
         duration = try container.decode(TimeInterval.self, forKey: .duration)
         if let imageData = try container.decodeIfPresent(Data.self, forKey: .coverImage) {
-            coverImage = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(imageData) as? UIImage
+            if #available(iOS 11.0, *) {
+                coverImage = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIImage.self, from: imageData)
+            }else {
+                coverImage = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(imageData) as? UIImage
+            }
         }else {
             coverImage = nil
         }

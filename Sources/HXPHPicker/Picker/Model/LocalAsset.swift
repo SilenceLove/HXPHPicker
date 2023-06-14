@@ -101,7 +101,11 @@ extension LocalImageAsset: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if let data = try container.decodeIfPresent(Data.self, forKey: .image) {
-            image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIImage
+            if #available(iOS 11.0, *) {
+                image = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIImage.self, from: data)
+            }else {
+                image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIImage
+            }
         }else {
             image = nil
         }
@@ -135,7 +139,11 @@ extension LocalVideoAsset: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         videoURL = try container.decode(URL.self, forKey: .videoURL)
         if let data = try container.decodeIfPresent(Data.self, forKey: .image) {
-            image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIImage
+            if #available(iOS 11.0, *) {
+                image = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIImage.self, from: data)
+            }else {
+                image = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIImage
+            }
         }else {
            image = nil
         }

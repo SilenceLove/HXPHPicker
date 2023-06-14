@@ -22,6 +22,11 @@ class EditorMosaicView: UIView {
             mosaicContentLayer.contents = originalImage?.cgImage
         }
     }
+    var originalCGImage: CGImage? {
+        didSet {
+            mosaicContentLayer.contents = originalCGImage
+        }
+    }
     var mosaicContentLayer: CALayer = {
         let mosaicContentLayer = CALayer()
         return mosaicContentLayer
@@ -456,7 +461,11 @@ extension EditorMosaicView.MosaicData: Codable {
         type = try container.decode(EditorMosaicType.self, forKey: .type)
         points = try container.decode([CGPoint].self, forKey: .points)
         let colorDatas = try container.decode(Data.self, forKey: .colors)
-        colors = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorDatas) as! [UIColor]
+        if #available(iOS 11.0, *) {
+            colors = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [UIColor.self], from: colorDatas) as! [UIColor]
+        }else {
+            colors = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorDatas) as! [UIColor]
+        }
         lineWidth = try container.decode(CGFloat.self, forKey: .lineWidth)
         angles = try container.decode([CGFloat].self, forKey: .angles)
     }

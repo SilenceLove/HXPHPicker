@@ -22,7 +22,7 @@ extension EditorStickerTextView: UICollectionViewDataSource,
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: "EditorStickerTextViewCellID",
             for: indexPath
-        ) as! PhotoEditorBrushColorViewCell
+        ) as! EditorStickerTextViewCell
         cell.colorHex = config.colors[indexPath.item]
         return cell
     }

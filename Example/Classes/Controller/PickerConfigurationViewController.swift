@@ -11,11 +11,12 @@ import HXPHPicker
 class PickerConfigurationViewController: UITableViewController {
     
     var config: PickerConfiguration = .init()
+    var didDoneHandler: ((PickerConfiguration) -> Void)?
     var showOpenPickerButton: Bool = true
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Picker"
-        
+        loadFonts()
         tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(ConfigurationViewCell.self, forCellReuseIdentifier: ConfigurationViewCell.reuseIdentifier)
         tableView.tableFooterView = UIView(frame: .zero)
@@ -34,10 +35,57 @@ class PickerConfigurationViewController: UITableViewController {
             vc.autoDismiss = false
             present(vc, animated: true, completion: nil)
         }else {
+            didDoneHandler?(config)
             dismiss(animated: true, completion: nil)
         }
     }
     
+    func loadFonts() {
+        var masks: [EditorConfiguration.CropSize.MaskType] = []
+        if let path = Bundle.main.path(forResource: "love", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        if let path = Bundle.main.path(forResource: "love_text", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        if let path = Bundle.main.path(forResource: "stars", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        if let path = Bundle.main.path(forResource: "text", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        if let path = Bundle.main.path(forResource: "qiy", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        if let path = Bundle.main.path(forResource: "portrait", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            masks.append(.image(image))
+        }
+        for family in UIFont.familyNames {
+            if UIFont.fontNames(forFamilyName: family).contains("AppleSymbols") {
+                masks.append(.text("🀚", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("�", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("🜯", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("♚", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬♞", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬♜", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬♨", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬☚", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬☛", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬☁", .init(name: "AppleSymbols", size: 55)!))
+                masks.append(.text("‬‬‬▚", .init(name: "AppleSymbols", size: 55)!))
+                break
+            }
+        }
+        masks.append(.text("‬‬‬Swift", UIFont.boldSystemFont(ofSize: 50)))
+        masks.append(.text("‬‬‬HXPHPicker", UIFont.boldSystemFont(ofSize: 50)))
+        config.editor.cropSize.maskList = masks
+    }
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -109,7 +157,7 @@ class PickerConfigurationViewController: UITableViewController {
 }
 extension PickerConfigurationViewController: PhotoPickerControllerDelegate {
     func pickerController(_ pickerController: PhotoPickerController, didFinishSelection result: PickerResult) {
-        pickerController.dismiss(animated: true) {
+        pickerController.dismiss(true) {
             let pickerResultVC = PickerResultViewController.init()
             pickerResultVC.config = pickerController.config
             pickerResultVC.selectedAssets = result.photoAssets
@@ -123,59 +171,11 @@ extension PickerConfigurationViewController: PhotoPickerControllerDelegate {
     
     func pickerController(
         _ pickerController: PhotoPickerController,
-        videoEditor videoEditorViewController: VideoEditorViewController,
+        videoEditor editorViewController: EditorViewController,
         loadMusic
-            completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void) -> Bool {
-        var musics: [VideoEditorMusicInfo] = []
-        let audioUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: "mp3")!
-        let lyricUrl1 = Bundle.main.url(forResource: "天外来物", withExtension: nil)!
-        let lrc1 = try! String(contentsOfFile: lyricUrl1.path) // swiftlint:disable:this force_try
-        let music1 = VideoEditorMusicInfo.init(audioURL: audioUrl1,
-                                               lrc: lrc1)
-        musics.append(music1)
-        let audioUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: "mp3")!
-        let lyricUrl2 = Bundle.main.url(forResource: "嘉宾", withExtension: nil)!
-        let lrc2 = try! String(contentsOfFile: lyricUrl2.path) // swiftlint:disable:this force_try
-        let music2 = VideoEditorMusicInfo.init(audioURL: audioUrl2,
-                                               lrc: lrc2)
-        musics.append(music2)
-        let audioUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
-        let lyricUrl3 = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
-        let lrc3 = try! String(contentsOfFile: lyricUrl3.path) // swiftlint:disable:this force_try
-        let music3 = VideoEditorMusicInfo.init(audioURL: audioUrl3,
-                                               lrc: lrc3)
-        musics.append(music3)
-        let audioUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: "mp3")!
-        let lyricUrl4 = Bundle.main.url(forResource: "野孩子", withExtension: nil)!
-        let lrc4 = try! String(contentsOfFile: lyricUrl4.path) // swiftlint:disable:this force_try
-        let music4 = VideoEditorMusicInfo.init(audioURL: audioUrl4,
-                                               lrc: lrc4)
-        musics.append(music4)
-        let audioUrl5 = Bundle.main.url(forResource: "无赖", withExtension: "mp3")!
-        let lyricUrl5 = Bundle.main.url(forResource: "无赖", withExtension: nil)!
-        let lrc5 = try! String(contentsOfFile: lyricUrl5.path) // swiftlint:disable:this force_try
-        let music5 = VideoEditorMusicInfo.init(audioURL: audioUrl5,
-                                               lrc: lrc5)
-        musics.append(music5)
-        let audioUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: "mp3")!
-        let lyricUrl6 = Bundle.main.url(forResource: "时光正好", withExtension: nil)!
-        let lrc6 = try! String(contentsOfFile: lyricUrl6.path) // swiftlint:disable:this force_try
-        let music6 = VideoEditorMusicInfo.init(audioURL: audioUrl6,
-                                               lrc: lrc6)
-        musics.append(music6)
-        let audioUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3")!
-        let lyricUrl7 = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: nil)!
-        let lrc7 = try! String(contentsOfFile: lyricUrl7.path) // swiftlint:disable:this force_try
-        let music7 = VideoEditorMusicInfo.init(audioURL: audioUrl7,
-                                               lrc: lrc7)
-        musics.append(music7)
-        let audioUrl8 = Bundle.main.url(forResource: "爱你", withExtension: "mp3")!
-        let lyricUrl8 = Bundle.main.url(forResource: "爱你", withExtension: nil)!
-        let lrc8 = try! String(contentsOfFile: lyricUrl8.path) // swiftlint:disable:this force_try
-        let music8 = VideoEditorMusicInfo.init(audioURL: audioUrl8,
-                                               lrc: lrc8)
-        musics.append(music8)
-        completionHandler(musics)
+            completionHandler: @escaping ([VideoEditorMusicInfo]) -> Void
+    ) -> Bool {
+            completionHandler(Tools.musicInfos)
         return false
     }
 }
@@ -183,6 +183,9 @@ extension PickerConfigurationViewController: PhotoPickerControllerDelegate {
 extension PickerConfigurationViewController {
     func presentColorConfig(_ indexPath: IndexPath) {
         let vc = PickerColorConfigurationViewController.init(config: config)
+        vc.didDoneHandler = { [weak self] in
+            self?.config = $0
+        }
         present(UINavigationController.init(rootViewController: vc), animated: true, completion: nil)
     }
     func presentEditorConfig(_ indexPath: IndexPath) {
@@ -192,8 +195,10 @@ extension PickerConfigurationViewController {
         } else {
             vc = EditorConfigurationViewController.init(style: .grouped)
         }
-        vc.photoConfig = config.photoEditor
-        vc.videoConfig = config.videoEditor
+        vc.config = config.editor
+        vc.didDoneHandler = { [weak self] in
+            self?.config.editor = $0
+        }
         vc.showOpenEditorButton = false
         present(UINavigationController.init(rootViewController: vc), animated: true, completion: nil)
     }
@@ -610,7 +615,7 @@ extension PickerConfigurationViewController {
         }
         
         var detailTitle: String {
-            ".photoEditor/.videoEditor"
+            ".editor"
         }
         
         func getFunction<T>(

@@ -25,7 +25,7 @@ extension UIImageView {
         completionHandler: ImageView.ImageCompletion? = nil
     ) -> Any? {
         #if HXPICKER_ENABLE_EDITOR
-        if asset.photoEdit != nil || asset.videoEdit != nil {
+        if asset.editedResult != nil {
             getEditedImage(asset, urlType: urlType, completionHandler: completionHandler)
             return nil
         }
@@ -98,6 +98,7 @@ extension UIImageView {
             }else if let coverImageURL = videoAsset.coverImageURL {
                 url = coverImageURL
                 options = [.transition(.fade(0.2))]
+                placeholderImage = UIImage.image(for: videoAsset.coverPlaceholder)
             }else {
                 let key = videoAsset.videoURL.absoluteString
                 var videoURL: URL
@@ -106,6 +107,7 @@ extension UIImageView {
                 }else {
                     videoURL = videoAsset.videoURL
                 }
+                placeholderImage = UIImage.image(for: videoAsset.coverPlaceholder)
                 loadVideoCover = true
                 url = videoURL
             }
@@ -125,6 +127,7 @@ extension UIImageView {
             let provider = AVAssetImageDataProvider(assetURL: url, seconds: 0.1)
             provider.assetImageGenerator.appliesPreferredTrackTransform = true
             let task = KF.dataProvider(provider)
+                .placeholder(placeholderImage)
                 .onSuccess { [weak asset] (result) in
                     guard let asset = asset else {
                         return
@@ -209,22 +212,22 @@ extension UIImageView {
         urlType: DonwloadURLType,
         completionHandler: ImageView.ImageCompletion?
     ) {
-        if let photoEdit = photoAsset.photoEdit {
+        if let photoEdit = photoAsset.photoEditedResult {
             if urlType == .thumbnail {
-                image = photoEdit.editedImage
-                completionHandler?(photoEdit.editedImage, nil, photoAsset)
+                image = photoEdit.image
+                completionHandler?(photoEdit.image, nil, photoAsset)
             }else {
                 do {
-                    let imageData = try Data(contentsOf: photoEdit.editedImageURL)
+                    let imageData = try Data(contentsOf: photoEdit.url)
                     let img = DefaultImageProcessor.default.process(item: .data(imageData), options: .init([]))!
                     let kfView = self as? AnimatedImageView
                     kfView?.image = img
                 }catch {
-                    image = photoEdit.editedImage
+                    image = photoEdit.image
                 }
-                completionHandler?(photoEdit.editedImage, nil, photoAsset)
+                completionHandler?(photoEdit.image, nil, photoAsset)
             }
-        }else if let videoEdit = photoAsset.videoEdit {
+        }else if let videoEdit = photoAsset.videoEditedResult {
             image = videoEdit.coverImage
             completionHandler?(videoEdit.coverImage, nil, photoAsset)
         }
@@ -238,7 +241,7 @@ extension UIImageView {
         completionHandler: ((UIImage?, PhotoAsset) -> Void)? = nil
     ) -> Any? {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = asset.videoEdit {
+        if let videoEdit = asset.videoEditedResult {
             completionHandler?(videoEdit.coverImage, asset)
             return nil
         }

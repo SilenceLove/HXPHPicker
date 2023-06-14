@@ -44,7 +44,7 @@ extension UIView {
         animate(
             withDuration: 0.3,
             delay: 0,
-            options: .curveEaseOut,
+            options: [.curveEaseOut, .layoutSubviews],
             animations: animations,
             completion: completion
         )

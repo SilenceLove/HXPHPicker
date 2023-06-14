@@ -11,7 +11,7 @@ protocol EditorStickersItemViewDelegate: AnyObject {
     func stickerItemView(shouldTouchBegan itemView: EditorStickersItemView) -> Bool
     func stickerItemView(didTouchBegan itemView: EditorStickersItemView)
     func stickerItemView(touchEnded itemView: EditorStickersItemView)
-    func stickerItemView(_ itemView: EditorStickersItemView, updateStickerText item: EditorStickerItem)
+    func stickerItemView(_ itemView: EditorStickersItemView, didTapSticker item: EditorStickerItem)
     func stickerItemView(_ itemView: EditorStickersItemView, tapGestureRecognizerNotInScope point: CGPoint)
     func stickerItemView(_ itemView: EditorStickersItemView, panGestureRecognizerChanged panGR: UIPanGestureRecognizer)
     func stickerItemView(panGestureRecognizerEnded itemView: EditorStickersItemView) -> Bool
@@ -22,14 +22,19 @@ protocol EditorStickersItemViewDelegate: AnyObject {
     func stickerItemView(didDeleteClick itemView: EditorStickersItemView)
     func stickerItemView(didDragScale itemView: EditorStickersItemView)
 }
-class EditorStickersItemView: UIView {
+class EditorStickersItemView: EditorStickersItemBaseView {
     weak var delegate: EditorStickersItemViewDelegate?
     lazy var mirrorView: UIView = {
         let view = UIView()
         return view
     }()
     lazy var contentView: EditorStickersContentView = {
-        let view = EditorStickersContentView(item: item)
+        if item.isAudio {
+            let view = EditorStickersContentAudioView(item: item)
+            view.center = center
+            return view
+        }
+        let view = EditorStickersContentImageView(item: item)
         view.center = center
         return view
     }()
@@ -38,8 +43,6 @@ class EditorStickersItemView: UIView {
         externalBorder.shadowOpacity = 0.3
         externalBorder.shadowOffset = CGSize(width: 0, height: 0)
         externalBorder.shadowRadius = 1
-        externalBorder.shouldRasterize = true
-        externalBorder.rasterizationScale = UIScreen.main.scale
         externalBorder.contentsScale = UIScreen.main.scale
         return externalBorder
     }()
@@ -51,13 +54,13 @@ class EditorStickersItemView: UIView {
         return button
     }()
     lazy var scaleBtn: UIImageView = {
-        let button = UIImageView(image: "hx_editor_view_sticker_item_scale".image)
+        let image = !item.isAudio ? "hx_editor_view_sticker_item_scale".image : "hx_editor_view_sticker_item_rotate".image
+        let button = UIImageView(image: image)
         button.isUserInteractionEnabled = true
         button.addGestureRecognizer(PhotoPanGestureRecognizer(target: self, action: #selector(dragScaleButtonClick(pan:))))
         button.isHidden = true
         return button
     }()
-    var item: EditorStickerItem
     var isEnabled: Bool = true {
         didSet {
             isUserInteractionEnabled = isEnabled
@@ -67,20 +70,27 @@ class EditorStickersItemView: UIView {
     var isDelete: Bool = false
     var scale: CGFloat
     var touching: Bool = false
-    var isSelected: Bool = false {
+    
+    override var isSelected: Bool {
         willSet {
-            if isSelected == newValue {
-                return
-            }
-//            if item.music == nil {
+            if !item.isAudio {
+                let borderWidth: CGFloat = newValue ? 1 / scale : 0
+                let borderRadius: CGFloat = newValue ? 1 / scale : 0
                 CATransaction.begin()
                 CATransaction.setDisableActions(true)
-                externalBorder.cornerRadius = newValue ? 1 / scale : 0
-                externalBorder.borderWidth = newValue ? 1 / scale : 0
+                if externalBorder.borderWidth != borderWidth {
+                    externalBorder.borderWidth = borderWidth
+                }
+                if externalBorder.cornerRadius != borderRadius {
+                    externalBorder.cornerRadius = borderRadius
+                }
                 CATransaction.commit()
                 deleteBtn.isHidden = !newValue
                 scaleBtn.isHidden = !newValue
-//            }
+            }
+            if isSelected == newValue {
+                return
+            }
             isUserInteractionEnabled = newValue
             if newValue {
                 update(size: contentView.item.frame.size)
@@ -89,10 +99,12 @@ class EditorStickersItemView: UIView {
             }
         }
     }
+    
     var itemMargin: CGFloat = 20
     var initialScale: CGFloat = 1
     var initialPoint: CGPoint = .zero
     var initialRadian: CGFloat = 0
+    
     var initialMirrorScale: CGPoint = .init(x: 1, y: 1)
     var editMirrorScale: CGPoint = .init(x: 1, y: 1)
     
@@ -104,11 +116,14 @@ class EditorStickersItemView: UIView {
     var pinchScale: CGFloat = 1
     var mirrorScale: CGPoint = .init(x: 1, y: 1)
     
+    var lastTransform: CGAffineTransform = .identity
+    var lastMirrorTransform: CGAffineTransform = .identity
+    var lastScaleTransform: CGAffineTransform = .identity
+    
     init(
         item: EditorStickerItem,
         scale: CGFloat
     ) {
-        self.item = item
         self.scale = scale
         let rect = CGRect(
             x: 0,
@@ -117,6 +132,7 @@ class EditorStickersItemView: UIView {
             height: item.frame.height
         )
         super.init(frame: rect)
+        self.item = item
         mirrorView.frame = bounds
         addSubview(mirrorView)
         let margin = itemMargin / scale
@@ -129,16 +145,23 @@ class EditorStickersItemView: UIView {
         layer.addSublayer(externalBorder)
         contentView.scale = scale
         mirrorView.addSubview(contentView)
-//        if item.music == nil {
+        if !item.isAudio {
             externalBorder.borderColor = UIColor.white.cgColor
             addSubview(deleteBtn)
             addSubview(scaleBtn)
-            deleteBtn.center = .init(x: externalBorder.frame.minX, y: externalBorder.frame.minY)
-            scaleBtn.center = .init(x: externalBorder.frame.width, y: externalBorder.frame.height)
-//        }
+        }
+        deleteBtn.center = .init(x: externalBorder.frame.minX, y: externalBorder.frame.minY)
+        scaleBtn.center = .init(x: externalBorder.frame.width, y: externalBorder.frame.height)
         initGestures()
     }
     
+    var didRemoveFromSuperview: ((EditorStickersItemView) -> Void)?
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        if superview == nil {
+            didRemoveFromSuperview?(self)
+        }
+    }
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let view = super.hitTest(point, with: event)
         if bounds.contains(point) {
@@ -153,17 +176,13 @@ class EditorStickersItemView: UIView {
 
 extension EditorStickersItemView {
     
-    func invalidateTimer() {
-        contentView.invalidateTimer()
-    }
-    
     func initGestures() {
         contentView.isUserInteractionEnabled = true
         let tapGR = UITapGestureRecognizer(target: self, action: #selector(contentViewTapClick(tapGR:)))
         contentView.addGestureRecognizer(tapGR)
         let panGR = UIPanGestureRecognizer(target: self, action: #selector(contentViewPanClick(panGR:)))
         contentView.addGestureRecognizer(panGR)
-        if item.music == nil {
+        if !item.isAudio {
             let pinchGR = UIPinchGestureRecognizer(target: self, action: #selector(contentViewPinchClick(pinchGR:)))
             contentView.addGestureRecognizer(pinchGR)
         }
@@ -201,8 +220,11 @@ extension EditorStickersItemView {
             let p = CGPoint(x: initialScalePoint.x + point.x - centerX, y: initialScalePoint.y + point.y - centerY)
             let r = sqrt(p.x * p.x + p.y * p.y)
             let arg = atan2(p.y, p.x)
-            
-            update(pinchScale: initialScale * r / scaleR, rotation: initialRadian + arg - scaleA, isPinch: true)
+            if !item.isAudio {
+                update(pinchScale: initialScale * r / scaleR, rotation: initialRadian + arg - scaleA, isPinch: true, isWindow: true)
+            }else {
+                update(pinchScale: initialScale, rotation: initialRadian + arg - scaleA, isPinch: true, isWindow: true)
+            }
         case .ended, .cancelled, .failed:
             if !touching {
                 return
@@ -237,8 +259,8 @@ extension EditorStickersItemView {
             isSelected = false
             return
         }
-        if firstTouch && isSelected && item.text != nil && !touching {
-            delegate?.stickerItemView(self, updateStickerText: item)
+        if firstTouch && isSelected && item.isText && !touching {
+            delegate?.stickerItemView(self, didTapSticker: item)
         }
         firstTouch = true
     }
@@ -303,12 +325,12 @@ extension EditorStickersItemView {
         }
         switch pinchGR.state {
         case .began:
-//            if item.music == nil {
+            if !item.isAudio {
                 CATransaction.begin()
                 CATransaction.setDisableActions(true)
                 externalBorder.borderWidth = 0
                 CATransaction.commit()
-//            }
+            }
             touching = true
             firstTouch = true
             delegate?.stickerItemView(didTouchBegan: self)
@@ -321,12 +343,12 @@ extension EditorStickersItemView {
             update(pinchScale: initialScale * pinchGR.scale, isPinch: true, isWindow: true)
         case .ended, .cancelled, .failed:
             touching = false
-//            if item.music == nil {
+            if !item.isAudio {
                 CATransaction.begin()
                 CATransaction.setDisableActions(true)
                 externalBorder.borderWidth = 1 / scale
                 CATransaction.commit()
-//            }
+            }
             delegate?.stickerItemView(touchEnded: self)
             if isSelected {
                 deleteBtn.isHidden = false
@@ -445,15 +467,18 @@ extension EditorStickersItemView {
         
         frame = rect
         mirrorView.frame = bounds
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        externalBorder.frame = CGRect(
+        let borderFrame = CGRect(
             x: -margin * 0.5,
             y: -margin * 0.5,
             width: width + margin,
             height: height + margin
         )
-        CATransaction.commit()
+        if !externalBorder.frame.equalTo(borderFrame) {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            externalBorder.frame = borderFrame
+            CATransaction.commit()
+        }
         
         contentView.center = CGPoint(x: rect.width * 0.5, y: rect.height * 0.5)
         transform = transform.rotated(by: radian)
@@ -463,26 +488,64 @@ extension EditorStickersItemView {
             mirrorView.transform = mirrorView.transform.scaledBy(x: mirrorScale.x, y: mirrorScale.y)
         }
         
-        if isSelected /* && item.music == nil */{
+        if isSelected && !item.isAudio {
+            let borderWidth: CGFloat = touching ? 1 : 1 / scale
+            let borderRadius: CGFloat = touching ? 1 : 1 / scale
             CATransaction.begin()
             CATransaction.setDisableActions(true)
-            if touching {
-                externalBorder.borderWidth = 1
-                externalBorder.cornerRadius = 1
-            }else {
-                externalBorder.borderWidth = 1 / scale
-                externalBorder.cornerRadius = 1 / scale
+            if externalBorder.borderWidth != borderWidth {
+                externalBorder.borderWidth = borderWidth
+            }
+            if externalBorder.cornerRadius != borderRadius {
+                externalBorder.cornerRadius = borderRadius
             }
             CATransaction.commit()
         }
-        deleteBtn.size = .init(width: 40 / scale, height: 40 / scale)
-        scaleBtn.size = .init(width: 40 / scale, height: 40 / scale)
-        deleteBtn.center = .init(x: -margin * 0.5, y: -margin * 0.5)
-        scaleBtn.center = .init(x: bounds.width + margin * 0.5, y: bounds.height + margin * 0.5)
+        if isWindow {
+            deleteBtn.size = .init(width: 40, height: 40)
+            scaleBtn.size = .init(width: 40, height: 40)
+            deleteBtn.center = .init(x: -margin * 0.5, y: -margin * 0.5)
+            scaleBtn.center = .init(x: bounds.width + margin * 0.5, y: bounds.height + margin * 0.5)
+            scaleBtn.transform = .identity
+        }else {
+            deleteBtn.size = .init(width: 40 / scale, height: 40 / scale)
+            scaleBtn.size = .init(width: 40 / scale, height: 40 / scale)
+            let mirrorScale = CGPoint(x: self.mirrorScale.x * editMirrorScale.x, y: self.mirrorScale.y * editMirrorScale.y)
+            if mirrorScale.x == -1 && mirrorScale.y == -1 {
+                scaleBtn.center = .init(x: -margin * 0.5, y: -margin * 0.5)
+                deleteBtn.center = .init(x: bounds.width + margin * 0.5, y: bounds.height + margin * 0.5)
+                scaleBtn.transform = .identity
+            }else if mirrorScale.x == -1 {
+                deleteBtn.center = .init(x: bounds.width + margin * 0.5, y: -margin * 0.5)
+                scaleBtn.center = .init(x: -margin * 0.5, y: bounds.height + margin * 0.5)
+                scaleBtn.transform = .init(scaleX: -1, y: 1)
+            }else if mirrorScale.y == -1 {
+                deleteBtn.center = .init(x: -margin * 0.5, y: bounds.height + margin * 0.5)
+                scaleBtn.center = .init(x: bounds.width + margin * 0.5, y: -margin * 0.5)
+                scaleBtn.transform = .init(scaleX: 1, y: -1)
+            }else {
+                deleteBtn.center = .init(x: -margin * 0.5, y: -margin * 0.5)
+                scaleBtn.center = .init(x: bounds.width + margin * 0.5, y: bounds.height + margin * 0.5)
+                scaleBtn.transform = .identity
+            }
+        }
+
     }
     
     func update(item: EditorStickerItem) {
         self.item = item
+        contentView.update(item: item)
+        update(size: item.frame.size)
+    }
+    
+    func update(text: EditorStickerText) {
+        if !item.isText {
+            return
+        }
+        item.type = .text(text)
+        if let width = superview?.width {
+            item.frame = item.itemFrame(width)
+        }
         contentView.update(item: item)
         update(size: item.frame.size)
     }
@@ -495,12 +558,18 @@ extension EditorStickersItemView {
         mirrorView.frame = bounds
         self.center = center
         let margin = itemMargin / scale
-        externalBorder.frame = CGRect(
+        let borderFrame = CGRect(
             x: -margin * 0.5,
             y: -margin * 0.5,
             width: width + margin,
             height: height + margin
         )
+        if !externalBorder.frame.equalTo(borderFrame) {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            externalBorder.frame = borderFrame
+            CATransaction.commit()
+        }
         contentView.transform = .identity
         transform = .identity
         mirrorView.transform = .identity
@@ -519,5 +588,51 @@ extension EditorStickersItemView {
             rotation: radian,
             isWindow: isWindow
         )
+    }
+}
+
+extension EditorStickersItemView {
+    func videoReset(_ isReset: Bool) {
+        var currentTransform: CGAffineTransform = .identity
+        var currentMirrorTransform: CGAffineTransform = .identity
+        var currentScaleTransform: CGAffineTransform = .identity
+        if isReset {
+            currentTransform = lastTransform
+            currentMirrorTransform = lastMirrorTransform
+            currentScaleTransform = lastScaleTransform
+        }else {
+            lastTransform = transform
+            lastMirrorTransform = mirrorView.transform
+            lastScaleTransform = contentView.transform
+        }
+        
+        
+        transform = .identity
+        mirrorView.transform = .identity
+        contentView.transform = currentScaleTransform
+        var rect = frame
+        rect.origin.x += (rect.width - contentView.width) / 2
+        rect.origin.y += (rect.height - contentView.height) / 2
+        rect.size.width = contentView.width
+        rect.size.height = contentView.height
+        frame = rect
+        mirrorView.frame = bounds
+        contentView.center = CGPoint(x: rect.width * 0.5, y: rect.height * 0.5)
+        transform = currentTransform
+        mirrorView.transform = currentMirrorTransform
+    }
+    
+    func videoResetAudio(_ isReset: Bool) {
+        var currentTransform: CGAffineTransform = .identity
+        var currentMirrorTransform: CGAffineTransform = .identity
+        if isReset {
+            currentTransform = lastTransform
+            currentMirrorTransform = lastMirrorTransform
+        }else {
+            lastTransform = transform
+            lastMirrorTransform = mirrorView.transform
+        }
+        transform = currentTransform
+        mirrorView.transform = currentMirrorTransform
     }
 }

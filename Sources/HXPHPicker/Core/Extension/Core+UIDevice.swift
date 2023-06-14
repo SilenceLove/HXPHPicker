@@ -31,7 +31,19 @@ extension UIDevice {
         return statusBarHeight + 44
     }
     class var generalStatusBarHeight: CGFloat {
-        isAllIPhoneX ? 44 : 20
+        if isIPhoneXR || isIPhone11 {
+            return 48
+        }
+        if isIPhone12 || isIPhone12Pro || isIPhone12ProMax || isIPhone13 || isIPhone13Pro || isIPhone13ProMax || isIPhone14 || isIPhone14Plus {
+            return 47
+        }
+        if isIPhone12Mini || isIPhone13Mini {
+            return 50
+        }
+        if isIPhone14Pro || isIPhone14ProMax {
+            return 54
+        }
+        return isAllIPhoneX ? 44 : 20
     }
     class var statusBarHeight: CGFloat {
         let statusBarHeight: CGFloat
@@ -45,10 +57,7 @@ extension UIDevice {
         return statusBarHeight
     }
     class var topMargin: CGFloat {
-        if isAllIPhoneX {
-            return statusBarHeight
-        }
-        return safeAreaInsets.top
+        safeAreaInsets.top
     }
     class var leftMargin: CGFloat {
         safeAreaInsets.left
@@ -80,7 +89,7 @@ extension UIDevice {
         return .zero
     }
     
-    class var belowIphone7: Bool {
+    class var phoneIdentifier: String {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -93,7 +102,54 @@ extension UIDevice {
                 }
                 return identifier + String(UnicodeScalar(UInt8(value)))
             }
-        switch identifier {
+        return identifier
+    }
+    
+    class var isIPhoneXR: Bool {
+        switch phoneIdentifier { case "iPhone11,8": return true default: return false }
+    }
+    class var isIPhone11: Bool {
+        switch phoneIdentifier { case "iPhone12,1": return true default: return false }
+    }
+    class var isIPhone12Mini: Bool {
+        switch phoneIdentifier { case "iPhone13,1": return true default: return false }
+    }
+    class var isIPhone12: Bool {
+        switch phoneIdentifier { case "iPhone13,2": return true default: return false }
+    }
+    class var isIPhone12Pro: Bool {
+        switch phoneIdentifier { case "iPhone13,3": return true default: return false }
+    }
+    class var isIPhone12ProMax: Bool {
+        switch phoneIdentifier { case "iPhone13,4": return true default: return false }
+    }
+    class var isIPhone13: Bool {
+        switch phoneIdentifier { case "iPhone14,5": return true default: return false }
+    }
+    class var isIPhone13Mini: Bool {
+        switch phoneIdentifier { case "iPhone14,4": return true default: return false }
+    }
+    class var isIPhone13Pro: Bool {
+        switch phoneIdentifier { case "iPhone14,2": return true default: return false }
+    }
+    class var isIPhone13ProMax: Bool {
+        switch phoneIdentifier { case "iPhone14,3": return true default: return false }
+    }
+    class var isIPhone14: Bool {
+        switch phoneIdentifier { case "iPhone14,7": return true default: return false }
+    }
+    class var isIPhone14Plus: Bool {
+        switch phoneIdentifier { case "iPhone14,8": return true default: return false }
+    }
+    class var isIPhone14Pro: Bool {
+        switch phoneIdentifier { case "iPhone15,2": return true default: return false }
+    }
+    class var isIPhone14ProMax: Bool {
+        switch phoneIdentifier { case "iPhone15,3": return true default: return false }
+    }
+    
+    class var belowIphone7: Bool {
+        switch phoneIdentifier {
         case "iPhone1,1":
             return true
         case "iPhone1,2":

@@ -552,8 +552,7 @@ extension PhotoPreviewViewController {
                 continue
             }
             #if HXPICKER_ENABLE_EDITOR
-            photoAsset.photoEdit = nil
-            photoAsset.videoEdit = nil
+            photoAsset.editedResult = nil
             #endif
             if let index = previewAssets.firstIndex(of: photoAsset) {
                 previewAssets.remove(at: index)

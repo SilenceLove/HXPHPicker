@@ -6,29 +6,7 @@
 //
 
 import UIKit
-
-public protocol EditorViewDelegate: AnyObject {
-    /// 编辑状态将要发生改变
-    func editorView(willBeginEditing editorView: EditorView)
-    /// 编辑状态改变已经结束
-    func editorView(didEndEditing editorView: EditorView)
-    /// 即将进入编辑状态
-    func editorView(editWillAppear editorView: EditorView)
-    /// 已经进入编辑状态
-    func editorView(editDidAppear editorView: EditorView)
-    /// 即将结束编辑状态
-    func editorView(editWillDisappear editorView: EditorView)
-    /// 已经结束编辑状态
-    func editorView(editDidDisappear editorView: EditorView)
-    /// 画笔/涂鸦/贴图发生改变
-    func editorView(contentViewBeganDrag editorView: EditorView)
-    /// 画笔/涂鸦/贴图结束改变
-    func editorView(contentViewEndDraw editorView: EditorView)
-    /// 点击了文字贴纸
-//    func editorView(_ editorView: EditorView, didSelectedStickerText item: EditorStickerItem)
-    /// 移除了音乐贴纸
-    func editorView(didRemoveAudio editorView: EditorView)
-}
+import AVFoundation
 
 /// 层级结构
 /// - EditorView (self)
@@ -41,6 +19,7 @@ public protocol EditorViewDelegate: AnyObject {
 ///                     - imageView/videoView (图片/视频层)
 ///                     - drawView (画笔绘图层)
 ///                     - mosaic (马赛克涂抹图层)
+///                     - stickers (贴图图层)
 ///         - frameView (遮罩、控制裁剪范围)
 open class EditorView: UIScrollView {
     
@@ -83,9 +62,10 @@ open class EditorView: UIScrollView {
     
     open override var backgroundColor: UIColor? {
         didSet {
-            if let backgroundColor = backgroundColor, backgroundColor != .clear {
-                maskColor = backgroundColor
+            guard let backgroundColor = backgroundColor, backgroundColor != .clear else {
+                return
             }
+            maskColor = backgroundColor
         }
     }
     
@@ -93,6 +73,40 @@ open class EditorView: UIScrollView {
     public init() {
         super.init(frame: .zero)
         initView()
+    }
+    
+    public init(
+        _ image: UIImage,
+        adjustmentData: EditAdjustmentData? = nil
+    ) {
+        super.init(frame: .zero)
+        initView()
+        setImage(image)
+        if let data = adjustmentData {
+            setAdjustmentData(data)
+        }
+    }
+    public init(
+        _ imageData: Data,
+        adjustmentData: EditAdjustmentData? = nil
+    ) {
+        super.init(frame: .zero)
+        initView()
+        setImageData(imageData)
+        if let data = adjustmentData {
+            setAdjustmentData(data)
+        }
+    }
+    public init(
+        _ avAsset: AVAsset,
+        adjustmentData: EditAdjustmentData? = nil
+    ) {
+        super.init(frame: .zero)
+        initView()
+        setAVAsset(avAsset)
+        if let data = adjustmentData {
+            setAdjustmentData(data)
+        }
     }
     
     open override var zoomScale: CGFloat {
@@ -109,6 +123,7 @@ open class EditorView: UIScrollView {
     var layoutContent: Bool = true
     var reloadContent: Bool = false
     var operates: [Operate] = []
+    var reloadOperates: [Operate] = []
     
     // MARK: views
     lazy var adjusterView: EditorAdjusterView = {
@@ -124,6 +139,10 @@ open class EditorView: UIScrollView {
     // MARK: layoutViews
     open override func layoutSubviews() {
         super.layoutSubviews()
+        if !layoutContent && reloadContent && type == .image {
+            reloadContent = false
+            layoutContent = true
+        }
         if layoutContent {
             if contentScale == 0 {
                 reloadContent = true
@@ -131,7 +150,7 @@ open class EditorView: UIScrollView {
                 return
             }
             setContent()
-            if !operates.isEmpty {
+            if !operates.isEmpty || !reloadOperates.isEmpty {
                 adjusterView.layoutIfNeeded()
             }
             operatesHandler()
@@ -227,6 +246,7 @@ extension EditorView {
         layoutContent = false
         updateContentSize()
         adjusterView.setContent()
+        adjusterView.setMaskRect()
         resetEdit()
         
         if !operates.isEmpty {
@@ -291,33 +311,58 @@ extension EditorView {
     }
     
     func operatesHandler() {
-        for operate in operates {
+    o: for operate in operates {
             switch operate {
-            case .startEdit(let completion):
-                startEdit(false, completion: completion)
-            case .finishEdit(let completion):
-                finishEdit(false, completion: completion)
-            case .cancelEdit(let completion):
-                cancelEdit(false, completion: completion)
-            case .rotate(let angle, let completion):
-                rotate(angle, animated: false, completion: completion)
-            case .rotateLeft(let completion):
-                rotateLeft(false, completion: completion)
-            case .rotateRight(let completion):
-                rotateRight(false, completion: completion)
-            case .mirrorHorizontally(let completion):
-                mirrorHorizontally(false, completion: completion)
-            case .mirrorVertically(let completion):
-                mirrorVertically(false, completion: completion)
-            case .reset(let completion):
-                reset(false, completion: completion)
-            case .setRoundMask(let isRound):
-                setRoundMask(isRound, animated: false)
             case .setData(let data):
                 setAdjustmentData(data)
+                break o
+            default:
+                break
             }
         }
+    o: for operate in reloadOperates {
+            switch operate {
+            case .setData(let data):
+                setAdjustmentData(data)
+                break o
+            default:
+                break
+            }
+        }
+        for operate in operates {
+            operateHandler(operate)
+        }
+        for operate in reloadOperates {
+            operateHandler(operate)
+        }
         operates.removeAll()
+    }
+    
+    func operateHandler(_ operate: Operate) {
+        switch operate {
+        case .startEdit(let completion):
+            startEdit(false, completion: completion)
+        case .finishEdit(let completion):
+            finishEdit(false, completion: completion)
+        case .cancelEdit(let completion):
+            cancelEdit(false, completion: completion)
+        case .rotate(let angle, let completion):
+            rotate(angle, animated: false, completion: completion)
+        case .rotateLeft(let completion):
+            rotateLeft(false, completion: completion)
+        case .rotateRight(let completion):
+            rotateRight(false, completion: completion)
+        case .mirrorHorizontally(let completion):
+            mirrorHorizontally(false, completion: completion)
+        case .mirrorVertically(let completion):
+            mirrorVertically(false, completion: completion)
+        case .reset(let completion):
+            reset(false, completion: completion)
+        case .setRoundMask(let isRound):
+            setRoundMask(isRound, animated: false)
+        default:
+            break
+        }
     }
     
     func updateEditSize() {

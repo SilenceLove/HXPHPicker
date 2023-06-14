@@ -13,8 +13,10 @@ extension EditorFrameView: EditorControlViewDelegate {
             return
         }
         hideMaskBgView()
+        maskLinesView.hideGridGraylinesView(animated: true)
         stopControlTimer()
         delegate?.frameView(beganChanged: self, rect)
+        hideVideoSilder(true)
     }
     
     func controlView(didChanged controlView: EditorControlView, _ rect: CGRect) {
@@ -25,6 +27,7 @@ extension EditorFrameView: EditorControlViewDelegate {
         maskBgView.updateLayers(rect, false)
         customMaskView.updateLayers(rect, false)
         maskLinesView.updateLayers(rect, false)
+        updateVideoSlider(to: rect, animated: false)
         delegate?.frameView(didChanged: self, rect)
     }
     

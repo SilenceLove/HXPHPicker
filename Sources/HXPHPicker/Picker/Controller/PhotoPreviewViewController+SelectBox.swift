@@ -74,13 +74,18 @@ extension PhotoPreviewViewController {
                 )
             }
             #if HXPICKER_ENABLE_EDITOR
-            if photoAsset.videoEdit != nil {
-                photoAsset.videoEdit = nil
-                let cell = getCell(for: currentPreviewIndex)
-                cell?.photoAsset = photoAsset
-                cell?.cancelRequest()
-                cell?.requestPreviewAsset()
-                pickerUpdateCell = true
+            if let editedResult = photoAsset.editedResult {
+                switch editedResult {
+                case .video(_, _):
+                    photoAsset.editedResult = nil
+                    let cell = getCell(for: currentPreviewIndex)
+                    cell?.photoAsset = photoAsset
+                    cell?.cancelRequest()
+                    cell?.requestPreviewAsset()
+                    pickerUpdateCell = true
+                default:
+                    break
+                }
             }
             #endif
             canUpdate = true

@@ -9,7 +9,46 @@ import UIKit
 import AVFoundation
 
 // MARK: 相机配置类
-public class CameraConfiguration: BaseConfiguration {
+public struct CameraConfiguration: IndicatorTypeConfig {
+    
+    public var modalPresentationStyle: UIModalPresentationStyle
+    
+    /// If the built-in language is not enough, you can add a custom language text
+    /// PhotoManager.shared.customLanguages - custom language array
+    /// PhotoManager.shared.fixedCustomLanguage - If there are multiple custom languages, one can be fixed to display
+    /// 如果自带的语言不够，可以添加自定义的语言文字
+    /// PhotoManager.shared.customLanguages - 自定义语言数组
+    /// PhotoManager.shared.fixedCustomLanguage - 如果有多种自定义语言，可以固定显示某一种
+    public var languageType: LanguageType = .system {
+        didSet {
+            #if HXPICKER_ENABLE_EDITOR
+            editor.languageType = languageType
+            #endif
+        }
+    }
+    
+    /// hide status bar
+    /// 隐藏状态栏
+    public var prefersStatusBarHidden: Bool = true
+    
+    /// Rotation is allowed, and rotation can only be disabled in full screen
+    /// 允许旋转，全屏情况下才可以禁止旋转
+    public var shouldAutorotate: Bool = true
+    
+    /// 是否自动返回
+    public var isAutoBack: Bool = true
+    
+    /// supported directions
+    /// 支持的方向
+    public var supportedInterfaceOrientations: UIInterfaceOrientationMask = .all
+    
+    public var indicatorType: IndicatorType = PhotoManager.shared.indicatorType {
+        didSet {
+            #if HXPICKER_ENABLE_EDITOR
+            editor.indicatorType = indicatorType
+            #endif
+        }
+    }
     
     /// 相机类型
     public var cameraType: CameraController.CameraType = .normal
@@ -45,13 +84,7 @@ public class CameraConfiguration: BaseConfiguration {
     public var takePhotoMode: TakePhotoMode = .press
     
     /// 主题色
-    public var tintColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor {
-        didSet {
-            #if HXPICKER_ENABLE_EDITOR
-            setupEditorColor()
-            #endif
-        }
-    }
+    public var tintColor: UIColor = HXPickerWrapper<UIColor>.systemTintColor
     
     /// 摄像头最大缩放比例
     public var videoMaxZoomScale: CGFloat = 6
@@ -79,11 +112,13 @@ public class CameraConfiguration: BaseConfiguration {
     /// true: 拍摄完成后会跳转到编辑界面
     public var allowsEditing: Bool = true
     
-    /// 照片编辑器配置
-    public lazy var photoEditor: PhotoEditorConfiguration = .init()
-    
-    /// 视频编辑器配置
-    public lazy var videoEditor: VideoEditorConfiguration = .init()
+    /// 编辑器配置
+    public lazy var editor: EditorConfiguration = {
+        var editor = EditorConfiguration()
+        editor.languageType = languageType
+        editor.indicatorType = indicatorType
+        return editor
+    }()
     #endif
     
     #if HXPICKER_ENABLE_CAMERA_LOCATION
@@ -91,45 +126,13 @@ public class CameraConfiguration: BaseConfiguration {
     public var allowLocation: Bool = true
     #endif
     
-    public override init() {
-        super.init()
-        /// shouldAutorotate 能够旋转
-        /// supportedInterfaceOrientations 支持的方向
-        
-        /// 隐藏状态栏
-        prefersStatusBarHidden = true
-        
-        appearanceStyle = .normal
-        #if HXPICKER_ENABLE_EDITOR
-        photoEditor.languageType = languageType
-        videoEditor.languageType = languageType
-        photoEditor.indicatorType = indicatorType
-        videoEditor.indicatorType = indicatorType
-        photoEditor.appearanceStyle = appearanceStyle
-        videoEditor.appearanceStyle = appearanceStyle
-        #endif
-    }
-    
-    #if HXPICKER_ENABLE_EDITOR
-    public override var languageType: LanguageType {
-        didSet {
-            photoEditor.languageType = languageType
-            videoEditor.languageType = languageType
+    public init() {
+        if #available(iOS 13.0, *) {
+            modalPresentationStyle = .automatic
+        } else {
+            modalPresentationStyle = .fullScreen
         }
     }
-    public override var indicatorType: BaseConfiguration.IndicatorType {
-        didSet {
-            photoEditor.indicatorType = indicatorType
-            videoEditor.indicatorType = indicatorType
-        }
-    }
-    public override var appearanceStyle: AppearanceStyle {
-        didSet {
-            photoEditor.appearanceStyle = appearanceStyle
-            videoEditor.appearanceStyle = appearanceStyle
-        }
-    }
-    #endif
 }
 
 extension CameraConfiguration {
@@ -185,35 +188,4 @@ extension CameraConfiguration {
             }
         }
     }
-    
-    #if HXPICKER_ENABLE_EDITOR
-    fileprivate func setupEditorColor() {
-        
-        videoEditor.cropConfirmView.finishButtonBackgroundColor = tintColor
-        videoEditor.cropConfirmView.finishButtonDarkBackgroundColor = tintColor
-        videoEditor.cropSize.aspectRatioSelectedColor = tintColor
-        videoEditor.toolView.finishButtonBackgroundColor = tintColor
-        videoEditor.toolView.finishButtonDarkBackgroundColor = tintColor
-        videoEditor.toolView.toolSelectedColor = tintColor
-        videoEditor.toolView.musicSelectedColor = tintColor
-        videoEditor.music.tintColor = tintColor
-        videoEditor.text.tintColor = tintColor
-        videoEditor.filter = .init(
-            infos: videoEditor.filter.infos,
-            selectedColor: tintColor
-        )
-        
-        photoEditor.toolView.toolSelectedColor = tintColor
-        photoEditor.toolView.finishButtonBackgroundColor = tintColor
-        photoEditor.toolView.finishButtonDarkBackgroundColor = tintColor
-        photoEditor.cropConfimView.finishButtonBackgroundColor = tintColor
-        photoEditor.cropConfimView.finishButtonDarkBackgroundColor = tintColor
-        photoEditor.cropping.aspectRatioSelectedColor = tintColor
-        photoEditor.filter = .init(
-            infos: photoEditor.filter.infos,
-            selectedColor: tintColor
-        )
-        photoEditor.text.tintColor = tintColor
-    }
-    #endif
 }

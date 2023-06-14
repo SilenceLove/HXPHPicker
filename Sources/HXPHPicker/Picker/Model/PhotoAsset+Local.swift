@@ -16,7 +16,7 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
+        if photoEditedResult != nil {
             getEditedImageURL(
                 toFile: fileURL,
                 compressionQuality: compressionQuality,
@@ -142,7 +142,7 @@ extension PhotoAsset {
         resultHandler: @escaping (UIImage?, PhotoAsset) -> Void
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             resultHandler(getEditedImage(), self)
             return
         }
@@ -209,7 +209,7 @@ extension PhotoAsset {
         resultHandler: AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if videoEdit != nil {
+        if videoEditedResult != nil {
             getEditedVideoURL(
                 toFile: fileURL,
                 resultHandler: resultHandler
@@ -264,7 +264,7 @@ extension PhotoAsset {
     
     func getLocalImageAssetURL() -> URL? {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil {
+        if photoEditedResult != nil {
             return nil
         }
         #endif
@@ -275,7 +275,7 @@ extension PhotoAsset {
     }
     func getLocalImageData() -> Data? {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             return getEditedImageData()
         }
         #endif
@@ -338,7 +338,7 @@ extension PhotoAsset {
             }
         }
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             if let imageData = getEditedImageData(),
                let image = getEditedImage() {
                 resultSuccess(

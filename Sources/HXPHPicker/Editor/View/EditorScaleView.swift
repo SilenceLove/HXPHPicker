@@ -9,6 +9,14 @@ import UIKit
 
 class EditorScaleView: UIView {
     
+    enum State {
+        case begin
+        case changed
+        case end
+    }
+    
+    var state: State = .end
+    
     lazy var shadeView: UIView = {
         let view = UIView()
         view.addSubview(collectionView)
@@ -19,16 +27,17 @@ class EditorScaleView: UIView {
     lazy var shadeMaskLayer: CAGradientLayer = {
         let maskLayer = CAGradientLayer()
         maskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.clear.cgColor]
-        maskLayer.startPoint = CGPoint(x: 0, y: 1)
-        maskLayer.endPoint = CGPoint(x: 1, y: 1)
-        maskLayer.locations = [0.0, 0.1, 0.9, 1.0]
+        maskLayer.locations = [0.0, 0.05, 0.95, 1.0]
         return maskLayer
     }()
     
-    lazy var collectionView: UICollectionView = {
+    lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        return flowLayout
+    }()
+    
+    lazy var collectionView: EditorScaleCollectionView = {
+        let collectionView = EditorScaleCollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
@@ -52,22 +61,32 @@ class EditorScaleView: UIView {
         let label = UILabel()
         label.text = "0"
         label.textColor = .white
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 10)
+        label.font = .systemFont(ofSize: 11)
         return label
     }()
     
-    var angleChanged: ((CGFloat) -> Void)?
+    var angleChanged: ((CGFloat, State) -> Void)?
     
     var offsetScale: CGFloat {
-        let offsetX = collectionView.contentOffset.x + collectionView.contentInset.left
-        let contentWidth = (collectionView.contentSize.width - 1) * 0.5
-        let offsetScale = (offsetX / contentWidth) - 1
+        if UIDevice.isPortrait {
+            let margin = collectionView.isCenter ? centerOffsetX : collectionView.contentOffset.x
+            let offsetX = margin + collectionView.contentInset.left
+            let contentWidth = (collectionView.contentSize.width - 1) * 0.5
+            let offsetScale = (offsetX / contentWidth) - 1
+            return offsetScale
+        }
+        let margin = collectionView.isCenter ? centerOffsetX : collectionView.contentOffset.y
+        let offsetY = margin + collectionView.contentInset.top
+        let contentHeight = (collectionView.contentSize.height - 1) * 0.5
+        let offsetScale = (offsetY / contentHeight) - 1
         return offsetScale
     }
     
     var centerOffsetX: CGFloat {
-        (collectionView.contentSize.width - 1) * 0.5 - collectionView.contentInset.left
+        if UIDevice.isPortrait {
+            return (collectionView.contentSize.width - 1) * 0.5 - collectionView.contentInset.left
+        }
+        return (collectionView.contentSize.height - 1) * 0.5 - collectionView.contentInset.top
     }
     
     var count: Int = 47
@@ -91,10 +110,7 @@ class EditorScaleView: UIView {
     var themeColor: UIColor = .systemTintColor
     
     var padding: CGFloat {
-        if UIDevice.isPortrait && !UIDevice.isPad {
-            return 5
-        }
-        return width / CGFloat(count) / 2
+        return 5
     }
     
     override init(frame: CGRect) {
@@ -106,6 +122,8 @@ class EditorScaleView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var currentOffsetScale: CGFloat?
+    
     var isAngleChange = false
     
     func initView() {
@@ -114,32 +132,126 @@ class EditorScaleView: UIView {
         addSubview(centerLineView)
         DispatchQueue.main.async {
             self.currentIndex = self.centerIndex
-            self.collectionView.contentOffset.x = self.centerOffsetX
+            self.collectionView.isCenter = true
+            if UIDevice.isPortrait {
+                self.collectionView.contentOffset.x = self.centerOffsetX
+            }else {
+                self.collectionView.contentOffset.y = self.centerOffsetX
+            }
+        }
+    }
+    
+    func reset() {
+        currentOffsetScale = nil
+        currentIndex = centerIndex
+        collectionView.isCenter = true
+        if UIDevice.isPortrait {
+            collectionView.contentOffset.x = centerOffsetX
+        }else {
+            collectionView.contentOffset.y = centerOffsetX
+        }
+        centerCell?.hidePoint()
+    }
+    
+    func updateAngle(_ angle: CGFloat) {
+        let offsetScale = angle / 45
+        if UIDevice.isPortrait {
+            let contentWidth = (collectionView.contentSize.width - 1) * 0.5
+            let offsetX = (offsetScale + 1) * contentWidth
+            collectionView.contentOffset.x = offsetX - collectionView.contentInset.left
+        }else {
+            let contentHeight = (collectionView.contentSize.height - 1) * 0.5
+            let offsetY = (offsetScale + 1) * contentHeight
+            collectionView.contentOffset.y = offsetY - collectionView.contentInset.top
+        }
+        collectionView.isCenter = angle == 0
+        let point = centerLineView.convert(.init(x: centerLineView.width * 0.5, y: centerLineView.height * 0.5), to: collectionView)
+        if let indexPath = collectionView.indexPathForItem(at: point) {
+            currentIndex = indexPath.section
+        }else {
+            currentIndex = -1
+        }
+        valueLb.text = String(scale)
+        if UIDevice.isPortrait {
+            currentOffsetScale = (collectionView.contentInset.left + collectionView.contentOffset.x) / collectionView.contentSize.width
+        }else {
+            currentOffsetScale = (collectionView.contentInset.top + collectionView.contentOffset.y) / collectionView.contentSize.height
         }
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        shadeView.frame = .init(x: 0, y: 0, width: width, height: 30)
-        collectionView.frame = shadeView.bounds
-        shadeMaskLayer.frame = CGRect(x: 0, y: 0, width: shadeView.width, height: shadeView.height)
-        let margin: CGFloat
-        let contentWidth = collectionView.contentSize.width
-        if contentWidth > width {
-            margin = width * 0.5 - 0.5
+        if UIDevice.isPortrait {
+            shadeMaskLayer.startPoint = CGPoint(x: 0, y: 1)
+            shadeMaskLayer.endPoint = CGPoint(x: 1, y: 1)
+            
+            flowLayout.scrollDirection = .horizontal
+            shadeView.frame = .init(x: 0, y: 0, width: width, height: height)
+            collectionView.frame = shadeView.bounds
+            shadeMaskLayer.frame = CGRect(x: 0, y: 0, width: shadeView.width, height: shadeView.height)
+            let margin: CGFloat
+            let contentWidth = collectionView.contentSize.width
+            if contentWidth > width {
+                margin = width * 0.5 - 0.5
+            }else {
+                margin = (contentWidth * 0.5 + (width - contentWidth) * 0.5) - 0.5
+            }
+            collectionView.contentInset = .init(top: 5, left: margin, bottom: 0, right: margin)
+            
+            centerLineView.size = .init(width: 1, height: 25)
+            centerLineView.centerX = width * 0.5
+            centerLineView.y = 25 - centerLineView.height
+            
+            valueLb.textAlignment = .center
+            valueLb.x = 0
+            valueLb.width = width
+            valueLb.y = centerLineView.frame.maxY + 2
+            valueLb.height = 15
         }else {
-            margin = (contentWidth * 0.5 + (width - contentWidth) * 0.5) - 0.5
+            shadeMaskLayer.startPoint = CGPoint(x: 1, y: 0)
+            shadeMaskLayer.endPoint = CGPoint(x: 1, y: 1)
+            
+            flowLayout.scrollDirection = .vertical
+            shadeView.frame = .init(x: 0, y: 0, width: 30, height: height)
+            collectionView.contentInset = .zero
+            collectionView.frame = shadeView.bounds
+            shadeMaskLayer.frame = CGRect(x: 0, y: 0, width: shadeView.width, height: shadeView.height)
+            let margin: CGFloat
+            let contentHeight = collectionView.contentSize.height
+            if contentHeight > height {
+                margin = height * 0.5 - 0.5
+            }else {
+                margin = (contentHeight * 0.5 + (height - contentHeight) * 0.5) - 0.5
+            }
+            collectionView.contentInset = .init(top: margin, left: 0, bottom: margin, right: 0)
+            
+            centerLineView.size = .init(width: 25, height: 1)
+            centerLineView.centerY = height * 0.5
+            centerLineView.x = collectionView.x + (collectionView.width - 20) * 0.5 + 20 - centerLineView.width
+            
+            valueLb.textAlignment = .left
+            valueLb.y = 0
+            valueLb.x = centerLineView.frame.maxX + 2
+            valueLb.width = width - valueLb.x
+            valueLb.height = height
         }
-        collectionView.contentInset.left = margin
-        collectionView.contentInset.right = margin
-        
-        centerLineView.size = .init(width: 1, height: 25)
-        centerLineView.centerX = width * 0.5
-        centerLineView.y = collectionView.y + (collectionView.height - 20) * 0.5 + 20 - centerLineView.height
-        
-        valueLb.width = width
-        valueLb.y = centerLineView.frame.maxY + 2
-        valueLb.height = 15
+        DispatchQueue.main.async {
+            if UIDevice.isPortrait {
+                if let currentOffsetScale = self.currentOffsetScale {
+                    self.collectionView.contentOffset.x = self.collectionView.contentSize.width * currentOffsetScale - self.collectionView.contentInset.left
+                }else {
+                    self.collectionView.isCenter = true
+                    self.collectionView.contentOffset.x = self.centerOffsetX
+                }
+            }else {
+                if let currentOffsetScale = self.currentOffsetScale {
+                    self.collectionView.contentOffset.y = self.collectionView.contentSize.height * currentOffsetScale - self.collectionView.contentInset.top
+                }else {
+                    self.collectionView.isCenter = true
+                    self.collectionView.contentOffset.y = self.centerOffsetX
+                }
+            }
+        }
     }
 }
 
@@ -163,14 +275,20 @@ extension EditorScaleView: UICollectionViewDataSource, UICollectionViewDelegate,
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        .init(width: 1, height: 20)
+        if UIDevice.isPortrait {
+            return .init(width: 1, height: 20)
+        }
+        return .init(width: 20, height: 1)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         if section == 0 || section == count - 1 {
             return .zero
         }
-        return .init(top: 0, left: padding, bottom: 0, right: padding)
+        if UIDevice.isPortrait {
+            return .init(top: 0, left: padding, bottom: 0, right: padding)
+        }
+        return .init(top: padding, left: 0, bottom: padding, right: 0)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -184,7 +302,7 @@ extension EditorScaleView: UICollectionViewDataSource, UICollectionViewDelegate,
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let point = centerLineView.convert(.init(x: centerLineView.width * 0.5, y: centerLineView.height * 0.5), to: collectionView)
         if let indexPath = collectionView.indexPathForItem(at: point) {
-            if currentIndex != indexPath.section {
+            if currentIndex != indexPath.section && isAngleChange {
                 let shake = UIImpactFeedbackGenerator(style: .light)
                 shake.prepare()
                 if #available(iOS 13.0, *) {
@@ -199,12 +317,17 @@ extension EditorScaleView: UICollectionViewDataSource, UICollectionViewDelegate,
         }
         valueLb.text = String(scale)
         if isAngleChange {
-            angleChanged?(angle)
+            collectionView.isCenter = false
+            angleChanged?(angle, state)
+            state = .changed
+        }else {
+            state = .end
         }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         isAngleChange = true
+        state = .begin
         UIView.animate(withDuration: 0.2) {
             self.centerLineView.backgroundColor = self.themeColor
         }
@@ -223,15 +346,28 @@ extension EditorScaleView: UICollectionViewDataSource, UICollectionViewDelegate,
     
     func scrollDidStop() {
         isAngleChange = false
+        state = .end
         if offsetScale >= -0.02 && offsetScale <= 0.02 {
-            collectionView.setContentOffset(.init(x: centerOffsetX, y: 0), animated: false)
-            angleChanged?(angle)
+            collectionView.isCenter = true
+            if UIDevice.isPortrait {
+                collectionView.contentOffset.x = centerOffsetX
+            }else {
+                collectionView.contentOffset.y = centerOffsetX
+            }
+        }else {
+            collectionView.isCenter = false
         }
+        angleChanged?(angle, state)
         UIView.animate(withDuration: 0.25) {
             self.centerLineView.backgroundColor = .white
         }
         if currentIndex == centerIndex {
             centerCell?.hidePoint()
+        }
+        if UIDevice.isPortrait {
+            currentOffsetScale = (collectionView.contentInset.left + collectionView.contentOffset.x) / collectionView.contentSize.width
+        }else {
+            currentOffsetScale = (collectionView.contentInset.top + collectionView.contentOffset.y) / collectionView.contentSize.height
         }
     }
 }
@@ -240,6 +376,10 @@ extension EditorScaleView {
     struct Scale {
         let value: CGFloat
     }
+}
+
+class EditorScaleCollectionView: UICollectionView {
+    var isCenter: Bool = true
 }
 
 class EditorScaleViewCell: UICollectionViewCell {
@@ -312,11 +452,20 @@ class EditorScaleViewCell: UICollectionViewCell {
     }
     
     func updateLineView() {
-        pointView.y = -5
-        pointView.size = .init(width: 6, height: 6)
-        pointView.centerX = width * 0.5
-        lineView.size = .init(width: 1, height: isOriginal ? 15 : 10)
-        lineView.centerX = width * 0.5
-        lineView.y = height - lineView.height
+        if UIDevice.isPortrait {
+            pointView.y = -5
+            pointView.size = .init(width: 6, height: 6)
+            pointView.centerX = width * 0.5
+            lineView.size = .init(width: 1, height: isOriginal ? 15 : 10)
+            lineView.centerX = width * 0.5
+            lineView.y = height - lineView.height
+        }else {
+            pointView.x = -5
+            pointView.size = .init(width: 6, height: 6)
+            pointView.centerY = height * 0.5
+            lineView.size = .init(width: isOriginal ? 15 : 10, height: 1)
+            lineView.centerY = height * 0.5
+            lineView.x = width - lineView.width
+        }
     }
 }

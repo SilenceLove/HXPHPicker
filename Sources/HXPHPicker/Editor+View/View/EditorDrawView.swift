@@ -218,7 +218,11 @@ extension EditorDrawView.BrushInfo: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let colorData = try container.decode(Data.self, forKey: .color)
-        color = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorData) as! UIColor
+        if #available(iOS 11.0, *) {
+            color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData)!
+        }else {
+            color = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorData) as! UIColor
+        }
         points = try container.decode([CGPoint].self, forKey: .points)
         lineWidth = try container.decode(CGFloat.self, forKey: .lineWidth)
     }

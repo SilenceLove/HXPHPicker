@@ -8,6 +8,9 @@
 import UIKit
 import HXPHPicker
 import AVFoundation
+#if canImport(GDPerformanceView_Swift)
+import GDPerformanceView_Swift
+#endif
 
 class TestEditorViewController: BaseViewController {
     
@@ -21,13 +24,13 @@ class TestEditorViewController: BaseViewController {
     var image: UIImage? = .init(named: "wx_head_icon")
     var videoURL: URL!
     
-    var imageResult: EditResult.Image?
-    var videoResult: EditResult.Video?
+    var imageResult: ImageEditedResult?
+    var videoResult: VideoEditedResult?
     
     lazy var editorView: EditorView = {
         let view = EditorView()
         view.backgroundColor = self.view.backgroundColor
-        
+        view.editDelegate = self
         // 这样设置边距 进入/退出 编辑状态不会有 缩小/放大 动画
 //        view.contentInset = .init(top: 20, left: 20, bottom: 20 + UIDevice.bottomMargin, right: 20)
         // 这样设置边距 进入/退出 编辑状态会有 缩小/放大 动画
@@ -37,19 +40,23 @@ class TestEditorViewController: BaseViewController {
         view.maskType = .blurEffect(style: .light)
         if let result = imageResult {
             view.setImage(image)
+            setmosaicImage()
             view.setAdjustmentData(result.data)
         }else if let result = videoResult {
             view.setAVAsset(.init(url: videoURL))
             view.setAdjustmentData(result.data)
-            view.loadVideo()
+            view.loadVideo(isPlay: true)
         }else {
             view.setImage(image)
-            view.state = .edit
+            setmosaicImage()
+//            view.state = .edit
         }
 //        view.isResetIgnoreFixedRatio = false
 //        view.setRoundMask(animated: false)
         return view
     }()
+    
+    var audioPlayers: [TestPlayAuido] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,35 +70,101 @@ class TestEditorViewController: BaseViewController {
             action: #selector(showAlert)
         )
         view.addSubview(contentView)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didViewClick))
+        editorView.addGestureRecognizer(tap)
     }
     
-    var orientationDidChanged: Bool = false
+    var isShowVideoControl: Bool = false
+    weak var videoTimer: Timer?
+    @objc
+    func didViewClick() {
+        if editorView.state != .normal || editorView.type != .video {
+            return
+        }
+        if !isShowVideoControl {
+            editorView.showVideoControl(true)
+            delayHideVideoControl()
+        }else {
+            editorView.hideVideoControl(true)
+            videoTimer?.invalidate()
+            videoTimer = nil
+        }
+        isShowVideoControl = !isShowVideoControl
+    }
+    
+    func delayHideVideoControl() {
+        if let timer = videoTimer {
+            timer.invalidate()
+        }
+        videoTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
+            self?.editorView.hideVideoControl(true)
+            self?.isShowVideoControl = false
+            self?.videoTimer = nil
+        }
+    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         contentView.frame = .init(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 88, width: view.hx.width, height: 0)
         contentView.hx.height = view.hx.height - contentView.hx.y
-        editorView.frame = contentView.bounds
-        if orientationDidChanged {
-            editorView.update()
-            orientationDidChanged = false
+        if editorView.frame.isEmpty {
+            editorView.frame = contentView.bounds
+        }else {
+            if !editorView.frame.equalTo(contentView.bounds) {
+                editorView.frame = contentView.bounds
+                editorView.update()
+            }
         }
-    }
-    
-    public override func deviceOrientationWillChanged(notify: Notification) {
-        orientationDidChanged = true
     }
     
     @objc
     func showAlert() {
         let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
         if editorView.type != .unknown {
+            alert.addAction(.init(title: "使用编辑器继续编辑", style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
+                if editorView.type == .image {
+                    var result: EditedResult?
+                    if editorView.isCropedImage {
+                        result = .image(.init(data: editorView.adjustmentData), .init(cropSize: .init(isFixedRatio: editorView.isFixedRatio, aspectRatio: editorView.aspectRatio, angle: 0)))
+                    }
+                    let vc = EditorViewController(.init(type: .image(image!), result: result))
+                    self.present(vc, animated: true)
+                }else if editorView.type == .video {
+                    var result: EditedResult?
+                    if editorView.isCropedVideo {
+                        var music: VideoEditedMusic?
+                        if let player = self.audioPlayers.first {
+                            music = .init(
+                                hasOriginalSound: true,
+                                videoSoundVolume: 1,
+                                backgroundMusicURL: player.audio.url,
+                                backgroundMusicVolume: 1,
+                                musicIdentifier: player.audio.identifier,
+                                music: .init(audioURL: player.audio.url, lrc: player.audioLrc.lrc)
+                            )
+                        }
+                        result = .video(.init(data: editorView.adjustmentData), .init(music: music,cropSize: .init(isFixedRatio: editorView.isFixedRatio, aspectRatio: editorView.aspectRatio, angle: 0)))
+                    }
+                    let vc = EditorViewController(.init(type: .video(videoURL), result: result))
+                    self.present(vc, animated: true)
+                }
+                editorView.pauseVideo()
+                for audioPlayer in self.audioPlayers {
+                    audioPlayer.stopPlay()
+                }
+            }))
             func preview(_ isPreview: Bool) {
                 if self.editorView.type == .video {
                     self.editorView.cancelVideoCroped()
                     self.view.hx.show()
+                    var audios: [EditorVideoFactor.Audio] = []
+                    for audioPlayer in audioPlayers {
+                        audios.append(.init(url: audioPlayer.audio.url.url!))
+                    }
                     self.editorView.cropVideo(
-                        factor: .init(preset: .ratio_960x540, quality: 6),
+                        factor: .init(audios: audios, preset: .ratio_960x540, quality: 6),
                         progress: { progress in
                         print("video_progress: \(progress)")
                     }, completion: { [weak self] videoResult in
@@ -101,6 +174,9 @@ class TestEditorViewController: BaseViewController {
                             self.view.hx.hide()
                             print(result)
                             self.editorView.pauseVideo()
+                            for audioPlayer in self.audioPlayers {
+                                audioPlayer.stopPlay()
+                            }
                             if !isPreview {
                                 let vc = TestEditorViewController()
                                 vc.videoURL = self.videoURL
@@ -346,17 +422,21 @@ class TestEditorViewController: BaseViewController {
             }))
             alert.addAction(.init(title: "确认编辑", style: .default, handler: { [weak self] _ in
                 self?.editorView.finishEdit(true)
+                self?.isShowVideoControl = false
+                self?.editorView.isStickerEnabled = true
                 self?.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             }))
             alert.addAction(.init(title: "取消编辑", style: .default, handler: { [weak self] _ in
                 self?.editorView.cancelEdit(true)
+                self?.isShowVideoControl = false
+                self?.editorView.isStickerEnabled = true
                 self?.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             }))
         }else {
             alert.addAction(.init(title: "添加贴纸", style: .default, handler: { [weak self] _ in
-                let config = PickerConfiguration()
+                var config = PickerConfiguration()
                 config.selectMode = .single
-                config.selectOptions = [.gifPhoto, .video]
+                config.selectOptions = [.gifPhoto]
                 config.previewView.bottomView.isHiddenOriginalButton = true
                 Photo.picker(config) { [weak self] pickerResult, _ in
                     guard let self = self else {
@@ -368,6 +448,10 @@ class TestEditorViewController: BaseViewController {
                         self.view.hx.hide()
                         switch $0 {
                         case .success(let urlResult):
+                            if let data = try? Data(contentsOf: urlResult.url) {
+                                self.editorView.addSticker(data, isSelected: true)
+                                return
+                            }
                             if let image = UIImage(contentsOfFile: urlResult.url.path) {
                                 self.editorView.addSticker(image, isSelected: true)
                             }
@@ -377,22 +461,54 @@ class TestEditorViewController: BaseViewController {
                     }
                 }
             }))
-            alert.addAction(.init(title: "添加音乐贴纸", style: .default, handler: { [weak self] _ in
-                let audioUrl = Bundle.main.url(forResource: "少女的祈祷", withExtension: "mp3")!
-                let lyricUrl = Bundle.main.url(forResource: "少女的祈祷", withExtension: nil)!
-                let lrc = try! String(contentsOfFile: lyricUrl.path)
-                let music = VideoEditorMusicInfo(
-                    audioURL: audioUrl,
-                    lrc: lrc
-                )
-                self?.editorView.addSticker(music, isSelected: true)
-                PhotoManager.shared.playMusic(filePath: audioUrl.path) {
-                    
-                }
-            }))
+            if editorView.type == .video {
+                alert.addAction(.init(title: "添加音乐贴纸", style: .default, handler: { [weak self] _ in
+                    func addStickerAudio(_ fileName: String) {
+                        guard let self = self,
+                              let lyricUrl = Bundle.main.url(forResource: fileName, withExtension: nil),
+                              let lrc = try? String(contentsOfFile: lyricUrl.path) else {
+                            return
+                        }
+                        let musicURL = VideoEditorMusicURL.bundle(resource: fileName, type: "mp3")
+                        let audio = EditorStickerAudio(musicURL) { [weak self] in
+                            guard let self = self else {
+                                return nil
+                            }
+                            for audioPlayer in self.audioPlayers where audioPlayer.audio == $0 {
+                                var texts: [EditorStickerAudioText] = []
+                                for lyric in audioPlayer.audioLrc.lyrics {
+                                    texts.append(.init(text: lyric.lyric, startTime: lyric.startTime, endTime: lyric.endTime))
+                                }
+                                return .init(time: audioPlayer.audioLrc.time ?? 0, texts: texts)
+                            }
+                            return nil
+                        }
+                        let itemView = self.editorView.addSticker(audio, isSelected: true)
+                        let audioPlayer = TestPlayAuido.init(audio, lyric: lrc, itemView: itemView)
+                        audioPlayer.musicURL = musicURL
+                        self.audioPlayers.append(audioPlayer)
+                    }
+                    let alert = UIAlertController.init(title: nil, message: nil, preferredStyle: .actionSheet)
+                    let fileNames = ["少女的祈祷", "爱你", "嘉宾", "时光正好", "世间美好与你环环相扣", "天外来物", "无赖", "野孩子"]
+                    for fileName in fileNames {
+                        alert.addAction(.init(title: fileName, style: .default, handler: {
+                            guard let title = $0.title else {
+                                return
+                            }
+                            addStickerAudio(title)
+                        }))
+                    }
+                    alert.addAction(.init(title: "取消", style: .cancel))
+                    self?.presendAlert(alert)
+                }))
+            }
             alert.addAction(.init(title: !editorView.isDrawEnabled ? "开启绘画" : "关闭绘画", style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
                 self.editorView.isDrawEnabled = !self.editorView.isDrawEnabled
+                if self.editorView.isDrawEnabled {
+                    self.editorView.isMosaicEnabled = false
+                }
+                self.editorView.isStickerEnabled = !self.editorView.isDrawEnabled
             }))
             alert.addAction(.init(title: "绘画设置", style: .default, handler: { [weak self] _ in
                 guard let self = self else { return }
@@ -445,6 +561,10 @@ class TestEditorViewController: BaseViewController {
                 alert.addAction(.init(title: !editorView.isMosaicEnabled ? "开启马赛克涂抹" : "关闭马赛克涂抹", style: .default, handler: { [weak self] _ in
                     guard let self = self else { return }
                     self.editorView.isMosaicEnabled = !self.editorView.isMosaicEnabled
+                    if self.editorView.isMosaicEnabled {
+                        self.editorView.isDrawEnabled = false
+                    }
+                    self.editorView.isStickerEnabled = !self.editorView.isMosaicEnabled
                 }))
                 alert.addAction(.init(title: "马赛克涂抹设置", style: .default, handler: { [weak self] _ in
                     guard let self = self else { return }
@@ -546,14 +666,15 @@ class TestEditorViewController: BaseViewController {
     
     @objc
     func openPickerController() {
-        let config = PickerConfiguration()
+        var config = PickerConfiguration()
         config.selectMode = .single
         config.selectOptions = [.gifPhoto, .video]
         config.previewView.bottomView.isHiddenOriginalButton = true
-        hx.present(
+        let vc = hx.present(
             picker: config
-        ) { [weak self] result, _ in
+        ) { [weak self] result, pickerController in
             guard let self = self else { return }
+            pickerController.dismiss(true)
             let asset = result.photoAssets.first
             self.view.hx.show()
             asset?.getAssetURL {
@@ -561,35 +682,62 @@ class TestEditorViewController: BaseViewController {
                 switch $0 {
                 case .success(let urlResult):
                     if urlResult.mediaType == .photo {
-                        let imageData = try? Data(contentsOf: urlResult.url)
                         self.image = UIImage(contentsOfFile: urlResult.url.path)
+                        let imageData = try? Data(contentsOf: urlResult.url)
                         self.editorView.setImageData(imageData)
+
 //                        let image = UIImage(contentsOfFile: urlResult.url.path)
 //                        self.editorView.setImage(image)
 //                        self.editorView.updateImage(image)
+                        self.setmosaicImage()
                     }else {
                         self.videoURL = urlResult.url
                         let avAsset = AVAsset(url: urlResult.url)
                         let coverImage = avAsset.hx.getImage(at: 0.1)
                         self.editorView.setAVAsset(avAsset, coverImage: coverImage)
-                        self.editorView.loadVideo()
+                        self.editorView.loadVideo(isPlay: true)
                     }
+                    self.isShowVideoControl = false
                 default:
                     break
                 }
+            }
+        }
+        vc.autoDismiss = false
+    }
+    
+    lazy var context: CIContext = .init()
+    
+    func setmosaicImage() {
+        DispatchQueue.global(qos: .userInteractive).async {
+            guard let cgImage = self.image?.cgImage else {
+                return
+            }
+            let ciImage = CIImage(cgImage: cgImage)
+            let screenScale = 20 / max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+            let scale = ciImage.extent.width * screenScale
+            let image = ciImage.applyingFilter("CIPixellate", parameters: [kCIInputScaleKey: scale])
+            guard let mosaicImage = self.context.createCGImage(image, from: image.extent) else {
+                return
+            }
+            DispatchQueue.main.async {
+                self.editorView.mosaicCGImage = mosaicImage
             }
         }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        #if canImport(GDPerformanceView_Swift)
+        PerformanceMonitor.shared().show()
+        #endif
         if editorView.state == .edit {
             navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+        super.viewWillDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
     
@@ -602,6 +750,40 @@ class TestEditorViewController: BaseViewController {
     
     deinit {
         print("deinit: \(self)")
+    }
+}
+
+extension TestEditorViewController: EditorViewDelegate {
+    
+    func editorView(_ editorView: EditorView, shouldRemoveStickerItem itemView: EditorStickersItemBaseView) {
+        for (index, player) in audioPlayers.enumerated() where player.itemView == itemView {
+            audioPlayers.remove(at: index)
+        }
+    }
+    
+    func editorView(_ editorView: EditorView, resetItemViews itemViews: [EditorStickersItemBaseView]) {
+        for itemView in itemViews {
+            for player in audioPlayers where itemView.audio == player.audio {
+                player.itemView = itemView
+                break
+            }
+        }
+    }
+    
+    func editorView(_ editorView: EditorView, videoDidPlayAt time: CMTime) {
+        delayHideVideoControl()
+    }
+    func editorView(_ editorView: EditorView, videoDidPauseAt time: CMTime) {
+        delayHideVideoControl()
+    }
+    
+    func editorView(_ editorView: EditorView, videoControlDidChangedTimeAt time: TimeInterval, for event: VideoControlEvent) {
+        if event == .touchDown {
+            videoTimer?.invalidate()
+            videoTimer = nil
+        }else if event == .touchUpInSide {
+            delayHideVideoControl()
+        }
     }
 }
 
@@ -626,5 +808,322 @@ extension UIViewController {
             )
         }
         present(alert, animated: true)
+    }
+}
+
+class TestPlayAuido: NSObject, AVAudioPlayerDelegate {
+    
+    lazy var player: AVAudioPlayer? = {
+        let player = try? AVAudioPlayer(contentsOf: audio.url.url!)
+        player?.delegate = self
+        player?.prepareToPlay()
+        return player
+    }()
+    
+    lazy var audioLrc: TestEditorAudioLrc = {
+        let audioLrc = TestEditorAudioLrc(audioURL: audio.url.url!, lrc: lyric)
+        audioLrc.parseLrc()
+        return audioLrc
+    }()
+    
+    var audio: EditorStickerAudio
+    let lyric: String
+    var itemView: EditorStickersItemBaseView
+    var musicURL: VideoEditorMusicURL?
+    
+    weak var timer: Timer?
+    
+    init(
+        _ audio: EditorStickerAudio,
+        lyric: String,
+        itemView: EditorStickersItemBaseView
+    ) {
+        self.audio = audio
+        self.lyric = lyric
+        self.itemView = itemView
+        super.init()
+        startPlay()
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        if flag {
+            player.currentTime = 0
+            player.play()
+        }
+    }
+    
+    func startPlay() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { [weak self] _ in
+            guard let currentTime = self?.player?.currentTime,
+                  let lyric = self?.audioLrc.lyric(atTime: currentTime)?.lyric else {
+                return
+            }
+            self?.audio.text = lyric
+        })
+        player?.play()
+    }
+    
+    func stopPlay() {
+        timer?.invalidate()
+        player?.stop()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        print("deinit: \(self)")
+        stopPlay()
+    }
+    
+    static func getVideoTime(forVideo duration: String) -> TimeInterval {
+        var m = 0
+        var s = 0
+        var ms = 0
+        let components = duration.components(
+            separatedBy: CharacterSet.init(charactersIn: ":.")
+        )
+        if components.count >= 2 {
+            m = Int(components[0]) ?? 0
+            s = Int(components[1]) ?? 0
+            if components.count == 3 {
+                ms = Int(components[2]) ?? 0
+            }
+        }else {
+            s = Int(INT_MAX)
+        }
+        return TimeInterval(CGFloat(m * 60) + CGFloat(s) + CGFloat(ms) * 0.001)
+    }
+}
+
+class TestEditorAudioLrc: Equatable, Codable {
+    let audioURL: URL
+    let lrc: String
+    init(
+        audioURL: URL,
+        lrc: String
+    ) {
+        self.audioURL = audioURL
+        self.lrc = lrc
+    }
+    
+    var isLoading: Bool = false
+    var isSelected: Bool = false
+    
+    var localAudioPath: String?
+    var metaData: [String: String] = [:]
+    var lyrics: [TestEditorLyric] = []
+    var lyricIsEmpty = false
+    var songName: String? { metaData["ti"] }
+    var singer: String? { metaData["ar"] }
+    var time: TimeInterval? {
+        if let time = metaData["t_time"]?.replacingOccurrences(
+            of: "(",
+            with: "").replacingOccurrences(
+                of: ")",
+                with: ""
+            ) {
+            return TestPlayAuido.getVideoTime(forVideo: time)
+        }else if let lastLyric = lyrics.last {
+            return lastLyric.startTime + 5
+        }
+        return nil
+    }
+    
+    func parseLrc() {
+        let lines = lrc.replacingOccurrences(
+            of: "\r",
+            with: ""
+        ).components(
+            separatedBy: "\n"
+        )
+        let tags = ["ti", "ar", "al", "by", "offset", "t_time"]
+        let pattern1 = "(\\[\\d{0,2}:\\d{0,2}([.|:]\\d{0,3})?\\])"
+        let pattern2 = "(\\[\\d{0,2}:\\d{0,2}([.|:]\\d{0,3})?\\])+"
+        let regular1 = try? NSRegularExpression(
+            pattern: pattern1,
+            options: .caseInsensitive
+        )
+        let regular2 = try? NSRegularExpression(
+            pattern: pattern2,
+            options: .caseInsensitive
+        )
+        for line in lines {
+            if line.count <= 1 {
+                continue
+            }
+            var isTag = false
+            for tag in tags where metaData[tag] == nil {
+                let prefix = "[" + tag + ":"
+                if line.hasPrefix(prefix) && line.hasSuffix("]") {
+                    let loc = prefix.count
+                    let len = line.count - 2
+                    let info = line[loc...len]
+                    metaData[tag] = info
+                    isTag = true
+                    break
+                }
+            }
+            if isTag {
+                continue
+            }
+            if let reg1 = regular1,
+               let reg2 = regular2 {
+                let matches = reg1.matches(
+                    in: line,
+                    options: .reportProgress,
+                    range: NSRange(location: 0, length: line.count)
+                )
+                let modifyString = reg2.stringByReplacingMatches(
+                    in: line,
+                    options: .reportProgress,
+                    range: NSRange(location: 0, length: line.count),
+                    withTemplate: ""
+                ).trimmingCharacters(in: .whitespacesAndNewlines)
+                for result in matches {
+                    if result.range.location == NSNotFound {
+                        continue
+                    }
+                    var sec = line[
+                        result.range.location...(
+                            result.range.location + result.range.length - 1
+                        )
+                    ]
+                    sec = sec.replacingOccurrences(of: "[", with: "")
+                    sec = sec.replacingOccurrences(of: "]", with: "")
+                    if sec.count == 0 {
+                        continue
+                    }
+                    let lyric = TestEditorLyric.init(lyric: modifyString)
+                    lyric.update(second: sec, isEnd: false)
+                    lyrics.append(lyric)
+                }
+                if matches.isEmpty {
+                    let lyric = TestEditorLyric.init(lyric: line)
+                    lyrics.append(lyric)
+                }
+            }
+        }
+        let sorted = lyrics.sorted { (lyric1, lyric2) -> Bool in
+            lyric1.startTime < lyric2.startTime
+        }
+        var first: TestEditorLyric?
+        var second: TestEditorLyric?
+        for (index, lyric) in sorted.enumerated() {
+            first = lyric
+            if index + 1 >= sorted.count {
+                if let time = metaData["t_time"]?.replacingOccurrences(
+                    of: "(",
+                    with: "").replacingOccurrences(
+                        of: ")",
+                        with: ""
+                    ) {
+                    first?.update(second: time, isEnd: true)
+                }else {
+                    first?.update(second: "60000:50:00", isEnd: true)
+                }
+            }else {
+                second = sorted[index + 1]
+                first?.update(second: second!.second, isEnd: true)
+            }
+        }
+        lyrics = sorted
+        if lyrics.isEmpty {
+            lyricIsEmpty = true
+            lyrics.append(.init(lyric: "此歌曲暂无歌词，请您欣赏"))
+        }
+    }
+     
+    func lyric(
+        atTime time: TimeInterval
+    ) -> TestEditorLyric? {
+        if lyricIsEmpty {
+            return .init(lyric: "此歌曲暂无歌词，请您欣赏")
+        }
+        for lyric in lyrics {
+            if lyric.second.isEmpty || lyric.second == "60000:50:00" {
+                continue
+            }
+            if time >= lyric.startTime
+                && time <= lyric.endTime {
+                return lyric
+            }
+        }
+        return nil
+    }
+    
+    func lyric(
+        atRange range: NSRange
+    ) -> [TestEditorLyric] {
+        if range.location == NSNotFound || lyrics.isEmpty {
+            return []
+        }
+        let count = lyrics.count
+        let loc = range.location
+        var len = range.length
+        
+        if loc >= count {
+            return []
+        }
+        if count - loc < len {
+            len = count - loc
+        }
+        return Array(lyrics[loc..<(loc + len)])
+    }
+    func lyric(
+        atLine line: Int
+    ) -> TestEditorLyric? {
+        lyric(
+            atRange:
+                NSRange(
+                    location: line,
+                    length: 1
+                )
+        ).first
+    }
+    
+    public static func == (
+        lhs: TestEditorAudioLrc,
+        rhs: TestEditorAudioLrc
+    ) -> Bool {
+        lhs === rhs
+    }
+}
+
+class TestEditorLyric: Equatable, Codable {
+    
+    /// 歌词
+    let lyric: String
+    
+    var second: String = ""
+    var startTime: TimeInterval = 0
+    var endTime: TimeInterval = 0
+    init(lyric: String) {
+        self.lyric = lyric
+    }
+    
+    func update(
+        second: String,
+        isEnd: Bool
+    ) {
+        if !second.isEmpty {
+            self.second = second
+        }
+        let time = TestPlayAuido.getVideoTime(
+            forVideo: self.second
+        )
+        if isEnd {
+            endTime = time
+        }else {
+            startTime = time
+        }
+    }
+    
+    static func == (
+        lhs: TestEditorLyric,
+        rhs: TestEditorLyric
+    ) -> Bool {
+        lhs === rhs
     }
 }

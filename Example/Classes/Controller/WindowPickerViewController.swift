@@ -308,7 +308,7 @@ class WindowPickerViewController: UIViewController {
             picker: wxConfig,
             selectedAssets: pickerView.selectedAssets
         ) { [weak self] result, pickerController in
-            pickerController.dismiss(animated: true) {
+            pickerController.dismiss(true) {
                 let pickerResultVC = PickerResultViewController()
                 pickerResultVC.config = PhotoTools.getWXPickerConfig()
                 pickerResultVC.selectedAssets = result.photoAssets

@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                   = "HXPHPicker-Lite"
-    spec.version                = "1.4.6"
+    spec.version                = "2.0.0"
     spec.summary                = "Photo selector - Support LivePhoto, GIF selection"
     spec.homepage               = "https://github.com/SilenceLove/HXPHPicker"
     spec.license                = { :type => "MIT", :file => "LICENSE" }
@@ -19,15 +19,40 @@ Pod::Spec.new do |spec|
     end
   
     spec.subspec 'Picker' do |picker|
-        picker.source_files   = "Sources/HXPHPicker/Picker/**/*.{swift}"
-        picker.dependency 'HXPHPicker-Lite/Core'
-        picker.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_PICKER' }
+        picker.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Picker/**/*.{swift}"
+            lite.dependency 'HXPHPicker-Lite/Core'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_PICKER' }
+        end
+        picker.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker-Lite/Picker/Lite'
+            kf.dependency 'Kingfisher'
+        end
     end
   
     spec.subspec 'Editor' do |editor|
-        editor.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
-        editor.dependency 'HXPHPicker-Lite/Core'
-        editor.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
+        editor.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Editor/**/*.{swift}"
+            lite.dependency 'HXPHPicker-Lite/EditorView/Lite'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR' }
+        end
+        editor.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker-Lite/EditorView/KF'
+            kf.dependency 'HXPHPicker-Lite/Editor/Lite'
+            kf.dependency 'Kingfisher'
+        end
+    end
+    
+    spec.subspec 'EditorView' do |editor_view|
+        editor_view.subspec 'Lite' do |lite|
+            lite.source_files   = "Sources/HXPHPicker/Editor+View/**/*.{swift}"
+            lite.dependency 'HXPHPicker-Lite/Core'
+            lite.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'HXPICKER_ENABLE_EDITOR_VIEW' }
+        end
+        editor_view.subspec 'KF' do |kf|
+            kf.dependency 'HXPHPicker-Lite/EditorView/Lite'
+            kf.dependency 'Kingfisher'
+        end
     end
     
     spec.subspec 'Camera' do |camera|
@@ -43,9 +68,21 @@ Pod::Spec.new do |spec|
         end
     end
     
+    spec.subspec 'Lite' do |lite|
+        lite.dependency 'HXPHPicker-Lite/Picker/Lite'
+        lite.dependency 'HXPHPicker-Lite/Editor/Lite'
+        lite.dependency 'HXPHPicker-Lite/Camera/Lite'
+    end
+    
     spec.subspec 'Full' do |full|
         full.dependency 'HXPHPicker-Lite/Picker'
         full.dependency 'HXPHPicker-Lite/Editor'
         full.dependency 'HXPHPicker-Lite/Camera'
+    end
+    
+    spec.subspec 'NoLocation' do |noLocation|
+        noLocation.dependency 'HXPHPicker-Lite/Picker'
+        noLocation.dependency 'HXPHPicker-Lite/Editor'
+        noLocation.dependency 'HXPHPicker-Lite/Camera/Lite'
     end
 end

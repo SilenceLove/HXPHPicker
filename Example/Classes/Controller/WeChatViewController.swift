@@ -186,7 +186,7 @@ class WeChatViewCell: UITableViewCell {
             pictureView.cancelRequest()
             pictureView.photoAsset = photoAsset
             if photoAsset.isGifAsset {
-                if let photoEdit = photoAsset.photoEdit {
+                if let photoEdit = photoAsset.photoEditedResult {
                     stateLb.text = photoEdit.imageType == .gif ? "GIF" : nil
                     stateMaskLayer.isHidden = photoEdit.imageType != .gif
                 }else {

@@ -12,6 +12,7 @@ extension EditorAdjusterView {
     struct CropFactor {
         let drawLayer: CALayer?
         let mosaicLayer: CALayer?
+        let stickersLayer: CALayer?
         let isCropImage: Bool
         let isRound: Bool
         let maskImage: UIImage?
@@ -19,9 +20,20 @@ extension EditorAdjusterView {
         let mirrorScale: CGPoint
         let centerRatio: CGPoint
         let sizeRatio: CGPoint
+        let waterSizeRatio: CGPoint
+        let waterCenterRatio: CGPoint
         
         var allowCroped: Bool {
-            !(!isCropImage && !isRound && maskImage == nil && mirrorScale.x * mirrorScale.y > 0 && drawLayer == nil && mosaicLayer == nil)
+            if isEmpty {
+                return false
+            }
+            return !(!isCropImage &&
+              !isRound &&
+              maskImage == nil &&
+              mirrorScale.x * mirrorScale.y > 0 &&
+              drawLayer == nil &&
+              mosaicLayer == nil &&
+              stickersLayer == nil)
         }
         
         var isClip: Bool {
@@ -52,6 +64,14 @@ extension EditorAdjusterView {
             }
             return true
         }
+        
+        var isEmpty: Bool {
+            drawLayer == nil && mosaicLayer == nil && stickersLayer == nil && !isCropImage && !isRound && maskImage == nil && angle == 0 && mirrorScale == .zero && centerRatio == .zero && sizeRatio == .zero && waterSizeRatio == .zero && waterCenterRatio == .zero
+        }
+        
+        static var empty: CropFactor {
+            .init(drawLayer: nil, mosaicLayer: nil, stickersLayer: nil, isCropImage: false, isRound: false, maskImage: nil, angle: 0, mirrorScale: .zero, centerRatio: .zero, sizeRatio: .zero, waterSizeRatio: .zero, waterCenterRatio: .zero)
+        }
     }
     
     var isCropRund: Bool {
@@ -78,43 +98,50 @@ extension EditorAdjusterView {
         let cropFactor = CropFactor(
             drawLayer: contentView.drawView.count > 0 ? contentView.drawView.layer : nil,
             mosaicLayer: contentView.mosaicView.count > 0 ? contentView.mosaicView.layer : nil,
+            stickersLayer: contentView.stickerView.count > 0 ? contentView.stickerView.layer : nil,
             isCropImage: canReset,
             isRound: isCropRund,
             maskImage: maskImage,
             angle: currentAngle,
             mirrorScale: currentMirrorScale,
             centerRatio: cropRatio.centerRatio,
-            sizeRatio: cropRatio.sizeRatio
+            sizeRatio: cropRatio.sizeRatio,
+            waterSizeRatio: .zero,
+            waterCenterRatio: .zero
         )
         return cropFactor.allowCroped
     }
     
-    func cropImage(completion: @escaping (Result<EditResult.Image, EditorError>) -> Void) {
+    func cropImage(completion: @escaping (Result<ImageEditedResult, EditorError>) -> Void) {
         if !DispatchQueue.isMain {
             DispatchQueue.main.async {
                 self.cropImage(completion: completion)
             }
             return
         }
+        deselectedSticker()
         let image = self.image
         let cropRect = getCropRect()
         let cropRatio = getCropOption()
         let cropFactor = CropFactor(
             drawLayer: contentView.drawView.count > 0 ? contentView.drawView.layer : nil,
             mosaicLayer: contentView.mosaicView.count > 0 ? contentView.mosaicView.layer : nil,
+            stickersLayer: contentView.stickerView.count > 0 ? contentView.stickerView.layer : nil,
             isCropImage: canReset,
             isRound: isCropRund,
             maskImage: maskImage,
             angle: currentAngle,
             mirrorScale: currentMirrorScale,
             centerRatio: cropRatio.centerRatio,
-            sizeRatio: cropRatio.sizeRatio
+            sizeRatio: cropRatio.sizeRatio,
+            waterSizeRatio: .zero,
+            waterCenterRatio: .zero
         )
         if !cropFactor.allowCroped {
             completion(.failure(EditorError.error(type: .nothingProcess, message: "没有需要处理的操作")))
             return
         }
-        DispatchQueue.global().async {
+        DispatchQueue.global(qos: .userInteractive).async {
             if self.contentType == .image {
                 self.cropImage(
                     image,
@@ -176,7 +203,7 @@ extension EditorAdjusterView {
         _ image: UIImage?,
         rect: CGRect,
         cropFactor: CropFactor,
-        completion: @escaping (Result<EditResult.Image, EditorError>) -> Void
+        completion: @escaping (Result<ImageEditedResult, EditorError>) -> Void
     ) {
         guard var inputImage = image else {
             DispatchQueue.main.async {
@@ -279,10 +306,10 @@ extension EditorAdjusterView {
         _ option: (images: [UIImage], delays: [Double], duration: Double),
         overlayImage: UIImage?,
         cropFactor: CropFactor,
-        completion: @escaping (Result<EditResult.Image, EditorError>) -> Void
+        completion: @escaping (Result<ImageEditedResult, EditorError>) -> Void
     ) {
         let group = DispatchGroup()
-        let queue = DispatchQueue(label: "hxphpicker.editorview.cropAmimateImage")
+        let queue = DispatchQueue(label: "hxphpicker.editorview.cropAmimateImage", qos: .utility)
         
         var images: [UIImage] = []
         var delays: [Double] = []
@@ -341,7 +368,7 @@ extension EditorAdjusterView {
                 }
             }
         }
-        group.notify(queue: .global()) {
+        group.notify(queue: .global(qos: .userInitiated)) {
             let urlConfig: EditorURLConfig
             if let config = self.urlConfig {
                 urlConfig = config
@@ -399,33 +426,25 @@ extension EditorAdjusterView {
         compressionQuality: CGFloat?,
         completion: @escaping (Data?) -> Void
     ) {
-        let serialQueue = DispatchQueue(label: "hxphpicker.editorview.compressImageDataQueue", qos: .utility, attributes: [], autoreleaseFrequency: .workItem, target: nil)
-        serialQueue.async {
-            autoreleasepool {
-                if let compressionQuality = compressionQuality {
-                    if let data = PhotoTools.imageCompress(
-                        imageData,
-                        compressionQuality: compressionQuality
-                    ) {
-                        completion(data)
-                        return
-                    }
-                }
-                completion(imageData)
-            }
+        PhotoTools.compressImageData(
+            imageData,
+            compressionQuality: compressionQuality,
+            queueLabel: "hxphpicker.editorview.compressImageDataQueue"
+        ) {
+            completion($0)
         }
     }
     
     fileprivate func getImageData(_ image: UIImage, completion: @escaping (Data?) -> Void) {
-        let serialQueue = DispatchQueue(label: "hxphpicker.editor.cropImageQueue", qos: .utility, attributes: [], autoreleaseFrequency: .workItem, target: nil)
-        serialQueue.async {
-            autoreleasepool {
-                guard let imageData = PhotoTools.getImageData(for: image) else {
-                    completion(nil)
-                    return
-                }
-                completion(imageData)
+        PhotoTools.getImageData(
+            image,
+            queueLabel: "hxphpicker.editor.cropImageQueue"
+        ) {
+            guard let imageData = $0 else {
+                completion(nil)
+                return
             }
+            completion(imageData)
         }
     }
 }
@@ -441,6 +460,11 @@ extension EditorAdjusterView {
         if let layer = cropFactor.mosaicLayer,
            let mosaicImage = layer.convertedToImage() {
             images.append(mosaicImage)
+            layer.contents = nil
+        }
+        if let layer = cropFactor.stickersLayer,
+           let stickersImage = layer.convertedToImage() {
+            images.append(stickersImage)
             layer.contents = nil
         }
         return UIImage.merge(images: images)?.scaleToFillSize(size: imageSize)

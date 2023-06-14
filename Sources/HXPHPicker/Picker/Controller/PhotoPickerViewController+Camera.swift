@@ -20,7 +20,7 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
         }
         #if HXPICKER_ENABLE_CAMERA
         switch config.cameraType {
-        case .custom(let camerConfig):
+        case .custom(var camerConfig):
             let type: CameraController.CaptureType
             if pickerController.config.selectOptions.isPhoto &&
                 pickerController.config.selectOptions.isVideo {
@@ -31,7 +31,6 @@ extension PhotoPickerViewController: UIImagePickerControllerDelegate, UINavigati
                 type = .video
             }
             camerConfig.languageType = pickerController.config.languageType
-            camerConfig.appearanceStyle = pickerController.config.appearanceStyle
             let vc = CameraController(
                 config: camerConfig,
                 type: type,

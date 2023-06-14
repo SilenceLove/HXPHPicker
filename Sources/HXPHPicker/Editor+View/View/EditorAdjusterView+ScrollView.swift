@@ -15,6 +15,7 @@ extension EditorAdjusterView: UIScrollViewDelegate {
         frameView.stopControlTimer()
         if !isMaskBgViewShowing {
             frameView.hideMaskBgView()
+            frameView.hideVideoSilder(true)
         }
     }
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
@@ -68,6 +69,7 @@ extension EditorAdjusterView: UIScrollViewDelegate {
         if frameView.inControlTimer {
             frameView.startControlTimer()
         }else {
+            delegate?.editorAdjusterView(didEndEditing: self)
             frameView.startShowMaskBgTimer()
         }
     }

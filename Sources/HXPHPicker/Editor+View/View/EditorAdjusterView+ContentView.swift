@@ -51,10 +51,6 @@ extension EditorAdjusterView {
             contentView.isMosaicEnabled = newValue
         }
     }
-    var mosaicImageWidth: CGFloat {
-        get { contentView.mosaicImageWidth }
-        set { contentView.mosaicImageWidth = newValue }
-    }
     var mosaicWidth: CGFloat {
         get { contentView.mosaicWidth }
         set { contentView.mosaicWidth = newValue }
@@ -88,6 +84,9 @@ extension EditorAdjusterView {
         }
     }
     
+    var stickerCount: Int {
+        contentView.stickerCount
+    }
     var isStickerShowTrash: Bool {
         get { contentView.isStickerShowTrash }
         set { contentView.isStickerShowTrash = newValue }
@@ -96,32 +95,115 @@ extension EditorAdjusterView {
     func addSticker(
         _ item: EditorStickerItem,
         isSelected: Bool = false
-    ) {
+    ) -> EditorStickersItemBaseView {
         contentView.addSticker(item, isSelected: isSelected)
+    }
+    
+    func removeSticker(at itemView: EditorStickersItemBaseView) {
+        contentView.removeSticker(at: itemView)
+    }
+    
+    func removeAllSticker() {
+        contentView.removeAllSticker()
+    }
+    
+    func updateSticker(
+        _ text: EditorStickerText
+    ) {
+        contentView.updateSticker(text)
     }
     
     func deselectedSticker() {
         contentView.deselectedSticker()
     }
+    func showStickersView() {
+        contentView.showStickersView()
+    }
+    
+    func hideStickersView() {
+        contentView.hideStickersView()
+    }
+    
+    var isVideoPlayToEndTimeAutoPlay: Bool {
+        get { contentView.isVideoPlayToEndTimeAutoPlay}
+        set { contentView.isVideoPlayToEndTimeAutoPlay = newValue }
+    }
 }
 
 extension EditorAdjusterView: EditorContentViewDelegate {
+    func contentView(rotateVideo contentView: EditorContentView) {
+        resetVideoRotate(true)
+    }
+    func contentView(resetVideoRotate contentView: EditorContentView) {
+        resetVideoRotate(false)
+    }
+    func contentView(_ contentView: EditorContentView, shouldAddAudioItem audio: EditorStickerAudio) -> Bool {
+        delegate?.editorAdjusterView(self, shouldAddAudioItem: audio) ?? true
+    }
+    
     func contentView(_ contentView: EditorContentView, videoDidPlayAt time: CMTime) {
+        frameView.videoSliderView.isPlaying = true
         delegate?.editorAdjusterView(self, videoDidPlayAt: time)
     }
     func contentView(_ contentView: EditorContentView, videoDidPauseAt time: CMTime) {
+        frameView.videoSliderView.isPlaying = false
         delegate?.editorAdjusterView(self, videoDidPauseAt: time)
     }
     func contentView(videoReadyForDisplay contentView: EditorContentView) {
         delegate?.editorAdjusterView(videoReadyForDisplay: self)
         updateControlScaleSize()
     }
+    func contentView(resetPlay contentView: EditorContentView) {
+        delegate?.editorAdjusterView(videoResetPlay: self)
+        frameView.videoSliderView.setPlayDuration(0, isAnimation: false)
+    }
+    func contentView(_ contentView: EditorContentView, isPlaybackLikelyToKeepUp: Bool) {
+        delegate?.editorAdjusterView(self, videoIsPlaybackLikelyToKeepUp: isPlaybackLikelyToKeepUp)
+    }
+    func contentView(_ contentView: EditorContentView, readyToPlay duration: CMTime) {
+        if let startTime = videoStartTime, let endTime = videoEndTime {
+            frameView.videoSliderView.videoDuration = endTime.seconds - startTime.seconds
+        }else if let startTime = videoStartTime {
+            frameView.videoSliderView.videoDuration = duration.seconds - startTime.seconds
+        }else if let endTime = videoEndTime {
+            frameView.videoSliderView.videoDuration = endTime.seconds
+        }else {
+            frameView.videoSliderView.videoDuration = duration.seconds
+        }
+        delegate?.editorAdjusterView(self, videoReadyToPlay: duration)
+    }
+    func contentView(_ contentView: EditorContentView, didChangedBuffer time: CMTime) {
+        if let startTime = videoStartTime, let endTime = videoEndTime {
+            frameView.videoSliderView.bufferDuration = min(max(0, time.seconds - startTime.seconds), endTime.seconds - startTime.seconds)
+        }else if let startTime = videoStartTime {
+            let videoDuration = videoDuration.seconds
+            frameView.videoSliderView.bufferDuration = min(max(0, time.seconds - startTime.seconds), videoDuration - startTime.seconds)
+        }else if let endTime = videoEndTime {
+            frameView.videoSliderView.bufferDuration = min(time.seconds, endTime.seconds)
+        }else {
+            frameView.videoSliderView.bufferDuration = time.seconds
+        }
+        delegate?.editorAdjusterView(self, videoDidChangedBufferAt: time)
+    }
+    func contentView(_ contentView: EditorContentView, didChangedTimeAt time: CMTime) {
+        var duration: Double
+        if let startTime = videoStartTime, let _ = videoEndTime {
+            duration = time.seconds - startTime.seconds
+        }else if let startTime = videoStartTime {
+            let videoDuration = videoDuration.seconds
+            duration = (videoDuration - startTime.seconds) * ((time.seconds - startTime.seconds) / videoDuration)
+        }else {
+            duration = time.seconds
+        }
+        frameView.videoSliderView.setPlayDuration(duration, isAnimation: true)
+        delegate?.editorAdjusterView(self, videoDidChangedTimeAt: time)
+    }
     
     func contentView(drawViewBeganDraw contentView: EditorContentView) {
-        
+        delegate?.editorAdjusterView(contentViewBeganDraw: self)
     }
     func contentView(drawViewEndDraw contentView: EditorContentView) {
-        
+        delegate?.editorAdjusterView(contentViewEndDraw: self)
     }
     func contentView(
         _ contentView: EditorContentView,
@@ -153,8 +235,20 @@ extension EditorAdjusterView: EditorContentViewDelegate {
         return maxScale
     }
     
-    func contentView(_ contentView: EditorContentView, updateStickerText item: EditorStickerItem) {
-        
+    func contentView(_ contentView: EditorContentView, didTapSticker itemView: EditorStickersItemView) {
+        delegate?.editorAdjusterView(self, didTapStickerItem: itemView)
+    }
+    
+    func contentView(_ contentView: EditorContentView, didRemovedSticker itemView: EditorStickersItemView) {
+        delegate?.editorAdjusterView(self, didRemoveItem: itemView)
+    }
+    
+    func contentView(_ contentView: EditorContentView, shouldRemoveSticker itemView: EditorStickersItemView) {
+        delegate?.editorAdjusterView(self, shouldRemoveItem: itemView)
+    }
+    
+    func contentView(_ contentView: EditorContentView, resetItemViews itemViews: [EditorStickersItemBaseView]) {
+        delegate?.editorAdjusterView(self, resetItemViews: itemViews)
     }
     
     func contentView(_ contentView: EditorContentView, stickerItemCenter stickersView: EditorStickersView) -> CGPoint? {
@@ -172,5 +266,7 @@ extension EditorAdjusterView: EditorContentViewDelegate {
 //        }
         return frameView.convert(frameView.controlView.center, to: stickersView)
     }
-    
+    func contentView(_ contentView: EditorContentView, videoApplyFilter sourceImage: CIImage, at time: CMTime) -> CIImage {
+        delegate?.editorAdjusterView(self, videoApplyFilter: sourceImage, at: time) ?? sourceImage
+    }
 }

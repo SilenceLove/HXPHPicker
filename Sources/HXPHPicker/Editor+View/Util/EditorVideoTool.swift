@@ -8,41 +8,61 @@
 import UIKit
 import AVKit
 
-class EditorVideoTool {
+public class EditorVideoTool {
     
     struct Watermark {
         let layers: [CALayer]
         let images: [UIImage]
     }
     
-    struct Sticker {
-        
-    }
-    
     let avAsset: AVAsset
     let outputURL: URL
     let factor: EditorVideoFactor
     let watermark: Watermark
+    let stickers: [EditorStickersView.Info]
     let cropFactor: EditorAdjusterView.CropFactor
     let maskType: EditorView.MaskType
+    let filter: VideoCompositionFilter?
     
     init(
         avAsset: AVAsset,
         outputURL: URL,
         factor: EditorVideoFactor,
         watermark: Watermark,
+        stickers: [EditorStickersView.Info],
         cropFactor: EditorAdjusterView.CropFactor,
-        maskType: EditorView.MaskType
+        maskType: EditorView.MaskType,
+        filter: VideoCompositionFilter? = nil
     ) {
         self.avAsset = avAsset
         self.outputURL = outputURL
         self.factor = factor
         self.watermark = watermark
+        self.stickers = stickers
         self.cropFactor = cropFactor
         self.maskType = maskType
+        self.filter = filter
     }
+    
+    public init(
+        avAsset: AVAsset,
+        outputURL: URL,
+        factor: EditorVideoFactor,
+        maskType: EditorView.MaskType,
+        filter: VideoCompositionFilter?
+    ) {
+        self.avAsset = avAsset
+        self.outputURL = outputURL
+        self.factor = factor
+        self.watermark = .init(layers: [], images: [])
+        self.stickers = []
+        self.cropFactor = .empty
+        self.maskType = maskType
+        self.filter = filter
+    }
+    
    
-    func export(
+    public func export(
         progressHandler: ((CGFloat) -> Void)? = nil,
         completionHandler: @escaping (Result<URL, EditorError>) -> Void
     ) {
@@ -51,7 +71,7 @@ class EditorVideoTool {
         exprotHandler()
     }
     
-    func cancelExport() {
+    public func cancelExport() {
         progressTimer?.invalidate()
         progressTimer = nil
         exportSession?.cancelExport()
@@ -61,7 +81,7 @@ class EditorVideoTool {
     private var exportSession: AVAssetExportSession?
     private var completionHandler: ((Result<URL, EditorError>) -> Void)?
     private var progressHandler: ((CGFloat) -> Void)?
-    private var progressTimer: Timer?
+    private weak var progressTimer: Timer?
     
     private func exprotHandler() {
         do {
@@ -83,9 +103,6 @@ class EditorVideoTool {
                     )
                 )
             }
-            try insertVideoTrack(for: videoTrack)
-            
-            var addVideoComposition = false
             let animationBeginTime: CFTimeInterval
             if timeRang == .zero {
                 animationBeginTime = AVCoreAnimationBeginTimeAtZero
@@ -94,6 +111,13 @@ class EditorVideoTool {
                     AVCoreAnimationBeginTimeAtZero :
                     timeRang.start.seconds
             }
+            try insertVideoTrack(
+                for: videoTrack,
+                beginTime: animationBeginTime,
+                videoDuration: timeRang == .zero ? videoTotalSeconds : timeRang.duration.seconds
+            )
+            
+            var addVideoComposition = false
             if videoComposition.renderSize.width > 0 {
                 addVideoComposition = true
             }
@@ -179,7 +203,11 @@ class EditorVideoTool {
         return mixComposition
     }()
     
-    func insertVideoTrack(for videoTrack: AVAssetTrack) throws {
+    func insertVideoTrack(
+        for videoTrack: AVAssetTrack,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval
+    ) throws {
         let videoTimeRange = CMTimeRangeMake(
             start: .zero,
             duration: videoTrack.timeRange.duration
@@ -198,7 +226,11 @@ class EditorVideoTool {
         let renderSize = videoComposition.renderSize
         cropSize()
         videoComposition.customVideoCompositorClass = EditorVideoCompositor.self
-        let watermarkLayerTrackID = addWatermark(renderSize: renderSize)
+        let watermarkLayerTrackID = addWatermark(
+            renderSize: renderSize,
+            beginTime: beginTime,
+            videoDuration: videoDuration
+        )
         
         var newInstructions: [AVVideoCompositionInstructionProtocol] = []
         for instruction in videoComposition.instructions where instruction is AVVideoCompositionInstruction {
@@ -215,7 +247,8 @@ class EditorVideoTool {
                 videoOrientation: avAsset.videoOrientation,
                 watermark: watermark,
                 cropFactor: cropFactor,
-                maskType: maskType
+                maskType: maskType,
+                filter: filter
             )
             newInstructions.append(newInstruction)
         }
@@ -229,14 +262,15 @@ class EditorVideoTool {
                 videoOrientation: avAsset.videoOrientation,
                 watermark: watermark,
                 cropFactor: cropFactor,
-                maskType: maskType
+                maskType: maskType,
+                filter: filter
             )
             newInstructions.append(newInstruction)
         }
         
         videoComposition.instructions = newInstructions
         videoComposition.renderScale = 1
-        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: videoTrack.timeRange.duration.timescale)
+        videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30)
     }
     
     func cropSize() {
@@ -249,9 +283,11 @@ class EditorVideoTool {
     }
     
     func addWatermark(
-        renderSize: CGSize
+        renderSize: CGSize,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval
     ) -> CMPersistentTrackID? {
-        if watermark.images.isEmpty && watermark.layers.isEmpty {
+        if watermark.images.isEmpty && watermark.layers.isEmpty && stickers.isEmpty {
             return nil
         }
         let overlaySize = videoComposition.renderSize
@@ -275,35 +311,99 @@ class EditorVideoTool {
             drawLayer.contentsScale = UIScreen.main.scale
             bgLayer.addSublayer(drawLayer)
         }
-        if cropFactor.isClip {
-            let mirrorLayer = CALayer()
-            mirrorLayer.frame = bounds
-            overlaylayer.addSublayer(mirrorLayer)
-            let rotateLayer = CALayer()
-            rotateLayer.frame = bounds
-            mirrorLayer.addSublayer(rotateLayer)
+        for info in stickers {
+            let center = CGPoint(
+                x: info.frameScale.center.x * bounds.width,
+                y: info.frameScale.center.y * bounds.height
+            )
+            let size = CGSize(
+                width: info.frameScale.size.width * bounds.width,
+                height: info.frameScale.size.height * bounds.height
+            )
+            let mirrorCenter = CGPoint(
+                x: size.width / 2,
+                y: size.height / 2
+            )
+            let mirrorSize = size
             
+            let scaleCenter = CGPoint(
+                x: mirrorSize.width / 2,
+                y: mirrorSize.height / 2
+            )
+            
+            let mirrorTransform = CATransform3DMakeScale(info.mirrorScale.x, info.mirrorScale.y, 1)
+            let rotateTransform = CATransform3DMakeRotation(info.angel.radians, 0, 0, 1)
             let contentLayer = CALayer()
-            let width = renderSize.width * cropFactor.sizeRatio.x
-            let height = renderSize.height * cropFactor.sizeRatio.y
-            let centerX = renderSize.width * cropFactor.centerRatio.x
-            let centerY = renderSize.height * cropFactor.centerRatio.x
+            contentLayer.contentsScale = UIScreen.main.scale
+            let mirrorLayer = CALayer()
+            mirrorLayer.contentsScale = UIScreen.main.scale
+            contentLayer.addSublayer(mirrorLayer)
+            if let audioInfo = info.audio,
+               let audioContent = audioInfo.audio.contentsHandler?(audioInfo.audio),
+               !audioContent.texts.isEmpty {
+                let scaleSize = mirrorSize
+                let textLayer = textAnimationLayer(
+                    audioContent: audioContent,
+                    size: scaleSize,
+                    fontSize: audioInfo.fontSizeScale * bounds.width,
+                    animationScale: bounds.width / info.viewSize.width,
+                    animationSize: CGSize(
+                        width: audioInfo.animationSizeScale.width * bounds.width,
+                        height: audioInfo.animationSizeScale.height * bounds.height
+                    ),
+                    beginTime: beginTime,
+                    videoDuration: videoDuration
+                )
+                textLayer.anchorPoint = .init(x: 0.5, y: 0.5)
+                textLayer.frame = CGRect(origin: .zero, size: scaleSize)
+                textLayer.position = scaleCenter
+                mirrorLayer.addSublayer(textLayer)
+                textLayer.transform = CATransform3DMakeScale(info.scale, info.scale, 1)
+            }else if let image = info.image {
+                let scaleSize = CGSize(
+                    width: mirrorSize.width * info.scale,
+                    height: mirrorSize.height * info.scale
+                )
+                let imageLayer = animationLayer(
+                    image: image,
+                    beginTime: beginTime,
+                    videoDuration: videoDuration
+                )
+                imageLayer.anchorPoint = .init(x: 0.5, y: 0.5)
+                imageLayer.frame = CGRect(origin: .zero, size: scaleSize)
+                imageLayer.position = scaleCenter
+                imageLayer.shadowOpacity = 0.4
+                imageLayer.shadowOffset = CGSize(width: 0, height: -1)
+                mirrorLayer.addSublayer(imageLayer)
+            }
+            mirrorLayer.anchorPoint = .init(x: 0.5, y: 0.5)
+            mirrorLayer.frame = .init(origin: .zero, size: mirrorSize)
+            mirrorLayer.position = mirrorCenter
+            contentLayer.anchorPoint = .init(x: 0.5, y: 0.5)
+            contentLayer.frame = .init(origin: .zero, size: size)
+            contentLayer.position = center
+            bgLayer.addSublayer(contentLayer)
+            contentLayer.transform = rotateTransform
+            mirrorLayer.transform = mirrorTransform
+        }
+        if cropFactor.isClip {
+            let contentLayer = CALayer()
+            let width = renderSize.width * cropFactor.waterSizeRatio.x
+            let height = renderSize.height * cropFactor.waterSizeRatio.y
+            let centerX = renderSize.width * cropFactor.waterCenterRatio.x
+            let centerY = renderSize.height * cropFactor.waterCenterRatio.y
             let x = centerX - width / 2
             let y = centerY - height / 2
+            bgLayer.anchorPoint = .init(x: (x + overlaySize.width * 0.5) / bounds.width, y: (y + overlaySize.height * 0.5) / bounds.height)
             bgLayer.frame = .init(
                 x: -x, y: -y,
                 width: bounds.width, height: bounds.height
             )
             contentLayer.addSublayer(bgLayer)
-            contentLayer.frame = .init(
-                x: -(width - overlaySize.width) * 0.5,
-                y: -(height - overlaySize.height) * 0.5,
-                width: width, height: height
-            )
-            rotateLayer.addSublayer(contentLayer)
-            
-            mirrorLayer.transform = CATransform3DMakeScale(cropFactor.mirrorScale.x, cropFactor.mirrorScale.y, 1)
-            rotateLayer.transform = CATransform3DMakeRotation(cropFactor.angle.radians, 0, 0, 1)
+            contentLayer.frame = .init(origin: .zero, size: overlaySize)
+            bgLayer.transform = CATransform3DMakeRotation(cropFactor.angle.radians, 0, 0, 1)
+            overlaylayer.addSublayer(contentLayer)
+            contentLayer.transform = CATransform3DMakeScale(cropFactor.mirrorScale.x, cropFactor.mirrorScale.y, 1)
         }else {
             bgLayer.frame = bounds
             overlaylayer.addSublayer(bgLayer)
@@ -480,3 +580,170 @@ class EditorVideoTool {
     }()
 }
 
+fileprivate extension EditorVideoTool {
+    
+    func textAnimationLayer(
+        audioContent: EditorStickerAudioContent,
+        size: CGSize,
+        fontSize: CGFloat,
+        animationScale: CGFloat,
+        animationSize: CGSize,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval
+    ) -> CALayer {
+        var textSize = size
+        let bgLayer = CALayer()
+        let animationLayer = EditorAudioAnimationLayer(
+            hexColor: "#ffffff",
+            scale: animationScale
+        )
+        animationLayer.contentsScale = audioContent.contentsScale
+        animationLayer.animationBeginTime = beginTime
+        animationLayer.frame = CGRect(
+            x: 2 * animationScale,
+            y: 0,
+            width: animationSize.width,
+            height: animationSize.height
+        )
+        bgLayer.anchorPoint = .init(x: 0.5, y: 0.5)
+        bgLayer.contentsScale = audioContent.contentsScale
+        bgLayer.shadowOpacity = 0.4
+        bgLayer.shadowOffset = CGSize(width: 0, height: -1)
+        bgLayer.addSublayer(animationLayer)
+        animationLayer.startAnimation()
+        for (index, content) in audioContent.texts.enumerated() {
+            let textLayer = CATextLayer()
+            textLayer.string = content.text
+            let font = UIFont.boldSystemFont(ofSize: fontSize)
+            let lyricHeight = content.text.height(ofFont: font, maxWidth: textSize.width)
+            if textSize.height < lyricHeight {
+                textSize.height = lyricHeight + 1
+            }
+            textLayer.font = font
+            textLayer.fontSize = fontSize
+            textLayer.isWrapped = true
+            textLayer.truncationMode = .end
+            textLayer.contentsScale = audioContent.contentsScale
+            textLayer.alignmentMode = .left
+            textLayer.foregroundColor = UIColor.white.cgColor
+            textLayer.frame = CGRect(
+                origin: .init(x: 0, y: animationLayer.frame.maxY + 3 * animationScale),
+                size: textSize
+            )
+            textLayer.shadowOpacity = 0.4
+            textLayer.shadowOffset = CGSize(width: 0, height: -1)
+            if index > 0 || content.startTime > 0 {
+                textLayer.opacity = 0
+            }else {
+                textLayer.opacity = 1
+            }
+            bgLayer.addSublayer(textLayer)
+            if content.startTime > videoDuration {
+                continue
+            }
+            let startAnimation: CABasicAnimation?
+            if index > 0 || content.startTime > 0 {
+                startAnimation = CABasicAnimation(keyPath: "opacity")
+                startAnimation?.fromValue = 0
+                startAnimation?.toValue = 1
+                startAnimation?.duration = 0.01
+                if content.startTime == 0 {
+                    startAnimation?.beginTime = beginTime
+                }else {
+                    startAnimation?.beginTime = beginTime + content.startTime
+                }
+                startAnimation?.isRemovedOnCompletion = false
+                startAnimation?.fillMode = .forwards
+            }else {
+                startAnimation = nil
+            }
+            
+            if content.endTime + 0.01 > videoDuration {
+                if let start = startAnimation {
+                    textLayer.add(start, forKey: nil)
+                }
+                continue
+            }
+            let endAnimation = CABasicAnimation(keyPath: "opacity")
+            endAnimation.fromValue = 1
+            endAnimation.toValue = 0
+            endAnimation.duration = 0.01
+            if content.endTime == 0 {
+                endAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
+            }else {
+                if content.endTime + 0.01 < videoDuration {
+                    endAnimation.beginTime = beginTime + content.endTime
+                }else {
+                    endAnimation.beginTime = beginTime + videoDuration
+                }
+            }
+            endAnimation.isRemovedOnCompletion = false
+            endAnimation.fillMode = .forwards
+            
+            if audioContent.time < videoDuration {
+                let group = CAAnimationGroup()
+                if let start = startAnimation {
+                    group.animations = [start, endAnimation]
+                }else {
+                    group.animations = [endAnimation]
+                }
+                group.beginTime = beginTime
+                group.isRemovedOnCompletion = false
+                group.fillMode = .forwards
+                group.duration = audioContent.time
+                group.repeatCount = MAXFLOAT
+                textLayer.add(group, forKey: nil)
+            }else {
+                if let start = startAnimation {
+                    textLayer.add(start, forKey: nil)
+                }
+                textLayer.add(endAnimation, forKey: nil)
+            }
+        }
+        return bgLayer
+    }
+    
+    func animationLayer(
+        image: UIImage,
+        beginTime: CFTimeInterval,
+        videoDuration: TimeInterval
+    ) -> CALayer {
+        let animationLayer = CALayer()
+        animationLayer.contentsScale = UIScreen.main.scale
+        animationLayer.contents = image.cgImage
+        guard let gifResult = image.animateCGImageFrame() else {
+            return animationLayer
+        }
+        let frames = gifResult.0
+        if frames.isEmpty {
+            return animationLayer
+        }
+        let delayTimes = gifResult.1
+         
+        var currentTime: Double = 0
+        var animations = [CAAnimation]()
+        for (index, frame) in frames.enumerated() {
+            let delayTime = delayTimes[index]
+            let animation = CABasicAnimation(keyPath: "contents")
+            animation.toValue = frame
+            animation.duration = 0.001
+            animation.beginTime = AVCoreAnimationBeginTimeAtZero + currentTime
+            animation.isRemovedOnCompletion = false
+            animation.fillMode = .forwards
+            animations.append(animation)
+            currentTime += delayTime
+            if currentTime + 0.01 > videoDuration {
+                break
+            }
+        }
+        let group = CAAnimationGroup()
+        group.animations = animations
+        group.beginTime = beginTime
+        group.isRemovedOnCompletion = false
+        group.fillMode = .forwards
+        group.duration = currentTime + 0.01
+        group.repeatCount = MAXFLOAT
+        animationLayer.add(group, forKey: nil)
+        return animationLayer
+    }
+}

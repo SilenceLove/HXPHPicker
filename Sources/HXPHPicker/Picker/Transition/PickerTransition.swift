@@ -107,12 +107,12 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }
                 var reqeustAsset = photoAsset.phAsset != nil
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
+                if photoAsset.editedResult != nil {
                     reqeustAsset = false
                 }
                 #endif
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
-                    requestAssetImage(for: phAsset)
+                    requestAssetImage(for: phAsset, isGIF: photoAsset.isGifAsset)
                 }else if pushImageView.image == nil || photoAsset.isLocalAsset {
                     pushImageView.image = photoAsset.originalImage
                 }
@@ -383,12 +383,12 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
             if let photoAsset = photoAsset {
                 var reqeustAsset = photoAsset.phAsset != nil
                 #if HXPICKER_ENABLE_EDITOR
-                if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
+                if photoAsset.editedResult != nil {
                     reqeustAsset = false
                 }
                 #endif
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
-                    requestAssetImage(for: phAsset)
+                    requestAssetImage(for: phAsset, isGIF: photoAsset.isGifAsset)
                 }else if pushImageView.image == nil || photoAsset.isLocalAsset {
                     if let image = photoAsset.originalImage {
                         pushImageView.image = image
@@ -573,8 +573,8 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
         }
     }
     
-    func requestAssetImage(for asset: PHAsset) {
-        let options = PHImageRequestOptions.init()
+    func requestAssetImage(for asset: PHAsset, isGIF: Bool = false) {
+        let options = PHImageRequestOptions()
         options.resizeMode = .fast
         options.deliveryMode = .fastFormat
         requestID = AssetManager.requestImageData(
@@ -587,14 +587,21 @@ class PickerTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 info = dataResult.info
                 DispatchQueue.global().async {
                     var image: UIImage?
-                    if dataResult.imageOrientation != .up {
-                        image = UIImage(data: dataResult.imageData)?.normalizedImage()
-                    }else {
-                        image = UIImage(data: dataResult.imageData)
-                    }
+                    let dataCount = CGFloat(dataResult.imageData.count)
                     if !AssetManager.assetIsDegraded(for: info) &&
-                        dataResult.imageData.count > 3000000 {
-                        image = image?.scaleSuitableSize()
+                        dataCount > 1000000 && !isGIF {
+                        if let imageData = PhotoTools.imageCompress(
+                            dataResult.imageData,
+                            compressionQuality: dataCount.transitionCompressionQuality
+                        ) {
+                            image = UIImage(data: imageData)?.normalizedImage()
+                        }
+                    }else {
+                        if dataResult.imageOrientation != .up {
+                            image = UIImage(data: dataResult.imageData)?.normalizedImage()
+                        }else {
+                            image = UIImage(data: dataResult.imageData)
+                        }
                     }
                     DispatchQueue.main.async {
                         if self.pushImageView.superview != nil {

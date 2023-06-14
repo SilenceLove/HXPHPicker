@@ -277,21 +277,17 @@ extension PhotoPickerView: UICollectionViewDelegate {
         }
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if manager.config.editorOptions.contains(.photo) {
-            let config = manager.config.photoEditor
-            if let shouldEdit = delegate?.photoPickerView(
+            guard var config = delegate?.photoPickerView(
                 self,
                 shouldEditPhotoAsset: photoAsset,
-                editorConfig: config
-            ),
-               !shouldEdit {
+                editorConfig: manager.config.editor
+            ) else {
                 return false
             }
             config.languageType = manager.config.languageType
-            config.appearanceStyle = manager.config.appearanceStyle
             config.indicatorType = manager.config.indicatorType
-            let photoEditorVC = EditorController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.photoEdit,
+            let photoEditorVC = EditorViewController(
+                .init(type: .photoAsset(photoAsset), result: photoAsset.editedResult),
                 config: config,
                 delegate: self
             )
@@ -313,36 +309,29 @@ extension PhotoPickerView: UICollectionViewDelegate {
         #if HXPICKER_ENABLE_EDITOR && HXPICKER_ENABLE_PICKER
         if manager.config.editorOptions.contains(.video) {
             let isExceedsTheLimit = manager.videoDurationExceedsTheLimit(photoAsset: photoAsset)
-            let config: VideoEditorConfiguration
+            var config = manager.config.editor
             if isExceedsTheLimit {
-                config = manager.config.videoEditor.mutableCopy() as! VideoEditorConfiguration
-                config.defaultState = .cropTime
-                config.cropTime.maximumVideoCroppingTime = TimeInterval(
+                config.video.defaultSelectedToolOption = .time
+                config.video.cropTime.maximumTime = TimeInterval(
                     manager.config.maximumSelectedVideoDuration
                 )
-                config.mustBeTailored = true
-            }else {
-                config = manager.config.videoEditor
             }
-            if let shouldEdit = delegate?.photoPickerView(
+            guard var config = delegate?.photoPickerView(
                 self,
                 shouldEditVideoAsset: photoAsset,
                 editorConfig: config
-            ),
-               !shouldEdit {
+            ) else {
                 return false
             }
             config.languageType = manager.config.languageType
-            config.appearanceStyle = manager.config.appearanceStyle
             config.indicatorType = manager.config.indicatorType
             
-            let videoEditorVC = EditorController(
-                photoAsset: photoAsset,
-                editResult: photoAsset.videoEdit,
+            let videoEditorVC = EditorViewController(
+                .init(type: .photoAsset(photoAsset), result: photoAsset.editedResult),
                 config: config,
                 delegate: self
             )
-            videoEditorVC.videoEditor?.coverImage = coverImage
+//            videoEditorVC.videoEditor?.coverImage = coverImage
             viewController?.present(videoEditorVC, animated: animated)
             return true
         }

@@ -25,23 +25,18 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
         return imageView
     }()
     var transitionView: UIView?
-    
+
     init(mode: EditorTransitionMode) {
         self.mode = mode
         super.init()
     }
-    
+
     func transitionDuration(
         using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         if let editorVC = transitionContext?.viewController(
             forKey: mode == .push ? .to : .from
-        ) as? PhotoEditorViewController {
-            return editorVC.delegate?.photoEditorViewController(editorVC, transitionDuration: mode) ?? 0.55
-        }
-        if let editorVC = transitionContext?.viewController(
-            forKey: mode == .push ? .to : .from
-        ) as? VideoEditorViewController {
-            return editorVC.delegate?.videoEditorViewController(editorVC, transitionDuration: mode) ?? 0.55
+        ) as? EditorViewController {
+            return editorVC.delegate?.editorViewController(editorVC, transitionDuration: mode) ?? 0.55
         }
         return 0.55
     }
@@ -102,50 +97,40 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
         #endif
         var fromRect: CGRect = .zero
         var toRect: CGRect = .zero
-        var imageTransform: CGAffineTransform?
         let editorVC = mode == .push ? toVC : fromVC
-        var isSpring: Bool = true
-        if let editorVC = editorVC as? PhotoEditorViewController {
+        let isSpring: Bool = true
+        if let editorVC = editorVC as? EditorViewController {
             if mode == .push {
-                editorVC.transitionCompletion = false
-                if editorVC.state == .cropping {
-                    isSpring = false
-                }
-                if editorVC.config.fixedCropState {
-                    editorVC.cropToolView.alpha = 0
-                    editorVC.cropConfirmView.alpha = 0
-                }else {
-                    editorVC.toolView.alpha = 0
-                }
-                if let view = editorVC.delegate?.photoEditorViewController(transitioBegenPreviewView: editorVC) {
+                editorVC.isTransitionCompletion = false
+                editorVC.transitionHide()
+                if let view = editorVC.delegate?.editorViewController(transitioStartPreviewView: editorVC) {
                     transitionView = view
                     fromRect = view.convert(view.bounds, to: contentView)
                 }else {
-                    fromRect = editorVC.delegate?.photoEditorViewController(
-                        transitioBegenPreviewFrame: editorVC
+                    fromRect = editorVC.delegate?.editorViewController(
+                        transitioStartPreviewFrame: editorVC
                     ) ?? .zero
                 }
-                let image = editorVC.delegate?.photoEditorViewController(transitionPreviewImage: editorVC)
+                let image = editorVC.delegate?.editorViewController(transitionPreviewImage: editorVC)
                 previewView.image = image
                 if let image = image {
-                    editorVC.imageView.frame = editorVC.view.bounds
-                    editorVC.imageView.setImage(image)
+                    editorVC.setTransitionImage(image)
                 }
                 #if HXPICKER_ENABLE_PICKER
-                photoAsset = editorVC.photoAsset
+                photoAsset = editorVC.selectedAsset.type.photoAsset
                 if let photoAsset = photoAsset {
-                    toRect = editorVC.imageView.getTransitionImageViewFrame(
+                    toRect = getTransitionFrame(
                         with: photoAsset.imageSize,
                         viewSize: toVC.view.size
                     )
-                }else if let image = editorVC.image {
-                    toRect = editorVC.imageView.getTransitionImageViewFrame(
+                }else if let image = editorVC.editorView.image {
+                    toRect = getTransitionFrame(
                         with: image.size,
                         viewSize: toVC.view.size
                     )
                 }else {
                     if let image = image {
-                        toRect = editorVC.imageView.getTransitionImageViewFrame(
+                        toRect = getTransitionFrame(
                             with: image.size,
                             viewSize: toVC.view.size
                         )
@@ -154,104 +139,20 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     }
                 }
                 #else
-                if let image = editorVC.image {
-                    toRect = editorVC.imageView.getTransitionImageViewFrame(
+                if let image = editorVC.editorView.image {
+                    toRect = getTransitionFrame(
                         with: image.size,
                         viewSize: toVC.view.size
                     )
                 }else {
                     if let image = image {
-                        toRect = editorVC.imageView.getTransitionImageViewFrame(
+                        toRect = getTransitionFrame(
                             with: image.size,
                             viewSize: toVC.view.size
                         )
                     }else {
                         toRect = .zero
                     }
-                }
-                #endif
-            }else {
-                let view = editorVC.imageView.imageResizerView
-                fromRect = view.convert(view.bounds, to: contentView)
-                previewView.frame = fromRect
-                let imageView = UIImageView()
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                if editorVC.isFinishedBack {
-                    imageView.image = editorVC.transitionalImage
-                    imageView.frame = previewView.bounds
-                }else {
-                    if editorVC.editResult != nil {
-                        imageView.image = view.layer.convertedToImage()
-                        imageView.frame = previewView.bounds
-                    }else {
-                        imageTransform = .identity
-                        imageView.image = editorVC.transitionalImage
-                        let transformRect = view.imageView.convert(view.imageView.bounds, to: previewView)
-                        let imageRect = view.convert(view.imageView.bounds, to: previewView)
-                        imageView.frame = imageRect
-                        imageView.transform = view.scrollView.transform
-                        imageView.frame = transformRect
-                    }
-                    if view.layer.cornerRadius > 0 && view.layer.masksToBounds {
-                        previewView.layer.cornerRadius = previewView.width * 0.5
-                        previewView.layer.masksToBounds = true
-                    }
-                }
-                previewView.addSubview(imageView)
-                if let view = editorVC.delegate?.photoEditorViewController(transitioEndPreviewView: editorVC) {
-                    transitionView = view
-                    toRect = view.convert(view.bounds, to: contentView)
-                }else {
-                    toRect = editorVC.delegate?.photoEditorViewController(
-                        transitioEndPreviewFrame: editorVC
-                    ) ?? .zero
-                }
-            }
-            editorVC.imageView.isHidden = true
-            editorVC.view.backgroundColor = .clear
-        }else if let editorVC = editorVC as? VideoEditorViewController {
-            if mode == .push {
-                editorVC.transitionCompletion = false
-                editorVC.toolView.alpha = 0
-                if editorVC.state == .cropTime {
-                    isSpring = false
-                }
-                if let view = editorVC.delegate?.videoEditorViewController(transitioBegenPreviewView: editorVC) {
-                    transitionView = view
-                    fromRect = view.convert(view.bounds, to: contentView)
-                }else {
-                    fromRect = editorVC.delegate?.videoEditorViewController(
-                        transitioBegenPreviewFrame: editorVC
-                    ) ?? .zero
-                }
-                let image = editorVC.delegate?.videoEditorViewController(transitionPreviewImage: editorVC)
-                previewView.image = image
-                #if HXPICKER_ENABLE_PICKER
-                photoAsset = editorVC.photoAsset
-                if let photoAsset = photoAsset {
-                    toRect = editorVC.videoView.getTransitionImageViewFrame(
-                        with: photoAsset.imageSize,
-                        viewSize: toVC.view.size
-                    )
-                }else {
-                    if let image = image {
-                        toRect = editorVC.videoView.getTransitionImageViewFrame(
-                            with: image.size,
-                            viewSize: toVC.view.size
-                        )
-                    }else {
-                        toRect = .zero
-                    }
-                }
-                #else
-                if let image = image {
-                    toRect = editorVC.videoView.getTransitionImageViewFrame(
-                        with: image.size,
-                        viewSize: toVC.view.size
-                    )
-                }else {
-                    toRect = .zero
                 }
                 #endif
                 if toRect.width < editorVC.view.width {
@@ -261,22 +162,35 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     toRect.origin.y = (editorVC.view.height - toRect.height) * 0.5
                 }
             }else {
-                let view = editorVC.videoView.playerView
-                view.playerLayer.videoGravity = .resizeAspectFill
-                fromRect = view.convert(view.bounds, to: contentView)
+                let view = editorVC.editorView.contentView
+                let imageView = UIImageView()
+                imageView.contentMode = .scaleAspectFill
+                imageView.clipsToBounds = true
+                if let image = editorVC.editedResult?.image {
+                    imageView.image = image
+                }else {
+                    if let image = editorVC.editorView.image {
+                        imageView.image = image
+                    }else {
+                        imageView.image = view.layer.convertedToImage()
+                    }
+                }
+                let finalView = editorVC.editorView.finalView
+                fromRect = finalView.superview?.convert(finalView.frame, to: contentView) ?? .zero
                 previewView.frame = fromRect
-                previewView.addSubview(view)
+                imageView.frame = previewView.bounds
+                previewView.addSubview(imageView)
                 view.frame = previewView.bounds
-                if let view = editorVC.delegate?.videoEditorViewController(transitioEndPreviewView: editorVC) {
+                if let view = editorVC.delegate?.editorViewController(transitioEndPreviewView: editorVC) {
                     transitionView = view
                     toRect = view.convert(view.bounds, to: contentView)
                 }else {
-                    toRect = editorVC.delegate?.videoEditorViewController(
+                    toRect = editorVC.delegate?.editorViewController(
                         transitioEndPreviewFrame: editorVC
                     ) ?? .zero
                 }
             }
-            editorVC.videoView.isHidden = true
+            editorVC.editorView.isHidden = true
             editorVC.view.backgroundColor = .clear
         }else {
             previewView.removeFromSuperview()
@@ -288,7 +202,7 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
             #if HXPICKER_ENABLE_PICKER
             if let photoAsset = photoAsset, !(fromVC is PhotoPreviewViewController) {
                 var reqeustAsset = photoAsset.phAsset != nil
-                if photoAsset.videoEdit != nil || photoAsset.photoEdit != nil {
+                if photoAsset.editedResult != nil {
                     reqeustAsset = false
                 }
                 if let phAsset = photoAsset.phAsset, reqeustAsset {
@@ -321,22 +235,11 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 }
                 #endif
             }
-            if let editorVC = editorVC as? PhotoEditorViewController {
-                if editorVC.config.fixedCropState {
-                    editorVC.cropToolView.alpha = self.mode == .push ? 1 : 0
-                    editorVC.cropConfirmView.alpha = self.mode == .push ? 1 : 0
+            if let editorVC = editorVC as? EditorViewController {
+                if self.mode == .push {
+                    editorVC.transitionShow()
                 }else {
-                    editorVC.toolView.alpha = self.mode == .push ? 1 : 0
-                }
-            }else if let editorVC = editorVC as? VideoEditorViewController {
-                if editorVC.state != .cropTime {
-                    editorVC.toolView.alpha = self.mode == .push ? 1 : 0
-                }
-                if self.mode == .pop {
-                    if editorVC.onceState == .cropTime {
-                        editorVC.cropView.alpha = 0
-                        editorVC.cropConfirmView.alpha = 0
-                    }
+                    editorVC.transitionHide()
                 }
             }
         }
@@ -364,9 +267,6 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
             if let subView = self.previewView.subviews.first {
                 subView.frame = CGRect(origin: .zero, size: toRect.size)
-                if let transform = imageTransform {
-                    subView.transform = transform
-                }
             }
         } completion: { [weak self] isFinished in
             guard let self = self else {
@@ -387,23 +287,11 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                     previewVC.bottomView.alpha = 1
                 }
                 #endif
-                if let editorVC = editorVC as? PhotoEditorViewController {
-                    if let image = self.previewView.image,
-                       editorVC.editResult == nil,
-                       editorVC.imageView.image == nil {
-                        editorVC.imageView.setImage(image)
-                    }
+                if let editorVC = editorVC as? EditorViewController {
                     editorVC.view.backgroundColor = .black
-                    editorVC.imageView.isHidden = false
-                    editorVC.transitionCompletion = true
-                    editorVC.initializeStartCropping()
-                }else if let editorVC = editorVC as? VideoEditorViewController {
-                    editorVC.view.backgroundColor = .black
-                    editorVC.videoView.isHidden = false
-                    editorVC.transitionCompletion = true
-                    if editorVC.reqeustAssetCompletion {
-                        editorVC.setAsset()
-                    }
+                    editorVC.editorView.isHidden = false
+                    editorVC.isTransitionCompletion = true
+                    editorVC.transitionCompletion()
                 }
                 self.previewView.removeFromSuperview()
                 contentView.removeFromSuperview()
@@ -427,7 +315,7 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
             }
         }
     }
-    
+
     func animate(
         withDuration duration: TimeInterval,
         isSpring: Bool,
@@ -454,10 +342,11 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
             )
         }
     }
-    
+
     func requestAssetImage(for asset: PHAsset) {
         let options = PHImageRequestOptions()
         options.resizeMode = .fast
+        options.deliveryMode = .fastFormat
         requestID = AssetManager.requestImageData(
             for: asset,
             options: options
@@ -474,7 +363,7 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                         image = UIImage(data: dataResult.imageData)
                     }
                     if !AssetManager.assetIsDegraded(for: info) &&
-                        dataResult.imageData.count > 3000000 {
+                        dataResult.imageData.count > 1000000 {
                         image = image?.scaleSuitableSize()
                     }
                     DispatchQueue.main.async {
@@ -491,5 +380,17 @@ class EditorTransition: NSObject, UIViewControllerAnimatedTransitioning {
                 self.requestID = nil
             }
         }
+    }
+    
+    func getTransitionFrame(with imageSize: CGSize, viewSize: CGSize) -> CGRect {
+        let imageScale = imageSize.width / imageSize.height
+        let imageWidth = viewSize.width
+        let imageHeight = imageWidth / imageScale
+        let imageX: CGFloat = 0
+        var imageY: CGFloat = 0
+        if imageHeight < viewSize.height {
+            imageY = (viewSize.height - imageHeight) * 0.5
+        }
+        return CGRect(x: imageX, y: imageY, width: imageWidth, height: imageHeight)
     }
 }

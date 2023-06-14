@@ -28,7 +28,7 @@
 import UIKit
 #endif
 
-#if canImport(CarPlay)
+#if canImport(CarPlay) && !targetEnvironment(macCatalyst)
 import CarPlay
 #endif
 
@@ -216,7 +216,7 @@ extension KF.Builder {
     }
     #endif // end of canImport(UIKit)
     
-    #if canImport(CarPlay)
+    #if canImport(CarPlay) && !targetEnvironment(macCatalyst)
     
     /// Builds the image task request and sets it to the image for a list item.
     /// - Parameters:
@@ -394,7 +394,7 @@ extension KF.Builder {
     /// progressive JPEG data and display it in a progressive way.
     /// - Parameter progressive: The progressive settings which is used while loading.
     /// - Returns: A `KF.Builder` with changes applied.
-    public func progressiveJPEG(_ progressive: ImageProgressive? = .default) -> Self {
+    public func progressiveJPEG(_ progressive: ImageProgressive? = .init()) -> Self {
         options.progressiveJPEG = progressive
         return self
     }

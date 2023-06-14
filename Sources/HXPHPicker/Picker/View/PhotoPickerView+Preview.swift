@@ -52,29 +52,29 @@ extension PhotoPickerView: PhotoPreviewViewControllerDelegate {
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditPhotoAsset photoAsset: PhotoAsset,
-        editorConfig: PhotoEditorConfiguration
-    ) -> Bool {
-        if let shouldEdit = delegate?.photoPickerView(
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration? {
+        if let config = delegate?.photoPickerView(
             self, shouldEditPhotoAsset: photoAsset,
             editorConfig: editorConfig
         ) {
-            return shouldEdit
+            return config
         }
-        return true
+        return editorConfig
     }
     
     func previewViewController(
         _ previewController: PhotoPreviewViewController,
         shouldEditVideoAsset videoAsset: PhotoAsset,
-        editorConfig: VideoEditorConfiguration
-    ) -> Bool {
-        if let shouldEdit = delegate?.photoPickerView(
+        editorConfig: EditorConfiguration
+    ) -> EditorConfiguration? {
+        if let config = delegate?.photoPickerView(
             self, shouldEditVideoAsset: videoAsset,
             editorConfig: editorConfig
         ) {
-            return shouldEdit
+            return config
         }
-        return true
+        return editorConfig
     }
     #endif
     

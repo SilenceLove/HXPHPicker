@@ -28,14 +28,34 @@ open class PhotoAsset: Equatable {
     public var mediaSubType: MediaSubType = .image
     
     #if HXPICKER_ENABLE_EDITOR
-    /// 图片编辑数据
-    public var photoEdit: PhotoEditResult? { didSet { pFileSize = nil } }
+    /// 编辑之后的数据
+    public var editedResult: EditedResult? { didSet { pFileSize = nil } }
+    var initialEditedResult: EditedResult?
     
-    /// 视频编辑数据
-    public var videoEdit: VideoEditResult? { didSet { pFileSize = nil } }
-    
-    var initialPhotoEdit: PhotoEditResult?
-    var initialVideoEdit: VideoEditResult?
+    /// 图片编辑结果
+    public var photoEditedResult: ImageEditedResult? {
+        guard let editedResult = editedResult else {
+            return nil
+        }
+        switch editedResult {
+        case .image(let result, _):
+            return result
+        default:
+            return nil
+        }
+    }
+    /// 视频编辑结果
+    public var videoEditedResult: VideoEditedResult? {
+        guard let editedResult = editedResult else {
+            return nil
+        }
+        switch editedResult {
+        case .video(let result, _):
+            return result
+        default:
+            return nil
+        }
+    }
     #endif
     
     /// 原图
@@ -49,7 +69,7 @@ open class PhotoAsset: Equatable {
     /// 视频时长 格式：00:00
     public var videoTime: String? {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.videoTime
         }
         #endif
@@ -59,7 +79,7 @@ open class PhotoAsset: Equatable {
     /// 视频时长 秒
     public var videoDuration: TimeInterval {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.videoDuration
         }
         #endif
@@ -274,7 +294,7 @@ extension PhotoAsset {
     }
     func getOriginalImage() -> UIImage? {
         #if HXPICKER_ENABLE_EDITOR
-        if photoEdit != nil || videoEdit != nil {
+        if editedResult != nil {
             return getEditedImage()
         }
         #endif
@@ -332,10 +352,10 @@ extension PhotoAsset {
     }
     func getImageSize() -> CGSize {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
-            return photoEdit.editedImage.size
+        if let photoEdit = photoEditedResult {
+            return photoEdit.image.size
         }
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             return videoEdit.coverImage?.size ?? CGSize(width: 200, height: 200)
         }
         #endif
@@ -468,7 +488,7 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if (photoEdit != nil || videoEdit != nil) && !filterEditor {
+        if (editedResult != nil) && !filterEditor {
             getEditedImageURL(
                 toFile: fileURL,
                 compressionQuality: compressionQuality,
@@ -608,16 +628,16 @@ extension PhotoAsset {
         resultHandler: @escaping AssetURLCompletion
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
+        if let videoEdit = videoEditedResult {
             if let fileURL = fileURL {
-                if PhotoTools.copyFile(at: videoEdit.editedURL, to: fileURL) {
+                if PhotoTools.copyFile(at: videoEdit.url, to: fileURL) {
                     resultHandler(.success(.init(url: fileURL, urlType: .local, mediaType: .video)))
                 }else {
                     resultHandler(.failure(.fileWriteFailed))
                 }
                 return
             }
-            resultHandler(.success(.init(url: videoEdit.editedURL, urlType: .local, mediaType: .video)))
+            resultHandler(.success(.init(url: videoEdit.url, urlType: .local, mediaType: .video)))
             return
         }
         #endif

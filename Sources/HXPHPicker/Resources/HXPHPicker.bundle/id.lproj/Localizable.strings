@@ -94,6 +94,17 @@
 "音量" = "volume";
 "明亮" = "lampu";
 "删除" = "menghapus";
+"原始比例" = "Asli";
+"自由格式" = "Bebas dari";
+"正方形" = "Persegi";
+"亮度" = "Kecerahan";
+"对比度" = "Kontras";
+"饱和度" = "Paparan";
+"曝光度" = "Kejenuhan";
+"色温" = "Kehangatan";
+"暗角" = "Skema";
+"锐化" = "Mengasah";
+"蒙版素材" = "Masker";
 
 "HXAlbumCameraRoll" = "Semua foto";
 "HXAlbumPanoramas" = "gambar panorama";

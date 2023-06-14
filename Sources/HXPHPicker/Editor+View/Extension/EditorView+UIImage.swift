@@ -7,29 +7,14 @@
 
 import UIKit
 
-extension UIImage {
-    /// 生成马赛克图片
-    func mosaicImage(level: CGFloat) -> UIImage? {
-        let screenScale = level / max(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-        let scale = width * screenScale
-        return filter(name: "CIPixellate", parameters: [kCIInputScaleKey: scale])
-    }
-    func filter(name: String, parameters: [String: Any]) -> UIImage? {
-        guard let image = self.cgImage else {
+extension UIImage: HXPickerCompatible {
+    var ci_Image: CIImage? {
+        guard let cgImage = self.cgImage else {
             return nil
         }
+        return CIImage(cgImage: cgImage)
+    }
     
-        // 输入
-        let input = CIImage(cgImage: image)
-        // 输出
-        let output = input.applyingFilter(name, parameters: parameters)
-
-        // 渲染图片
-        guard let cgimage = CIContext(options: nil).createCGImage(output, from: input.extent) else {
-            return nil
-        }
-        return UIImage(cgImage: cgimage)
-    }
     func animateCGImageFrame() -> (cgImages: [CGImage], delays: [Double], duration: Double)? { // swiftlint:disable:this large_tuple
         #if canImport(Kingfisher)
         if let imageData = kf.gifRepresentation() {
@@ -80,5 +65,12 @@ extension UIImage {
             images.append(image)
         }
         return (images, delays, gifDuration)
+    }
+}
+
+
+public extension HXPickerWrapper where Base: UIImage {
+    var ci_Image: CIImage? {
+        base.ci_Image
     }
 }

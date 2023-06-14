@@ -15,14 +15,13 @@ extension PhotoPickerController {
 }
 
 open class PhotoPickerController: UINavigationController {
-    
     public weak var pickerDelegate: PhotoPickerControllerDelegate?
     
     public var finishHandler: FinishHandler?
     public var cancelHandler: CancelHandler?
     
     /// 相关配置
-    public let config: PickerConfiguration
+    public var config: PickerConfiguration
     
     /// 当前被选择的资源对应的 PhotoAsset 对象数组
     /// 外部预览时的资源数据
@@ -143,6 +142,7 @@ open class PhotoPickerController: UINavigationController {
         config: PickerConfiguration,
         delegate: PhotoPickerControllerDelegate? = nil
     ) {
+        var config = config
         PhotoManager.shared.appearanceStyle = config.appearanceStyle
         PhotoManager.shared.createLanguageBundle(languageType: config.languageType)
         self.config = config
@@ -156,6 +156,7 @@ open class PhotoPickerController: UINavigationController {
         isPreviewAsset = false
         isExternalPickerPreview = false
         super.init(nibName: nil, bundle: nil)
+        autoDismiss = config.isAutoBack
         modalPresentationStyle = config.modalPresentationStyle
         pickerDelegate = delegate
         var photoVC: UIViewController
@@ -197,8 +198,9 @@ open class PhotoPickerController: UINavigationController {
         isPreviewAsset = true
         isExternalPickerPreview = false
         super.init(nibName: nil, bundle: nil)
+        autoDismiss = config.isAutoBack
         pickerDelegate = delegate
-        let vc = PhotoPreviewViewController(config: config.previewView)
+        let vc = PhotoPreviewViewController(config: self.config.previewView)
         vc.isExternalPreview = true
         vc.previewAssets = previewAssets
         vc.currentPreviewIndex = currentIndex
@@ -208,6 +210,17 @@ open class PhotoPickerController: UINavigationController {
             transitioningDelegate = self
             modalPresentationCapturesStatusBarAppearance = true
         }
+    }
+    
+    /// 主动调用dismiss
+    public func dismiss(_ animated: Bool, completion: (() -> Void)? = nil) {
+        #if HXPICKER_ENABLE_EDITOR
+        if presentedViewController is EditorViewController {
+            presentingViewController?.dismiss(animated: animated, completion: completion)
+            return
+        }
+        #endif
+        dismiss(animated: animated, completion: completion)
     }
     
     let isExternalPickerPreview: Bool
@@ -224,8 +237,9 @@ open class PhotoPickerController: UINavigationController {
         isPreviewAsset = false
         isExternalPickerPreview = true
         super.init(nibName: nil, bundle: nil)
+        autoDismiss = config.isAutoBack
         pickerDelegate = delegate
-        let vc = PhotoPreviewViewController(config: config.previewView)
+        let vc = PhotoPreviewViewController(config: self.config.previewView)
         vc.previewAssets = previewAssets
         vc.currentPreviewIndex = currentIndex
         vc.isExternalPickerPreview = true
@@ -395,6 +409,7 @@ open class PhotoPickerController: UINavigationController {
             didDismiss()
         }
     }
+    
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -459,7 +474,7 @@ extension PhotoPickerController {
             let appearance = UINavigationBarAppearance()
             appearance.titleTextAttributes = titleTextAttributes
             switch barStyle {
-            case .default:
+            case .`default`:
                 appearance.backgroundEffect = UIBlurEffect(style: .extraLight)
             default:
                 appearance.backgroundEffect = UIBlurEffect(style: .dark)
@@ -512,8 +527,8 @@ extension PhotoPickerController {
             if photoAsset.mediaType == .photo {
                 selectedPhotoAssetArray.append(photoAsset)
                 #if HXPICKER_ENABLE_EDITOR
-                if let photoEdit = photoAsset.photoEdit {
-                    photoAsset.initialPhotoEdit = photoEdit
+                if let editedResult = photoAsset.editedResult {
+                    photoAsset.initialEditedResult = editedResult
                 }
                 addedEditedPhotoAsset(photoAsset)
                 #endif
@@ -527,8 +542,8 @@ extension PhotoPickerController {
                     selectedVideoAssetArray.append(photoAsset)
                 }
                 #if HXPICKER_ENABLE_EDITOR
-                if let videoEdit = photoAsset.videoEdit {
-                    photoAsset.initialVideoEdit = videoEdit
+                if let editedResult = photoAsset.editedResult {
+                    photoAsset.initialEditedResult = editedResult
                 }
                 addedEditedPhotoAsset(photoAsset)
                 #endif

@@ -103,7 +103,11 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
         guard let cgImage = cgImage else {
             return pixel * 4
         }
-        return pixel * cgImage.bitsPerPixel / 8
+        let bytesPerPixel = cgImage.bitsPerPixel / 8
+        guard let imageCount = images?.count else {
+            return pixel * bytesPerPixel
+        }
+        return pixel * bytesPerPixel * imageCount
     }
 }
 
@@ -351,7 +355,7 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
     /// input image in pixel format. It does downsampling from the image data, so it is much
     /// more memory efficient and friendly. Choose to use downsampling as possible as you can.
     ///
-    /// The input size should be smaller than the size of input image. If it is larger than the
+    /// The pointsize should be smaller than the size of input image. If it is larger than the
     /// original image size, the result image will be the same size of input without downsampling.
     public static func downsampledImage(data: Data, to pointSize: CGSize, scale: CGFloat) -> KFCrossPlatformImage? {
         let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary

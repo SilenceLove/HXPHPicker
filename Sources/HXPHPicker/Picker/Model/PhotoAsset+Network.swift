@@ -23,8 +23,8 @@ public extension PhotoAsset {
     /// - Parameter resultHandler: 图片地址、是否为网络地址
     func getNetworkImageURL(resultHandler: AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit {
-            resultHandler(.success(.init(url: photoEdit.editedImageURL, urlType: .local, mediaType: .photo)))
+        if let photoEdit = photoEditedResult {
+            resultHandler(.success(.init(url: photoEdit.url, urlType: .local, mediaType: .photo)))
             return
         }
         #endif
@@ -54,11 +54,11 @@ public extension PhotoAsset {
         resultHandler: @escaping (UIImage?) -> Void
     ) {
         #if HXPICKER_ENABLE_EDITOR
-        if let photoEdit = photoEdit, !filterEditor {
+        if let photoEdit = photoEditedResult, !filterEditor {
             if urlType == .thumbnail {
-                resultHandler(photoEdit.editedImage)
+                resultHandler(photoEdit.image)
             }else {
-                let image = UIImage.init(contentsOfFile: photoEdit.editedImageURL.path)
+                let image = UIImage.init(contentsOfFile: photoEdit.url.path)
                 resultHandler(image)
             }
             return
@@ -124,8 +124,8 @@ public extension PhotoAsset {
     /// - Parameter resultHandler: 视频地址、是否为网络地址
     func getNetworkVideoURL(resultHandler: AssetURLCompletion) {
         #if HXPICKER_ENABLE_EDITOR
-        if let videoEdit = videoEdit {
-            resultHandler(.success(.init(url: videoEdit.editedURL, urlType: .local, mediaType: .video)))
+        if let videoEdit = videoEditedResult {
+            resultHandler(.success(.init(url: videoEdit.url, urlType: .local, mediaType: .video)))
             return
         }
         #endif

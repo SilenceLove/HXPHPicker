@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import MetalKit
+import Metal
 
 /// 需要添加滤镜的原始图片、上一次添加滤镜的图片，滤镜参数，是否是滤镜列表封面
 public typealias PhotoEditorFilterHandler = (CIImage, UIImage?, [PhotoEditorFilterParameterInfo], Bool) -> CIImage?
@@ -60,24 +62,31 @@ public struct PhotoEditorFilterParameter: Codable {
     }
 }
 
-class PhotoEditorFilter: Equatable, Codable {
+public class PhotoEditorFilter: Equatable, Codable {
     
-    let filterName: String
-    let parameters: [PhotoEditorFilterParameterInfo]
+    /// 滤镜名称
+    public let filterName: String
+    /// 滤镜列表的下标
+    public var sourceIndex: Int = 0
+    /// 标识符
+    public let identifier: String
+    /// 滤镜参数
+    public let parameters: [PhotoEditorFilterParameterInfo]
     
-    init(
+    public init(
         filterName: String,
+        identifier: String = "hx_editor_default",
         parameters: [PhotoEditorFilterParameterInfo] = []
     ) {
         self.filterName = filterName
+        self.identifier = identifier
         self.parameters = parameters
     }
     
     var isOriginal: Bool = false
     var isSelected: Bool = false
-    var sourceIndex: Int = 0
     
-    static func == (
+    public static func == (
         lhs: PhotoEditorFilter,
         rhs: PhotoEditorFilter
     ) -> Bool {
@@ -111,7 +120,70 @@ public class PhotoEditorFilterParameterInfo: Equatable, Codable {
     }
 }
 
-struct VideoEditorFilter: Codable {
-    let index: Int
-    let parameters: [PhotoEditorFilterParameterInfo]
+public struct VideoEditorFilter: Codable {
+    /// 滤镜列表的下标
+    public let index: Int
+    /// 标识符
+    public let identifier: String
+    /// 滤镜参数
+    public let parameters: [PhotoEditorFilterParameterInfo]
+    init(index: Int, identifier: String = "hx_editor_default", parameters: [PhotoEditorFilterParameterInfo]) {
+        self.index = index
+        self.identifier = identifier
+        self.parameters = parameters
+    }
+}
+
+public struct EditorFilterEditFator: Codable {
+    /// 亮度
+    var brightness: Float
+    /// 对比度
+    var contrast: Float
+    /// 曝光度
+    var exposure: Float
+    /// 饱和度
+    var saturation: Float
+    /// 色温
+    var warmth: Float
+    /// 暗角
+    var sharpen: Float
+    /// 锐化
+    var vignette: Float
+    
+    var isApply: Bool {
+        brightness != 0 || contrast != 1 || exposure != 0 || saturation != 1 || warmth != 0 || sharpen != 0 || vignette != 0
+    }
+    
+    public init(
+        brightness: Float = 0,
+        contrast: Float = 1,
+        exposure: Float = 0,
+        saturation: Float = 1,
+        warmth: Float = 0,
+        sharpen: Float = 0,
+        vignette: Float = 0
+    ) {
+        self.brightness = brightness
+        self.contrast = contrast
+        self.exposure = exposure
+        self.saturation = saturation
+        self.warmth = warmth
+        self.sharpen = sharpen
+        self.vignette = vignette
+    }
+}
+
+public struct EditorCropSizeFator: Codable {
+    /// 是否固定比例
+    let isFixedRatio: Bool
+    /// 裁剪框比例
+    let aspectRatio: CGSize
+    /// 角度刻度值
+    let angle: CGFloat
+    
+    public init(isFixedRatio: Bool, aspectRatio: CGSize, angle: CGFloat) {
+        self.isFixedRatio = isFixedRatio
+        self.aspectRatio = aspectRatio
+        self.angle = angle
+    }
 }

@@ -74,33 +74,36 @@ class EditorVideoCompositor: NSObject, AVVideoCompositing {
               let trackID = instruction.requiredSourceTrackIDs?.first as? CMPersistentTrackID else {
             return nil
         }
-        guard let pixelBuffer = request.sourceFrame(byTrackID: trackID),
-              let sourcePixelBuffer = fixOrientation(
-                pixelBuffer,
-                instruction.cropFactor
-              )/*,
-              let resultPixelBuffer = applyFillter(
-                sourcePixelBuffer,
-                instruction.filterInfo,
-                instruction.filterParameters
-              )*/
-        else {
+        guard let pixelBuffer = request.sourceFrame(byTrackID: trackID) else {
             return renderContext?.newPixelBuffer()
         }
-        var watermarkPixelBuffer: CVPixelBuffer?
-        if let watermarkTrackID = instruction.watermarkTrackID {
-            watermarkPixelBuffer = request.sourceFrame(byTrackID: watermarkTrackID)
+        if var sourcePixelBuffer = fixOrientation(
+            pixelBuffer,
+            instruction.cropFactor
+        ) {
+            if let filterPixelBuffer = instruction.filter?(sourcePixelBuffer, request.compositionTime) {
+                sourcePixelBuffer = filterPixelBuffer
+            }
+            var watermarkPixelBuffer: CVPixelBuffer?
+            if let watermarkTrackID = instruction.watermarkTrackID {
+                watermarkPixelBuffer = request.sourceFrame(byTrackID: watermarkTrackID)
+            }
+            let endPixelBuffer = addWatermark(
+                watermarkPixelBuffer,
+                sourcePixelBuffer
+            )
+            let checkPixelBuffer = checkMask(
+                endPixelBuffer,
+                cropFactor: instruction.cropFactor,
+                maskType: instruction.maskType
+            )
+            return checkPixelBuffer
+        }else {
+            if let filterPixelBuffer = instruction.filter?(pixelBuffer, request.compositionTime) {
+                return filterPixelBuffer
+            }
         }
-        let endPixelBuffer = addWatermark(
-            watermarkPixelBuffer,
-            sourcePixelBuffer
-        )
-        let checkPixelBuffer = checkMask(
-            endPixelBuffer,
-            cropFactor: instruction.cropFactor,
-            maskType: instruction.maskType
-        )
-        return checkPixelBuffer
+        return renderContext?.newPixelBuffer()
     }
     
     func fixOrientation(
@@ -113,24 +116,26 @@ class EditorVideoCompositor: NSObject, AVVideoCompositing {
             height: CVPixelBufferGetHeight(pixelBuffer)
         )
         if cropFactor.allowCroped {
-            guard var cgImage = context.createCGImage(ciImage, from: CGRect(x: 0, y: 0, width: size.width, height: size.height)) else {
-                return nil
+            guard let cgImage = context.createCGImage(ciImage, from: CGRect(x: 0, y: 0, width: size.width, height: size.height)) else {
+                return pixelBuffer
             }
-            let maxWidth = max(size.width, size.height)
-            if maxWidth > 1280 * 1.25 {
-                if let newImage = scaleCGImage(cgImage, to: 1280 / maxWidth) {
-                    cgImage = newImage
-                }
-            }
+//            let maxWidth = max(size.width, size.height)
+//            if maxWidth > 1280 * 1.25 {
+//                if let newImage = scaleCGImage(cgImage, to: 1280 / maxWidth) {
+//                    cgImage = newImage
+//                }
+//            }
             if let outputImage = croped(cgImage, cropFactor: cropFactor) {
                 ciImage = CIImage(cgImage: outputImage)
                 size = .init(width: outputImage.width, height: outputImage.height)
             }else {
-                return nil
+                return pixelBuffer
             }
+        }else {
+            return pixelBuffer
         }
         guard let newPixelBuffer = PhotoTools.createPixelBuffer(size) else {
-            return nil
+            return pixelBuffer
         }
         context.render(ciImage, to: newPixelBuffer)
         return newPixelBuffer
@@ -145,7 +150,7 @@ class EditorVideoCompositor: NSObject, AVVideoCompositing {
         }
         var watermarkCGImage: CGImage?
         VTCreateCGImageFromCVPixelBuffer(watermarkPixelBuffer, options: nil, imageOut: &watermarkCGImage)
-        guard let watermarkCGImage = watermarkCGImage else {
+        guard var watermarkCGImage = watermarkCGImage else {
             return bgPixelBuffer
         }
         var bgCGImage: CGImage?
@@ -153,32 +158,22 @@ class EditorVideoCompositor: NSObject, AVVideoCompositing {
         guard let bgCGImage = bgCGImage else {
             return bgPixelBuffer
         }
+        let watermarkSize = CGSize(width: CGFloat(watermarkCGImage.width), height: CGFloat(watermarkCGImage.height))
+        let bgSize = CGSize(width: CGFloat(bgCGImage.width), height: CGFloat(bgCGImage.height))
+        if watermarkSize != bgSize {
+            guard let cgImage = scaleCGImage(watermarkCGImage, to: bgSize.width / watermarkSize.width) else {
+                return bgPixelBuffer
+            }
+            watermarkCGImage = cgImage
+        }
         let watermarkCIImage = CIImage(cgImage: watermarkCGImage)
         let bgCIImage = CIImage(cgImage: bgCGImage)
+        
         if let outputImage = watermarkCIImage.sourceOverCompositing(bgCIImage) {
             context.render(outputImage, to: bgPixelBuffer)
         }
         return bgPixelBuffer
     }
-    
-//    func applyFillter(
-//        _ pixelBuffer: CVPixelBuffer,
-//        _ info: PhotoEditorFilterInfo?,
-//        _ parameters: [PhotoEditorFilterParameterInfo]
-//    ) -> CVPixelBuffer? {
-//        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-//        let size = CGSize(
-//            width: CVPixelBufferGetWidth(pixelBuffer),
-//            height: CVPixelBufferGetHeight(pixelBuffer)
-//        )
-//        if let outputImage = info?.videoFilterHandler?(ciImage.clampedToExtent(), parameters),
-//           let newPixelBuffer = PhotoTools.createPixelBuffer(size) {
-//            context.render(outputImage, to: newPixelBuffer)
-//            return newPixelBuffer
-//        }
-//        return pixelBuffer
-//    }
-    
     
     func croped(
         _ imageRef: CGImage,
@@ -345,6 +340,8 @@ class EditorVideoCompositor: NSObject, AVVideoCompositing {
     }
 }
 
+public typealias VideoCompositionFilter = (CVPixelBuffer, CMTime) -> CVPixelBuffer?
+
 class VideoCompositionInstruction: NSObject, AVVideoCompositionInstructionProtocol {
     var timeRange: CMTimeRange
     
@@ -361,6 +358,7 @@ class VideoCompositionInstruction: NSObject, AVVideoCompositionInstructionProtoc
     let watermark: EditorVideoTool.Watermark
     let cropFactor: EditorAdjusterView.CropFactor
     let maskType: EditorView.MaskType
+    let filter: VideoCompositionFilter?
     init(
         sourceTrackIDs: [NSValue],
         watermarkTrackID: CMPersistentTrackID?,
@@ -368,7 +366,8 @@ class VideoCompositionInstruction: NSObject, AVVideoCompositionInstructionProtoc
         videoOrientation: AVCaptureVideoOrientation,
         watermark: EditorVideoTool.Watermark,
         cropFactor: EditorAdjusterView.CropFactor,
-        maskType: EditorView.MaskType
+        maskType: EditorView.MaskType,
+        filter: VideoCompositionFilter? = nil
     ) {
         requiredSourceTrackIDs = sourceTrackIDs
         if let watermarkTrackID = watermarkTrackID {
@@ -383,6 +382,7 @@ class VideoCompositionInstruction: NSObject, AVVideoCompositionInstructionProtoc
         self.watermark = watermark
         self.cropFactor = cropFactor
         self.maskType = maskType
+        self.filter = filter
         super.init()
     }
 }

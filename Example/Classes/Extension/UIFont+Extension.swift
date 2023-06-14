@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import HXPHPicker
 
 extension UIFont {
     static func regularPingFang(ofSize size: CGFloat) -> UIFont {
