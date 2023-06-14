@@ -86,3 +86,4 @@ Pod::Spec.new do |spec|
         noLocation.dependency 'HXPHPicker-Lite/Camera/Lite'
     end
 end
+
