@@ -273,7 +273,6 @@ HXPHPicker is released under the MIT license. See LICENSE for details.
 or
  <img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/wp.jpeg" width = "100" height = "135.75" />
 
-
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/SilenceLove/HXPHPicker.svg)](https://starchart.cc/SilenceLove/HXPHPicker)
