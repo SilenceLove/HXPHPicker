@@ -1,90 +1,87 @@
-<h4 align="right">中文 | <strong><a href="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/README_EN.md">English</a></strong></h4>
+<h4 align="right"><strong><a href="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/README_CN.md">中文</a></strong> | English</h4>
       
 <p align="center">
-    <a><img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/sample_graph.png"  width = "384" height = "292.65" ></a>
-</p>
+    <a><img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/sample_graph_en.png"  width = "396" height = "292.65" ></a>
+</p> 
+<h1 align="center"><strong><a href="https://github.com/SilenceLove/HXPhotoPicker">Please move to HXPhotoPicker for the latest version</a></strong></h1>
+    
 <p align="center">
     <a href="https://github.com/SilenceLove/HXPHPicker"><img src="https://badgen.net/badge/icon/iOS%2012.0%2B?color=cyan&icon=apple&label"></a>
     <a href="https://github.com/SilenceLove/HXPHPicker"><img src="http://img.shields.io/cocoapods/v/HXPHPicker.svg?logo=cocoapods&logoColor=ffffff"></a>
     <a href="https://developer.apple.com/Swift"><img src="http://img.shields.io/badge/language-Swift-orange.svg?logo=common-workflow-language"></a>
     <a href="http://mit-license.org"><img src="http://img.shields.io/badge/license-MIT-333333.svg?logo=letterboxd&logoColor=ffffff"></a>
-    <div align="center">一款图片/视频选择器-支持LivePhoto、GIF选择、iCloud/网络资源在线下载、图片/视频编辑</div>
-</p>
+    <div align="center"><a href="https://www.buymeacoffee.com/fengye" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a></div>
+    <div align="center">photo/video selector-supports LivePhoto, GIF selection, iCloud resource online download, photo/video editing</div>
+</p> 
 
-## <a id="功能"></a> 功能
+## <a id="Features"></a> Features
 
-- [x] UI 外观支持浅色/深色/自动/自定义
-- [x] 支持多选/混合内容选择
-- [x] 支持的媒体类型：
+- [x] UI Appearance supports light/dark/auto/custom
+- [x] Support multiple selection/mixed content selection
+- [x] Supported media types：
     - [x] Photo
     - [x] GIF
     - [x] Live Photo
     - [x] Video
-- [x] 支持的本地资源类型：
+- [x] Supported local media types：
     - [x] Photo
     - [x] Video
     - [x] GIF
     - [x] Live Photo
-- [x] 支持的网络资源类型：
+- [x] Supported network media types：
     - [x] Photo
     - [x] Video
-- [x] 支持下载iCloud上的资源
-- [x] 支持手势返回
-- [x] 支持滑动选择
-- [x] 编辑图片（支持动图、网络资源）
-    - [x] 涂鸦
-    - [x] 贴纸
-    - [x] 文字
-    - [x] 裁剪
-    - [x] 旋转任意角度
-    - [x] 自定义蒙版
-    - [x] 马赛克
-    - [x] 画面调整
-    - [x] 滤镜
-- [x] 编辑视频（支持网络资源）
-    - [x] 涂鸦
-    - [x] 贴纸（支持GIF）
-    - [x] 文字
-    - [x] 配乐（支持歌词字幕）
-    - [x] 裁剪时长
-    - [x] 裁剪尺寸
-    - [x] 旋转任意角度
-    - [x] 自定义蒙版
-    - [x] 画面调整
-    - [x] 滤镜
-- [x] 相册展现方式
-    - [x] 单独列表
-    - [x] 弹窗
-- [x] 多平台支持
+- [x] Support downloading assets on iCloud
+- [x] Support gesture back
+- [x] Support sliding selection
+- [x] Edit pictures (support animated pictures, network pictures)
+    - [x] Graffiti
+    - [x] Sticker
+    - [x] Text
+    - [x] Crop
+    - [x] Mosaic
+    - [x] Filter
+- [x] Edit video (support network video)
+    - [x] Graffiti
+    - [x] Stickers (support GIF)
+    - [x] Text
+    - [x] Soundtrack (support lyrics and subtitles)
+    - [x] Crop duration
+    - [x] Crop Size
+    - [x] Filter
+- [x] Album display mode
+    - [x] Separate list
+    - [x] Pop-ups
+- [x] Multi-platform support
     - [x] iOS
     - [x] iPadOS
-- [x] 国际化支持
-    - [x] 🇨🇳 简体中文 (zh-Hans)
-    - [x] 🇨🇳 繁体中文 (zh-Hant)
-    - [x] 🇬🇧 英文 (en)
-    - [x] 🇯🇵 日语 (ja)
-    - [x] 🇰🇷 韩语 (ko)
-    - [x] 🇹🇭 泰语 (th)
-    - [x] 🇮🇳 印尼语 (id)
-    - [x] 🇻🇳 越南语 (vi)
-    - [x] 🇷🇺 俄罗斯 (ru)
-    - [x] 🇩🇪 德国 (de)
-    - [x] 🇫🇷 法国 (fr)
-    - [x] 🇸🇦 阿拉伯 (ar)
-    - [x] ✍️ 自定义语言 (custom)
-    - [ ] 🤝 更多支持... (欢迎PR)
-
-## <a id="要求"></a> 要求
+- [x] Internationalization support
+    - [x] 🇨🇳 Chinese, Simplified (zh-Hans)
+    - [x] 🇬🇧 English (en)
+    - [x] 🇨🇳 Chinese, traditional (zh-Hant)
+    - [x] 🇯🇵 Japanese (ja)
+    - [x] 🇰🇷 Korean (ko)
+    - [x] 🇹🇭 Thai (th)
+    - [x] 🇮🇳 Indonesian (id)
+    - [x] 🇻🇳 Vietnamese (vi)
+    - [x] 🇷🇺 russian (ru)
+    - [x] 🇩🇪 german (de)
+    - [x] 🇫🇷 french (fr)
+    - [x] 🇸🇦 arabic (ar)
+    - [x] ✍️ Custom language (custom)
+    - [ ] 🤝 More support... (Pull requests welcome)
+    
+## <a id="Requirements"></a> Requirements
 
 - iOS 12.0+
 - Xcode 12.5+
 - Swift 5.4+
 
-## 安装
+## Installation
 
 ### [Swift Package Manager](https://swift.org/package-manager/)
 
-⚠️ 需要 Xcode 12.0 及以上版本来支持资源文件/本地化文件的添加。
+⚠️ Needs Xcode 12.0+ to support resources and localization files
 
 ```swift
 dependencies: [
@@ -94,30 +91,27 @@ dependencies: [
 
 ### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
 
-将下面内容添加到 `Podfile`，并执行依赖更新。
+Add this to Podfile, and then update dependency:
 
 ```swift
 
 iOS 12.0+
 pod 'HXPHPicker'
 
-/// 不包含 Kingfisher，相机不包含定位功能
+/// No Kingfisher
 pod `HXPHPicker/Lite`
 
-/// 相机不包含定位功能
-pod `HXPHPicker/NoLocation`
-
-/// 只有选择器
+/// Only Picker
 pod `HXPHPicker/Picker`
 pod `HXPHPicker/Picker/Lite`
 
-/// 只有编辑器
+/// Only Editor
 pod `HXPHPicker/Editor`
 pod `HXPHPicker/Editor/Lite`
 
-/// 只有相机
+/// Only Camera
 pod `HXPHPicker/Camera`
-/// 不包含定位功能
+/// Does not include location functionality
 pod `HXPHPicker/Camera/Lite`
 
 iOS 10.0+
@@ -129,71 +123,71 @@ pod 'HXPHPicker-Lite/Camera'
 
 ### [Carthage](https://github.com/Carthage/Carthage)
 
-将下面内容添加到 `Cartfile`，并执行依赖更新。
+Add the following content to `Cartfile` and perform dependency update.
 
 ```swift
 github "SilenceLove/HXPHPicker"
 ```
 
-## 使用方法
+## Usage
 
-> [Wiki](https://github.com/SilenceLove/HXPHPicker/wiki) 中提供了更详细的使用说明。
+> [Wiki](https://github.com/SilenceLove/HXPHPicker/wiki)
 
-### 准备工作
+### Prepare
 
-按需在你的 Info.plist 中添加以下键值:
+Add these keys to your Info.plist when needed:
 
-| Key | 模块 | 备注 |
+| Key | Module | Info |
 | ----- | ----  | ---- |
-| NSPhotoLibraryUsageDescription | Picker | 允许访问相册 |
-| NSPhotoLibraryAddUsageDescription | Picker | 允许保存图片至相册 |
-| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | Picker | 设置为 `YES` iOS 14+ 以禁用自动弹出添加更多照片的弹框(Picker 已适配 Limited 功能，可由用户主动触发，提升用户体验) |
-| NSCameraUsageDescription | Camera | 允许使用相机 |
-| NSMicrophoneUsageDescription | Camera | 允许使用麦克风 |
+| NSPhotoLibraryUsageDescription | Picker | Allow access to album |
+| NSPhotoLibraryAddUsageDescription | Picker | Allow to save pictures to album |
+| PHPhotoLibraryPreventAutomaticLimitedAccessAlert | Picker | Set YES to prevent automatic limited access alert in iOS 14+ (Picker has been adapted with Limited features that can be triggered by the user to enhance the user experience) |
+| NSCameraUsageDescription | Camera | Allow camera |
+| NSMicrophoneUsageDescription | Camera | Allow microphone |
 
-### 快速上手
+### Quick Start
 ```swift
 import HXPHPicker
 
 class ViewController: UIViewController {
 
     func presentPickerController() {
-        // 设置与微信主题一致的配置
+        // Set the configuration consistent with the WeChat theme
         let config = PickerConfiguration.default
         
-        // 方法一：
+        // Method 1：
         let pickerController = PhotoPickerController(picker: config)
         pickerController.pickerDelegate = self
-        // 当前被选择的资源对应的 PhotoAsset 对象数组
+        // The array of PhotoAsset objects corresponding to the currently selected asset
         pickerController.selectedAssetArray = selectedAssets 
-        // 是否选中原图
+        // Whether to select the original image
         pickerController.isOriginal = isOriginal
         present(pickerController, animated: true, completion: nil)
         
-        // 方法二：
+        // Method 2：
         Photo.picker(
             config
         ) { result, pickerController in
-            // 选择完成的回调
-            // result 选择结果
-            //  .photoAssets 当前选择的数据
-            //  .isOriginal 是否选中了原图
-            // photoPickerController 对应的照片选择控制器
+            // Select completion callback
+            // result Select result
+            //  .photoAssets Currently selected data
+            //  .isOriginal Whether the original image is selected
+            // photoPickerController Corresponding photo selection controller
         } cancel: { pickerController in
-            // 取消的回调
-            // photoPickerController 对应的照片选择控制器 
+            // Cancelled callback
+            // photoPickerController Corresponding photo selection controller
         }
     }
 }
 
 extension ViewController: PhotoPickerControllerDelegate {
     
-    /// 选择完成之后调用
+    /// Called after the selection is complete
     /// - Parameters:
-    ///   - pickerController: 对应的 PhotoPickerController
-    ///   - result: 选择的结果
-    ///     result.photoAssets  选择的资源数组
-    ///     result.isOriginal   是否选中原图
+    ///   - pickerController: corresponding PhotoPickerController
+    ///   - result: Selected result
+    ///     result.photoAssets  Selected asset array
+    ///     result.isOriginal   Whether to select the original image
     func pickerController(_ pickerController: PhotoPickerController, 
                             didFinishSelection result: PickerResult) {
         result.getImage { (image, photoAsset, index) in
@@ -207,53 +201,51 @@ extension ViewController: PhotoPickerControllerDelegate {
         }
     }
     
-    /// 点击取消时调用
-    /// - Parameter pickerController: 对应的 PhotoPickerController
+    /// Called when cancel is clicked
+    /// - Parameter pickerController: Corresponding PhotoPickerController
     func pickerController(didCancel pickerController: PhotoPickerController) {
         
     }
 }
 ```
 
-### 如何获取
+### Get Content
 
-#### 获取 UIImage
+#### Get UIImage
 
 ```swift
-/// 如果为视频的话获取则是视频封面
-/// compressionQuality: 压缩参数，不传则不压缩 
+/// If it is a video, get the cover of the video
+/// compressionQuality: Compress parameters, if not passed, no compression
 photoAsset.getImage(compressionQuality: compressionQuality) { image in
     print(image)
 }
 ```
 
-#### 获取 URL
+#### Get URL
 
 ```swift
-/// compression: 压缩参数，不传则不压缩
+/// compression: Compress parameters, if not passed, no compression
 photoAsset.getURL(compression: compression) { result in
     switch result {
-    case .success(let urlResult):
-        // 媒体类型
+    case .success(let urlResult): 
+        
         switch urlResult.mediaType {
         case .photo:
-            // 图片
+        
         case .video:
-            // 视频
+        
         }
         
-        // url类型
         switch urlResult.urlType {
         case .local:
-            // 本地URL
+        
         case .network:
-            // 网络URL
+        
         }
         
-        // 获取的地址
         print(urlResult.url)
         
-        // LivePhoto 里面包含的 图片和视频 url
+        // Image and video urls contained in LivePhoto
         print(urlResult.livePhoto) 
         
     case .failure(let error):
@@ -262,30 +254,29 @@ photoAsset.getURL(compression: compression) { result in
 }
 ```
 
+## Release Notes
 
-## 更新日志
-
-| 版本 | 发布时间 | Xcode | Swift | iOS |
+| Version | Release Date | Xcode | Swift | iOS |
 | ---- | ----  | ---- | ---- | ---- |
-| [v2.0.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#200) | 2023-06-14 | 14.3.0 | 5.7.0 | 12.0+ |
-| [v1.4.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE_CN.md#146) | 2022-11-20 | 14.0.0 | 5.7.0 | 12.0+ |
+| [v2.0.0](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#200) | 2023-06-14 | 14.3.0 | 5.7.0 | 12.0+ |
+| [v1.4.6](https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/RELEASE_NOTE.md#146) | 2022-11-20 | 14.0.0 | 5.7.0 | 12.0+ |
 
-## 版权协议
+## License
 
-HXPHPicker 基于 MIT 协议进行分发和使用，更多信息参见[协议文件](./LICENSE)。 
+HXPHPicker is released under the MIT license. See LICENSE for details.
 
-## 支持
-* [**★ Star**](#)
-* 支持作者☕️ 
-    
-<div align="left"><a href="https://www.buymeacoffee.com/fengye" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a></div>
-<p/> 
-<img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/bmc_qr.png" width = "135" height = "135" />
-<img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/ap.jpeg" width = "100" height = "135.75" />  
-<img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/wp.jpeg" width = "100" height = "135.75" />
- <p/>
+## Support
+* [**★ Star**](#) this repo.
+* Support with 
+<p/>
+<a href="https://www.buymeacoffee.com/fengye" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a><p/>
+<img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/bmc_qr.png" width = "135" height = "135" /><p/>
+<img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/ap.jpeg" width = "100" height = "135.75" /> 
+or
+ <img src="https://github.com/SilenceLove/HXPHPicker/blob/main/Documentation/Support/wp.jpeg" width = "100" height = "135.75" />
+
+## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/SilenceLove/HXPHPicker.svg)](https://starchart.cc/SilenceLove/HXPHPicker)
 
-
-[🔝回到顶部](#readme)
+[🔝](#readme) 

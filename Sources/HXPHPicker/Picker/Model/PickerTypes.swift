@@ -5,7 +5,7 @@
 //  Created by Slience on 2021/1/7.
 //
 
-import Foundation
+import UIKit
 import Photos
 
 /// 资源类型可选项
